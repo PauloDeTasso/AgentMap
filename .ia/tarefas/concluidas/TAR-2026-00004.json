@@ -1,0 +1,57 @@
+{
+  "id": "TAR-2026-00004",
+  "titulo": "Atualizar guias de agente com fluxo wake-up e comunicacao",
+  "descricao": "Documentar flow bidirecional e polling incremental no guia de agentes",
+  "objetivo": "Atualizar docs/guia-agente-mcp.md e backend/src/mcp-server/resources/guia-eficacia.md: adicionar o fluxo de comunicacao bidirecional KILO_CHAT -> KILO_REPLY -> KILO_RESULT como padrao recomendado, documentar uso da tool agentmap_monitoramento_verificar_pendentes com aposEventSequence para wakeup parent, e incluir exemplos de curl para envio e recepcao de mensagens via POST/GET HTTP.",
+  "tipo": "documentacao",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "docs-guia-01",
+  "dominio": "documentacao",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "guia-agente-mcp.md tem fluxo KILO_CHAT-KILO_REPLY-KILO_RESULT",
+    "guia-eficacia.md referencia o flow bidirecional"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
+  "tags": [
+    "wake-up",
+    "guia",
+    "docs"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:48:29.156Z",
+    "criadoEm": "2026-08-18T22:48:29.156Z",
+    "inicio": "2026-08-18T22:49:21.569Z",
+    "ultimaAtualizacao": "2026-08-18T23:07:36.422Z",
+    "atualizadaEm": "2026-08-18T22:48:29.156Z",
+    "conclusao": "2026-08-18T23:07:36.422Z"
+  }
+}

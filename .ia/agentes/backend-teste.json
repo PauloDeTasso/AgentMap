@@ -1,0 +1,52 @@
+{
+  "id": "backend-teste",
+  "nome": "Backend Teste",
+  "funcao": "desenvolvimento_backend",
+  "descricao": "Agente de teste para verificar chat Kilo -> AgentMap",
+  "estado": "ativo",
+  "responsabilidades": ["Testar integração"],
+  "objetivos": [],
+  "conhecimentos": [],
+  "dominios": [],
+  "diretoriosPermitidos": ["backend/**"],
+  "diretoriosProibidos": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "permissoes": {
+    "ler": true,
+    "criar": true,
+    "alterar": true,
+    "excluir": false,
+    "executar": true,
+    "testar": true,
+    "revisar": true,
+    "aprovar": false,
+    "implantar": false
+  },
+  "ferramentasPermitidas": [],
+  "comandosPermitidos": [],
+  "comandosProibidos": [],
+  "ambientesPermitidos": ["local"],
+  "requerAprovacaoPara": [],
+  "condicoesDeParada": [],
+  "criteriosDeQualidade": [],
+  "criteriosDeConclusao": [],
+  "protocoloDeEntrega": {
+    "exigeResumo": true,
+    "exigeArquivosAlterados": false,
+    "exigePendencias": false,
+    "exigeRiscos": false,
+    "exigeTestes": false
+  },
+  "linguagemPreferida": "pt-BR",
+  "modelo": {
+    "provedor": "",
+    "nome": "",
+    "modo": "",
+    "limiteContexto": 0
+  },
+  "datas": {
+    "criacao": "2026-08-16T21:37:00.000Z",
+    "ultimaAtualizacao": "2026-08-16T21:37:00.000Z"
+  }
+}

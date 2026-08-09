@@ -1,0 +1,31 @@
+﻿{
+  "$id": "instancia",
+  "type": "object",
+  "required": ["id", "instanciaId", "agenteId", "projetoId", "workspaceId", "workspacePath", "tipoInstancia", "status", "modoAutonomia", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^INS-[A-Z0-9-]+$", "minLength": 1 },
+    "instanciaId": { "type": "string", "minLength": 1 },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "projetoId": { "type": "string", "minLength": 1 },
+    "workspaceId": { "type": "string", "minLength": 1 },
+    "workspacePath": { "type": "string", "minLength": 1 },
+    "tipoInstancia": { "type": "string", "enum": ["EXECUTOR", "GERENTE"] },
+    "sessaoId": { "type": ["string", "null"] },
+    "status": { "type": "string", "enum": ["REGISTRADA", "CONECTADA", "DESCONECTADA", "ERRO"] },
+    "modoAutonomia": { "type": "string", "enum": ["MANUAL", "ASSISTIDA", "AUTONOMA"] },
+    "ultimaAtividade": { "type": ["string", "null"] },
+    "versaoKilo": { "type": ["string", "null"] },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "porta": { "type": ["integer", "null"] },
+    "pid": { "type": ["integer", "null"] },
+    "datas": {
+      "type": "object",
+      "required": ["criacao", "atualizacao", "ultimaConexao"],
+      "properties": {
+        "criacao": { "type": ["string", "null"] },
+        "atualizacao": { "type": ["string", "null"] },
+        "ultimaConexao": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$id": "reserva",
+  "type": "object",
+  "required": ["id", "alvo", "tipoAlvo", "agenteId", "estado", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^RESV-[A-Z0-9-]+$", "minLength": 1 },
+    "alvo": { "type": "string", "minLength": 1 },
+    "tipoAlvo": { "type": "string", "minLength": 1 },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "tarefaId": { "type": ["string", "null"] },
+    "estado": { "type": "string", "enum": ["ATIVA", "CANCELADA", "CONCLUIDA"] },
+    "observacoes": { "type": ["string", "null"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "expiradaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "expiradaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

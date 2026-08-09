@@ -1,0 +1,92 @@
+{
+  "contratos": [
+    {
+      "id": "contrato-projeto",
+      "nome": "Contrato do Projeto",
+      "arquivo": "/.ia/contratos/contrato-projeto.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": true
+    },
+    {
+      "id": "contrato-arquitetura",
+      "nome": "Contrato de Arquitetura",
+      "arquivo": "/.ia/contratos/contrato-arquitetura.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": true
+    },
+    {
+      "id": "contrato-api",
+      "nome": "Contrato da API",
+      "arquivo": "/.ia/contratos/contrato-api.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": true
+    },
+    {
+      "id": "contrato-banco",
+      "nome": "Contrato de Banco",
+      "arquivo": "/.ia/contratos/contrato-banco.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    },
+    {
+      "id": "contrato-frontend",
+      "nome": "Contrato de Frontend",
+      "arquivo": "/.ia/contratos/contrato-frontend.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    },
+    {
+      "id": "contrato-android",
+      "nome": "Contrato de Android",
+      "arquivo": "/.ia/contratos/contrato-android.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    },
+    {
+      "id": "contrato-seguranca",
+      "nome": "Contrato de Segurança",
+      "arquivo": "/.ia/contratos/contrato-seguranca.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": true
+    },
+    {
+      "id": "contrato-infraestrutura",
+      "nome": "Contrato de Infraestrutura",
+      "arquivo": "/.ia/contratos/contrato-infraestrutura.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    },
+    {
+      "id": "contrato-testes",
+      "nome": "Contrato de Testes",
+      "arquivo": "/.ia/contratos/contrato-testes.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    },
+    {
+      "id": "contrato-documentacao",
+      "nome": "Contrato de Documentação",
+      "arquivo": "/.ia/contratos/contrato-documentacao.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    },
+    {
+      "id": "contrato-interface",
+      "nome": "Contrato de Interface",
+      "arquivo": "/.ia/contratos/contrato-interface.json",
+      "versao": "1.0.0",
+      "estado": "ativo",
+      "obrigatorio": false
+    }
+  ]
+}

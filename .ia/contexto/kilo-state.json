@@ -1,0 +1,76 @@
+{
+  "descobertoEm": "2026-08-19T18:53:54.600Z",
+  "worktrees": [
+    {
+      "nome": "backend-api-test",
+      "caminho": ".kilo\\worktrees\\backend-api-test",
+      "branch": "backend-api-test"
+    },
+    {
+      "nome": "frontend-nav-test",
+      "caminho": ".kilo\\worktrees\\frontend-nav-test",
+      "branch": "frontend-nav-test"
+    },
+    {
+      "nome": "integration-tester",
+      "caminho": ".kilo\\worktrees\\integration-tester",
+      "branch": "integration-tester"
+    },
+    {
+      "nome": "qa-e2e-navigation-test",
+      "caminho": ".kilo\\worktrees\\qa-e2e-navigation-test",
+      "branch": "qa-e2e-navigation-test"
+    },
+    {
+      "nome": "test-e2e-stdio",
+      "caminho": ".kilo\\worktrees\\test-e2e-stdio",
+      "branch": "test-e2e-stdio"
+    },
+    {
+      "nome": "teste-agentmap-backend",
+      "caminho": ".kilo\\worktrees\\teste-agentmap-backend",
+      "branch": "teste-agentmap-backend",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "teste-agentmap-frontend",
+      "caminho": ".kilo\\worktrees\\teste-agentmap-frontend",
+      "branch": "teste-agentmap-frontend",
+      "tarefaId": "TAR-2026"
+    }
+  ],
+  "sessoes": [
+    {
+      "id": "ses_fe4a82249ffe5z7ShlXW0scAIZ",
+      "nome": "ses_fe4a82249ffe5z7ShlXW0scAIZ",
+      "tipo": "local",
+      "worktreeId": "wt-1787165125042-1",
+      "estado": "ativo",
+      "criadoEm": "2026-08-19T18:45:38.410Z"
+    },
+    {
+      "id": "ses_fe4a7ed8cffefc7Rumw6dQXjr4",
+      "nome": "ses_fe4a7ed8cffefc7Rumw6dQXjr4",
+      "tipo": "local",
+      "worktreeId": "wt-1787165139153-2",
+      "estado": "ativo",
+      "criadoEm": "2026-08-19T18:45:51.904Z"
+    }
+  ],
+  "agentes": [
+    {
+      "id": "comunicacao-filho",
+      "nome": "comunicacao-filho",
+      "descricao": "comunicacao-filho",
+      "mode": "primary",
+      "cor": "#607D8B"
+    },
+    {
+      "id": "template-agente-kilo",
+      "nome": "template-agente-kilo",
+      "descricao": "template-agente-kilo",
+      "mode": "primary",
+      "cor": "#607D8B"
+    }
+  ]
+}

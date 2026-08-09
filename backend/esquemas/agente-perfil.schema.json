@@ -1,0 +1,70 @@
+﻿{
+  "$id": "agente-perfil",
+  "title": "Perfil de Agente",
+  "type": "object",
+  "required": ["id", "nome", "funcao", "descricao", "estado", "permissoes", "diretoriosPermitidos", "diretoriosProibidos", "contratosObrigatorios"],
+  "properties": {
+    "id": { "type": "string" },
+    "nome": { "type": "string" },
+    "funcao": { "type": "string" },
+    "descricao": { "type": "string" },
+    "estado": { "type": "string", "enum": ["ativo", "inativo", "arquivado", "disponivel", "rascunho"] },
+    "responsabilidades": { "type": "array", "items": { "type": "string" } },
+    "objetivos": { "type": "array", "items": { "type": "string" } },
+    "conhecimentos": { "type": "array", "items": { "type": "string" } },
+    "dominios": { "type": "array", "items": { "type": "string" } },
+    "diretoriosPermitidos": { "type": "array", "items": { "type": "string" } },
+    "diretoriosProibidos": { "type": "array", "items": { "type": "string" } },
+    "contratosObrigatorios": { "type": "array", "items": { "type": "string" } },
+    "procedimentosObrigatorios": { "type": "array", "items": { "type": "string" } },
+    "permissoes": {
+      "type": "object",
+      "required": ["ler", "criar", "alterar", "excluir", "executar", "testar", "revisar", "aprovar", "implantar"],
+      "properties": {
+        "ler": { "type": "boolean" },
+        "criar": { "type": "boolean" },
+        "alterar": { "type": "boolean" },
+        "excluir": { "type": "boolean" },
+        "executar": { "type": "boolean" },
+        "testar": { "type": "boolean" },
+        "revisar": { "type": "boolean" },
+        "aprovar": { "type": "boolean" },
+        "implantar": { "type": "boolean" }
+      }
+    },
+    "ferramentasPermitidas": { "type": "array", "items": { "type": "string" } },
+    "comandosPermitidos": { "type": "array", "items": { "type": "string" } },
+    "comandosProibidos": { "type": "array", "items": { "type": "string" } },
+    "ambientesPermitidos": { "type": "array", "items": { "type": "string" } },
+    "requerAprovacaoPara": { "type": "array", "items": { "type": "string" } },
+    "condicoesDeParada": { "type": "array", "items": { "type": "string" } },
+    "criteriosDeQualidade": { "type": "array", "items": { "type": "string" } },
+    "criteriosDeConclusao": { "type": "array", "items": { "type": "string" } },
+    "protocoloDeEntrega": {
+      "type": "object",
+      "properties": {
+        "exigeResumo": { "type": "boolean" },
+        "exigeArquivosAlterados": { "type": "boolean" },
+        "exigeTestes": { "type": "boolean" },
+        "exigeRiscos": { "type": "boolean" },
+        "exigePendencias": { "type": "boolean" }
+      }
+    },
+    "modelo": {
+      "type": "object",
+      "properties": {
+        "provedor": { "type": "string" },
+        "nome": { "type": "string" },
+        "modo": { "type": "string" },
+        "limiteContexto": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "datas": {
+      "type": "object",
+      "properties": {
+        "criacao": { "type": ["string", "null"], "format": "date-time" },
+        "ultimaAtualizacao": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

@@ -1,0 +1,415 @@
+# Guia do Agente MCP
+
+## Introdução
+
+O AgentMap disponibiliza um servidor MCP (Model Context Protocol) que permite a agentes de IA interagir com projetos, tarefas, contratos e demais recursos de governança diretamente através de ferramentas padronizadas.
+
+O sistema está em produção e pronto para uso em ambientes profissionais.
+
+## Pré-requisitos
+
+1. Projeto aberto no AgentMap (`agentmap_projetos_abrir`)
+2. Agente registrado no projeto (`agentmap_agentes_listar`)
+3. Sessão iniciada (`agentmap_sessoes_criar`)
+
+## Primeiros passos (onboarding)
+
+1. Use `agentmap_descobrir` para listar todas as capabilities, agents, docs, CLI e mais.
+2. Leia o resource `agentmap://onboarding` para entender o sistema.
+3. Consulte o resource `agentmap://playbook` para ver padrões de uso recomendados.
+4. Consulte o resource `agentmap://guia-eficacia` para entender quando, por que e como usar cada ferramenta em cenários reais.
+5. Use `agentmap_sugerir_fluxo` se precisar de orientação sobre qual tool usar primeiro.
+6. Consulte `docs/referencia-tools-mcp.md` para ver **todos os parâmetros esperados** por cada tool MCP antes de executar.
+
+## Ciclo de Trabalho
+
+### 1. Iniciar Trabalho
+
+Use o prompt `agentmap-iniciar-trabalho` ou a tool `agentmap_workflows_iniciar_trabalho`:
+
+```json
+{
+  "name": "agentmap_workflows_iniciar_trabalho",
+  "arguments": {
+    "agenteId": "backend",
+    "tarefaId": "TAR-2026-00042"
+  }
+}
+```
+
+Isso retorna:
+- Dados do agente (perfil, permissões, diretórios permitidos)
+- Dados da tarefa (contratos, critérios, contexto)
+- Pacote de contexto completo
+- Sessão criada
+
+### 2. Executar Trabalho
+
+- Leia os contratos obrigatórios da tarefa
+- Respeite os diretórios permitidos/proibidos
+- Siga os critérios de aceitação
+- Documente alterações em arquivos relevantes
+
+### 3. Finalizar Trabalho
+
+Use `agentmap_workflows_finalizar_trabalho`. Esta tool aceita argumentos flexíveis via `passthrough`; os campos recomendados são:
+
+```json
+{
+  "name": "agentmap_workflows_finalizar_trabalho",
+  "arguments": {
+    "sessaoId": "SES-2026-00001",
+    "tarefaId": "TAR-2026-00042",
+    "agenteId": "backend",
+    "resumo": "Implementada feature X",
+    "estado": "CONCLUIDA",
+    "arquivosAlterados": ["backend/src/feature.ts"],
+    "testesExecutados": ["unit-feature"],
+    "testesAprovados": ["unit-feature"]
+  }
+}
+```
+
+### 4. Handoff
+
+Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_criar`:
+
+```json
+{
+  "name": "agentmap_handoffs_criar",
+  "arguments": {
+    "dados": {
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00042",
+      "resumo": "Backend concluído, aguardando integração",
+      "pendente": ["Integração com API"],
+      "estado": "PENDENTE"
+    }
+  }
+}
+```
+
+## Regras Obrigatórias
+
+1. **Leitura obrigatória antes do trabalho**: sempre consulte o contexto da tarefa antes de executar
+2. **Resultado obrigatório**: toda tarefa deve ter resultado registrado
+3. **Handoff quando necessário**: se o trabalho crossing de domínio, gere handoff
+4. **Validação separada da conclusão**: não conclua tarefa sem validação quando aplicável
+5. **Coordenação entre agentes**: antes de iniciar trabalho, consulte `agentmap_eventos_pendentes({ agenteId: "<seu-id>" })` para verificar eventos pendentes destinados a você. Após processar um evento, marque-o como consumido com `agentmap_eventos_confirmar({ id: "<evento-id>" })`.
+6. **Subscrições MCP (2025):** use `resources/subscribe` para receber notificações automáticas de mudanças em `agentmap://solicitacoes/{seu-id}`, `agentmap://handoffs/{seu-id}` e `agentmap://bloqueios/{projeto-id}`. Após receber `notifications/resources/updated`, chame `resources/read` para obter os dados atualizados.
+7. **Subscrições MCP (2026):** use `subscriptions/listen` com `resourceSubscriptions` para receber notificações com `_meta.subscriptionId`. Após reconexão stdio, re-liste; o servidor não mantém estado entre reconexões.
+8. **Wakeup parent (polling incremental):** use `agentmap_monitoramento_verificar_pendentes` com `aposEventSequence` para consultar mensagens novas sem polling cego. O campo `ultimoEventSequence` na resposta indica o cursor para a próxima consulta.
+
+## Formato de Resposta MCP 2026
+
+As tools do AgentMap seguem o padrão MCP 2026:
+
+- **Sucesso:** retorna `content` (texto JSON) + `structuredContent` (dados estruturados)
+- **Erro:** retorna `content` + `isError: true` com mensagem acionável para auto-correção
+- **Validação:** `inputSchema` valida argumentos antes da execução
+- **Anotações:** tools read-only usam `readOnlyHint: true`
+
+O agente pode consumir apenas o `structuredContent` quando precisar de dados estruturados, ou o `content` para legibilidade humana.
+
+## MCP Resource Subscriptions
+
+O AgentMap suporta subscrições de recursos para notificações em tempo real. Isso permite que agentes sejam notificados automaticamente quando há mudanças em solicitações, handoffs ou bloqueios, sem necessidade de polling.
+
+### Recursos assináveis
+
+| URI | Descrição |
+|---|---|
+| `agentmap://solicitacoes/{agenteId}` | Solicitações destinadas a um agente específico |
+| `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
+| `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto atual |
+| `agentmap://monitoramento/mensagens/{projetoId}` | Mensagens de monitoramento do projeto (wake-up de sessões ociosas) |
+
+### Modo 2025 — `resources/subscribe`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "resources/subscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+Quando um recurso assinado muda, o servidor envia:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+Após receber a notificação, leia o recurso atualizado:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "resources/read",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+Para cancelar:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "resources/unsubscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+### Modo 2026 — `subscriptions/listen`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "subscriptions/listen",
+  "params": {
+    "notifications": {
+      "resourceSubscriptions": [
+        "agentmap://solicitacoes/AGT-BACKEND"
+      ]
+    }
+  }
+}
+```
+
+O servidor confirma com:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/subscriptions/acknowledged",
+  "params": {},
+  "_meta": {
+    "io.modelcontextprotocol/subscriptionId": "1"
+  }
+}
+```
+
+Notificações de mudança incluem o ID da subscrição:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  },
+  "_meta": {
+    "io.modelcontextprotocol/subscriptionId": "1"
+  }
+}
+```
+
+Para cancelar:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/cancelled",
+  "params": {
+    "requestId": "1"
+  }
+}
+```
+
+> **Importante:** no modo 2026, o cliente deve re-listar após reconexão stdio. O servidor não mantém estado de subscrição entre reconexões.
+
+### Regras de acesso
+
+- Subscrições e leituras são permitidas localmente sem token.
+- `solicitacoes/{agenteId}` e `handoffs/{agenteId}` exigem projeto aberto.
+- `bloqueios/{projetoId}` exigem que o ID do projeto na URI corresponda ao projeto aberto.
+- Tentativas de acesso fora da raiz do projeto retornam erro `PATH_TRAVERSAL`.
+
+### Coalescência
+
+O EventBus agrupa notificações do mesmo URI em janela de 100ms. Se múltiplas alterações ocorrerem rapidamente, você receberá apenas 1 notificação.
+
+## Monitoramento
+
+O AgentMap oferece um painel de monitoramento em tempo real acessível pela interface web e por API REST. O painel **Monitor** consolida:
+
+- **Sessões ativas** de agentes com tarefa associada e horário de início
+- **Alertas** de handoffs pendentes, bloqueios ativos e riscos críticos
+- **Mensagens de monitoramento** enviadas entre agentes e sistemas
+- **Eventos recentes** do projeto com resultado (sucesso/falha)
+
+### API de Monitoramento
+
+| Endpoint | Descrição |
+|---|---|
+| `GET /api/monitor` | Visão consolidada do monitoramento |
+| `GET /api/monitoramento/mensagens` | Lista mensagens com filtros (`limite`, `agenteId`, `tipo`) |
+| `POST /api/monitoramento/mensagens` | Cria mensagem de monitoramento |
+| `PUT /api/monitoramento/agente/:agenteId/status` | Atualiza status de agente |
+| `GET /api/monitoramento/agentes` | Lista agentes monitorados |
+| `GET /api/monitoramento/modo` | Modo global (MANUAL/AUTO) |
+| `POST /api/monitoramento/modo` | Altera modo global |
+| `POST /api/monitoramento/intervir` | Executa intervenção manual |
+| `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher (`agenteId` opcional) |
+| `POST /api/monitoramento/dispatcher/executar` | Executa item pendente |
+| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher (`limite` opcional) |
+
+### Wakeup Parent (Tool MCP)
+
+Para polling incremental sem cego, use a tool `agentmap_monitoramento_verificar_pendentes`:
+
+```json
+{
+  "name": "agentmap_monitoramento_verificar_pendentes",
+  "arguments": {
+    "aposEventSequence": 42,
+    "limite": 20
+  }
+}
+```
+
+- `aposEventSequence`: cursor opcional. Se omitido, retorna as últimas mensagens relevantes.
+- `limite`: número máximo de mensagens a retornar (padrão: 20, máximo: 100).
+- Resposta inclui `temNovidades`, `ultimoEventSequence` e `mensagens` com `eventSequence`, `tipo`, `emissor`, `agenteId`, `tarefaId`, `conteudo` e `timestamp`.
+
+Cada mensagem de monitoramento possui um `eventSequence` autoincremental. O campo `ultimoEventSequence` na resposta indica o maior sequence disponível para avançar o cursor na próxima consulta. Esta técnica é o mecanismo recomendado para wake-up de sessões ociosas: o agente consulta periodicamente e avança o cursor incrementalmente (`aposEventSequence`) para detectar novas mensagens sem polling cego.
+
+### Recurso de monitoramento (MCP Resource)
+
+O recurso `agentmap://monitoramento/mensagens/{projetoId?}` fornece mensagens de monitoramento filtrando automaticamente os tipos relevantes (`KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`, `WAKEUP_PARENT`, `AGENTE_FILHO_RESULTADO`). Ele é assinável via `resources/subscribe` (2025) ou `subscriptions/listen` (2026) para receber notificações em tempo real.
+
+### Enviar Mensagem de Monitoramento
+
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "INFO",
+    "emissor": "backend",
+    "agenteId": "backend",
+    "tarefaId": "TAR-2026-00013",
+    "conteudo": "Integração pronta para teste",
+    "dados": { "modo": "MANUAL" },
+    "acoes": []
+  }'
+```
+
+### WebSocket
+
+O WebSocket `ws://localhost:3150/ws/monitoramento` oferece atualizações em tempo real. O serviço `MonitoramentoWebSocket` faz broadcast de mensagens para sessões conectadas.
+
+### Comunicação com Agent Manager / Kilo Code
+
+Agentes rodando no **Agent Manager (VS Code)** usam worktrees isolados. Eles **não possuem tools MCP de escrita** para o monitoramento. O canal correto é **HTTP direto**.
+
+**Enviar mensagem (filho → AgentMap):**
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "KILO_CHAT",
+    "emissor": "agente-kilo",
+    "agenteId": "backend-teste",
+    "tarefaId": "TAR-2026-00001",
+    "conteudo": "[backend-teste][TAR-2026-00001] Mensagem completa...",
+    "dados": {"messageId": "msg-001"}
+  }'
+```
+
+**Ler respostas (filho ← AgentMap):**
+```bash
+curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend-teste&limite=20"
+```
+
+**Tipos de mensagem Kilo:**
+- `KILO_CHAT` — mensagem padrão
+- `KILO_REPLY` — resposta a uma mensagem (`dados.replyTo`)
+- `KILO_RESULT` — resultado final de tarefa
+- `KILO_CHAT_REPLY` — resposta de chat simples
+
+Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
+
+#### Padrão Recomendado: Comunicação Bidirecional (Agent Manager Worktree)
+
+Agentes rodando em **worktrees isoladas do Agent Manager** devem adotar o seguinte fluxo bidirecional como padrão recomendado para comunicação com o AgentMap via monitoramento:
+
+1. **KILO_CHAT** — o agente envia uma mensagem inicial via `POST /api/monitoramento/mensagens` com `tipo: "KILO_CHAT"`.
+2. **KILO_REPLY** — o AgentMap (ou outro agente) responde via `POST /api/monitoramento/mensagens` com `tipo: "KILO_REPLY"` e `dados.replyTo` referenciando a mensagem original.
+3. **KILO_RESULT** — ao finalizar a tarefa, o agente envia `POST /api/monitoramento/mensagens` com `tipo: "KILO_RESULT"` para registrar o resultado final.
+
+Este fluxo garante rastreabilidade completa: do início (chat) à resposta (reply) ao resultado final (result). A resource `agentmap://monitoramento/mensagens/{projetoId}` (assinável) pode ser combinada com `agentmap_monitoramento_verificar_pendentes` para wake-up de sessões ociosas via plugin.
+
+#### Como agentes filhos enviam HTTP POST e leem GET /receive-chat
+
+Agentes filhos em Agent Manager worktrees não possuem tools MCP de escrita para monitoramento. Eles usam HTTP direto:
+
+- **Enviar:** `POST http://localhost:3150/api/monitoramento/mensagens` com `tipo`, `emissor`, `agenteId`, `tarefaId`, `conteudo` e opcional `dados`/`acoes`.
+- **Ler:** `GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20` — retorna mensagens `KILO_REPLY`, `KILO_RESULT` e `KILO_CHAT_REPLY` direcionadas ao agente.
+
+Veja exemplos completos na secção "Comunicação com Agent Manager / Kilo Code" acima.
+
+## Códigos de Erro
+
+| Código | Significado |
+|---|---|
+| `NO_PROJECT_OPEN` | Nenhum projeto aberto |
+| `TASK_NOT_FOUND` | Tarefa não encontrada |
+| `AGENT_NOT_FOUND` | Agente não encontrado |
+| `INVALID_TRANSITION` | Transição de estado inválida |
+| `PATH_TRAVERSAL` | Tentativa de path traversal bloqueada |
+| `VALIDATION_ERROR` | Erro de validação de schema |
+| `NOT_FOUND` | Entidade não encontrada |
+
+## Eventos customizados
+
+Além dos eventos automáticos do sistema, o AgentMap oferece o endpoint `POST /api/eventos/custom` para registrar eventos específicos sem validação de enum.
+
+Isso é útil para:
+- Casos específicos de integração
+- Fluxos personalizados de governança
+- Eventos que não se encaixam nos padrões convencionais
+
+Exemplo:
+
+```json
+{
+  "tipo": "MEU_EVENTO_CUSTOM",
+  "origem": "backend",
+  "destino": "frontend",
+  "mensagem": "Integração pronta para teste",
+  "campoExtra": "valor"
+}
+```
+
+O evento criado aparece em `GET /api/eventos` e pode ser consumido com `PUT /api/eventos/:id/consumir`.
+
+## Autenticação
+
+O AgentMap roda localmente e não exige autenticação. As rotas públicas incluem:
+- `GET /api/status`
+- `GET /api/projetos`
+- `POST /api/projetos/abrir`
+- `GET /api/monitoramento/*`
+- `GET /api/monitoramento/*`
+- `GET /api/temp/arquivos`
+- `POST /api/temp/limpar`
+- `GET /api/temp/caminho`
+
+CORS está configurado para permitir origens de desenvolvimento local.

@@ -1,0 +1,30 @@
+{
+  "$id": "handoff",
+  "type": "object",
+  "required": ["id", "origem", "destino", "resumo", "concluido", "pendente", "artefatos", "decisoes", "alteracoes", "riscos", "bloqueios", "observacoes", "estado", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^HOF-[A-Z0-9-]+$", "minLength": 1 },
+    "origem": { "type": "string", "minLength": 1 },
+    "destino": { "type": "string", "minLength": 1 },
+    "tarefaId": { "type": ["string", "null"] },
+    "resumo": { "type": "string", "minLength": 1 },
+    "concluido": { "type": "array", "items": { "type": "string" } },
+    "pendente": { "type": "array", "items": { "type": "string" } },
+    "artefatos": { "type": "array", "items": { "type": "string" } },
+    "decisoes": { "type": "array", "items": { "type": "string" } },
+    "alteracoes": { "type": "array", "items": { "type": "string" } },
+    "riscos": { "type": "array", "items": { "type": "string" } },
+    "bloqueios": { "type": "array", "items": { "type": "string" } },
+    "observacoes": { "type": ["string", "null"] },
+    "estado": { "type": "string", "enum": ["PENDENTE", "ACEITO", "RECUSADO", "CONCLUIDO"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "aceitaEm", "concluidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "aceitaEm": { "type": ["string", "null"] },
+        "concluidaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

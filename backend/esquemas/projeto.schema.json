@@ -1,0 +1,78 @@
+﻿{
+  "$id": "projeto",
+  "title": "Configuracao do Projeto",
+  "description": "Schema para .ia/configuracao/projeto.json",
+  "type": "object",
+  "required": ["id", "nome", "descricao", "versao", "estado", "idioma", "fusoHorario", "proprietario", "objetivos", "escopo", "tecnologias", "arquiteturas", "padroes", "diretorios", "configuracaoIa", "datas"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "nome": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string" },
+    "versao": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" },
+    "estado": { "type": "string", "enum": ["EM_DESENVOLVIMENTO", "EM_TESTE", "HOMOLOGACAO", "PRODUCAO", "CONCLUIDO", "ARQUIVADO", "CANCELADO"] },
+    "idioma": { "type": "string" },
+    "fusoHorario": { "type": "string" },
+    "proprietario": {
+      "type": "object",
+      "required": ["tipo", "nome"],
+      "properties": {
+        "tipo": { "type": "string", "enum": ["humano", "equipe", "empresa"] },
+        "nome": { "type": "string" }
+      }
+    },
+    "objetivos": { "type": "array", "items": { "type": "string" } },
+    "escopo": {
+      "type": "object",
+      "required": ["incluso", "excluido"],
+      "properties": {
+        "incluso": { "type": "array", "items": { "type": "string" } },
+        "excluido": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "tecnologias": {
+      "type": "object",
+      "required": ["frontend", "backend", "android", "bancoDeDados", "infraestrutura", "testes"],
+      "properties": {
+        "frontend": { "type": "array", "items": { "type": "string" } },
+        "backend": { "type": "array", "items": { "type": "string" } },
+        "android": { "type": "array", "items": { "type": "string" } },
+        "bancoDeDados": { "type": "array", "items": { "type": "string" } },
+        "infraestrutura": { "type": "array", "items": { "type": "string" } },
+        "testes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "arquiteturas": { "type": "array", "items": { "type": "string" } },
+    "padroes": { "type": "array", "items": { "type": "string" } },
+    "diretorios": {
+      "type": "object",
+      "required": ["frontend", "backend", "android", "banco", "infraestrutura", "implantacao", "testes", "documentacao"],
+      "properties": {
+        "frontend": { "type": "string" },
+        "backend": { "type": "string" },
+        "android": { "type": "string" },
+        "banco": { "type": "string" },
+        "infraestrutura": { "type": "string" },
+        "implantacao": { "type": "string" },
+        "testes": { "type": "string" },
+        "documentacao": { "type": "string" }
+      }
+    },
+    "configuracaoIa": {
+      "type": "object",
+      "required": ["diretorio", "contratoPrincipal", "estadoAtual"],
+      "properties": {
+        "diretorio": { "type": "string" },
+        "contratoPrincipal": { "type": "string" },
+        "estadoAtual": { "type": "string" }
+      }
+    },
+    "datas": {
+      "type": "object",
+      "required": ["criacao", "ultimaAtualizacao"],
+      "properties": {
+        "criacao": { "type": ["string", "null"], "format": "date-time" },
+        "ultimaAtualizacao": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

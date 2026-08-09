@@ -1,0 +1,39 @@
+{
+  "id": "agentmap-root",
+  "nome": "AgentMap",
+  "descricao": "Projeto raiz do AgentMap - Gerenciador Local de Agentes de IA",
+  "versao": "1.0.0",
+  "estado": "ativo",
+  "idioma": "pt-BR",
+  "fusoHorario": "America/Sao_Paulo",
+  "proprietario": {
+    "tipo": "humano",
+    "nome": "Dev"
+  },
+  "objetivos": [],
+  "escopo": {
+    "incluso": [],
+    "excluido": []
+  },
+  "tecnologias": {
+    "frontend": ["HTML5", "CSS3", "JavaScript"],
+    "backend": ["Node.js", "TypeScript", "Express"],
+    "android": [],
+    "bancoDeDados": [],
+    "infraestrutura": [],
+    "testes": ["Jest"]
+  },
+  "ambiente": "desenvolvimento",
+  "arquiteturas": [],
+  "padroes": [],
+  "diretorios": {},
+  "configuracaoIa": {
+    "diretorio": "/.ia",
+    "contratoPrincipal": "/.ia/contratos/contrato-projeto.json",
+    "estadoAtual": "/.ia/estado/estado-atual.json"
+  },
+  "datas": {
+    "criacao": "2026-08-16T21:37:00.000Z",
+    "ultimaAtualizacao": "2026-08-16T21:37:00.000Z"
+  }
+}

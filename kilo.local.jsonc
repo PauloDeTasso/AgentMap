@@ -1,0 +1,29 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "agentmap": {
+      "environment": {
+      }
+    }
+  },
+  "provider": {
+    "openrouter": {
+      "data_collection_enabled": false
+    },
+    "kilo": {
+      "data_collection_enabled": false
+    }
+  }
+}
+
+/*
+ * COTA DE COLETA DE DADOS (LOCAL OVERRIDE)
+ *
+ * Este arquivo sobrescreve kilo.jsonc apenas para este ambiente.
+ * data_collection_enabled: false desativa coleta de dados de uso.
+ *
+ * Esta configuração NÃO afeta o armazenamento local do AgentMap (.ia/).
+ * O AgentMap armazena tudo localmente em arquivos JSON, independentemente desta flag.
+ *
+ * Este arquivo é ignorado pelo .gitignore. NÃO versionar segredos ou preferências locais aqui.
+ */

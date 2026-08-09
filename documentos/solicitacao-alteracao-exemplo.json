@@ -1,0 +1,63 @@
+{
+  "id": "ALT-2026-00001",
+  "titulo": "Adicionar campo status ao contrato",
+  "descricao": "O contrato da API precisa disponibilizar o estado atual do contrato.",
+
+  "agenteSolicitante": {
+    "id": "frontend"
+  },
+
+  "agenteResponsavel": {
+    "id": "backend"
+  },
+
+  "alvo": {
+    "tipo": "CONTRATO_API",
+    "nome": "Contrato da API",
+    "identificador": "contrato-api",
+    "localizacao": "backend/src/main/resources/contratos/contrato-api.json"
+  },
+
+  "alteracao": {
+    "tipo": "ADICAO",
+    "descricao": "Adicionar o campo status ao contrato de resposta.",
+    "motivo": "O frontend precisa exibir o estado atual do contrato.",
+    "arquivosAfetados": [
+      "ContratoRespostaDTO.java",
+      "contrato-api.json"
+    ]
+  },
+
+  "impactos": [
+    "BACKEND",
+    "FRONTEND",
+    "API"
+  ],
+
+  "dependencias": [],
+
+  "prioridade": "MEDIA",
+
+  "status": "PENDENTE",
+
+  "requerAprovacao": true,
+
+  "aprovacao": {
+    "status": "PENDENTE",
+    "agenteId": null,
+    "data": null,
+    "observacao": null
+  },
+
+  "tarefaOrigem": {
+    "id": "TAR-2026-00005"
+  },
+
+  "datas": {
+    "criadaEm": "2026-08-09T18:00:00",
+    "atualizadaEm": "2026-08-09T18:00:00",
+    "concluidaEm": null
+  },
+
+  "observacoes": null
+}

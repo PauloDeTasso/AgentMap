@@ -1,0 +1,133 @@
+import { ResultadoOperacao } from '../../tipos';
+
+export function safeStringify(obj: unknown): string {
+  const seen = new WeakSet();
+  return JSON.stringify(
+    obj,
+    (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) {
+          return '[Circular]';
+        }
+        seen.add(value);
+      }
+      return value;
+    },
+    2
+  );
+}
+
+export type McpContent = {
+  content: Array<{ type: 'text'; text: string }>;
+  structuredContent?: Record<string, unknown>;
+  isError?: boolean;
+};
+
+export function toMcpResult<T>(result: ResultadoOperacao<T>): McpContent {
+  if (!result.sucesso) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: safeStringify({
+            sucesso: false,
+            codigo: result.codigoErro || 'UNKNOWN_ERROR',
+            mensagem: result.erro || 'Erro desconhecido',
+            detalhes: {}
+          })
+        }
+      ],
+      isError: true
+    };
+  }
+  const dadosStr = safeStringify({ sucesso: true, dados: result.dados });
+  let structured: Record<string, unknown> | undefined;
+  try {
+    const parsed = JSON.parse(dadosStr);
+    structured = parsed.dados ?? undefined;
+  } catch {
+    structured = undefined;
+  }
+  return {
+    content: [
+      {
+        type: 'text',
+        text: dadosStr
+      }
+    ],
+    structuredContent: structured
+  };
+}
+
+export function toMcpData(dados: unknown): McpContent {
+  return {
+    content: [
+      {
+        type: 'text',
+        text: safeStringify(dados)
+      }
+    ],
+    structuredContent: dados as Record<string, unknown>
+  };
+}
+
+export function toMcpStructured(dados: unknown): { content: Array<{ type: 'text'; text: string }>; structuredContent: Record<string, unknown> } {
+  return {
+    content: [
+      {
+        type: 'text',
+        text: safeStringify(dados)
+      }
+    ],
+    structuredContent: (Array.isArray(dados) ? { data: dados } : (dados as Record<string, unknown>))
+  };
+}
+
+export function mcpError(resultado: ResultadoOperacao<any>): { content: Array<{ type: 'text'; text: string }>; isError: boolean } {
+  const envelope = {
+    sucesso: false,
+    codigo: resultado.codigoErro || 'UNKNOWN_ERROR',
+    mensagem: resultado.erro || 'Erro desconhecido'
+  };
+  return {
+    content: [
+      {
+        type: 'text',
+        text: safeStringify(envelope)
+      }
+    ],
+    isError: true
+  };
+}
+
+export function extrairDados<T>(content: Array<{ type: string; text: string }>): T | null {
+  if (!content || content.length === 0) return null;
+  const texto = content[0].text;
+  try {
+    const parsed = JSON.parse(texto);
+    if (parsed.sucesso) return parsed.dados as T;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function isMcpError(content: Array<{ type: string; text: string }>): { codigo: string; mensagem: string } | null {
+  if (!content || content.length === 0) return null;
+  try {
+    const parsed = JSON.parse(content[0].text);
+    if (!parsed.sucesso) {
+      return {
+        codigo: parsed.codigo || 'UNKNOWN_ERROR',
+        mensagem: parsed.mensagem || parsed.erro || 'Erro desconhecido'
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function schema<T extends Record<string, any>>(shape: T): any {
+  return shape;
+}

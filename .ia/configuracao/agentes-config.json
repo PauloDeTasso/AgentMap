@@ -1,0 +1,41 @@
+{
+  "versao": "1.0.0",
+  "atualizadoEm": "2026-08-13T16:15:00.000Z",
+  "agentes": {
+    "arquiteto": {
+      "kiloAgent": "orchestrator",
+      "workspacePath": "G:\\PROJETOS\\WEB\\AgentMap",
+      "sessionId": null,
+      "modoAutonomia": "ASSISTIDA",
+      "autoApprove": false
+    },
+    "frontend": {
+      "kiloAgent": "orchestrator",
+      "workspacePath": "G:\\PROJETOS\\WEB\\AgentMap\\frontend",
+      "sessionId": null,
+      "modoAutonomia": "AUTONOMA",
+      "autoApprove": true
+    },
+    "backend": {
+      "kiloAgent": "orchestrator",
+      "workspacePath": "G:\\PROJETOS\\WEB\\AgentMap\\backend",
+      "sessionId": null,
+      "modoAutonomia": "AUTONOMA",
+      "autoApprove": true
+    },
+    "agentmap-admin": {
+      "kiloAgent": "orchestrator",
+      "workspacePath": "G:\\PROJETOS\\WEB\\AgentMap",
+      "sessionId": null,
+      "modoAutonomia": "MANUAL",
+      "autoApprove": false
+    },
+    "dba": {
+      "kiloAgent": "orchestrator",
+      "workspacePath": "G:\\PROJETOS\\WEB\\AgentMap\\banco",
+      "sessionId": null,
+      "modoAutonomia": "ASSISTIDA",
+      "autoApprove": false
+    }
+  }
+}

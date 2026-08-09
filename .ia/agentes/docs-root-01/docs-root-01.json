@@ -1,0 +1,36 @@
+{
+  "ambientesPermitidos": [
+    "local"
+  ],
+  "contratosObrigatorios": [],
+  "descricao": "Agente responsavel por atualizar README.md, SECURITY.md, AGENTS.md, e2e/README.md e banco/README.md com informacoes sobre wake-up plugin e comunicacao bidirecional",
+  "diretoriosPermitidos": [
+    "docs/",
+    "backend/",
+    "frontend/",
+    "*.md"
+  ],
+  "diretoriosProibidos": [
+    ".ia/contexto/",
+    ".env"
+  ],
+  "estado": "ativo",
+  "funcao": "atualizacao_docs",
+  "id": "docs-root-01",
+  "nome": "Doc Root",
+  "permissoes": {
+    "alterar": true,
+    "aprovar": false,
+    "criar": true,
+    "excluir": false,
+    "executar": false,
+    "implantar": false,
+    "ler": true,
+    "revisar": false,
+    "testar": false
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:47:36.380Z",
+    "ultimaAtualizacao": "2026-08-18T22:47:36.380Z"
+  }
+}

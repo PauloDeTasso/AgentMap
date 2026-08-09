@@ -1,0 +1,25 @@
+﻿{
+  "$id": "gerenciador",
+  "title": "Configuracao do Gerenciador",
+  "type": "object",
+  "required": ["nome", "versao", "modo", "idioma", "formatoDados", "controleVersao", "requerAprovacaoHumana", "registroAuditoria", "controlePermissoes", "controleContexto", "controleDependencias", "controleConflitos", "controleContratos", "controleQualidade", "controleSeguranca", "ambientes", "estadosTarefa"],
+  "properties": {
+    "nome": { "type": "string" },
+    "versao": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" },
+    "modo": { "type": "string" },
+    "idioma": { "type": "string" },
+    "formatoDados": { "type": "string" },
+    "controleVersao": { "type": "string" },
+    "requerAprovacaoHumana": { "type": "boolean" },
+    "registroAuditoria": { "type": "boolean" },
+    "controlePermissoes": { "type": "boolean" },
+    "controleContexto": { "type": "boolean" },
+    "controleDependencias": { "type": "boolean" },
+    "controleConflitos": { "type": "boolean" },
+    "controleContratos": { "type": "boolean" },
+    "controleQualidade": { "type": "boolean" },
+    "controleSeguranca": { "type": "boolean" },
+    "ambientes": { "type": "array", "items": { "type": "string" } },
+    "estadosTarefa": { "type": "array", "items": { "type": "string" } }
+  }
+}

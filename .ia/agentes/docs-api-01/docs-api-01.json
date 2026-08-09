@@ -1,0 +1,35 @@
+{
+  "ambientesPermitidos": [
+    "local"
+  ],
+  "contratosObrigatorios": [],
+  "descricao": "Agente responsavel por atualizar docs/api-reference.md e docs/referencia-tools-mcp.md com endpoints de monitoramento e tools de wake-up",
+  "diretoriosPermitidos": [
+    "docs/",
+    "backend/src/api/",
+    "backend/src/mcp-server/tools/"
+  ],
+  "diretoriosProibidos": [
+    ".ia/contexto/",
+    ".env"
+  ],
+  "estado": "ativo",
+  "funcao": "atualizacao_docs",
+  "id": "docs-api-01",
+  "nome": "Doc API",
+  "permissoes": {
+    "alterar": true,
+    "aprovar": false,
+    "criar": true,
+    "excluir": false,
+    "executar": false,
+    "implantar": false,
+    "ler": true,
+    "revisar": false,
+    "testar": false
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:47:21.882Z",
+    "ultimaAtualizacao": "2026-08-18T22:47:21.882Z"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$id": "bloqueio",
+  "type": "object",
+  "required": ["id", "tarefaId", "tipo", "gravidade", "descricao", "origem", "responsavelResolucao", "estado", "criadoEm"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "tarefaId": { "type": "string", "minLength": 1 },
+    "tipo": { "type": "string", "enum": ["CONTRATO", "RECURSO", "DECISAO", "VALIDACAO", "EXTERNO", "OUTRO"] },
+    "gravidade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+    "descricao": { "type": "string", "minLength": 1 },
+    "origem": { "type": "string" },
+    "responsavelResolucao": { "type": "string" },
+    "estado": { "type": "string", "enum": ["ATIVO", "RESOLVIDO", "CANCELADO"] },
+    "criadoEm": { "type": "string" },
+    "resolvidoEm": { "type": ["string", "null"] }
+  }
+}

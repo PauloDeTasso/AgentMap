@@ -1,0 +1,29 @@
+{
+  "$id": "resultado",
+  "type": "object",
+  "required": ["id", "tarefaId", "agenteId", "resumo", "estado", "arquivosAlterados", "artefatos", "testesExecutados", "testesAprovados", "riscosEncontrados", "pendencias", "alteracoesSolicitadas", "observacoes", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^RES-[A-Z0-9-]+$", "minLength": 1 },
+    "tarefaId": { "type": "string", "minLength": 1 },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "resumo": { "type": "string", "minLength": 1 },
+    "estado": { "type": "string", "enum": ["COMPLETO", "PARCIAL", "INCOMPLETO"] },
+    "arquivosAlterados": { "type": "array", "items": { "type": "string" } },
+    "artefatos": { "type": "array", "items": { "type": "string" } },
+    "testesExecutados": { "type": "array", "items": { "type": "string" } },
+    "testesAprovados": { "type": "array", "items": { "type": "string" } },
+    "riscosEncontrados": { "type": "array", "items": { "type": "string" } },
+    "pendencias": { "type": "array", "items": { "type": "string" } },
+    "alteracoesSolicitadas": { "type": "array", "items": { "type": "string" } },
+    "observacoes": { "type": ["string", "null"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "concluidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "concluidaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

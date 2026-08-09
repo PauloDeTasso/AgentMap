@@ -1,0 +1,34 @@
+{
+  "ambientesPermitidos": [
+    "local"
+  ],
+  "contratosObrigatorios": [],
+  "descricao": "Agente responsavel por atualizar docs/comunicacao-agentmap-kilo.md e documentos/protocolo-agentes.md com o teste bidirecional realizado e o flow KILO_CHAT-KILO_REPLY-KILO_RESULT",
+  "diretoriosPermitidos": [
+    "docs/",
+    "documentos/"
+  ],
+  "diretoriosProibidos": [
+    ".ia/contexto/",
+    ".env"
+  ],
+  "estado": "ativo",
+  "funcao": "atualizacao_docs",
+  "id": "docs-comm-01",
+  "nome": "Doc Comunicacao",
+  "permissoes": {
+    "alterar": true,
+    "aprovar": false,
+    "criar": true,
+    "excluir": false,
+    "executar": false,
+    "implantar": false,
+    "ler": true,
+    "revisar": false,
+    "testar": false
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:47:28.604Z",
+    "ultimaAtualizacao": "2026-08-18T22:47:28.604Z"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "versao": "1.0.0",
+  "atualizadoEm": "2026-08-15T00:00:00.000Z",
+  "transicoes": {
+    "RASCUNHO": [
+      "PLANEJADA",
+      "CANCELADA",
+      "EM_EXECUCAO",
+      "EM_REVISAO",
+      "CONCLUIDA",
+      "PREPARANDO"
+    ],
+    "PENDENTE": [
+      "EM_EXECUCAO",
+      "PLANEJADA",
+      "CANCELADA",
+      "CONCLUIDA",
+      "PREPARANDO"
+    ],
+    "PLANEJADA": [
+      "PRONTA",
+      "RASCUNHO",
+      "BLOQUEADA",
+      "CANCELADA",
+      "PREPARANDO"
+    ],
+    "PRONTA": [
+      "EM_EXECUCAO",
+      "PLANEJADA",
+      "BLOQUEADA",
+      "PREPARANDO"
+    ],
+    "PREPARANDO": [
+      "PRONTA",
+      "BLOQUEADA",
+      "CANCELANDO"
+    ],
+    "EM_EXECUCAO": [
+      "EM_TESTE",
+      "EM_REVISAO",
+      "BLOQUEADA",
+      "CANCELADA",
+      "CONCLUIDA",
+      "PAUSANDO",
+      "TIMEOUT"
+    ],
+    "PAUSANDO": [
+      "EM_EXECUCAO",
+      "CANCELANDO"
+    ],
+    "CANCELANDO": [
+      "CANCELADA"
+    ],
+    "EM_TESTE": [
+      "EM_REVISAO",
+      "EM_EXECUCAO",
+      "BLOQUEADA"
+    ],
+    "EM_REVISAO": [
+      "AGUARDANDO_APROVACAO",
+      "EM_TESTE",
+      "EM_EXECUCAO",
+      "REJEITADA",
+      "CONCLUIDA"
+    ],
+    "AGUARDANDO_APROVACAO": [
+      "CONCLUIDA",
+      "REJEITADA",
+      "EM_REVISAO"
+    ],
+    "CONCLUIDA": [],
+    "BLOQUEADA": [
+      "RASCUNHO",
+      "PENDENTE",
+      "PLANEJADA",
+      "PRONTA",
+      "PREPARANDO",
+      "EM_EXECUCAO",
+      "PAUSANDO",
+      "EM_TESTE",
+      "EM_REVISAO",
+      "AGUARDANDO_APROVACAO",
+      "CANCELADA",
+      "RECUPERANDO",
+      "ORFA"
+    ],
+    "TIMEOUT": [
+      "PRONTA",
+      "BLOQUEADA",
+      "CANCELADA",
+      "RECUPERANDO"
+    ],
+    "ORFA": [
+      "RECUPERANDO",
+      "CANCELADA"
+    ],
+    "RECUPERANDO": [
+      "PRONTA",
+      "EM_EXECUCAO",
+      "BLOQUEADA"
+    ],
+    "CANCELADA": [],
+    "REJEITADA": [
+      "RASCUNHO",
+      "PENDENTE",
+      "PLANEJADA",
+      "PRONTA",
+      "EM_EXECUCAO"
+    ]
+  }
+}

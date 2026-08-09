@@ -1,0 +1,22 @@
+{
+  "$id": "risco",
+  "type": "object",
+  "required": ["id", "titulo", "descricao", "categoria", "probabilidade", "impacto", "gravidade", "causa", "consequencias", "mitigacao", "responsavel", "estado", "criadoEm"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "titulo": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string" },
+    "categoria": { "type": "string" },
+    "probabilidade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA"] },
+    "impacto": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA"] },
+    "gravidade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+    "causa": { "type": "string" },
+    "consequencias": { "type": "array", "items": { "type": "string" } },
+    "mitigacao": { "type": "string" },
+    "responsavel": { "type": "string" },
+    "tarefasRelacionadas": { "type": "array", "items": { "type": "string" } },
+    "estado": { "type": "string", "enum": ["ATIVO", "MITIGADO", "RESOLVIDO", "CANCELADO"] },
+    "criadoEm": { "type": "string" },
+    "resolvidoEm": { "type": ["string", "null"] }
+  }
+}

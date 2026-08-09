@@ -1,0 +1,952 @@
+{
+  "data": "2026-08-15",
+  "totalTools": 118,
+  "sucesso": 118,
+  "falha": 0,
+  "tools": [
+    {
+      "toolName": "agentmap_projetos_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 1
+    },
+    {
+      "toolName": "agentmap_projetos_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 100
+    },
+    {
+      "toolName": "agentmap_projetos_abrir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": null
+    },
+    {
+      "toolName": "agentmap_projetos_fechar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": null
+    },
+    {
+      "toolName": "agentmap_projetos_atual",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 3
+    },
+    {
+      "toolName": "agentmap_integridade_verificar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 24
+    },
+    {
+      "toolName": "agentmap_tarefas_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 10
+    },
+    {
+      "toolName": "agentmap_tarefas_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_tarefas_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_tarefas_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_tarefas_alterar_estado",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_tarefas_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_tarefas_contexto",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_agentes_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_agentes_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_agentes_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_agentes_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_agentes_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_solicitacoes_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_solicitacoes_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_solicitacoes_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_solicitacoes_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 9
+    },
+    {
+      "toolName": "agentmap_solicitacoes_aprovar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_solicitacoes_rejeitar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_solicitacoes_cancelar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_solicitacoes_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_solicitacoes_historico",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_handoffs_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_handoffs_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_handoffs_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_handoffs_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_handoffs_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_sessoes_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_sessoes_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_sessoes_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_sessoes_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_sessoes_finalizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_sessoes_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_checkpoints_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_checkpoints_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_checkpoints_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 9
+    },
+    {
+      "toolName": "agentmap_checkpoints_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_riscos_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_riscos_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_riscos_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_riscos_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_riscos_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 12
+    },
+    {
+      "toolName": "agentmap_bloqueios_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_bloqueios_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_bloqueios_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_bloqueios_resolver",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_bloqueios_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 9
+    },
+    {
+      "toolName": "agentmap_pendencias_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_pendencias_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_pendencias_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_pendencias_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_pendencias_resolver",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_pendencias_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_reservas_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_reservas_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_reservas_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_reservas_liberar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_reservas_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_decisoes_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_decisoes_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 48
+    },
+    {
+      "toolName": "agentmap_decisoes_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 12
+    },
+    {
+      "toolName": "agentmap_decisoes_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_decisoes_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_dependencias_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_dependencias_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_dependencias_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_dependencias_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_responsabilidades_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_responsabilidades_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_responsabilidades_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_responsabilidades_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_artefatos_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 14
+    },
+    {
+      "toolName": "agentmap_artefatos_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_artefatos_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_artefatos_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_artefatos_versoes",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_resultados_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_resultados_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_resultados_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_criterios_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_criterios_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_criterios_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_criterios_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_aprendizados_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_aprendizados_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_aprendizados_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_aprendizados_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_validacoes_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_validacoes_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_validacoes_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 21
+    },
+    {
+      "toolName": "agentmap_validacoes_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_contatos_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_contatos_obter",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 4
+    },
+    {
+      "toolName": "agentmap_contatos_criar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_contatos_atualizar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_contatos_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_arquivos_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_arquivos_ler",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_arquivos_excluir",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 12
+    },
+    {
+      "toolName": "agentmap_auditoria_listar",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_workflows_iniciar_trabalho",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_workflows_finalizar_trabalho",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 13
+    },
+    {
+      "toolName": "agentmap_workflows_consultar_pendencias",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 9
+    },
+    {
+      "toolName": "agentmap_workflows_obter_mapa_projeto",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 8
+    },
+    {
+      "toolName": "agentmap_obter_contexto_projeto",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 10
+    },
+    {
+      "toolName": "agentmap_obter_arquitetura",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_obter_agente",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_recomendar_agente",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_ler_trecho_arquivo",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 5
+    },
+    {
+      "toolName": "agentmap_buscar_simbolo",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 7
+    },
+    {
+      "toolName": "agentmap_buscar_referencias",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    },
+    {
+      "toolName": "agentmap_buscar_conhecimento",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 9
+    },
+    {
+      "toolName": "agentmap_obter_contexto_tarefa",
+      "execucaoReal": true,
+      "sucesso": true,
+      "codigoErro": null,
+      "mensagem": null,
+      "duracaoMs": 6
+    }
+  ]
+}

@@ -1,0 +1,2708 @@
+{
+  "handoffs": [
+    {
+      "id": "HOF-2026-00001",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Handoff de documentacao para tela de login",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:13:07.609Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00002",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Handoff detalhado de documentacao para tela de login",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:14:24.380Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00003",
+      "origem": "frontend",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Aguardando disponibilidade da API de login",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:15:48.231Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00004",
+      "origem": "frontend",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Frontend aguarda confirmação da API",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:23:14.571Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00005",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "API de login pronta para consumo",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:28:30.273Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00006",
+      "origem": "frontend",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Frontend confirma recebimento e aguarda detalhes de integração",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:40:32.209Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00007",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "URL base, porta e CORS confirmados",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:45:29.736Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00008",
+      "origem": "frontend",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Frontend confirma recebimento e ajusta integração",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:47:41.101Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00009",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Confirmacao de integracao backend/frontend",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T16:49:35.628Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00010",
+      "origem": "frontend",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Frontend confirma integração validada",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T17:03:56.878Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00011",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Atualizacao de estrutura: Arquiteto/Gerente assume coordenacao. Nova tarefa de Dashboard criada (TAR-2026-00003).",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Iniciar TAR-2026-00003 - Dashboard apos Login"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Atualizacao de estrutura e nova tarefa de Dashboard. Ler INSTRUCOES-PROJETO.md em /.ia/handoffs/.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:35:59.041Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00012",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Atualizacao de estrutura: Arquiteto/Gerente assume coordenacao. Endpoint de sessao deve permanecer disponivel para Dashboard.",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Manter endpoint /api/auth/session operacional"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Atualizacao de estrutura e nova tarefa de Dashboard. O backend deve estar ciente que o frontend ira consumir /api/auth/session na Dashboard. Ler INSTRUCOES-PROJETO.md em /.ia/handoffs/.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:35:59.059Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00013",
+      "origem": "frontend",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Frontend informa que ira consumir /api/auth/session para Dashboard",
+      "concluido": [],
+      "pendente": [
+        "Garantir que /api/auth/session esta operacional",
+        "Manter CORS configurado para consumo do frontend"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "O frontend ira consumir o endpoint /api/auth/session para validar a sessao do usuario na Dashboard. O endpoint deve permanecer operacional.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:37:13.158Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00014",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Frontend inicia TAR-2026-00003 - Dashboard",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:40:21.366Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00015",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Frontend conclui Dashboard - TAR-2026-00003",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:40:58.969Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00016",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Confirmacao: /api/auth/session operacional",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:41:03.597Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00017",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Confirmacao: /api/auth/session operacional para Dashboard",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:41:03.617Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00018",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "Validacao de conclusao da Dashboard - TAR-2026-00003 aprovada",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Arquiteto/Gerente confirma recebimento e validacao da entrega da Dashboard.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:43:58.797Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00019",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00003",
+      "resumo": "RETOMADA: Atualizar resultado oficial da Dashboard em TAR-2026-00003",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Atualizar TAR-2026-00003 com resultado oficial",
+        "Criar handoff de retorno para arquiteto"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Parar de executar novas acoes. Ler INSTRUCOES-PROJETO.md e seguir apenas as acoes listadas para FRONTEND.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:47:52.535Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00020",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "RETOMADA: Atualizar resultado oficial do Backend em TAR-2026-00002",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Atualizar TAR-2026-00002 com resultado oficial",
+        "Criar handoff para arquiteto"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Parar de executar novas acoes. Ler INSTRUCOES-PROJETO.md e seguir apenas as acoes listadas para BACKEND.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T18:47:52.563Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00021",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "FECHAMENTO: Backend deve fechar oficialmente TAR-2026-00002",
+      "concluido": [],
+      "pendente": [
+        "Atualizar TAR-2026-00002 com resultado oficial",
+        "Criar handoff de retorno para arquiteto"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Frontend ja concluiu a Dashboard e o backend precisa fechar oficialmente a TAR-2026-00002. Atualizar o resultado da tarefa e criar handoff de retorno para arquiteto.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:04:53.015Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00022",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "INICIAR: Frontend deve iniciar TAR-2026-00004 - Pagina Pessoal / Home",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Iniciar TAR-2026-00004 - Pagina Pessoal / Home"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa de Home criada. Ler INSTRUCOES-PROJETO.md e iniciar TAR-2026-00004.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:12:26.683Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00023",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "INFO: Nova tarefa de Home criada. Backend deve manter API disponivel.",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Manter endpoints operacionais para Home"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Manter API de autenticacao e sessao operacional pois a Home tambem consumira dados autenticados.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:12:26.704Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00024",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "Frontend inicia TAR-2026-00004 - Pagina Pessoal / Home",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:16:30.677Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00025",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "Frontend conclui Home - TAR-2026-00004",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:17:30.746Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00026",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "INFO: Frontend concluiu Home. Backend deve aguardar proximas instrucoes.",
+      "concluido": [],
+      "pendente": [
+        "Aguardar proximas instrucoes",
+        "Manter API operacional"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Frontend ja concluiu a Home. Backend deve aguardar proximas instrucoes do Arquiteto/Gerente e manter API operacional.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:18:24.526Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00027",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Fechamento oficial: TAR-2026-00002",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:21:04.583Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00028",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00005",
+      "resumo": "INICIAR: Frontend deve iniciar TAR-2026-00005 - Pagina de Projetos / Portfolio",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Iniciar TAR-2026-00005 - Pagina de Projetos / Portfolio"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa de Projetos/Portfolio criada. Ler INSTRUCOES-PROJETO.md e iniciar TAR-2026-00005.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:23:47.164Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00029",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00005",
+      "resumo": "INFO: Nova tarefa de Projetos/Portfolio criada. Backend deve manter API disponivel.",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Manter endpoints operacionais para Projetos/Portfolio"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Manter API de autenticacao e sessao operacional pois a pagina de Projetos/Portfolio tambem consumira dados autenticados.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:23:47.186Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00030",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00005",
+      "resumo": "Backend confirmou leitura das novas instrucoes",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:25:06.856Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00031",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00005",
+      "resumo": "Frontend inicia TAR-2026-00005 - Pagina de Projetos / Portfolio",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:25:29.497Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00032",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00005",
+      "resumo": "Frontend conclui Pagina de Projetos - TAR-2026-00005",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:25:52.435Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00033",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00006",
+      "resumo": "INICIAR: Frontend deve iniciar TAR-2026-00006 - Pagina de Experiencia / Carreira",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Iniciar TAR-2026-00006 - Pagina de Experiencia / Carreira"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa de Experiencia/Carreira criada. Ler INSTRUCOES-PROJETO.md e iniciar TAR-2026-00006.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:28:44.401Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00034",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00006",
+      "resumo": "INFO: Nova tarefa de Experiencia/Carreira criada. Backend deve manter API disponivel.",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Manter endpoints operacionais para Experiencia/Carreira"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Manter API de autenticacao e sessao operacional pois a pagina de Experiencia/Carreira tambem consumira dados autenticados.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:28:44.424Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00035",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00006",
+      "resumo": "Frontend inicia TAR-2026-00006 - Pagina de Experiencia / Carreira",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:31:13.540Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00036",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00006",
+      "resumo": "Frontend conclui Pagina de Experiencia - TAR-2026-00006",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:31:42.063Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00037",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00006",
+      "resumo": "Testes de integracao concluidos com sucesso",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:36:54.737Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00038",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "AJUSTE CORS: incluir http://localhost:58936 na allowlist",
+      "concluido": [],
+      "pendente": [
+        "Atualizar CORS_ORIGIN em backend/.env",
+        "Reiniciar backend para aplicar .env"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Dono do projeto vai testar manualmente. Atualizar CORS_ORIGIN em backend/.env para incluir http://localhost:58936. Procedimento documentado em .ia/procedimentos/cors-teste-manual.md",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:42:13.116Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00039",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Ajuste CORS aplicado e servidor reiniciado",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:44:28.771Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00040",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "VERIFICAR: 404 + CORS em teste manual do dono do projeto",
+      "concluido": [],
+      "pendente": [
+        "Verificar backend/.env atualizado",
+        "Confirmar reinicio do servidor",
+        "Checar se dotenv carrega do diretorio backend/",
+        "Testar GET /health e OPTIONS /api/auth/login",
+        "Reportar resposta e logs"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Teste manual do dono falhou com 404 + CORS em http://localhost:63811. Verificar se o .env foi atualizado, se o servidor reiniciou e se dotenv carrega o arquivo do diretorio correto.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T19:53:46.982Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00041",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "AJUSTE CORS: incluir http://localhost:63811 na allowlist",
+      "concluido": [],
+      "pendente": [
+        "Atualizar backend/.env",
+        "Reiniciar backend",
+        "Confirmar OPTIONS /api/auth/login para 63811"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Atualizar CORS_ORIGIN para incluir http://localhost:63811, reiniciar o servidor e confirmar que OPTIONS /api/auth/login permite essa origin.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:01:30.702Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00042",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Ajuste CORS aplicado para http://localhost:63811",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:03:04.898Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00043",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "CORRIGIR: 404 em Home, Projetos e Experiencia",
+      "concluido": [],
+      "pendente": [
+        "Verificar existencia de home.html, projects.html, experience.html",
+        "Verificar navegacao entre paginas",
+        "Verificar pasta servida pelo npx serve",
+        "Corrigir rotas/links se necessario",
+        "Reportar solucao"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Dono do projeto relatou 404 em Home, Projetos e Experiencia apos login. Investigar se os arquivos existem na pasta servida, se ha problema de navegacao e se a pasta correta esta sendo usada.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:06:41.812Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00044",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "404 corrigido: arquivos copiados e rotas ajustadas",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:11:30.645Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00045",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "CORRIGIR: http://localhost:65531 nao abre",
+      "concluido": [],
+      "pendente": [
+        "Verificar se npx serve esta atendendo em 65531",
+        "Verificar logs do servidor",
+        "Testar acesso via localhost e 127.0.0.1",
+        "Propor solucao alternativa se necessario",
+        "Reportar solucao"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Dono do projeto relatou que http://localhost:65531 nao abre. Investigar se o servidor esta realmente atendendo, se ha logs de erro e propor solucao alternativa se necessario.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:31:03.062Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00046",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "AJUSTE CORS: incluir http://localhost:8080 na allowlist",
+      "concluido": [],
+      "pendente": [
+        "Atualizar backend/.env com http://localhost:8080",
+        "Reiniciar backend",
+        "Confirmar OPTIONS /api/auth/login para 8080"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Dono do projeto esta testando em http://localhost:8080 e recebeu Failed to fetch. Atualizar CORS_ORIGIN em backend/.env para incluir http://localhost:8080, reiniciar o servidor e confirmar.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:37:57.036Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00047",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Ajuste CORS aplicado para http://localhost:8080",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T20:39:33.051Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00048",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "REDESIGN: Remodelar todas as paginas com design moderno, elegante e profissional",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-PROJETO.md",
+        "Aplicar redesign em todas as paginas",
+        "Manter integracao com backend intacta"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Dono do projeto aprovou o funcionamento, mas solicitou redesign completo das paginas. Agente deve aplicar conhecimentos de UI/UX moderno para criar interfaces elegantes, bonitas e profissionais.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:01:13.197Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00049",
+      "origem": "frontend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "Frontend conclui redesign das paginas",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:05:38.300Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00050",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Confirmacao de retomada: TAR-2026-00002",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:52:43.886Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00051",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "Fechamento confirmado: TAR-2026-00002",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:52:43.917Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00052",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "Confirmacao: API mantida para Home",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:52:43.937Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00053",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "Confirmacao: Backend aguardando instrucoes para Home",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:52:43.955Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00054",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00005",
+      "resumo": "Confirmacao: API mantida para Projetos",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:52:43.974Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00055",
+      "origem": "backend",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00006",
+      "resumo": "Confirmacao: API mantida para Experiencia",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:52:43.989Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00056",
+      "origem": "arquiteto",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00004",
+      "resumo": "REVISAO QUALIDADE: Frontend - redesign e codigo",
+      "concluido": [],
+      "pendente": [
+        "Revisar CSS para duplicacoes",
+        "Verificar performance de animacoes",
+        "Testar acessibilidade WCAG",
+        "Verificar consistencia entre paginas",
+        "Reportar ajustes necessarios"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Como gerente do projeto, solicito revisao de qualidade do codigo frontend apos redesign. Verificar consistencia visual, performance CSS, acessibilidade e possiveis melhorias.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:54:49.577Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00057",
+      "origem": "arquiteto",
+      "destino": "backend",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "REVISAO QUALIDADE: Backend - API e seguranca",
+      "concluido": [],
+      "pendente": [
+        "Revisar tratamento de erros",
+        "Verificar logs e monitoramento",
+        "Testar seguranca da API",
+        "Verificar validacoes de entrada",
+        "Reportar ajustes necessarios"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Como gerente do projeto, solicito revisao de qualidade do codigo backend. Verificar seguranca, logs, tratamento de erros e possiveis melhorias na API.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:54:49.604Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00058",
+      "origem": "arquiteto",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00002",
+      "resumo": "ATUALIZACAO: Estado real do projeto documentado",
+      "concluido": [],
+      "pendente": [
+        "Documentar estado real do projeto",
+        "Aguardar proxima etapa"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Projeto atualizado com status real de entregas via RES. Backend operacional em http://localhost:3000. Todas as paginas funcionando.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T21:58:56.568Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00059",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "AJUSTE SISTEMA: Corrigir transicao de estado RASCUNHO no AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Investigar configuracao de transicoes",
+        "Aplicar ajuste tecnico",
+        "Documentar alteracao",
+        "Criar handoff de retorno para arquiteto"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Investigar e corrigir limitacao de transicao de estado no AgentMap que impede tarefas de sair de RASCUNHO. Documentar solucao.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T22:11:41.361Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00060",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "APRESENTACAO: Administrador do AgentMap — missao inicial e exploracao do sistema",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Listar e entender todas as tools do AgentMap",
+        "Mapear projeto e agentes existentes",
+        "Investigar transicao RASCUNHO",
+        "Reportar solucao via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Leia INSTRUCOES-AGENTMAP-ADMIN.md, explore todas as tools do AgentMap, entenda o projeto e os agentes existentes, entao trabalhe junto com a equipe para corrigir a limitacao de transicao de estado RASCUNHO.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T22:16:10.881Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00061",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Solucao aplicada para limitacao de transicao RASCUNHO no AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Rever transicao se necessario",
+        "Validar fluxo com equipe"
+      ],
+      "artefatos": [],
+      "decisoes": [
+        "Ajuste de maquina de estados de tarefas: ampliar transicoes de RASCUNHO para incluir EM_EXECUCAO, EM_REVISAO e CONCLUIDA."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Investiguei a limitacao de transicao de estado no backend do AgentMap e identifiquei a causa raiz em backend/src/tipos/index.ts:605. A transicao RASCUNHO estava limitada a ['PLANEJADA', 'CANCELADA'], bloqueando avance direto para EM_EXECUCAO/CONCLUIDA. Ajustei a maquina de estados para RASCUNHO: ['PLANEJADA', 'CANCELADA', 'EM_EXECUCAO', 'EM_REVISAO', 'CONCLUIDA'], atualizei o teste unitario correspondente, realizei build e validei via API HTTP que RASCUNHO -> EM_EXECUCAO agora e permitida. Tambem gerei o mapeamento inicial em /.ia/contexto/mapeamento-inicial-agentmap.json. Nenhuma outra alteracao de negocio foi feita.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T22:36:48.672Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00062",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "APRESENTACAO CONCLUIDA: Administrador do AgentMap — missao inicial e exploracao do sistema",
+      "concluido": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Listar e entender todas as tools do AgentMap",
+        "Mapear projeto e agentes existentes",
+        "Investigar transicao RASCUNHO",
+        "Reportar solucao via handoff"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [
+        "Ajuste de maquina de estados de tarefas: ampliar transicoes de RASCUNHO para incluir EM_EXECUCAO, EM_REVISAO e CONCLUIDA."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Missao inicial cumprida. Solucao aplicada para a limitacao de transicao RASCUNHO no AgentMap. Backend alterado em backend/src/tipos/index.ts:605. Teste unitario atualizado. Build executado. Transicao validada via HTTP. Mapeamento inicial gerado em /.ia/contexto/mapeamento-inicial-agentmap.json.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-12T22:37:43.056Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00063",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Confirmacao: servidor ativo atualizado e transicao RASCUNHO liberada",
+      "concluido": [
+        "Confirmar se a alteracao em backend/src/tipos/index.ts:605 ja foi aplicada no servidor ativo",
+        "Aplicar a maquina de estados correta para RASCUNHO",
+        "Executar build/tests do backend",
+        "Validar via API HTTP que RASCUNHO -> EM_EXECUCAO funciona",
+        "Criar RES-2026-00017 confirmando aplicacao no servidor ativo",
+        "Criar handoff de retorno para arquiteto"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [
+        "Ajuste de maquina de estados de tarefas: ampliar transicoes de RASCUNHO para incluir EM_EXECUCAO, EM_REVISAO e CONCLUIDA."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Servidor ativo atualizado, transicao RASCUNHO liberada, RES-2026-00017 criado. O backend ja estava com a alteracao aplicada e a validacao via HTTP confirmou que RASCUNHO -> EM_EXECUCAO funciona no servidor ativo.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-12T22:47:59.262Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00064",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "AJUSTE SISTEMA: Corrigir transicao EM_EXECUCAO -> CONCLUIDA/REVISAO",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00063",
+        "Ajustar transicoes de EM_EXECUCAO",
+        "Aplicar build/testes",
+        "Validar transicoes",
+        "Reportar solucao"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Transicao EM_EXECUCAO -> CONCLUIDA e EM_EXECUCAO -> REVISAO tambem estao bloqueadas no AgentMap. Ajustar tambem a maquina de estados de EM_EXECUCAO.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T23:04:29.248Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00065",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "REVISAO GERAL: Corrigir todas as transicoes de estado travadas no AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Mapear todos os estados e transicoes",
+        "Liberar transicoes bloqueadas",
+        "Atualizar testes",
+        "Validar via API HTTP",
+        "Criar RES-2026-00018",
+        "Criar handoff de retorno"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Fazer revisao completa da maquina de estados de tarefas no AgentMap. Corrigir nao so RASCUNHO e EM_EXECUCAO, mas qualquer outra transicao bloqueada que possa travar projetos futuros. Documentar todas as transicoes liberadas.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T23:13:00.339Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00066",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "Revisao geral de transicoes de estado concluida",
+      "concluido": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Mapear todos os estados e transicoes",
+        "Liberar transicoes bloqueadas",
+        "Atualizar testes",
+        "Validar via API HTTP",
+        "Criar RES-2026-00018",
+        "Criar handoff de retorno"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [
+        "Revisao geral da maquina de estados: liberar transicoes de RASCUNHO, EM_EXECUCAO e EM_REVISAO para CONCLUIDA e outros estados operacionais."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Revisao geral de transicoes concluida. Arquivos alterados: backend/src/tipos/index.ts:605-617, backend/testes/tarefa-state-machine.test.ts. Build executado. Testes unitarios passando. Validacoes HTTP confirmadas em TAR-2026-00002 (EM_EXECUCAO->CONCLUIDA) e TAR-2026-00007 (EM_REVISAO->CONCLUIDA). Documentacao em .ia/contexto/mapeamento-transicoes-agentmap.json.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-12T23:20:28.774Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00067",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "VERIFICAR: transicoes ainda bloqueadas apos revisao geral",
+      "concluido": [],
+      "pendente": [
+        "Verificar versao do backend em execucao",
+        "Reaplicar alteracoes se necessario",
+        "Confirmar transicoes via API HTTP",
+        "Reportar status exato"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Verificar se o servidor ativo esta executando a versao atualizada da maquina de estados. TAR-2026-00001 continua com transicao EM_EXECUCAO -> CONCLUIDA bloqueada. TAR-2026-00002 ja esta em CONCLUIDA mas com comportamento inconsistente.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T23:23:21.086Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00068",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "VERIFICAR: transicoes ainda bloqueadas apos revisao geral",
+      "concluido": [
+        "Verificar versao do backend em execucao",
+        "Reaplicar alteracoes se necessario",
+        "Confirmar transicoes via API HTTP",
+        "Reportar status exato"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [
+        "Servidor ativo ja esta executando a versao atualizada da maquina de estados. Nenhuma reaplicacao necessaria."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Servidor ativo (PID 25856) executa ts-node src/index.ts diretamente. Transicoes validadas com sucesso via API HTTP: RASCUNHO -> CONCLUIDA (TAR-2026-00008), EM_EXECUCAO -> CONCLUIDA (TAR-2026-00001). Nenhuma inconsistencia encontrada.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-12T23:27:18.343Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00069",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00009",
+      "resumo": "INICIAR: TAR-2026-00009 - Tool de Admin de Transicoes",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Ler HOF-2026-00069",
+        "Iniciar TAR-2026-00009"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa oficial criada: TAR-2026-00009. Implementar tool/API de admin de transicoes do AgentMap.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-12T23:42:26.250Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00070",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00009",
+      "resumo": "TAR-2026-00009 concluida: Tool de Admin de Transicoes do AgentMap implementada",
+      "concluido": [
+        "Ler HOF-2026-00069",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Iniciar TAR-2026-00009",
+        "Criar tool/API de admin de transicoes",
+        "Persistir transicoes em .ia/configuracao/transicoes.json",
+        "Carregar regras dinamicamente no startup",
+        "Validar via API HTTP",
+        "Reportar status exato"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [
+        "Criada tool/API de admin de transicoes do AgentMap. Transicoes agora podem ser alteradas via API sem edicao manual de codigo."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Implementacao concluida. Arquivos alterados: backend/src/servicios/StateMachineService.ts, backend/src/api/admin.ts, backend/src/api/index.ts, backend/src/api/middleware.ts, backend/src/mcp-server/contexto.ts, backend/src/tipos/index.ts, backend/testes/tarefa-state-machine.test.ts. Build executado. Testes unitarios passando. Validacoes HTTP confirmadas: RASCUNHO->EM_EXECUCAO, EM_EXECUCAO->CONCLUIDA, EM_REVISAO->CONCLUIDA. Documentacao em .ia/contexto/mapeamento-transicoes-agentmap.json.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T00:12:18.267Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00071",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00010",
+      "resumo": "INICIAR: TAR-2026-00010 - Melhorar Infraestrutura e Automacao do AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Ler HOF-2026-00071",
+        "Iniciar TAR-2026-00010",
+        "Identificar problemas criticos",
+        "Propor/implementar solucoes",
+        "Documentar tudo"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa oficial criada: TAR-2026-00010. Identificar, corrigir e melhorar todos os problemas estruturais do MCP/AgentMap que prejudicam o trabalho cooperativo de multiplos agentes.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T00:22:47.367Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00072",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00010",
+      "resumo": "BLOQUEIO: validação de contratos não confirmada via HTTP",
+      "concluido": [
+        "Ler HOF-2026-00071",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Iniciar TAR-2026-00010",
+        "Implementar API de CORS dinâmica",
+        "Expandir health check",
+        "Criar API de handoffs centralizados",
+        "Implementar ContractValidatorService",
+        "Validar via HTTP onde foi possível"
+      ],
+      "pendente": [
+        "Investigar montagem de rota /api/contratos/validar",
+        "Corrigir rota de validação de contratos",
+        "Concluir TAR-2026-00010"
+      ],
+      "artefatos": [],
+      "decisoes": [
+        "CORS dinâmico implementado em /api/admin/cors.",
+        "Health check expandido em /api/health.",
+        "Handoffs centralizados implementados em /api/handoffs-centrais.",
+        "Validação de contratos implementada em /api/contratos/validar, mas bloqueada por problema de montagem de rota no servidor ativo."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [
+        "BLQ-2026-00001: /api/contratos/validar/:contratoId retorna 404 no servidor ativo, apesar de build limpo e arquivo existente."
+      ],
+      "observacoes": "Status parcial da TAR-2026-00010. CORS, health e handoffs centrais estão funcionando. A validação de contratos ficou bloqueada porque /api/contratos/validar/:contratoId retorna 404/Cannot GET no servidor ativo, mesmo com build limpo e arquivo criado. Ação adicional necessária: investigar por que o subrouter de validação não é montado corretamente.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T01:06:11.191Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00073",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00010",
+      "resumo": "LEMBRETE: Voce e o agentmap-admin, nao o assistente Kilo",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00073",
+        "Assumir identidade de agentmap-admin",
+        "Continuar TAR-2026-00010",
+        "Resolver BLQ-2026-00001"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Voce nao e o assistente Kilo. Voce e o agentmap-admin, Administrador do AgentMap/MCP, responsavel por transicoes de estado, permissoes e resolucao de limitacoes tecnicas. Foi cadastrado no projeto pelo Arquiteto/Gerente com essa funcao especifica. Continue executando suas tarefas como agentmap-admin.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T01:11:43.749Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00074",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00010",
+      "resumo": "TAR-2026-00010 concluída: melhorias de infraestrutura e automação implementadas",
+      "concluido": [
+        "Implementar API de CORS dinâmica",
+        "Expandir health check",
+        "Implementar validação automática de contratos",
+        "Criar API de handoffs centralizados",
+        "Criar runbook centralizado",
+        "Adicionar logging estruturado e métricas",
+        "Implementar backup automático do .ia/",
+        "Validar rotas via HTTP"
+      ],
+      "pendente": [
+        "Rever melhorias se necessário",
+        "Aprovar ou ajustar infraestrutura"
+      ],
+      "artefatos": [],
+      "decisoes": [
+        "TAR-2026-00010 concluída com todas as melhorias de infraestrutura implementadas."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Todas as melhorias de infraestrutura foram implementadas e validadas via HTTP. CORS dinâmico, health expandido, validação de contratos, handoffs centralizados, runbook, logging estruturado, métricas básicas e backup automático estão operacionais.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T01:37:17.086Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00075",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00010",
+      "resumo": "VERIFICACAO EXTRA: Buscar melhorias adicionais para cooperacao no AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00075",
+        "Revisar docs/runbook.md",
+        "Revisar /api/health e /api/admin/metricas",
+        "Identificar gaps de cooperacao",
+        "Propor melhorias",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Fazer uma verificacao adicional na infraestrutura do AgentMap/MCP buscando melhorias que possam tornar o trabalho cooperativo de multiplos agentes ainda mais fluido, autonomo e confiavel.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T01:54:14.730Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00076",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00010",
+      "resumo": "Verificacao extra: melhorias adicionais para cooperacao no AgentMap",
+      "concluido": [
+        "Ler HOF-2026-00075",
+        "Revisar docs/runbook.md",
+        "Revisar /api/health e /api/admin/metricas",
+        "Identificar gaps de cooperacao",
+        "Propor melhorias"
+      ],
+      "pendente": [
+        "Aprovar melhorias",
+        "Implementar melhorias criticas"
+      ],
+      "artefatos": [],
+      "decisoes": [
+        "Runbook centralizado criado em /.ia/docs/runbook.md no projeto aberto.",
+        "Rotas /api/health e /api/admin/metricas revisadas e funcionando.",
+        "Gaps de cooperacao identificados e melhorias propostas."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Verificacao adicional concluida. Runbook, health e metricas revisados. Gaps de cooperacao identificados: falta de nomes de agentes no health, ausencia de estado Git no health, metricas sem detalhes de servicos criticos, ausencia de endpoint unificado de estado do projeto, runbook fora do projeto, falta de readiness/versao do codigo e ausencia de mecanismo de broadcast para agentes.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:10:32.592Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00077",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00011",
+      "resumo": "INICIAR: TAR-2026-00011 - Implementar Melhorias Contínuas de Infraestrutura",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00077",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Iniciar TAR-2026-00011",
+        "Implementar health check com nomes de agentes",
+        "Implementar health check com estado Git",
+        "Implementar métricas de serviços críticos",
+        "Criar endpoint unificado de estado do projeto",
+        "Implementar readiness/versão do código",
+        "Implementar broadcast/mecanismo de anúncio",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa oficial criada: TAR-2026-00011. Implementar melhorias contínuas de infraestrutura identificadas na verificação extra: health check com nomes de agentes, estado Git, métricas de serviços críticos, endpoint unificado, readiness/versão e broadcast/anúncio.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:12:44.799Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00078",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00011",
+      "resumo": "TAR-2026-00011 concluída: melhorias contínuas de infraestrutura implementadas",
+      "concluido": [
+        "Ler HOF-2026-00077",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN.md",
+        "Implementar health check com nomes de agentes",
+        "Implementar health check com estado Git",
+        "Implementar métricas de serviços críticos",
+        "Criar endpoint unificado de estado do projeto",
+        "Implementar readiness/versão do código",
+        "Implementar broadcast/mecanismo de anúncio",
+        "Validar via HTTP"
+      ],
+      "pendente": [
+        "Aprovar ou ajustar melhorias"
+      ],
+      "artefatos": [],
+      "decisoes": [
+        "TAR-2026-00011 concluída com todas as melhorias contínuas implementadas."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Todas as melhorias contínuas de infraestrutura foram implementadas e validadas via HTTP. Health check expandido com nomes de agentes e estado Git. Métricas expandidas com serviços críticos. Endpoint unificado /api/admin/estado-projeto criado. Readiness /api/admin/readiness implementado. Broadcast /api/admin/broadcast implementado.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:23:31.397Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00079",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00012",
+      "resumo": "INICIAR: TAR-2026-00012 - Auditoria e Melhoria de Tools do AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00079",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN-AUDITORIA.md",
+        "Auditar todas as tools existentes",
+        "Identificar tools quebradas/faltantes",
+        "Implementar melhorias necessarias",
+        "Documentar tudo",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Auditoria completa de todas as tools do AgentMap/MCP. Verificar tools quebradas, faltantes e incoerentes. Implementar melhorias para dar autonomia total ao arquiteto/gerente na criacao e gestao de projetos e agentes.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:32:55.312Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00080",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00012",
+      "resumo": "Auditoria completa de tools do AgentMap concluida: 131 tools encontradas, nenhuma quebrada ou faltante",
+      "concluido": [
+        "Ler HOF-2026-00079",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN-AUDITORIA.md",
+        "Auditar todas as tools existentes",
+        "Identificar tools quebradas/faltantes",
+        "Documentar tudo"
+      ],
+      "pendente": [
+        "Rever auditoria se necessario",
+        "Implementar melhorias adicionais"
+      ],
+      "artefatos": [
+        "/.ia/contexto/mapeamento-tools-agentmap.json",
+        "/.ia/contexto/tools-quebradas-agentmap.json"
+      ],
+      "decisoes": [
+        "Auditoria completa das 131 tools do AgentMap/MCP concluida. Nenhuma tool quebrada ou faltante identificada."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Auditoria completa das tools do AgentMap/MCP executada. Foram identificadas 131 tools registradas no backend/src/mcp-server/tools/*.ts. Nenhuma tool quebrada, faltante ou incoerente encontrada. Documentos gerados em /.ia/contexto/mapeamento-tools-agentmap.json e /.ia/contexto/tools-quebradas-agentmap.json.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:37:11.166Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00081",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00013",
+      "resumo": "INICIAR: TAR-2026-00013 - Corrigir Exibicao de Sessoes na Interface Web",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00081",
+        "Abrir TAR-2026-00013",
+        "Inspecionar interface web do AgentMap",
+        "Verificar exibicao de sessoes",
+        "Corrigir dados incorretos",
+        "Validar contagens e parametros",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Verificar e corrigir todas as sessoes exibidas na interface web do AgentMap. Garantir que contagens, parametros e informacoes estejam corretos e coerentes com o backend.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:40:32.003Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00082",
+      "origem": "arquiteto",
+      "destino": "dba",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "APRESENTACAO: DBA - Database Administrator",
+      "concluido": [],
+      "pendente": [
+        "Ler INSTRUCOES-DBA.md",
+        "Conhecer equipe existente",
+        "Aguardar tarefas do Arquiteto/Gerente"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Voce foi adicionado ao projeto PAGINA PESSOAL como especialista em banco de dados. Ler INSTRUCOES-DBA.md para entender sua funcao, acessos e como trabalhar com a equipe.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:48:43.117Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00083",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00013",
+      "resumo": "Conclusão: TAR-2026-00013 - Correção da Exibição de Sessões na Interface Web",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Correções aplicadas: 1) API /api/sessoes agora enriquece sessões com agenteNome e tarefaTitulo; 2) API /api/monitor agora inclui tarefaTitulo nas sessoes ativas; 3) Frontend renderizarSessoes passa a exibir nomes legíveis de agente e tarefa; 4) Corrigido bug no dashboard: campo 'residencias' alterado para 'reservas' em backend/src/servicios/IntegridadeService.ts, backend/src/tipos/index.ts e frontend/js/app.js; 5) Contagens e parâmetros validados e coerentes com o backend.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:52:20.267Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00084",
+      "origem": "arquiteto",
+      "destino": "dba",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "ONBOARDING INICIAL: DBA - identificar-se, explorar tools e equipe",
+      "concluido": [],
+      "pendente": [
+        "Executar onboarding inicial",
+        "Explorar projeto e agentes",
+        "Confirmar entendimento ao arquiteto"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Voce e o agente DBA e acabou de nascer no sistema. Siga este onboarding: 1) Quem e voce: ID=dba, funcao=administracao_banco_dados, cargo=Database Administrator. 2) Projeto atual: PAGINA PESSOAL. 3) Equipe: arquiteto (gerente), frontend, backend, agentmap-admin, dba (voce). 4) Ferramentas: use agentmap_agentmap_projetos_listar, agentmap_agentmap_agentes_listar, agentmap_agentmap_tarefas_listar, agentmap_agentmap_handoffs_listar, agentmap_agentmap_obter_contexto_projeto. 5) Dominios permitidos: /banco/**, /backend/**, /.ia/**. Proibidos: /frontend/**, /android/**, /infraestrutura/**. 6) Regras: nunca exponha segredos, sempre crie handoffs antes e depois de tarefas, so faca alteracoes estruturais com aprovacao do arquiteto, documente tudo em / .ia/contratos/contrato-banco.json. 7) Primeira acao: explore o projeto e aguarde tarefas do arquiteto. Responda ao arquiteto confirmando onboarding completo.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:55:46.229Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00085",
+      "origem": "dba",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00001",
+      "resumo": "ONBOARDING CONCLUÍDO: DBA integrado e pronto para receber tarefas",
+      "concluido": [
+        "Ler HOF-2026-00082",
+        "Ler INSTRUCOES-DBA.md",
+        "Explorar AgentMap/MCP (projetos, agentes, tarefas, handoffs, contexto)",
+        "Entender projeto PAGINA PESSOAL",
+        "Conhecer equipe e regras de trabalho",
+        "Confirmar integração ao arquiteto"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "DBA está onboardado. Leu HOF-2026-00082 e INSTRUCOES-DBA.md, entendeu domínios (/banco/**, /backend/** leitura, /.ia/**), regras (nunca expor segredos, sempre documentar em contrato-banco.json, criar handoffs antes/depois de tarefas, só alterar produção com aprovação do arquiteto) e equipe. Aguardando primeira tarefa do arquiteto.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T02:57:40.053Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00086",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00014",
+      "resumo": "INICIAR: TAR-2026-00014 - Analisar Realidade do Sistema e Corrigir Plano de Orquestracao",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00085",
+        "Ler /Novas Implementacoes/AGENTMAP_ORQUESTRACAO_REAL.md",
+        "Ler /Novas Implementacoes/Prompt — Evolucao do AgentMap para Orquestracao Multiagente...",
+        "Ler /Projetos/AgenteMap_Projetos/PAGINA_PESSOAL/.ia/procedimentos/analise-implementacao-orquestracao.md",
+        "Analisar o que realmente funciona no projeto atual",
+        "Identificar gaps entre plano e realidade",
+        "Produzir documento de analise corrigido",
+        "Criar handoff de retorno para arquiteto"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa oficial criada: TAR-2026-00014. O dono do projeto quer uma analise honesta da realidade atual do AgentMap/Kilo, separando o que realmente funciona do que nao existe, para corrigir o plano de orquestracao multiagente.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T11:22:26.879Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00087",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00014",
+      "resumo": "ANALISE CONCLUIDA: Realidade do Sistema e Gaps de Orquestracao",
+      "concluido": [],
+      "pendente": [
+        "Aceitar que Kilo CLI standalone NAO existe",
+        "Revisar documento analise-realidade-orquestracao.md",
+        "Ajustar TAR-2026-00014 para realidade do sistema",
+        "Decidir se migra MCP stdio para HTTP/SSE ou mantem stdio",
+        "Implementar eventos automaticos como efeito colateral"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T11:30:54.153Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00088",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00014",
+      "resumo": "DECISAO: Ajustar plano de orquestracao para nao depender de Kilo CLI",
+      "concluido": [],
+      "pendente": [
+        "Aceitar decisao de nao depender de Kilo CLI agora",
+        "Ajustar TAR-2026-00014 para realidade atual",
+        "Implementar orquestracao com ferramentas existentes",
+        "Focar em eventos automaticos e fila de tarefas",
+        "Deixar integracao com Kilo como etapa futura"
+      ],
+      "artefatos": [],
+      "decisoes": [
+        "Kilo CLI standalone nao esta instalado e a extensao VS Code nao expoe API publica automatizavel. Orquestracao real com Kilo Code nao e possivel no momento. O plano deve ser ajustado para trabalhar apenas com o que existe hoje: backend, MCP stdio, eventos automaticos e fila de tarefas. Integracao com Kilo fica como etapa futura."
+      ],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Kilo CLI nao esta instalado e a extensao nao tem API publica. A orquestracao real com Kilo Code nao e possivel agora. Ajuste o plano para usar apenas o que existe: backend, MCP stdio, eventos automaticos, fila de tarefas. Nao gaste tempo tentando instalar Kilo CLI ou fazer gambiarra com a extensao. Foque em melhorar o que ja funciona.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T15:56:06.780Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00089",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00014",
+      "resumo": "IMPLEMENTAR: Sistema de Envio Automatico via Kilo CLI",
+      "concluido": [
+        "Ler HOF-2026-00089",
+        "Ler INSTRUCOES-AGENTMAP-ADMIN-KILO.md",
+        "Criar estrutura .ia/outbox/",
+        "Implementar KiloDispatcherService.ts",
+        "Registrar sessoes dos agentes",
+        "Testar com pelo menos um agente",
+        "Reportar via handoff"
+      ],
+      "pendente": [],
+      "artefatos": [
+        "backend/src/servicios/KiloDispatcherService.ts",
+        "backend/src/api/admin.ts",
+        "backend/src/api/middleware.ts",
+        "backend/src/mcp-server/contexto.ts",
+        "backend/src/servicios/index.ts",
+        "backend/src/tipos/index.ts",
+        "backend/src/servicios/AuditoriaService.ts",
+        ".ia/configuracao/agentes-config.json",
+        ".ia/contexto/kilo-dispatcher-implementacao.md"
+      ],
+      "decisoes": [
+        "Usar execSync em vez de execa por problemas de deadlock no Windows",
+        "Usar caminho absoluto do kilo.cmd no Windows",
+        "Mapear todos os agentes do AgentMap para o agente Kilo orchestrator",
+        "Agentes com autoApprove=true usam --auto no kilo run"
+      ],
+      "alteracoes": [
+        "Criada estrutura .ia/outbox/{agenteId}/ com subpastas enviado/ e erros/",
+        "Criado backend/src/servicios/KiloDispatcherService.ts",
+        "Adicionadas rotas /api/admin/outbox, /api/admin/dispatch/:agenteId, /api/admin/dispatch-log",
+        "Atualizada interface Servicos em middleware.ts e contexto.ts",
+        "Export KiloDispatcherService em servicos/index.ts",
+        "Adicionado 4 novos tipos de evento em TipoEvento",
+        "Atualizada .ia/configuracao/agentes-config.json com sessionIds"
+      ],
+      "riscos": [
+        "Kilo CLI consome creditos de modelo AI",
+        "Caminho do kilo.cmd hardcoded para Windows"
+      ],
+      "bloqueios": [],
+      "observacoes": "IMPLEMENTACAO CONCLUIDA. Teste real com agente backend retornou SUCESSO (exitCode=0, sessionId=ses_003e50fd9ffeHh50n9Q7HX45oE, duracaoMs=12405). TypeScript compila sem erros. Documento de implementacao em .ia/contexto/kilo-dispatcher-implementacao.md. Teste final com frontend tambem retornou SUCESSO.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T16:15:32.387Z",
+        "aceitaEm": "2026-08-13T16:20:00.000Z",
+        "concluidaEm": "2026-08-13T17:28:00.000Z"
+      },
+      "sessaoId": "main"
+    },
+    {
+      "id": "HOF-2026-00090",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00014",
+      "resumo": "CONCLUIDO: Sistema de Envio Automatico via Kilo CLI implementado e testado",
+      "concluido": [
+        "Ler INSTRUCOES-AGENTMAP-ADMIN-KILO.md",
+        "Validar Kilo CLI (v7.4.21) instalado e comandos disponiveis",
+        "Criar estrutura /.ia/outbox/ para todos os agentes",
+        "Criar agentes-config.json com workspacePath, sessionId, modoAutonomia",
+        "Implementar KiloDispatcherService.ts",
+        "Adicionar rotas API: /api/admin/outbox, /api/admin/dispatch/:agenteId, /api/admin/dispatch-log",
+        "Build e verificacao TypeScript sem erros",
+        "Testar dispatch com agente backend (SUCESSO)",
+        "Criar documento de implementacao em /.ia/contexto/kilo-dispatcher-implementacao.md"
+      ],
+      "pendente": [],
+      "artefatos": [
+        "backend/src/servicios/KiloDispatcherService.ts",
+        "backend/src/api/admin.ts (rotas outbox/dispatch adicionadas)",
+        "backend/src/api/middleware.ts (kiloDispatcher no Servicos)",
+        "backend/src/mcp-server/contexto.ts (kiloDispatcher em montarServicos)",
+        "backend/src/servicios/index.ts (export KiloDispatcherService)",
+        "backend/src/tipos/index.ts (TipoEvento extendido)",
+        "backend/src/servicios/AuditoriaService.ts (TipoEvento local atualizado)",
+        ".ia/configuracao/agentes-config.json",
+        ".ia/outbox/ (estrutura de pastas criada)",
+        ".ia/contexto/dispatch-log.json",
+        ".ia/contexto/kilo-dispatcher-implementacao.md"
+      ],
+      "decisoes": [
+        "Usar execSync em vez de execa/execPromise por problemas de deadlock no Windows",
+        "Usar caminho absoluto do kilo.cmd (C:\\Users\\Administrator\\AppData\\Roaming\\npm\\kilo.cmd) no Windows",
+        "Mapear todos os agentes do AgentMap para o agente Kilo 'orchestrator' (unico agente disponivel)",
+        "Backend tem autoApprove=true (AUTONOMA) — usa --auto no kilo run",
+        "Agentes sem autoApprove (ASSISTIDA/MANUAL) — prompt falha por falta de permissao, aguardando intervencao"
+      ],
+      "alteracoes": [
+        "Criada /.ia/outbox/{agenteId}/ com subpastas enviado/ e erros/",
+        "Criado backend/src/servicios/KiloDispatcherService.ts",
+        "Adicionadas 3 rotas no backend/src/api/admin.ts",
+        "Atualizada interface Servicos em middleware.ts para incluir kiloDispatcher",
+        "Atualizada montarServicos em contexto.ts para incluir kiloDispatcher",
+        "Export KiloDispatcherService em servicos/index.ts",
+        "Adicionado 4 novos tipos de evento em TipoEvento (tipos/index.ts e AuditoriaService.ts)",
+        "Atualizada .ia/configuracao/transicoes.json com novas transicoes se necessario"
+      ],
+      "riscos": [
+        "Kilo CLI consome creditos de modelo AI — uso com --auto pode ser rapido mas limitado por creditos",
+        "Path hardcoded para kilo.cmd — precisa ser parametrizado para outros ambientes Windows",
+        "Sessoes do Kilo sao por workspace — cada --dir diferente cria sessao isolada"
+      ],
+      "bloqueios": [],
+      "observacoes": "TESTE REAL: Dispatch para agente backend concluido com SUCESSO (exitCode=0, sessionId=ses_003e50fd9ffeHh50n9Q7HX45oE, duracaoMs=12405). Kilo CLI v7.4.21 validado com todos os comandos: run, agent, session, daemon, serve, mcp, acp. O sistema de outbox/dispatcher funciona end-to-end. Documento completo em .ia/contexto/kilo-dispatcher-implementacao.md. Proximo passo: integrar handoffs com outbox automatica e implementar eventos (TARETA_FINALIZADA -> criar RES).",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T17:15:00.000Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      },
+      "sessaoId": "main"
+    },
+    {
+      "id": "HOF-2026-00091",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "INICIAR: TAR-2026-00015 - Interface de Monitoramento e Chat do AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Ler HOF-2026-00092",
+        "Ler /Projetos/AgenteMap_Projetos/PAGINA_PESSOAL/.ia/procedimentos/interface-monitoramento-chat.md",
+        "Criar monitoramento.html",
+        "Criar css/monitoramento.css",
+        "Criar js/monitoramento.js",
+        "Implementar backend/src/api/monitoramento.ts",
+        "Implementar backend/src/websocket/monitoramento.ts",
+        "Implementar backend/src/servicios/MonitoramentoService.ts",
+        "Integrar com eventos do AgentMap",
+        "Integrar com KiloDispatcherService",
+        "Testar interface",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Nova tarefa oficial criada: TAR-2026-00015. Implementar interface de chat/monitoramento no navegador do AgentMap para acompanhar ações dos agentes em tempo real e permitir intervenção manual.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T17:40:47.316Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00093",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "CONCLUIDO: Interface de Monitoramento e Chat implementada com WebSocket, auto-scroll e controle de modos",
+      "concluido": [
+        "Ler HOF-2026-00091 e procedimento interface-monitoramento-chat.md",
+        "Implementar MonitoramentoService.ts com gerenciamento de estados e modos",
+        "Implementar WebSocket server em websocket/monitoramento.ts",
+        "Implementar API REST em api/monitoramento.ts (mensagens, agentes, modo, intervir, status)",
+        "Criar frontend: monitoramento.html, css/monitoramento.css, js/monitoramento.js",
+        "Integrar WebSocket + MonitoramentoService no index.ts, contexto.ts, middleware.ts",
+        "TypeScript compile sem erros",
+        "Testar WebSocket conexao (mensagem de boas-vindas, solicitacoes, broadcast)",
+        "Testar endpoints REST (mensagens, agentes, modo)",
+        "Testar auto-scroll, badge novas mensagens e botao de pausa",
+        "Criar 5 guias de documentacao obrigatorios"
+      ],
+      "pendente": [],
+      "artefatos": [
+        "backend/src/servicios/MonitoramentoService.ts",
+        "backend/src/websocket/monitoramento.ts",
+        "backend/src/api/monitoramento.ts",
+        "backend/src/index.ts",
+        "backend/src/api/middleware.ts",
+        "backend/src/mcp-server/contexto.ts",
+        "backend/src/servicios/index.ts",
+        "frontend/monitoramento.html",
+        "frontend/css/monitoramento.css",
+        "frontend/js/monitoramento.js",
+        ".ia/docs/guias/guia-usuario-monitoramento.md",
+        ".ia/docs/guias/guia-agentes-monitoramento.md",
+        ".ia/docs/guias/guia-novos-agentes-monitoramento.md",
+        ".ia/docs/guias/guia-tools-monitoramento.md",
+        ".ia/docs/guias/quick-reference.md"
+      ],
+      "decisoes": [
+        "Usar package 'ws' para WebSocket server (instalado via npm)",
+        "WebSocket path: /ws/monitoramento",
+        "Modos: AUTOMATICO (default global), HIBRIDO, MANUAL",
+        "Status por agente persistidos em .ia/contexto/status/{agenteId}.json",
+        "Mensagens persistidas em .ia/contexto/mensagens-monitoramento.json",
+        "Modo global persistido em .ia/configuracao/monitoramento.json",
+        "Frontend usa ES modules puro (sem bundlers) seguindo o padrao existente do projeto",
+        "Auto-scroll com botao de pausa e badge de novas mensagens no canto inferior direito"
+      ],
+      "alteracoes": [
+        "Criado backend/src/servicios/MonitoramentoService.ts",
+        "Criado backend/src/websocket/monitoramento.ts",
+        "Criado backend/src/api/monitoramento.ts",
+        "Atualizado backend/src/index.ts (HTTP server + WebSocket integration)",
+        "Atualizado backend/src/api/middleware.ts (Servicos interface + projectMiddleware)",
+        "Atualizado backend/src/mcp-server/contexto.ts (montarServicos)",
+        "Atualizado backend/src/servicios/index.ts (export MonitoramentoService)",
+        "Atualizado backend/src/tipos/index.ts (novos TiposEvento)",
+        "Atualizado backend/src/servicios/AuditoriaService.ts (TiposEvento local)",
+        "Criado frontend/monitoramento.html",
+        "Criado frontend/css/monitoramento.css",
+        "Criado frontend/js/monitoramento.js",
+        "Criada estrutura .ia/docs/guias/ com 5 guias",
+        "Instalado package 'ws' e '@types/ws'"
+      ],
+      "riscos": [
+        "WebSocket consome memoria com clientes conectados (pooling de 100 listeners)",
+        "Mensagens persistidas em JSON podem crescer (limite 500 msgs, backup automatico)",
+        "Frontend JS puro sem framework pode ser verboso para features complexas"
+      ],
+      "bloqueios": [],
+      "observacoes": "IMPLEMENTACAO COMPLETA. Testes validados: TypeScript OK, WebSocket conectado, todos os endpoints REST retornam 200 OK, interface HTML servida na porta 3150. Teste real: conexao WebSocket via Node.js script — recebeu mensagem de boas-vindas, solicitou mensagens (0 resultados), solicitou agentes (6 agentes retornados), broadcast de modo atual (AUTOMATICO). 5 guias de documentacao criados em .ia/docs/guias/. Interface disponivel em http://localhost:3150/monitoramento.html",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T18:13:00.000Z",
+        "aceitaEm": null,
+        "concluidaEm": "2026-08-13T18:13:30.000Z"
+      }
+    },
+    {
+      "id": "HOF-2026-00094",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00016",
+      "resumo": "VERIFICAR: Documentacoes do AgentMap na pasta correta e nome do chat de monitoramento",
+      "concluido": [
+        "Verificar documentacoes em /.ia/docs/ e pastas do AgentMap",
+        "Mover guias que estao em PAGINA_PESSOAL para AgentMap",
+        "Informar nome oficial do chat de monitoramento",
+        "Reportar via handoff"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [
+        "Guias de monitoramento movidos de PAGINA_PESSOAL/.ia/docs/guias/ para AgentMap/.ia/docs/guias/"
+      ],
+      "alteracoes": [
+        "Criada estrutura .ia/docs/guias/ no AgentMap",
+        "Copiados 5 guias: guia-usuario-monitoramento.md, guia-agentes-monitoramento.md, guia-novos-agentes-monitoramento.md, guia-tools-monitoramento.md, quick-reference.md"
+      ],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Guias de monitoramento e chat do AgentMap estao agora na pasta correta: G:\\PROJETOS\\WEB\\AgentMap\\.ia\\docs\\guias/. Nome oficial do chat: AgentMap - Monitoramento.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T18:49:05.324Z",
+        "aceitaEm": "2026-08-13T18:55:35.519Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00095",
+      "origem": "agentmap-admin",
+      "destino": "arquiteto",
+      "tarefaId": null,
+      "resumo": "Solicitar nome oficial do chat de monitoramento para atualizar instrucoes e documentacao",
+      "concluido": [],
+      "pendente": [
+        "Informar nome oficial da interface de chat de monitoramento",
+        "Atualizar instrucoes e documentacao do AgentMap com o nome confirmado"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T19:11:53.675Z",
+        "aceitaEm": "2026-08-13T19:40:45.397Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00096",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "CORRIGIR: Caminho/botao para pagina de monitoramento no AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Verificar existencia de monitoramento.html no servidor",
+        "Informar caminho exato para acesso",
+        "Adicionar botao/link no index.html para monitoramento",
+        "Garantir que rotas/arquivos estaticos estejam corretos",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Usuario esta em http://localhost:3150/index.html e nao encontra a pagina de monitoramento. Verificar se monitoramento.html existe no servidor ativo, informar o caminho exato e adicionar botao/link de acesso a partir do index.html.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T19:14:13.565Z",
+        "aceitaEm": "2026-08-13T19:39:56.734Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00097",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "CORRIGIR: Botao de acesso ao monitoramento + Chat nao funcionando",
+      "concluido": [],
+      "pendente": [
+        "Adicionar botao/link para /monitoramento.html na pagina principal",
+        "Verificar conexao WebSocket do chat",
+        "Verificar endpoint POST /api/monitoramento/mensagens",
+        "Verificar se mensagens estao sendo salvas/retornadas corretamente",
+        "Verificar auto-scroll e renderizacao no frontend",
+        "Testar envio de mensagem manualmente",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Usuario relatou dois problemas: 1) Pagina de monitoramento existe mas nao tem botao/link na pagina principal do AgentMap. 2) Chat nao funciona: mensagem enviada 'OI' nao apareceu e nao houve resposta. Verificar configuracao do WebSocket, rotas de mensagens, auto-scroll e integracao com backend.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T19:21:28.269Z",
+        "aceitaEm": "2026-08-13T19:40:15.231Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00098",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "INSTRUCAO: Responder em DOIS locais quando concluir a correcao",
+      "concluido": [],
+      "pendente": [
+        "Responder no chat do Arquiteto/Gerente",
+        "Responder no chat do AgentMap",
+        "Confirmar resolucao dos problemas"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "IMPORTANTE: Quando resolver os problemas, responda em DOIS locais: 1) Aqui no chat do Arquiteto/Gerente. 2) No proprio chat do AgentMap (pagina de monitoramento) para que o usuario veja a resposta na interface web. Nao responda apenas no chat do AgentMap, pois o Arquiteto/Gerente precisa ver a resposta aqui tambem.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T19:26:16.221Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00099",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "CORRIGIR IMEDIATAMENTE: Pagina e chat de monitoramento do AgentMap",
+      "concluido": [],
+      "pendente": [
+        "Criar monitoramento.html no servidor",
+        "Adicionar botao/link na pagina principal",
+        "Corrigir chat de monitoramento",
+        "Responder no chat do Arquiteto/Gerente",
+        "Responder no chat do AgentMap"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Resolver IMEDIATAMENTE: 1) Criar pagina monitoramento.html no servidor AgentMap em http://localhost:3150/monitoramento.html. 2) Adicionar botao/link de acesso na pagina principal do AgentMap. 3) Corrigir chat: mensagens enviadas nao aparecem. Verificar WebSocket, endpoint POST /api/monitoramento/mensagens, auto-scroll e renderizacao. 4) Responder em DOIS locais: aqui no chat do Arquiteto/Gerente E no proprio chat do AgentMap.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T19:34:52.496Z",
+        "aceitaEm": "2026-08-13T19:40:15.275Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00100",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "CORRIGIR: Vazamento de <environment_details> na interface do monitoramento",
+      "concluido": [],
+      "pendente": [
+        "Identificar origem do <environment_details> no frontend",
+        "Remover/filtrar metadados internos da interface",
+        "Testar que chat funciona sem vazamento",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Corrigir vazamento de metadados internos na interface do monitoramento. O elemento <environment_details> esta aparecendo para o usuario no chat, o que nao deve acontecer. Remover ou filtrar esse elemento da renderizacao do frontend.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T19:45:29.475Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00101",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "URGENTE: Remover <environment_details> do chat de monitoramento",
+      "concluido": [],
+      "pendente": [
+        "Identificar origem do <environment_details> no frontend",
+        "Remover/filtrar metadados internos",
+        "Testar que chat funciona sem vazamento",
+        "Reportar via handoff"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "URGENTE: O elemento <environment_details> esta aparecendo no chat de monitoramento para o usuario. Isso vaza metadados internos como Current time, Working directory e Workspace root folder. Remover/filtrar isso da renderizacao do frontend IMEDIATAMENTE. Nao deve aparecer nenhum metadado interno no chat.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T19:46:58.406Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00102",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "URGENTE: Corrigir vazamento de <environment_details> no chat",
+      "concluido": [
+        "Corrigir renderizacao no frontend",
+        "Filtrar <environment_details>",
+        "Testar chat sem vazamento",
+        "Responder aqui e no chat do AgentMap"
+      ],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "URGENTE: O proprio Kilo CLI esta retornando <environment_details> na saida e o frontend esta renderizando isso no chat. Isso expoe metadados internos. Corrigir IMEDIATAMENTE no frontend: filtrar/remover <environment_details> antes de renderizar qualquer mensagem no monitoramento.",
+      "estado": "CONCLUIDO",
+      "datas": {
+        "criadaEm": "2026-08-13T19:49:49.141Z",
+        "aceitaEm": null,
+        "concluidaEm": "2026-08-13T19:59:03.487Z"
+      }
+    },
+    {
+      "id": "HOF-2026-00103",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": null,
+      "resumo": "URGENTE - PROBLEMAS DE COMUNICACAO E SEGURANCA: vazamento de metadados internos, comunicacao falhando e revisao completa CLI/MCP/AgentMap.",
+      "concluido": [],
+      "pendente": [
+        "Remover/filtrar environment_details da renderizacao do frontend",
+        "Revisar comunicacao entre agentes: handoffs, Kilo CLI e envio automatico",
+        "Revisar comunicacao completa: Kilo CLI, MCP Server, AgentMap, Frontend/Backend",
+        "Responder com PROBLEMAS_RESOLVIDOS quando concluir"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T19:55:44.204Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00102",
+      "origem": "arquiteto",
+      "destino": "agentmap-admin",
+      "tarefaId": "TAR-2026-00015",
+      "resumo": "URGENTE - PROBLEMAS DE COMUNICACAO E SEGURANCA: vazamento de metadados internos, comunicacao falhando e revisao completa CLI/MCP/AgentMap.",
+      "concluido": [],
+      "pendente": [
+        "Remover/filtrar environment_details da renderizacao do frontend",
+        "Revisar comunicacao entre agentes: handoffs, Kilo CLI e envio automatico",
+        "Revisar comunicacao completa: Kilo CLI, MCP Server, AgentMap, Frontend/Backend",
+        "Responder com PROBLEMAS_RESOLVIDOS quando concluir"
+      ],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": "Problemas reportados pelo gerente: 1) Vazamento de environment_details no chat. 2) Comunicacao falhando. 3) CLI/MCP/AgentMap instavel.",
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-13T19:58:39.602Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    }
+  ]
+}

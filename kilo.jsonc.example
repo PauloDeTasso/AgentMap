@@ -1,0 +1,29 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "agentmap": {
+      "type": "local",
+      "command": ["cmd", "/c", "cd", "backend", "&&", "npx", "tsx", "src/mcp-server/index.ts"],
+      "environment": {
+        "NODE_ENV": "production"
+      },
+      "enabled": true,
+      "timeout": 30000
+    }
+  },
+  "plugin": [
+    "./.kilo/plugin/agentmap-wakeup.ts"
+  ],
+  "hide_prompt_training_models": false,
+  "auto_collapse_reasoning": true,
+  "experimental": {
+    "mcp_timeout": 30000
+  }
+}
+
+/*
+ * WINDOWS: mantenha o command acima.
+ * LINUX/MACOS: substitua por:
+ *   "command": ["bash", "-c", "cd backend && npx tsx src/mcp-server/index.ts"]
+ */
+

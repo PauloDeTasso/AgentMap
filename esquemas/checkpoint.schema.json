@@ -1,0 +1,27 @@
+{
+  "$id": "checkpoint",
+  "type": "object",
+  "required": ["id", "tarefaId", "agenteId", "tipo", "titulo", "descricao", "artefatos", "alteracoes", "riscos", "pendencias", "observacoes", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^CHK-[A-Z0-9-]+$", "minLength": 1 },
+    "tarefaId": { "type": "string", "minLength": 1 },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "tipo": { "type": "string", "enum": ["INTERMEDIARIO", "DECISAO", "ENTREGA"] },
+    "titulo": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string" },
+    "artefatos": { "type": "array", "items": { "type": "string" } },
+    "alteracoes": { "type": "array", "items": { "type": "string" } },
+    "riscos": { "type": "array", "items": { "type": "string" } },
+    "pendencias": { "type": "array", "items": { "type": "string" } },
+    "observacoes": { "type": ["string", "null"] },
+    "dados": { "type": ["object", "null"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

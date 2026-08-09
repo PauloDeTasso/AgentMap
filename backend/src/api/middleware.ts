@@ -1,0 +1,164 @@
+import { Request, Response, NextFunction } from 'express';
+import { ProjetoService, ProjetoAberto } from '../servicios';
+import { AgenteService } from '../servicios';
+import { TarefaService } from '../servicios';
+import { SolicitacaoService } from '../servicios';
+import { CriterioService } from '../servicios';
+import { ResultadoService } from '../servicios';
+import { ArtefatoService } from '../servicios';
+import { HandoffService } from '../servicios';
+import { PendenciaService } from '../servicios';
+import { ValidacaoService } from '../servicios';
+import { ConflitoService } from '../servicios';
+import { ReservaService } from '../servicios';
+import { SessaoService } from '../servicios';
+import { CheckpointService } from '../servicios';
+import { AprendizadoService } from '../servicios';
+import { DependenciaService } from '../servicios';
+import { ResponsabilidadeService } from '../servicios';
+import { IntegridadeService } from '../servicios';
+import { DecisaoService } from '../servicios';
+import { RiscoService } from '../servicios';
+import { BloqueioService } from '../servicios';
+import { EventoService } from '../servicios';
+import { ContatoService } from '../servicios';
+import { StateMachineService } from '../servicios';
+import { CorsService } from '../servicios/CorsService';
+import { ContractValidatorService } from '../servicios/ContractValidatorService';
+import { BackupService } from '../servicios/BackupService';
+import { MonitoramentoService } from '../servicios/MonitoramentoService';
+import { FluxoService } from '../servicios/FluxoService';
+import { InstanciaService } from '../servicios/InstanciaService';
+import { OrquestradorService } from '../servicios/OrquestradorService';
+import { KiloDiscoveryService } from '../servicios/KiloDiscoveryService';
+import { KiloReconciliationService } from '../servicios/KiloReconciliationService';
+import { TaskContextBuilder } from '../servicios/TaskContextBuilder';
+import { ResultadoOperacao } from '../tipos';
+import { AuditoriaService } from '../servicios';
+
+export interface Servicos {
+  projeto: ProjetoAberto;
+  agente: AgenteService;
+  tarefa: TarefaService;
+  solicitacao: SolicitacaoService;
+  criterio: CriterioService;
+  resultado: ResultadoService;
+  artefato: ArtefatoService;
+  handoff: HandoffService;
+  pendencia: PendenciaService;
+  validacao: ValidacaoService;
+  conflito: ConflitoService;
+  reserva: ReservaService;
+  sessao: SessaoService;
+  checkpoint: CheckpointService;
+  aprendizado: AprendizadoService;
+  dependencia: DependenciaService;
+  responsabilidade: ResponsabilidadeService;
+  integridade: IntegridadeService;
+  decisao: DecisaoService;
+  risco: RiscoService;
+  bloqueio: BloqueioService;
+  evento: EventoService;
+  contato: ContatoService;
+  auditoria: AuditoriaService;
+  stateMachine: StateMachineService;
+  contractValidator: ContractValidatorService;
+  backup: BackupService;
+  monitoramento: MonitoramentoService;
+  fluxo: FluxoService;
+  instancia: InstanciaService;
+  orquestrador: OrquestradorService;
+  kiloDiscovery: KiloDiscoveryService;
+  kiloReconciliation: KiloReconciliationService;
+  taskContextBuilder: TaskContextBuilder;
+}
+
+export function projectMiddleware(projetoService: ProjetoService) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    console.log(`[middleware] projectMiddleware -> ${req.method} ${req.url}`);
+    const projetoResult = projetoService.getProjetoAtual();
+    if (!projetoResult.sucesso) {
+      console.error('[middleware] getProjetoAtual falhou:', projetoResult.erro);
+      return res.status(500).json({ sucesso: false, erro: 'Erro ao acessar projeto' });
+    }
+    const projeto = projetoResult.dados;
+    if (!projeto) {
+      console.log('[middleware] Nenhum projeto aberto — retornando 400 para', req.url);
+      return res.status(400).json({ sucesso: false, erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.', codigoErro: 'NO_PROJECT_OPEN' });
+    }
+
+    req.servicos = {
+      projeto,
+      agente: new AgenteService(projeto.fileService, projeto.auditoria, projeto.validator),
+      tarefa: new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
+      solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      criterio: new CriterioService(projeto.fileService, projeto.auditoria, projeto.validator),
+      resultado: new ResultadoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      artefato: new ArtefatoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      handoff: new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
+      pendencia: new PendenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+      validacao: new ValidacaoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      conflito: new ConflitoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      reserva: new ReservaService(projeto.fileService, projeto.auditoria, projeto.validator),
+      sessao: new SessaoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      checkpoint: new CheckpointService(projeto.fileService, projeto.auditoria, projeto.validator),
+      aprendizado: new AprendizadoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      dependencia: new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+      responsabilidade: new ResponsabilidadeService(projeto.fileService, projeto.auditoria, projeto.validator),
+      integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.fluxo),
+      decisao: new DecisaoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      risco: new RiscoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
+      evento: new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
+      auditoria: projeto.auditoria,
+      stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator),
+      contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),
+      backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz),
+      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
+      instancia: new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+      orquestrador: new OrquestradorService(
+        projeto.fileService,
+        projeto.auditoria,
+        projeto.validator,
+        projeto.caminhoRaiz,
+        projeto.id,
+        new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
+        new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator)
+      ),
+      kiloDiscovery: projeto.kiloDiscovery,
+      kiloReconciliation: projeto.kiloReconciliation,
+      taskContextBuilder: new TaskContextBuilder(projeto.fileService, projeto.auditoria, projeto.validator)
+    };
+    console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
+    next();
+  };
+}
+
+export function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<Response> | Response) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch((err) => {
+      console.error(`[asyncHandler] Erro em ${req.method} ${req.url}:`, err?.message || err);
+      next(err);
+    });
+  };
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      servicos?: Servicos;
+    }
+  }
+}
+
+export function responder(res: Response, result: ResultadoOperacao<any>, status = 200): Response {
+  if (!result.sucesso) {
+    return res.status(status).json({ sucesso: false, erro: result.erro, codigoErro: result.codigoErro });
+  }
+  return res.status(status).json({ sucesso: true, dados: result.dados });
+}
