@@ -2,85 +2,95 @@
 
 > Sistema local de coordenação, memória operacional e rastreabilidade para projetos desenvolvidos por múltiplos agentes de IA.
 
-## 📌 Visão geral
+## Visão geral
 
-O **AgentMap** é um sistema local criado para organizar e coordenar o trabalho de diferentes agentes de Inteligência Artificial que participam do desenvolvimento de um mesmo projeto.
+O **AgentMap** é um sistema local criado para permitir que múltiplos agentes de Inteligência Artificial trabalhem de forma coordenada sobre o mesmo projeto.
 
-Seu objetivo é evitar que cada agente trabalhe isoladamente, sem conhecer:
+O AgentMap funciona como uma **memória operacional compartilhada e uma camada de coordenação do projeto**, permitindo que os agentes consultem, registrem e atualizem informações estruturadas sobre o trabalho em andamento.
 
-* o que os outros agentes estão fazendo;
-* quais decisões já foram tomadas;
-* quais contratos existem;
-* quais tarefas estão pendentes;
-* quais alterações foram solicitadas;
-* quais recursos estão sendo utilizados;
-* quais agentes dependem de outros;
-* quais trabalhos foram concluídos;
-* quais resultados precisam ser validados;
-* quais problemas, bloqueios e conflitos existem.
+A comunicação operacional não depende de conversas diretas entre agentes.
 
-O AgentMap funciona como uma **memória operacional compartilhada do projeto**.
-
-Os agentes não precisam conversar diretamente entre si.
-
-Eles consultam e atualizam o AgentMap através de um protocolo estruturado.
+Cada agente pode consultar o estado do projeto, executar sua tarefa, registrar resultados e deixar informações estruturadas para os próximos agentes.
 
 ```text
                     ┌──────────────────────┐
                     │       AGENTMAP       │
                     │                      │
-                    │ Memória operacional  │
-                    │ Estado do projeto    │
-                    │ Coordenação          │
-                    │ Protocolos           │
-                    │ Histórico            │
+                    │ Projetos             │
+                    │ Agentes              │
+                    │ Tarefas              │
+                    │ Contratos            │
+                    │ Decisões             │
+                    │ Solicitações         │
+                    │ Dependências         │
+                    │ Reservas             │
+                    │ Bloqueios            │
+                    │ Conflitos            │
+                    │ Handoffs             │
+                    │ Resultados           │
+                    │ Validações           │
+                    │ Checkpoints          │
+                    │ Riscos               │
+                    │ Histórico             │
                     └──────────┬───────────┘
                                │
-                         ┌─────┴─────┐
+                               ▼
+                         ┌───────────┐
                          │    MCP    │
                          └─────┬─────┘
                                │
-                ┌──────────────┼──────────────┐
-                │              │              │
-             KILO CODE      AGENTE A       AGENTE B
-                │              │              │
-                └──────────────┼──────────────┘
+              ┌────────────────┼────────────────┐
+              │                │                │
+              ▼                ▼                ▼
+          AGENTE A         AGENTE B         AGENTE C
+              │                │                │
+              └────────────────┼────────────────┘
                                │
                          PROJETO REAL
 ```
 
 ---
 
-# 🎯 Objetivo
+# Objetivo
 
-O objetivo do AgentMap é permitir que múltiplos agentes trabalhem sobre um mesmo projeto de forma:
+O AgentMap foi desenvolvido para resolver um problema comum em ambientes multiagente:
 
-* organizada;
-* rastreável;
-* previsível;
-* desacoplada;
-* segura;
-* auditável;
-* recuperável;
-* extensível.
+> Como fazer agentes diferentes trabalharem sobre o mesmo projeto sem perder contexto, decisões, responsabilidades, dependências e histórico?
 
-O sistema deve permitir que um agente seja substituído por outro sem que o conhecimento operacional acumulado seja perdido.
+Para isso, o sistema centraliza as informações operacionais do projeto.
+
+Os agentes podem descobrir:
+
+* quais tarefas possuem;
+* quais tarefas estão pendentes;
+* quais tarefas foram concluídas;
+* quais alterações foram solicitadas;
+* quais contratos existem;
+* quais decisões foram tomadas;
+* quais recursos estão sendo utilizados;
+* quais dependências existem;
+* quais agentes são responsáveis;
+* quais bloqueios existem;
+* quais conflitos foram identificados;
+* quais resultados foram produzidos;
+* quais trabalhos precisam ser validados;
+* quais informações foram deixadas por agentes anteriores.
 
 ---
 
-# 🧠 Conceito principal
+# Conceito central
 
-O AgentMap não é um sistema de chat entre agentes.
+O AgentMap não foi projetado como um simples sistema de mensagens entre agentes.
 
-Ele funciona como uma **camada de coordenação e memória operacional**.
+A comunicação acontece através do **estado estruturado do projeto**.
 
 Em vez de:
 
 ```text
 Agente A
-   ↓
-"Perguntar" ao Agente B
-   ↓
+   │
+   │ conversa diretamente
+   ▼
 Agente B
 ```
 
@@ -88,52 +98,29 @@ o fluxo é:
 
 ```text
 Agente A
-   ↓
+   │
+   ▼
 AgentMap
-   ↓
-registro estruturado
-   ↓
+   │
+   ▼
+Registro estruturado
+   │
+   ▼
 AgentMap
-   ↓
+   │
+   ▼
 Agente B
 ```
 
-Por exemplo:
+Isso permite que os agentes trabalhem de forma desacoplada.
 
-```text
-Frontend
-   │
-   │ identifica necessidade
-   ▼
-Solicitação de Alteração
-   │
-   ▼
-AgentMap
-   │
-   │ pendência do Backend
-   ▼
-Backend
-   │
-   │ consulta
-   ▼
-AgentMap
-   │
-   │ executa trabalho
-   ▼
-Resultado
-   │
-   ▼
-Handoff
-   │
-   ▼
-Frontend
-```
+Um agente pode terminar seu trabalho e outro agente pode continuar posteriormente sem depender da memória da conversa anterior.
 
 ---
 
-# 🏗️ Arquitetura
+# Arquitetura
 
-O AgentMap utiliza uma arquitetura baseada em responsabilidades bem definidas.
+O AgentMap é dividido conceitualmente em três camadas principais:
 
 ```text
 ┌───────────────────────────────────────────────┐
@@ -144,79 +131,60 @@ O AgentMap utiliza uma arquitetura baseada em responsabilidades bem definidas.
                        │
                        ▼
 ┌───────────────────────────────────────────────┐
-│                    AGENTMAP                    │
+│                   AGENTMAP                    │
 │                                               │
-│ Projetos                                      │
-│ Agentes                                       │
-│ Tarefas                                       │
-│ Contratos                                     │
-│ Decisões                                      │
-│ Solicitações de alteração                     │
-│ Dependências                                  │
-│ Reservas                                      │
-│ Bloqueios                                     │
-│ Conflitos                                     │
-│ Handoffs                                      │
-│ Resultados                                    │
-│ Validações                                    │
-│ Checkpoints                                   │
-│ Riscos                                        │
-│ Histórico                                     │
+│ Núcleo de coordenação e memória operacional   │
 └──────────────────────┬────────────────────────┘
                        │
                        ▼
 ┌───────────────────────────────────────────────┐
 │                     MCP                       │
 │                                               │
-│ Tools • Resources • Prompts                   │
+│ Tools • Resources • Prompts • Integração      │
 └──────────────────────┬────────────────────────┘
                        │
              ┌─────────┼─────────┐
              ▼         ▼         ▼
-          KILO      AGENTE      AGENTE
+          AGENTE     AGENTE     AGENTE
 ```
+
+O AgentMap permanece como autoridade sobre o estado operacional do projeto.
+
+O MCP funciona como camada de integração entre os agentes e o AgentMap.
+
+A interface Web funciona como camada de visualização, monitoramento e administração.
 
 ---
 
-# 🔌 MCP
+# MCP
 
-O **Model Context Protocol (MCP)** é utilizado como camada de integração entre os agentes e o AgentMap.
+O **Model Context Protocol (MCP)** fornece a camada padronizada de comunicação entre os agentes e o AgentMap.
 
-O MCP não possui a responsabilidade de se tornar uma segunda base de dados ou um segundo sistema de coordenação.
+O MCP não funciona como uma segunda fonte de verdade.
 
-A arquitetura é:
+O fluxo é:
 
 ```text
 Agente
    ↓
 MCP
    ↓
-Serviços do AgentMap
+AgentMap
    ↓
-Regras do AgentMap
+Regras do sistema
    ↓
-Persistência
+Dados do projeto
 ```
 
-O AgentMap permanece como autoridade sobre:
+Isso permite que diferentes clientes e agentes utilizem o mesmo núcleo operacional.
 
-* estado;
-* tarefas;
-* agentes;
-* solicitações;
-* contratos;
-* decisões;
-* handoffs;
-* validações;
-* histórico;
-* permissões;
-* integridade.
+A arquitetura também permite que novos clientes sejam adicionados futuramente sem alterar a estrutura conceitual do AgentMap.
 
 ---
 
-# 🤖 Agentes
+# Agentes
 
-Cada agente possui uma identidade dentro do projeto.
+Cada agente possui uma identidade própria dentro do projeto.
 
 Exemplo:
 
@@ -233,63 +201,89 @@ Exemplo:
 }
 ```
 
-O agente não deve precisar conhecer toda a estrutura física do AgentMap.
+A identidade do agente permite determinar:
 
-Ele descobre suas capacidades através do protocolo.
+* quem executa uma tarefa;
+* quem solicitou uma alteração;
+* quem é responsável por uma pendência;
+* quem produziu determinado resultado;
+* quem realizou determinada ação;
+* quem deve validar determinado trabalho.
 
 ---
 
-# 🔄 Ciclo de trabalho
+# Ciclo operacional do agente
 
-Todo agente deve seguir um ciclo operacional.
+O AgentMap estabelece um fluxo operacional para os agentes.
 
 ```text
-INICIAR SESSÃO
-      ↓
-DESCOBRIR AGENTMAP
-      ↓
+INICIAR
+   ↓
 IDENTIFICAR AGENTE
-      ↓
-CONSULTAR PENDÊNCIAS
-      ↓
-CONSULTAR TAREFA
-      ↓
-OBTER CONTEXTO
-      ↓
-VERIFICAR DEPENDÊNCIAS
-      ↓
-VERIFICAR BLOQUEIOS
-      ↓
-VERIFICAR CONFLITOS
-      ↓
+   ↓
+CONSULTAR CONTEXTO
+   ↓
+CONSULTAR TAREFAS
+   ↓
+CONSULTAR SOLICITAÇÕES
+   ↓
 CONSULTAR CONTRATOS
-      ↓
+   ↓
 CONSULTAR DECISÕES
-      ↓
-VERIFICAR ALTERAÇÕES
-      ↓
+   ↓
+VERIFICAR DEPENDÊNCIAS
+   ↓
+VERIFICAR BLOQUEIOS
+   ↓
+VERIFICAR CONFLITOS
+   ↓
+VERIFICAR RESERVAS
+   ↓
 EXECUTAR TRABALHO
-      ↓
-REGISTRAR RESULTADO
-      ↓
+   ↓
+REGISTRAR RESULTADOS
+   ↓
 REGISTRAR ARTEFATOS
-      ↓
+   ↓
 CRIAR HANDOFF
-      ↓
+   ↓
 SOLICITAR VALIDAÇÃO
-      ↓
-FINALIZAR TRABALHO
-      ↓
-ENCERRAR SESSÃO
+   ↓
+FINALIZAR
 ```
+
+Esse processo permite que cada agente tenha acesso ao contexto necessário antes de modificar o projeto.
 
 ---
 
-# 📋 Solicitações de alteração
+# Tarefas
 
-Uma das funcionalidades centrais do AgentMap é o sistema de **Solicitações de Alteração**.
+As tarefas representam unidades de trabalho do projeto.
 
-Ele permite que um agente identifique uma alteração que afeta outro agente ou outro domínio do projeto sem modificar silenciosamente o recurso compartilhado.
+Cada tarefa pode possuir:
+
+* identificação;
+* título;
+* descrição;
+* agente responsável;
+* prioridade;
+* status;
+* dependências;
+* artefatos;
+* critérios de conclusão;
+* resultados;
+* validação;
+* histórico.
+
+As tarefas formam uma das principais estruturas de coordenação entre os agentes.
+
+---
+
+# Solicitações de alteração
+
+O AgentMap possui um sistema estruturado de **Solicitações de Alteração**.
+
+Esse mecanismo permite que um agente registre uma alteração necessária que afete outro agente, domínio ou recurso compartilhado.
 
 Exemplo:
 
@@ -331,39 +325,88 @@ Exemplo:
 
 	"prioridade": "MEDIA",
 	"status": "PENDENTE",
-	"requerAprovacao": true
+	"requerAprovacao": true,
+
+	"aprovacao": {
+		"status": "PENDENTE",
+		"agenteId": null,
+		"data": null,
+		"observacao": null
+	}
 }
 ```
 
-Isso permite que o agente responsável encontre a solicitação posteriormente através do AgentMap.
+O agente responsável consulta as solicitações destinadas a ele durante seu ciclo de trabalho.
+
+Isso evita alterações silenciosas em recursos compartilhados.
 
 ---
 
-# 🔗 Handoffs
+# Contratos
 
-O AgentMap possui o conceito de **Handoff** para transferir contexto operacional entre agentes.
+Contratos representam estruturas compartilhadas entre diferentes partes do sistema.
 
-Um agente pode terminar sua participação e registrar:
+Exemplos:
+
+* contratos de API;
+* DTOs;
+* estruturas JSON;
+* interfaces;
+* eventos;
+* modelos compartilhados;
+* estruturas de banco;
+* integrações.
+
+Antes de alterar um recurso compartilhado, o agente deve verificar o contrato vigente e suas dependências.
+
+---
+
+# Decisões
+
+Decisões importantes do projeto são registradas para evitar que agentes diferentes adotem soluções incompatíveis.
+
+Uma decisão pode registrar:
+
+* identificação;
+* contexto;
+* problema;
+* decisão tomada;
+* justificativa;
+* impactos;
+* agentes envolvidos;
+* data;
+* status.
+
+Dessa forma, uma decisão importante deixa de depender da memória de uma única sessão de IA.
+
+---
+
+# Dependências
+
+O AgentMap permite registrar dependências entre:
+
+* tarefas;
+* agentes;
+* módulos;
+* contratos;
+* recursos;
+* etapas de desenvolvimento.
+
+Exemplo:
 
 ```text
-o que foi feito
-o que não foi feito
-quais arquivos foram alterados
-quais decisões foram tomadas
-quais riscos existem
-quais problemas permanecem
-qual agente deve continuar
+Tarefa B
+   │
+   └── depende de ──► Tarefa A
 ```
 
-Outro agente pode então assumir o trabalho sem depender da memória do agente anterior.
+Um agente pode verificar suas dependências antes de iniciar uma tarefa.
 
 ---
 
-# 🔒 Reservas
+# Reservas
 
-Agentes diferentes podem trabalhar simultaneamente.
-
-Para reduzir conflitos, o AgentMap permite registrar reservas lógicas sobre recursos.
+As reservas representam a intenção de um agente trabalhar sobre determinado recurso.
 
 Exemplo:
 
@@ -371,24 +414,23 @@ Exemplo:
 AGT-BACKEND
      │
      ▼
-Reserva:
-Contrato cliente-resposta
+Reserva
      │
      ▼
-AgentMap
+Contrato cliente-resposta
 ```
 
-Outro agente pode consultar a reserva antes de realizar uma alteração.
+Outro agente pode consultar a reserva antes de modificar o mesmo recurso.
 
-A reserva não substitui Git e não bloqueia fisicamente arquivos.
+As reservas são mecanismos de coordenação lógica.
 
-Ela representa o estado operacional conhecido pelo AgentMap.
+Elas não substituem o Git e não representam bloqueio físico do arquivo.
 
 ---
 
-# ⚠️ Bloqueios
+# Bloqueios
 
-Quando um agente não consegue continuar, ele pode registrar um bloqueio.
+Quando um agente não consegue continuar, pode registrar um bloqueio.
 
 Exemplo:
 
@@ -406,13 +448,13 @@ Impacto:
 Implementação não pode ser finalizada.
 ```
 
-Outro agente poderá consultar esse bloqueio e trabalhar para resolvê-lo.
+Isso permite que outros agentes descubram por que determinada tarefa não está avançando.
 
 ---
 
-# ⚔️ Conflitos
+# Conflitos
 
-O AgentMap também acompanha conflitos conhecidos entre:
+Conflitos podem ocorrer entre:
 
 * agentes;
 * tarefas;
@@ -422,63 +464,55 @@ O AgentMap também acompanha conflitos conhecidos entre:
 * dependências;
 * recursos.
 
-O objetivo não é resolver automaticamente todos os conflitos.
+O AgentMap registra esses conflitos para torná-los explícitos e rastreáveis.
 
-O objetivo é **torná-los explícitos e rastreáveis**.
-
----
-
-# 📦 Contratos
-
-Contratos representam interfaces compartilhadas entre partes do sistema.
-
-Exemplos:
-
-```text
-API REST
-DTO
-JSON
-eventos
-estrutura de banco
-interfaces
-serviços
-integrações
-```
-
-Um agente deve consultar o contrato vigente antes de modificar uma parte que dependa dele.
+O sistema não depende de conversas informais para comunicar problemas entre agentes.
 
 ---
 
-# 🧠 Decisões
+# Handoffs
 
-Decisões arquiteturais importantes ficam registradas no AgentMap.
+O **Handoff** permite transferir contexto operacional de um agente para outro.
 
-Exemplo:
+Um agente pode registrar:
 
-```text
-DECISÃO-001
+* trabalho realizado;
+* trabalho pendente;
+* arquivos modificados;
+* decisões tomadas;
+* problemas encontrados;
+* riscos;
+* próximos passos;
+* agente recomendado para continuidade.
 
-Título:
-Utilizar JWT com access token e refresh token.
-
-Motivo:
-Separação entre autenticação de curta e longa duração.
-
-Impacto:
-Backend
-Frontend
-Segurança
-```
-
-Isso evita que agentes diferentes tomem decisões contraditórias.
+Assim, outro agente pode assumir o trabalho sem depender da memória do agente anterior.
 
 ---
 
-# 🧪 Validação
+# Resultados
 
-A conclusão de uma tarefa não significa automaticamente que ela está validada.
+Ao concluir uma tarefa, o agente registra o resultado produzido.
 
-Fluxo:
+O resultado pode conter:
+
+* descrição;
+* arquivos modificados;
+* recursos criados;
+* decisões tomadas;
+* testes realizados;
+* limitações;
+* pendências;
+* observações.
+
+Isso cria rastreabilidade entre tarefa e resultado.
+
+---
+
+# Validação
+
+Uma tarefa concluída não é automaticamente considerada validada.
+
+O fluxo é:
 
 ```text
 TAREFA
@@ -504,167 +538,58 @@ REPROVADA
 CORREÇÃO
 ```
 
-Essa separação permite que um agente implemente e outro agente valide.
+Isso permite separar:
+
+* quem implementou;
+* quem revisou;
+* quem aprovou.
 
 ---
 
-# 💾 Persistência
+# Checkpoints
 
-O AgentMap mantém seus dados operacionais em uma estrutura persistente.
+Checkpoints permitem registrar o estado intermediário de um trabalho.
 
-A implementação deve manter uma única fonte oficial dos dados.
+Eles são especialmente importantes para trabalhos longos ou interrompidos.
 
-O MCP não mantém uma cópia independente do estado.
-
-A interface web também não deve manter uma segunda fonte de verdade.
+Um checkpoint pode registrar:
 
 ```text
-                    AGENTMAP
-                       │
-            ┌──────────┼──────────┐
-            ▼          ▼          ▼
-           WEB        MCP       OUTROS
-            │          │
-            ▼          ▼
-         consulta    agentes
+estado atual
+progresso
+arquivos alterados
+decisões
+problemas
+próximos passos
 ```
+
+Isso facilita a recuperação do trabalho.
 
 ---
 
-# 🗂️ Organização conceitual
+# Riscos
 
-O projeto deve organizar as informações por domínio.
+Riscos identificados durante o desenvolvimento podem ser registrados no AgentMap.
 
-Exemplo conceitual:
+Exemplos:
 
-```text
-AgentMap/
-│
-├── projetos/
-│
-├── agentes/
-│
-├── tarefas/
-│
-├── contratos/
-│
-├── decisoes/
-│
-├── solicitacoes-alteracao/
-│
-├── dependencias/
-│
-├── reservas/
-│
-├── bloqueios/
-│
-├── conflitos/
-│
-├── handoffs/
-│
-├── resultados/
-│
-├── validacoes/
-│
-├── checkpoints/
-│
-├── riscos/
-│
-├── aprendizados/
-│
-├── historico/
-│
-├── schemas/
-│
-├── docs/
-│
-├── mcp/
-│
-└── web/
-```
+* alteração incompatível;
+* dependência externa;
+* risco de regressão;
+* contrato indefinido;
+* conflito arquitetural;
+* recurso compartilhado;
+* problema de segurança.
 
-A estrutura física definitiva pode ser diferente.
-
-O importante é manter a separação conceitual dos domínios.
+O registro permite acompanhar o risco até sua resolução.
 
 ---
 
-# 👥 Trabalho multiagente
+# Histórico e rastreabilidade
 
-O AgentMap foi projetado para permitir cenários como:
+O AgentMap mantém informações necessárias para reconstruir o histórico operacional do projeto.
 
-```text
-AGT-ARQUITETURA
-        │
-        ▼
-Define arquitetura
-        │
-        ▼
-AGT-BACKEND
-        │
-        ▼
-Implementa API
-        │
-        ▼
-AGT-FRONTEND
-        │
-        ▼
-Implementa interface
-        │
-        ▼
-AGT-TESTES
-        │
-        ▼
-Valida
-```
-
-Todos trabalham sobre o mesmo estado operacional.
-
----
-
-# 🔁 Substituição de agentes
-
-Um dos princípios fundamentais do projeto é permitir substituição de agentes.
-
-Exemplo:
-
-```text
-AGT-BACKEND-01
-       │
-       ▼
-   interrompido
-       │
-       ▼
-AGENTMAP
-       │
-       ▼
-AGT-BACKEND-02
-       │
-       ▼
-continua o trabalho
-```
-
-O novo agente consulta:
-
-* tarefa;
-* contexto;
-* checkpoint;
-* resultado parcial;
-* artefatos;
-* bloqueios;
-* decisões;
-* contratos;
-* handoffs.
-
-Ele não depende da memória do agente anterior.
-
----
-
-# 🔍 Rastreabilidade
-
-Todas as operações importantes devem possuir rastreabilidade.
-
-Quando aplicável:
+Quando aplicável, registros podem estar associados a:
 
 ```text
 projetoId
@@ -676,297 +601,310 @@ requestId
 timestamp
 ```
 
-Isso permite reconstruir o histórico operacional do projeto.
+Isso permite identificar:
+
+* quem realizou uma ação;
+* quando realizou;
+* em qual contexto;
+* sobre qual tarefa;
+* qual resultado foi produzido.
 
 ---
 
-# 🛡️ Segurança
+# Interface Web
 
-O AgentMap foi projetado para funcionar localmente e deve seguir princípios de segurança desde o início.
+O AgentMap possui uma interface Web local para visualizar e administrar o estado do projeto.
 
-Entre eles:
+A interface permite acompanhar informações como:
 
-* validação de entradas;
-* controle de permissões;
-* isolamento do workspace;
-* proteção contra path traversal;
-* controle de operações;
-* proteção contra alterações arbitrárias;
-* logs seguros;
-* ausência de credenciais no código;
-* controle de acesso às Tools;
-* validação de identidade dos agentes.
-
-O MCP não deve oferecer uma Tool genérica para execução irrestrita de comandos do sistema.
-
----
-
-# 🚫 O que o AgentMap não é
-
-O AgentMap não é:
-
-* um chatbot;
-* um sistema de conversa entre agentes;
-* uma IDE;
-* um substituto do Git;
-* um terminal remoto;
-* uma IA autônoma única;
-* um segundo banco independente do projeto;
-* um simples gerenciador de arquivos.
-
-Ele é uma **camada de coordenação e memória operacional para trabalho multiagente**.
-
----
-
-# 🔌 Kilo Code
-
-O Kilo Code pode atuar como cliente MCP.
-
-Fluxo:
-
-```text
-Kilo Code
-    │
-    ▼
-Agente IA
-    │
-    ▼
-MCP
-    │
-    ▼
-AgentMap
-```
-
-O agente utiliza as Tools e Resources disponíveis para consultar e registrar informações do projeto.
-
-O Kilo continua sendo responsável pela interação do agente com o ambiente de desenvolvimento.
-
----
-
-# 🌐 Interface Web
-
-O AgentMap possui uma interface web local para permitir ao desenvolvedor:
-
-* visualizar agentes;
-* acompanhar tarefas;
-* visualizar solicitações;
-* acompanhar handoffs;
-* visualizar bloqueios;
-* acompanhar conflitos;
-* consultar decisões;
-* consultar contratos;
-* visualizar histórico;
-* acompanhar validações;
-* editar informações quando autorizado;
-* monitorar o projeto em tempo real ou quase real.
-
-A interface web é uma camada de visualização e administração.
-
-Ela não deve possuir uma fonte de verdade independente.
-
----
-
-# 🧩 Filosofia do projeto
-
-O AgentMap segue alguns princípios fundamentais:
-
-### Uma única fonte de verdade
-
-O estado operacional pertence ao AgentMap.
-
-### Agentes desacoplados
-
-Agentes não precisam conversar diretamente.
-
-### Comunicação estruturada
-
-A comunicação operacional ocorre através de registros estruturados.
-
-### Responsabilidades claras
-
-Quem solicita, executa, aprova e valida pode ser diferente.
-
-### Rastreabilidade
-
-Alterações importantes devem possuir histórico.
-
-### Recuperabilidade
-
-Um agente pode ser substituído sem perder o contexto operacional.
-
-### Segurança
-
-Agentes não recebem autoridade além da necessária.
-
-### Extensibilidade
-
-Novos agentes, IDEs e clientes MCP podem ser adicionados sem reconstruir o núcleo.
-
----
-
-# 🚧 Estado atual
-
-Projeto em desenvolvimento.
-
-Principais componentes:
-
-```text
-[ ] Núcleo AgentMap
-[ ] Estrutura de projetos
-[ ] Estrutura de agentes
-[ ] Tarefas
-[ ] Contratos
-[ ] Decisões
-[x] Solicitações de Alteração
-[ ] Dependências
-[ ] Reservas
-[ ] Bloqueios
-[ ] Conflitos
-[ ] Handoffs
-[ ] Resultados
-[ ] Validações
-[ ] Checkpoints
-[ ] Riscos
-[ ] Histórico
-[ ] Interface Web
-[ ] MCP
-[ ] Integração Kilo Code
-[ ] Testes multiagente
-```
-
-Os itens devem ser atualizados conforme a implementação real.
-
----
-
-# 🛣️ Roadmap
-
-## Fase 1 — Núcleo
-
-* estrutura do projeto;
+* projetos;
 * agentes;
 * tarefas;
+* solicitações;
 * contratos;
 * decisões;
-* solicitações de alteração.
-
-## Fase 2 — Coordenação
-
 * dependências;
 * reservas;
 * bloqueios;
 * conflitos;
 * handoffs;
 * resultados;
-* validações.
-
-## Fase 3 — Memória operacional
-
+* validações;
 * checkpoints;
-* histórico;
 * riscos;
-* aprendizados;
-* recuperação de sessões.
+* histórico.
 
-## Fase 4 — MCP
+O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador local sem depender da interface do próprio agente.
 
-* servidor MCP;
-* Tools;
-* Resources;
-* Prompts;
-* schemas;
-* permissões;
-* idempotência;
-* concorrência.
+---
 
-## Fase 5 — Integração
+# Organização do repositório
 
-* Kilo Code;
-* primeiro agente real;
-* múltiplos agentes;
-* testes de comunicação;
-* testes de recuperação.
+A organização física pode variar conforme a implementação, mas os principais domínios do AgentMap são representados conceitualmente por:
 
-## Fase 6 — Interface
+```text
+AgentMap/
+│
+├── projetos/
+├── agentes/
+├── tarefas/
+├── contratos/
+├── decisoes/
+├── solicitacoes-alteracao/
+├── dependencias/
+├── reservas/
+├── bloqueios/
+├── conflitos/
+├── handoffs/
+├── resultados/
+├── validacoes/
+├── checkpoints/
+├── riscos/
+├── aprendizados/
+├── historico/
+├── schemas/
+├── docs/
+├── mcp/
+└── web/
+```
 
-* dashboard;
-* monitoramento;
-* visualização do fluxo;
+A estrutura real do repositório deve ser considerada a autoridade.
+
+---
+
+# Integração com Kilo Code
+
+O AgentMap foi projetado para funcionar com agentes utilizados através do Kilo Code e de outros clientes compatíveis com MCP.
+
+O fluxo é:
+
+```text
+Kilo Code
+    ↓
+Agente IA
+    ↓
+MCP
+    ↓
+AgentMap
+    ↓
+Estado do projeto
+```
+
+O agente utiliza as ferramentas disponibilizadas pelo MCP para consultar e atualizar o estado operacional.
+
+O AgentMap não depende exclusivamente do Kilo Code.
+
+Outros clientes podem ser integrados posteriormente.
+
+---
+
+# Segurança
+
+O sistema foi projetado com segurança desde sua concepção.
+
+Entre os princípios adotados estão:
+
+* validação de entradas;
+* controle de permissões;
+* isolamento do workspace;
+* proteção contra path traversal;
+* controle das operações disponíveis;
+* validação das operações de escrita;
+* logs;
+* proteção de informações sensíveis;
+* ausência de credenciais diretamente no código;
+* controle de acesso às ferramentas MCP;
+* princípio do menor privilégio;
+* separação entre consulta e alteração;
+* prevenção de execução arbitrária de comandos.
+
+O MCP não deve oferecer aos agentes acesso irrestrito ao sistema operacional.
+
+---
+
+# Git
+
+O Git continua sendo responsável pelo controle de versão do código.
+
+O AgentMap não substitui o Git.
+
+A relação entre os dois sistemas é:
+
+```text
+Git
+│
+├── Código
+├── Commits
+├── Branches
+├── Diff
+└── Histórico de versões
+
+AgentMap
+│
+├── Tarefas
+├── Agentes
+├── Decisões
+├── Contratos
+├── Solicitações
+├── Dependências
+├── Bloqueios
+├── Handoffs
+├── Validações
+└── Estado operacional
+```
+
+Eles possuem responsabilidades diferentes e complementares.
+
+---
+
+# Princípios arquiteturais
+
+O AgentMap segue os seguintes princípios:
+
+### Uma única fonte de verdade
+
+O estado operacional do projeto pertence ao AgentMap.
+
+### Agentes desacoplados
+
+Agentes não precisam manter comunicação direta entre si.
+
+### Comunicação estruturada
+
+Informações importantes são registradas em estruturas previsíveis.
+
+### Responsabilidades explícitas
+
+Solicitante, responsável e validador podem ser agentes diferentes.
+
+### Rastreabilidade
+
+Operações importantes possuem identificação e contexto.
+
+### Recuperabilidade
+
+O trabalho pode ser retomado por outro agente.
+
+### Segurança
+
+Cada agente deve possuir somente as permissões necessárias.
+
+### Extensibilidade
+
+Novos agentes e clientes podem ser adicionados sem alterar o conceito central.
+
+### Observabilidade
+
+O desenvolvedor deve conseguir acompanhar o estado do projeto.
+
+---
+
+# Estado do projeto
+
+O AgentMap encontra-se em desenvolvimento e possui os mecanismos centrais de coordenação e memória operacional implementados.
+
+As funcionalidades principais incluem:
+
+* gerenciamento de projetos;
+* gerenciamento de agentes;
+* gerenciamento de tarefas;
+* contratos;
+* decisões;
+* solicitações de alteração;
+* dependências;
+* reservas;
+* bloqueios;
+* conflitos;
+* handoffs;
+* resultados;
+* validações;
+* checkpoints;
+* riscos;
 * histórico;
-* edição;
-* acompanhamento de agentes.
+* interface Web;
+* integração MCP;
+* estrutura para integração com agentes.
+
+A documentação deve sempre acompanhar o estado real da implementação.
 
 ---
 
-# 🧪 Critério de sucesso
+# Evolução futura
 
-O AgentMap será considerado funcional quando for possível:
+O projeto foi estruturado para permitir futuras extensões sem alterar seu núcleo conceitual.
+
+Possíveis evoluções:
+
+* novos tipos de agentes;
+* novos clientes MCP;
+* novas ferramentas;
+* automação de validações;
+* análises de dependências;
+* detecção automática de conflitos;
+* métricas de produtividade;
+* visualizações avançadas;
+* auditoria avançada;
+* recuperação automática de trabalhos;
+* integração com outras IDEs;
+* integração com outros orquestradores.
+
+Essas funcionalidades devem ser adicionadas somente quando fizerem sentido para o uso real do projeto.
+
+---
+
+# Filosofia
+
+O AgentMap parte de uma ideia simples:
+
+> Agentes diferentes não precisam conversar para colaborar. Eles precisam compartilhar um estado confiável, estruturado e rastreável do projeto.
+
+Um agente pode iniciar um trabalho.
+
+Outro pode continuar.
+
+Um terceiro pode validar.
+
+Um quarto pode corrigir.
+
+E todos podem utilizar o mesmo contexto operacional registrado no AgentMap.
 
 ```text
-1. cadastrar agentes;
-2. atribuir tarefas;
-3. iniciar sessões;
-4. fornecer contexto aos agentes;
-5. permitir que agentes consultem suas pendências;
-6. permitir trabalho independente;
-7. registrar solicitações de alteração;
-8. acompanhar contratos;
-9. acompanhar decisões;
-10. controlar dependências;
-11. registrar reservas;
-12. registrar bloqueios;
-13. detectar conflitos;
-14. criar handoffs;
-15. registrar resultados;
-16. solicitar validações;
-17. recuperar trabalho interrompido;
-18. visualizar tudo pela interface web;
-19. conectar agentes através do MCP;
-20. permitir que outro agente continue um trabalho sem depender da memória do agente anterior.
+AGENTE
+   │
+   ▼
+CONSULTA
+   │
+   ▼
+TRABALHA
+   │
+   ▼
+REGISTRA
+   │
+   ▼
+AGENTMAP
+   │
+   ▼
+PRÓXIMO AGENTE
 ```
 
----
-
-# 🔭 Visão futura
-
-A arquitetura foi planejada para permitir a evolução do AgentMap para um ambiente onde diferentes agentes especializados possam trabalhar sobre um mesmo projeto:
-
-```text
-             ┌─────────────────┐
-             │    AGENTMAP     │
-             └────────┬────────┘
-                      │
-       ┌──────────────┼──────────────┐
-       │              │              │
-       ▼              ▼              ▼
-  Arquitetura      Backend       Frontend
-       │              │              │
-       └──────────────┼──────────────┘
-                      │
-                ┌─────▼─────┐
-                │   Testes  │
-                └─────┬─────┘
-                      │
-                ┌─────▼─────┐
-                │ Validação │
-                └───────────┘
-```
-
-O objetivo não é criar agentes que simplesmente "conversem".
-
-O objetivo é criar um ambiente no qual agentes diferentes possam **colaborar de maneira coordenada, rastreável, recuperável e previsível**, mesmo quando executados em momentos diferentes ou substituídos durante o desenvolvimento.
+O resultado é um ambiente onde o conhecimento operacional deixa de pertencer à memória individual de cada agente e passa a pertencer ao projeto.
 
 ---
 
-# 📄 Licença
+# Licença
 
-Definir conforme a estratégia do projeto.
+Este projeto é distribuído sob a licença **MIT**.
+
+Consulte o arquivo `LICENSE` para obter o texto completo da licença.
 
 ---
 
-# 👤 Projeto
+# Projeto
 
 **AgentMap**
 
-Sistema local de coordenação e memória operacional para desenvolvimento multiagente.
+Sistema local de coordenação, memória operacional e rastreabilidade para desenvolvimento multiagente.
 
-Status: **Em desenvolvimento**.
+**Licença:** MIT
+
+**Status:** Em desenvolvimento.
