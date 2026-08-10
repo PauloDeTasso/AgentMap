@@ -1,0 +1,20 @@
+{
+  "$id": "responsabilidade",
+  "type": "object",
+  "required": ["id", "agenteId", "alvoId", "alvoTipo", "nivel", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^RESP-[A-Z0-9-]+$", "minLength": 1 },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "alvoId": { "type": "string", "minLength": 1 },
+    "alvoTipo": { "type": "string", "minLength": 1 },
+    "nivel": { "type": "string", "enum": ["RESPONSAVEL", "CONSULTADO", "INFORMADO", "APROVADOR"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

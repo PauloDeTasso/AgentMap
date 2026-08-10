@@ -1,0 +1,26 @@
+{
+  "$id": "artefato",
+  "type": "object",
+  "required": ["id", "nome", "tipo", "descricao", "agenteId", "estado", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^ART-[A-Z0-9-]+$", "minLength": 1 },
+    "nome": { "type": "string", "minLength": 1 },
+    "tipo": { "type": "string", "enum": ["ARQUIVO", "CLASSE", "METODO", "MODULO", "CONTRATO", "MIGRACAO", "TESTE", "DOCUMENTACAO", "CONFIGURACAO", "SCRIPT", "DIAGRAMA"] },
+    "descricao": { "type": "string" },
+    "tarefaId": { "type": ["string", "null"] },
+    "localizacao": { "type": ["string", "null"] },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "versaoId": { "type": ["string", "null"] },
+    "dados": { "type": ["object", "null"] },
+    "estado": { "type": "string", "enum": ["ATIVO", "ARQUIVADO", "OBSOLETO", "EXCLUIDO"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "excluidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "excluidaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

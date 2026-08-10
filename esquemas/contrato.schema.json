@@ -1,0 +1,37 @@
+{
+  "$id": "contrato",
+  "title": "Contrato",
+  "type": "object",
+  "required": ["id", "nome", "versao", "estado"],
+  "properties": {
+    "id": { "type": "string" },
+    "nome": { "type": "string" },
+    "descricao": { "type": "string" },
+    "versao": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" },
+    "estado": { "type": "string", "enum": ["ATIVO", "RASCUNHO", "ARQUIVADO", "OBSOLETO"] },
+    "obrigatorio": { "type": "boolean" },
+    "aplicavelA": { "type": "array", "items": { "type": "string" } },
+    "objetivo": { "type": "string" },
+    "escopo": { "type": "array", "items": { "type": "string" } },
+    "regras": { "type": "array", "items": { "type": "string" } },
+    "restricoes": { "type": "array", "items": { "type": "string" } },
+    "padroesObrigatorios": { "type": "array", "items": { "type": "string" } },
+    "padroesProibidos": { "type": "array", "items": { "type": "string" } },
+    "dependencias": { "type": "array", "items": { "type": "string" } },
+    "criteriosValidacao": { "type": "array", "items": { "type": "string" } },
+    "condicoesDeExcecao": { "type": "array", "items": { "type": "string" } },
+    "requerAprovacaoPara": { "type": "array", "items": { "type": "string" } },
+    "historico": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["versao", "alteracao"],
+        "properties": {
+          "versao": { "type": "string" },
+          "data": { "type": ["string", "null"] },
+          "alteracao": { "type": "string" }
+        }
+      }
+    }
+  }
+}

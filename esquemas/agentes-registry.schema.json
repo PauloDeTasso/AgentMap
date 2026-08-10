@@ -1,0 +1,22 @@
+{
+  "$id": "agentes-registry",
+  "title": "Registro Central de Agentes",
+  "type": "object",
+  "required": ["agentes"],
+  "properties": {
+    "agentes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nome", "funcao", "estado", "arquivoPerfil"],
+        "properties": {
+          "id": { "type": "string" },
+          "nome": { "type": "string" },
+          "funcao": { "type": "string" },
+          "estado": { "type": "string" },
+          "arquivoPerfil": { "type": "string" }
+        }
+      }
+    }
+  }
+}

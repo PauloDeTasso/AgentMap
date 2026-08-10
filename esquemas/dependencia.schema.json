@@ -1,0 +1,22 @@
+{
+  "$id": "dependencia",
+  "type": "object",
+  "required": ["id", "fonteId", "fonteTipo", "destinoId", "destinoTipo", "tipo", "estado", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^DEP-[A-Z0-9-]+$", "minLength": 1 },
+    "fonteId": { "type": "string", "minLength": 1 },
+    "fonteTipo": { "type": "string", "minLength": 1 },
+    "destinoId": { "type": "string", "minLength": 1 },
+    "destinoTipo": { "type": "string", "minLength": 1 },
+    "tipo": { "type": "string", "enum": ["FIM_INICIO", "FIM_INICIO_PINSTARTER", "INICIO_INICIO"] },
+    "estado": { "type": "string", "enum": ["ATIVA", "CIRCULAR", "RESOLVIDA", "CANCELADA"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

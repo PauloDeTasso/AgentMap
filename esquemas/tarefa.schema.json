@@ -1,0 +1,65 @@
+{
+  "$id": "tarefa",
+  "title": "Tarefa Estruturada",
+  "type": "object",
+  "required": ["id", "titulo", "objetivo", "tipo", "estado", "prioridade", "agenteResponsavel", "dominio", "ambiente"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+    "titulo": { "type": "string" },
+    "descricao": { "type": "string" },
+    "objetivo": { "type": "string" },
+    "tipo": { "type": "string" },
+    "estado": {
+      "type": "string",
+      "enum": ["RASCUNHO", "PLANEJADA", "PRONTA", "EM_EXECUCAO", "EM_TESTE", "EM_REVISAO", "AGUARDANDO_APROVACAO", "CONCLUIDA", "BLOQUEADA", "CANCELADA", "REJEITADA"]
+    },
+    "prioridade": { "type": "string", "enum": ["baixa", "media", "alta", "critica"] },
+    "agenteResponsavel": { "type": "string" },
+    "dominio": { "type": "string" },
+    "ambiente": { "type": "string" },
+    "dependencias": { "type": "array", "items": { "type": "string" } },
+    "contratosObrigatorios": { "type": "array", "items": { "type": "string" } },
+    "procedimentosObrigatorios": { "type": "array", "items": { "type": "string" } },
+    "arquivosPermitidos": { "type": "array", "items": { "type": "string" } },
+    "arquivosProibidos": { "type": "array", "items": { "type": "string" } },
+    "contextoNecessario": { "type": "array", "items": { "type": "string" } },
+    "criteriosAceitacao": { "type": "array", "items": { "type": "string" } },
+    "testesObrigatorios": { "type": "array", "items": { "type": "string" } },
+    "riscos": { "type": "array", "items": { "type": "string" } },
+    "restricoes": { "type": "array", "items": { "type": "string" } },
+    "condicoesDeParada": { "type": "array", "items": { "type": "string" } },
+    "criteriosConclusao": { "type": "array", "items": { "type": "string" } },
+    "resultado": {
+      "type": "object",
+      "properties": {
+        "resumo": { "type": "string" },
+        "arquivosAlterados": { "type": "array", "items": { "type": "string" } },
+        "testesExecutados": { "type": "array", "items": { "type": "string" } },
+        "testesAprovados": { "type": "array", "items": { "type": "string" } },
+        "riscosEncontrados": { "type": "array", "items": { "type": "string" } },
+        "pendencias": { "type": "array", "items": { "type": "string" } },
+        "observacoes": { "type": "string" },
+        "commit": { "type": "string" }
+      }
+    },
+    "aprovacao": {
+      "type": "object",
+      "properties": {
+        "necessaria": { "type": "boolean" },
+        "estado": { "type": "string" },
+        "aprovador": { "type": "string" },
+        "data": { "type": ["string", "null"] },
+        "observacao": { "type": "string" }
+      }
+    },
+    "datas": {
+      "type": "object",
+      "properties": {
+        "criacao": { "type": ["string", "null"], "format": "date-time" },
+        "inicio": { "type": ["string", "null"], "format": "date-time" },
+        "ultimaAtualizacao": { "type": ["string", "null"], "format": "date-time" },
+        "conclusao": { "type": ["string", "null"], "format": "date-time" }
+      }
+    }
+  }
+}

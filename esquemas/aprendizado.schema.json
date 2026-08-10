@@ -1,0 +1,26 @@
+{
+  "$id": "aprendizado",
+  "type": "object",
+  "required": ["id", "titulo", "descricao", "categoria", "utilidade", "estado", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^APR-[A-Z0-9-]+$", "minLength": 1 },
+    "titulo": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string", "minLength": 1 },
+    "categoria": { "type": "string" },
+    "tarefaId": { "type": ["string", "null"] },
+    "agenteId": { "type": ["string", "null"] },
+    "origem": { "type": ["string", "null"] },
+    "dados": { "type": ["object", "null"] },
+    "utilidade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA"] },
+    "estado": { "type": "string", "enum": ["ATIVO", "ARQUIVADO"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "promovidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "promovidaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
