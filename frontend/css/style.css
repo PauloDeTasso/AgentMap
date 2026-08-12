@@ -170,6 +170,15 @@ body {
   color: #fff;
 }
 
+.btn--info {
+  background: #17a2b8;
+  color: #0f1117;
+}
+
+.btn--info:hover {
+  background: #1fc8e3;
+}
+
 .modal {
   position: fixed;
   top: 0;
@@ -542,6 +551,14 @@ body {
   color: var(--text-muted);
   margin-bottom: 8px;
 }
+
+/* Directory picker */
+.dir-picker { display: flex; flex-direction: column; gap: 8px; }
+.dir-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.dir-tag { background: var(--primary); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
+.dir-tag-remove { background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem; line-height: 1; }
+.dir-input-row { display: flex; gap: 8px; }
+.dir-input-row input { flex: 1; }
 
 /* Responsivo */
 @media (max-width: 768px) {

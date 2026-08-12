@@ -35,8 +35,10 @@ class ApiClient {
   }
 
   async abrirProjeto(idOuCaminho, caminho = null) {
+    console.log('[api.abrirProjeto] idOuCaminho:', idOuCaminho, '| caminho body:', caminho || 'null');
     const body = caminho ? { caminho } : {};
-    return this.request(`/projetos/${idOuCaminho}/abrir`, {
+    const encodedId = encodeURIComponent(idOuCaminho);
+    return this.request(`/projetos/${encodedId}/abrir`, {
       method: 'POST',
       body: JSON.stringify(body)
     });
@@ -48,6 +50,17 @@ class ApiClient {
 
   async getProjetoAtual() {
     return this.request('/projetos/atual');
+  }
+
+  async obterProjeto(id) {
+    return this.request(`/projetos/${id}`);
+  }
+
+  async atualizarProjeto(id, dados) {
+    return this.request(`/projetos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(dados)
+    });
   }
 
   async getConfiguracao(projetoId = null) {
@@ -175,6 +188,13 @@ class ApiClient {
     });
   }
 
+  async atualizarContrato(contrato) {
+    return this.request(`/contratos/${contrato.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(contrato)
+    });
+  }
+
   async excluirContrato(id) {
     return this.request(`/contratos/${id}`, { method: 'DELETE' });
   }
@@ -246,6 +266,10 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify(body)
     });
+  }
+
+  async scanProjetos(pasta) {
+    return this.request(`/projetos/scan?pasta=${encodeURIComponent(pasta || '')}`);
   }
 
   async removerProjeto(id) {
@@ -530,6 +554,10 @@ class ApiClient {
 
   async getIntegridade() {
     return this.request('/integridade');
+  }
+
+  async getMonitor() {
+    return this.request('/monitor');
   }
 
   async getDecisoes() {

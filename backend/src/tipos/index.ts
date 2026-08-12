@@ -57,6 +57,7 @@ export interface ProjetoConfig {
     contratoPrincipal: string;
     estadoAtual: string;
   };
+  ambiente: string;
   datas: { criacao: string | null; ultimaAtualizacao: string | null };
 }
 
@@ -137,6 +138,7 @@ export interface AgentePerfil {
     exigeRiscos: boolean;
     exigePendencias: boolean;
   };
+  linguagemPreferida?: string;
   modelo?: {
     provedor: string;
     nome: string;
@@ -242,6 +244,9 @@ export interface Tarefa {
   restricoes: string[];
   condicoesDeParada: string[];
   criteriosConclusao: string[];
+  estimativaHoras?: number;
+  dataLimite?: string;
+  tags?: string[];
   resultado: {
     resumo: string;
     arquivosAlterados: string[];

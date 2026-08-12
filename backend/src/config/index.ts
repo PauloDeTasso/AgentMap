@@ -20,7 +20,7 @@ export interface GerenciadorSettings {
 }
 
 const DEFAULT_SETTINGS: GerenciadorSettings = {
-  diretorioProjetosDefault: 'G:\\Projetos\\AgenteMap_Projetos',
+  diretorioProjetosDefault: 'G:\\PROJETOS\\AgenteMap_Projetos',
   idioma: 'pt-BR',
   portaApi: 3150,
   postgresConectado: false,

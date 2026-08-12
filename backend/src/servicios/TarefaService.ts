@@ -141,6 +141,9 @@ export class TarefaService {
       restricoes: dados.restricoes || [],
       condicoesDeParada: dados.condicoesDeParada || [],
       criteriosConclusao: dados.criteriosConclusao || [],
+      estimativaHoras: dados.estimativaHoras || undefined,
+      dataLimite: dados.dataLimite || undefined,
+      tags: dados.tags || [],
       resultado: { resumo: '', arquivosAlterados: [], testesExecutados: [], testesAprovados: [], riscosEncontrados: [], pendencias: [], observacoes: '', commit: '' },
       aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
       datas: { criacao: hoje, inicio: null, ultimaAtualizacao: hoje, conclusao: null }

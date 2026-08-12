@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import path from 'path';
 import { setupRotas } from './api';
-import { ProjetoService } from './servicos/ProjetoService';
+import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
 

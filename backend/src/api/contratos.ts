@@ -48,7 +48,6 @@ export function criarContratoRouter(): Router {
       return responder(res, result);
     }
 
-    // Update registry
     const registryPath = path.win32.join('.ia', 'contratos', 'contratos.json');
     const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(registryPath);
     let registry: ContratosRegistry;
@@ -71,6 +70,45 @@ export function criarContratoRouter(): Router {
 
     req.servicos!.auditoria.registrar('CONTRATO_ALTERADO', `Contrato '${contrato.id}' criado/atualizado.`, { agenteId: 'proprietario' });
     return responder(res, { sucesso: true, dados: entry }, 201);
+  }));
+
+  router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const contrato: ContratoBase = { ...req.body, id };
+    if (!contrato.nome || !contrato.versao) {
+      return responder(res, { sucesso: false, erro: 'nome e versão são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
+    }
+    const result = req.servicos!.projeto.fileService.escreverJson(
+      path.win32.join('.ia', 'contratos', `${id}.json`),
+      contrato,
+      { backup: true }
+    );
+    if (!result.sucesso) {
+      return responder(res, result);
+    }
+
+    const registryPath = path.win32.join('.ia', 'contratos', 'contratos.json');
+    const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(registryPath);
+    let registry: ContratosRegistry;
+    if (!registryResult.sucesso || !registryResult.dados) {
+      registry = { contratos: [] };
+    } else {
+      registry = registryResult.dados;
+      registry.contratos = registry.contratos.filter((c) => c.id !== id);
+    }
+    const entry: ContratoRegistro = {
+      id: contrato.id,
+      nome: contrato.nome,
+      arquivo: `contratos/${contrato.id}.json`,
+      versao: contrato.versao,
+      estado: contrato.estado,
+      obrigatorio: contrato.obrigatorio || false
+    };
+    registry.contratos.push(entry);
+    req.servicos!.projeto.fileService.escreverJson(registryPath, registry);
+
+    req.servicos!.auditoria.registrar('CONTRATO_ALTERADO', `Contrato '${id}' atualizado.`, { agenteId: 'proprietario' });
+    return responder(res, { sucesso: true, dados: entry });
   }));
 
   router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {

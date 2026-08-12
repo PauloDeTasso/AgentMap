@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { asyncHandler, responder } from './middleware';
-import { AgenteService } from '../servicos/AgenteService';
+import { AgenteService } from '../servicios';
 import { AgentePerfil, Permissoes } from '../tipos';
 
 export function criarAgenteRouter(): Router {

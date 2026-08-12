@@ -43,7 +43,7 @@ export class AgenteService {
     return { sucesso: true, dados: { ...perfilResult.dados, registro } };
   }
 
-  async criar(perfil: Omit<AgentePerfil, 'datas'> & { permissoes: Permissoes }): Promise<ResultadoOperacao<AgentePerfil>> {
+  async criar(perfil: Omit<AgentePerfil, 'datas'> & { permissoes: Permissoes; linguagemPreferida?: string; modelo?: AgentePerfil['modelo'] }): Promise<ResultadoOperacao<AgentePerfil>> {
     const validation = this.validator.validar('agente-perfil', perfil);
     if (!validation.valido) {
       return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };

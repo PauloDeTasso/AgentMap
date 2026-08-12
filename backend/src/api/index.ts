@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import * as path from 'path';
-import { ProjetoService } from '../servicos/ProjetoService';
+import { ProjetoService } from '../servicios/ProjetoService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
 import { criarProjetoRouter } from './projetos';
 import { criarAgenteRouter } from './agentes';
@@ -24,6 +24,7 @@ import { criarResponsabilidadeRouter } from './responsabilidades';
 import { criarDecisaoRouter } from './decisoes';
 import { criarRiscoRouter } from './riscos';
 import { criarBloqueioRouter } from './bloqueios';
+import { criarContatoRouter } from './contatos';
 
 export function setupRotas(projetoService: ProjetoService): Router {
   const router = Router();
@@ -67,10 +68,57 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/decisoes', criarDecisaoRouter());
   router.use('/api/riscos', criarRiscoRouter());
   router.use('/api/bloqueios', criarBloqueioRouter());
+  router.use('/api/contatos', criarContatoRouter());
 
   router.get('/api/estado-projeto', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.integridade.calcularEstadoProjeto(req.servicos!.projeto.id);
     return responder(res, result);
+  }));
+
+  router.get('/api/monitor', asyncHandler(async (req: Request, res: Response) => {
+    const servicos = req.servicos!;
+    const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes] = await Promise.all([
+      servicos.integridade.calcularEstadoProjeto(servicos.projeto.id),
+      servicos.sessao.listar(),
+      servicos.auditoria.listar(20),
+      servicos.handoff.listar(),
+      servicos.bloqueio.listar(),
+      servicos.risco.listar(),
+      servicos.agente.listar()
+    ]);
+
+    const sessoesAtivas = sessoesRes.sucesso && sessoesRes.dados ? sessoesRes.dados.filter((s: any) => !s.datas?.fim) : [];
+    const handoffsPendentes = handoffsRes.sucesso && handoffsRes.dados ? handoffsRes.dados.filter((h: any) => h.estado === 'PENDENTE') : [];
+    const bloqueiosAtivos = bloqueiosRes.sucesso && bloqueiosRes.dados ? bloqueiosRes.dados.filter((b: any) => b.estado === 'ATIVO') : [];
+    const riscosCriticos = riscosRes.sucesso && riscosRes.dados ? riscosRes.dados.filter((r: any) => r.gravidade === 'CRITICA' && r.estado === 'ATIVO') : [];
+    const agentesMap = new Map((agentesRes.sucesso && agentesRes.dados ? agentesRes.dados : []).map((a: any) => [a.id, a.nome]));
+
+    const monitor = {
+      projeto: servicos.projeto.config,
+      estado: estadoProjeto.sucesso ? estadoProjeto.dados : null,
+      sessoesAtivas: sessoesAtivas.map((s: any) => ({
+        id: s.id,
+        agenteId: s.agenteId,
+        agenteNome: agentesMap.get(s.agenteId) || s.agenteId,
+        tarefaId: s.tarefaId,
+        inicio: s.datas?.inicio,
+        contextoConsultado: s.contextoConsultado
+      })),
+      eventosRecentes: Array.isArray(auditoriaRes) ? auditoriaRes.slice(0, 20) : [],
+      alertas: {
+        handoffsPendentes: handoffsPendentes.length,
+        bloqueiosAtivos: bloqueiosAtivos.length,
+        riscosCriticos: riscosCriticos.length,
+        detalhes: {
+          handoffs: handoffsPendentes.slice(0, 5).map((h: any) => ({ id: h.id, origem: h.origem, destino: h.destino, tarefaId: h.tarefaId, resumo: h.resumo })),
+          bloqueios: bloqueiosAtivos.slice(0, 5).map((b: any) => ({ id: b.id, tarefaId: b.tarefaId, tipo: b.tipo, gravidade: b.gravidade, descricao: b.descricao })),
+          riscos: riscosCriticos.slice(0, 5).map((r: any) => ({ id: r.id, titulo: r.titulo, gravidade: r.gravidade, descricao: r.descricao }))
+        }
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    return responder(res, { sucesso: true, dados: monitor });
   }));
 
   router.get('/api/integridade', asyncHandler(async (req: Request, res: Response) => {

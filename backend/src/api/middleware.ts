@@ -1,27 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
-import { ProjetoService, ProjetoAberto } from '../servicos/ProjetoService';
-import { AgenteService } from '../servicos/AgenteService';
-import { TarefaService } from '../servicos/TarefaService';
-import { SolicitacaoService } from '../servicos/SolicitacaoService';
-import { CriterioService } from '../servicos/CriterioService';
-import { ResultadoService } from '../servicos/ResultadoService';
-import { ArtefatoService } from '../servicos/ArtefatoService';
-import { HandoffService } from '../servicos/HandoffService';
-import { PendenciaService } from '../servicos/PendenciaService';
-import { ValidacaoService } from '../servicos/ValidacaoService';
-import { ConflitoService } from '../servicos/ConflitoService';
-import { ReservaService } from '../servicos/ReservaService';
-import { SessaoService } from '../servicos/SessaoService';
-import { CheckpointService } from '../servicos/CheckpointService';
-import { AprendizadoService } from '../servicos/AprendizadoService';
-import { DependenciaService } from '../servicos/DependenciaService';
-import { ResponsabilidadeService } from '../servicos/ResponsabilidadeService';
-import { IntegridadeService } from '../servicos/IntegridadeService';
-import { DecisaoService } from '../servicos/DecisaoService';
-import { RiscoService } from '../servicos/RiscoService';
-import { BloqueioService } from '../servicos/BloqueioService';
+import { ProjetoService, ProjetoAberto } from '../servicios';
+import { AgenteService } from '../servicios';
+import { TarefaService } from '../servicios';
+import { SolicitacaoService } from '../servicios';
+import { CriterioService } from '../servicios';
+import { ResultadoService } from '../servicios';
+import { ArtefatoService } from '../servicios';
+import { HandoffService } from '../servicios';
+import { PendenciaService } from '../servicios';
+import { ValidacaoService } from '../servicios';
+import { ConflitoService } from '../servicios';
+import { ReservaService } from '../servicios';
+import { SessaoService } from '../servicios';
+import { CheckpointService } from '../servicios';
+import { AprendizadoService } from '../servicios';
+import { DependenciaService } from '../servicios';
+import { ResponsabilidadeService } from '../servicios';
+import { IntegridadeService } from '../servicios';
+import { DecisaoService } from '../servicios';
+import { RiscoService } from '../servicios';
+import { BloqueioService } from '../servicios';
+import { ContatoService } from '../servicios';
 import { ResultadoOperacao } from '../tipos';
-import { AuditoriaService } from '../servicos/AuditoriaService';
+import { AuditoriaService } from '../servicios';
 
 export interface Servicos {
   projeto: ProjetoAberto;
@@ -45,12 +46,13 @@ export interface Servicos {
   decisao: DecisaoService;
   risco: RiscoService;
   bloqueio: BloqueioService;
+  contato: ContatoService;
   auditoria: AuditoriaService;
 }
 
 export function projectMiddleware(projetoService: ProjetoService) {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log(`[middleware] projectMiddleware → ${req.method} ${req.url}`);
+    console.log(`[middleware] projectMiddleware -> ${req.method} ${req.url}`);
     const projetoResult = projetoService.getProjetoAtual();
     if (!projetoResult.sucesso) {
       console.error('[middleware] getProjetoAtual falhou:', projetoResult.erro);
@@ -84,6 +86,7 @@ export function projectMiddleware(projetoService: ProjetoService) {
       decisao: new DecisaoService(projeto.fileService, projeto.auditoria, projeto.validator),
       risco: new RiscoService(projeto.fileService, projeto.auditoria, projeto.validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
+      contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
       auditoria: projeto.auditoria
     };
     console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);

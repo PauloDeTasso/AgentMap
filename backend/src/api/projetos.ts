@@ -1,13 +1,53 @@
 import { Router, Request, Response } from 'express';
-import { ProjetoService } from '../servicos/ProjetoService';
+import { ProjetoService } from '../servicios';
 import { asyncHandler, responder } from './middleware';
-import { loadSettings, saveSettings } from '../config';
+import { loadSettings, saveSettings, saveRegistroProjetos } from '../config';
+import { RegistroProjetos, ProjetoRegistro } from '../tipos';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export function criarProjetoRouter(projetoService: ProjetoService): Router {
   const router = Router();
 
+  // Static (non-parameterized) routes MUST be registered before /:id
+  // so Express does not match them as the id parameter.
+
   router.get('/', asyncHandler(async (_req: Request, res: Response) => {
     return responder(res, projetoService.listarProjetos());
+  }));
+
+  router.get('/scan', asyncHandler(async (req: Request, res: Response) => {
+    const { pasta } = req.query;
+    const targetDir = typeof pasta === 'string' ? pasta : loadSettings().diretorioProjetosDefault;
+    if (!targetDir || !fs.existsSync(targetDir)) {
+      return responder(res, { sucesso: false, erro: 'Pasta nao encontrada', codigoErro: 'DIR_NOT_FOUND' }, 404);
+    }
+    const projetosEncontrados: Array<{ nome: string; caminho: string; descricao?: string; id?: string }> = [];
+    const entries = fs.readdirSync(targetDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      const caminho = path.join(targetDir, entry.name);
+      const iaPath = path.join(caminho, '.ia');
+      if (fs.existsSync(iaPath) && fs.statSync(iaPath).isDirectory()) {
+        let nome = entry.name;
+        let descricao = '';
+        let id = '';
+        const configPath = path.join(iaPath, 'configuracao', 'projeto.json');
+        if (fs.existsSync(configPath)) {
+          try {
+            const configRaw = fs.readFileSync(configPath, 'utf-8');
+            const config = JSON.parse(configRaw);
+            nome = config.nome || entry.name;
+            descricao = config.descricao || '';
+            id = config.id || '';
+          } catch {
+            // Keep folder name as fallback
+          }
+        }
+        projetosEncontrados.push({ nome, caminho, descricao, id });
+      }
+    }
+    return responder(res, { sucesso: true, dados: projetosEncontrados });
   }));
 
   router.get('/atual', asyncHandler(async (_req: Request, res: Response) => {
@@ -22,25 +62,69 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     return res.status(200).json({ sucesso: true, dados: limpo });
   }));
 
+  router.get('/settings', (_req: Request, res: Response) => {
+    return res.status(200).json({ sucesso: true, dados: loadSettings() });
+  });
+
+  router.put('/settings', (req: Request, res: Response) => {
+    const settings = loadSettings();
+    saveSettings({ ...settings, ...req.body });
+    return res.status(200).json({ sucesso: true, dados: loadSettings() });
+  });
+
   router.post('/', asyncHandler(async (req: Request, res: Response) => {
     const { nome, caminhoParental, descricao, dadosExtra } = req.body;
     if (!nome || !caminhoParental) {
       return responder(res, { sucesso: false, erro: 'nome e caminhoParental são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
     }
-    return responder(res, projetoService.criarProjeto(nome, caminhoParental, descricao || '', dadosExtra), 201);
+    const extras: Record<string, unknown> = { ...dadosExtra, ...req.body };
+    return responder(res, projetoService.criarProjeto(nome, caminhoParental, descricao || '', extras), 201);
   }));
 
-   router.post('/:id/abrir', asyncHandler(async (req: Request, res: Response) => {
-     const { caminho } = req.body;
-     const idOuPath = caminho || req.params.id;
-     console.log('[POST /api/projetos/:id/abrir] params.id=' + req.params.id + ' | body.caminho=' + (caminho || 'null') + ' | using=' + idOuPath);
-     const result = projetoService.abrirProjeto(idOuPath);
+  router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const projetos = projetoService.listarProjetos();
+    if (!projetos.sucesso || !projetos.dados) {
+      return responder(res, { sucesso: false, erro: 'Erro ao listar projetos', codigoErro: 'LIST_ERROR' });
+    }
+    const projeto = projetos.dados.find((p: any) => p.id === req.params.id);
+    if (!projeto) {
+      return responder(res, { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+    }
+    return responder(res, { sucesso: true, dados: projeto });
+  }));
+
+  router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const { nome, ativo } = req.body;
+    const projetos = projetoService.listarProjetos();
+    if (!projetos.sucesso || !projetos.dados) {
+      return responder(res, { sucesso: false, erro: 'Erro ao listar projetos', codigoErro: 'LIST_ERROR' });
+    }
+    const index = projetos.dados.findIndex((p: any) => p.id === req.params.id);
+    if (index < 0) {
+      return responder(res, { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+    }
+    const atualizado = {
+      ...projetos.dados[index],
+      nome: nome ?? projetos.dados[index].nome,
+      ativo: ativo ?? projetos.dados[index].ativo
+    };
+    const novoRegistro: RegistroProjetos = { projetos: [...projetos.dados], projetoAtual: projetoService.getProjetoAtual().dados?.id ?? null };
+    novoRegistro.projetos[index] = atualizado;
+    saveRegistroProjetos(novoRegistro);
+    return responder(res, { sucesso: true, dados: atualizado });
+  }));
+
+  router.post('/:id/abrir', asyncHandler(async (req: Request, res: Response) => {
+    const { caminho } = req.body;
+    const idOuPath = caminho || req.params.id;
+    console.log('[POST /api/projetos/:id/abrir] params.id=' + req.params.id + ' | body.caminho=' + (caminho || 'null') + ' | using=' + idOuPath);
+    const result = projetoService.abrirProjeto(idOuPath);
     if (!result.sucesso || !result.dados) {
       return responder(res, result);
     }
-     const { fileService, auditoria, validator, dependencia, ...limpo } = result.dados;
-     return responder(res, { sucesso: true, dados: limpo });
-   }));
+    const { fileService, auditoria, validator, dependencia, ...limpo } = result.dados;
+    return responder(res, { sucesso: true, dados: limpo });
+  }));
 
   router.post('/:id/fechar', asyncHandler(async (req: Request, res: Response) => {
     return responder(res, projetoService.fecharProjeto(req.params.id));
@@ -61,16 +145,6 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
   router.put('/:id/configuracao', asyncHandler(async (req: Request, res: Response) => {
     return responder(res, projetoService.atualizarConfiguracao(req.params.id, req.body));
   }));
-
-  router.get('/settings', (_req: Request, res: Response) => {
-    return res.status(200).json({ sucesso: true, dados: loadSettings() });
-  });
-
-  router.put('/settings', (req: Request, res: Response) => {
-    const settings = loadSettings();
-    saveSettings({ ...settings, ...req.body });
-    return res.status(200).json({ sucesso: true, dados: loadSettings() });
-  });
 
   return router;
 }

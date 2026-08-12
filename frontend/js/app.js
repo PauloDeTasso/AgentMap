@@ -1,5 +1,12 @@
 import { api } from './api.js';
 
+function joinPath(...parts) {
+  return parts.map((part, i) => {
+    if (i === 0) return part.replace(/[/\\]+$/, '');
+    return part.replace(/^[/\\]+/, '').replace(/[/\\]+$/, '');
+  }).join('/').replace(/\\/g, '/');
+}
+
 let estado = {
   projetoAtual: null,
   agentes: [],
@@ -18,6 +25,16 @@ function $(id) { return document.getElementById(id); }
 
 function showModal(id) { $(id).style.display = 'flex'; }
 function hideModal(id) { $(id).style.display = 'none'; }
+
+async function fetchGuide() {
+  try {
+    const res = await fetch('/frontend/guia-completo-mcp.txt');
+    if (!res.ok) return '';
+    return await res.text();
+  } catch {
+    return '';
+  }
+}
 
 function atualizarStatus() {
   const statusEl = $('status-api');
@@ -129,16 +146,21 @@ function renderizarSecaoRelacionados(relacionados) {
 }
 
 async function init() {
+  console.log('[init] iniciando...');
   await atualizarStatus();
   await carregarSettings();
-  await carregarProjetoAtual();
   renderizarProjetoAtual();
+  console.log('[init] renderizando tela inicial...');
+  await renderizarTelaInicial();
+  console.log('[init] tela inicial renderizada');
   setupEventListeners();
 }
 
 async function carregarSettings() {
+  console.log('[carregarSettings] carregando settings...');
   try {
     const res = await api.getSettings();
+    console.log('[carregarSettings] resposta:', { sucesso: res.sucesso, dir: res.dados?.diretorioProjetosDefault });
     if (res.sucesso && res.dados) {
       estado.settings = res.dados;
       const dir = res.dados.diretorioProjetosDefault;
@@ -150,8 +172,76 @@ async function carregarSettings() {
       }
     }
   } catch (err) {
+    console.error('[carregarSettings] EXCECAO:', err);
     showToast('Erro ao carregar configurações', 'erro');
   }
+}
+
+async function renderizarTelaInicial() {
+  const main = $('main-content');
+  if (!main || estado.projetoAtual) {
+    console.log('[renderizarTelaInicial] ignorado, projeto atual:', !!estado.projetoAtual);
+    return;
+  }
+  console.log('[renderizarTelaInicial] renderizando tela inicial...');
+  const dir = estado.settings?.diretorioProjetosDefault || '';
+  let projetosEncontrados = [];
+  let erroEscaneamento = null;
+  if (dir) {
+    try {
+      console.log('[renderizarTelaInicial] escaneando diretorio:', dir);
+      const res = await api.scanProjetos(dir);
+      console.log('[renderizarTelaInicial] scan resposta:', { sucesso: res.sucesso, total: res.dados?.length, erro: res.erro });
+      if (res.sucesso && Array.isArray(res.dados)) {
+        projetosEncontrados = res.dados;
+      } else {
+        erroEscaneamento = res.erro || 'Erro ao escanear projetos';
+      }
+    } catch (e) {
+      erroEscaneamento = e?.erro || e?.message || 'Erro ao escanear projetos';
+      console.error('Erro ao escanear projetos:', e);
+    }
+  }
+
+  let html = `<div class="card"><h2 class="card__titulo">Bem-vindo</h2><p class="card__texto">Este é o Gerenciador Local de Projetos para Agentes de IA. Selecione um projeto existente ou crie um novo.</p>`;
+
+  if (projetosEncontrados.length > 0) {
+    html += `<div style="margin-top:16px;"><h3 style="margin:0 0 8px 0;">${projetosEncontrados.length} projeto(s) encontrado(s) em ${dir}</h3><div style="display:flex;flex-direction:column;gap:8px;">`;
+    for (const p of projetosEncontrados) {
+      const descricaoHtml = p.descricao ? `<br><small style="color:var(--text-muted);">${p.descricao}</small>` : '';
+      const caminhoEscapado = p.caminho.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      console.log('[renderizarTelaInicial] projeto:', p.nome, '| caminho=', p.caminho, '| escapado=', caminhoEscapado);
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);">
+        <div><strong>${p.nome}</strong>${descricaoHtml}<br><small style="color:var(--text-muted);">${p.caminho}</small></div>
+        <button class="btn btn--primario" onclick="abrirProjetoPasta('${caminhoEscapado}')">Abrir</button>
+      </div>`;
+    }
+    html += `</div></div>`;
+  } else if (dir && !erroEscaneamento) {
+    html += `<p style="color:var(--text-muted);margin-top:16px;">Nenhum projeto encontrado em ${dir}.</p>`;
+  } else if (erroEscaneamento) {
+    html += `<p style="color:var(--text-muted);margin-top:16px;">${erroEscaneamento}</p>`;
+  }
+
+  html += `<div class="card__actions" style="margin-top:16px;">
+      <button class="btn btn--primario" id="btn-criar-projeto-inicial" style="width:100%;">Criar Novo Projeto</button>
+      <button class="btn" id="btn-abrir-projeto-inicial" style="width:100%;">Abrir Projeto Manualmente</button>
+      <button class="btn btn--ghost" id="btn-configuracoes-inicial" style="width:100%;">Configuracoes</button>
+    </div></div>`;
+
+  main.innerHTML = html;
+
+  document.getElementById('btn-criar-projeto-inicial')?.addEventListener('click', () => showModal('modal-novo-projeto'));
+  document.getElementById('btn-abrir-projeto-inicial')?.addEventListener('click', () => showModal('modal-abrir-projeto'));
+  document.getElementById('btn-configuracoes-inicial')?.addEventListener('click', () => abrirModalConfiguracao());
+}
+
+function abrirModalConfiguracao() {
+  if (!estado.settings) return;
+  $('config-diretorio-padrao').value = estado.settings.diretorioProjetosDefault || '';
+  $('config-idioma').value = estado.settings.idioma || 'pt-BR';
+  $('config-porta').value = estado.settings.portaApi || 3150;
+  showModal('modal-configuracao');
 }
 
 async function carregarOpcoesAgente() {
@@ -182,22 +272,27 @@ async function carregarOpcoesAgente() {
 }
 
 async function carregarProjetoAtual() {
+  console.log('[carregarProjetoAtual] chamando API /projetos/atual...');
   try {
     const res = await api.getProjetoAtual();
+    console.log('[carregarProjetoAtual] resposta:', { sucesso: res.sucesso, temDados: !!res.dados, id: res.dados?.id, nome: res.dados?.nome, erro: res.erro });
     if (res.sucesso && res.dados) {
       estado.projetoAtual = res.dados;
       const cfgRes = await api.getConfiguracao(res.dados.id);
       if (cfgRes.sucesso && cfgRes.dados) {
         estado.projetoAtual.config = cfgRes.dados;
       }
+      console.log('[carregarProjetoAtual] projeto carregado:', estado.projetoAtual.nome);
       await carregarAgentes();
       await carregarTarefas();
       await carregarOpcoesAgente();
       renderizarDashboard();
     } else {
       estado.projetoAtual = null;
+      console.log('[carregarProjetoAtual] nenhum projeto atual');
     }
   } catch (err) {
+    console.error('[carregarProjetoAtual] EXCECAO:', err?.message || err, '| erro:', err?.erro);
     showToast('Erro ao carregar projeto: ' + (err?.erro || err?.message || 'desconhecido'), 'erro');
     estado.projetoAtual = null;
   }
@@ -246,9 +341,30 @@ function setupEventListeners() {
     estado.agentes = [];
     estado.tarefas = [];
     estado.arquivos = [];
-    $('main-content').innerHTML = '<div class="card"><h2 class="card__titulo">Bem-vindo</h2><p class="card__texto">Nenhum projeto aberto. Crie ou abra um projeto para começar.</p><div class="card__actions"><button class="btn btn--primario" id="btn-criar-projeto-inicial">Criar Novo Projeto</button></div></div>';
-    document.getElementById('btn-criar-projeto-inicial').addEventListener('click', () => showModal('modal-novo-projeto'));
     renderizarProjetoAtual();
+    await renderizarTelaInicial();
+  });
+
+  $('form-configuracao').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const body = {
+      diretorioProjetosDefault: $('config-diretorio-padrao').value.trim(),
+      idioma: $('config-idioma').value,
+      portaApi: Number($('config-porta').value) || 3150
+    };
+    try {
+      const res = await api.updateSettings(body);
+      if (res.sucesso) {
+        estado.settings = res.dados;
+        showToast('Configurações salvas!', 'sucesso');
+        hideModal('modal-configuracao');
+        await renderizarTelaInicial();
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.erro || 'Erro ao salvar configurações', 'erro');
+    }
   });
 
   $('form-novo-projeto').addEventListener('submit', async (e) => {
@@ -261,13 +377,43 @@ function setupEventListeners() {
     try {
       let res;
       if (editId) {
-        res = await api.atualizarConfiguracao(editId, { ...projConfigEdit, nome, descricao });
+        res = await api.atualizarProjeto(editId, { nome, descricao });
         if (res.sucesso) {
+          const config = {
+            ambiente: $('projeto-ambiente').value,
+            versao: $('projeto-versao').value,
+            idioma: $('projeto-idioma').value,
+            fusoHorario: $('projeto-fuso').value,
+            proprietario: {
+              tipo: $('projeto-proprietario-tipo').value,
+              nome: $('projeto-proprietario-nome').value.trim()
+            },
+            objetivos: ($('projeto-objetivos').value || '').split('\n').map(s => s.trim()).filter(Boolean),
+            escopo: {
+              incluso: ($('projeto-escopo-incluso').value || '').split('\n').map(s => s.trim()).filter(Boolean),
+              excluido: ($('projeto-escopo-excluido').value || '').split('\n').map(s => s.trim()).filter(Boolean)
+            }
+          };
+          await api.atualizarConfiguracao(editId, config);
           showToast(`Projeto '${nome}' atualizado!`, 'sucesso');
           delete $('form-novo-projeto').dataset.editId;
         }
       } else {
-        res = await api.criarProjeto(nome, caminhoParental, descricao);
+        const objetivos = ($('projeto-objetivos').value || '').split('\n').map(s => s.trim()).filter(Boolean);
+        const escopoIncluso = ($('projeto-escopo-incluso').value || '').split('\n').map(s => s.trim()).filter(Boolean);
+        const escopoExcluido = ($('projeto-escopo-excluido').value || '').split('\n').map(s => s.trim()).filter(Boolean);
+        const dadosExtra = {
+          ambiente: $('projeto-ambiente').value,
+          versao: $('projeto-versao').value,
+          idioma: $('projeto-idioma').value,
+          fusoHorario: $('projeto-fuso').value,
+          proprietarioTipo: $('projeto-proprietario-tipo').value,
+          proprietarioNome: $('projeto-proprietario-nome').value,
+          objetivos,
+          escopoIncluso,
+          escopoExcluido
+        };
+        res = await api.criarProjeto(nome, caminhoParental, descricao, dadosExtra);
         if (res.sucesso) {
           showToast(`Projeto '${nome}' criado!`, 'sucesso');
         }
@@ -368,10 +514,11 @@ function renderizarDashboard() {
        <li class="painel-lateral__item" data-painel="responsabilidades">👥 Responsabilidades</li>
        <li class="painel-lateral__item" data-painel="sessoes">🖥️ Sessões</li>
         <li class="painel-lateral__item" data-painel="checkpoints">📍 Marcos</li>
-       <li class="painel-lateral__item" data-painel="aprendizados">📚 Aprendizados</li>
-       <li class="painel-lateral__item" data-painel="historico">📜 Histórico</li>
-       <li class="painel-lateral__item" data-painel="integridade">🔍 Integridade</li>
+        <li class="painel-lateral__item" data-painel="aprendizados">📚 Aprendizados</li>
+        <li class="painel-lateral__item" data-painel="historico">📜 Histórico</li>
+        <li class="painel-lateral__item" data-painel="integridade">🔍 Integridade</li>
         <li class="painel-lateral__item" data-painel="dashboard">🏠 Painel de Controle</li>
+        <li class="painel-lateral__item" data-painel="monitor">📡 Monitor</li>
     </ul>
   `;
 
@@ -423,6 +570,7 @@ async function carregarPainel(painel) {
     case 'aprendizados': await renderizarAprendizados(el); break;
     case 'historico': await renderizarHistorico(el); break;
     case 'integridade': await renderizarIntegridade(el); break;
+    case 'monitor': await renderizarMonitor(el); break;
   }
 }
 
@@ -478,6 +626,26 @@ window.abrirProjeto = async function(id) {
   }
 };
 
+window.abrirProjetoPasta = async function(caminho) {
+  console.log('[abrirProjetoPasta] caminho recebido:', caminho);
+  try {
+    const res = await api.abrirProjeto(caminho, caminho);
+    console.log('[abrirProjetoPasta] resposta API:', { sucesso: res.sucesso, dados: res.dados, erro: res.erro });
+    if (res.sucesso) {
+      showToast('Projeto aberto!', 'sucesso');
+      await carregarProjetoAtual();
+      renderizarProjetoAtual();
+      await renderizarTelaInicial();
+    } else {
+      console.error('[abrirProjetoPasta] FALHOU ao abrir:', res.erro, res.codigoErro);
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    console.error('[abrirProjetoPasta] EXCECAO:', err);
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
 window.verProjeto = async function(id) {
   try {
     const projetosRes = await api.listarProjetos();
@@ -487,6 +655,19 @@ window.verProjeto = async function(id) {
     const el = document.getElementById('painel-atividade');
     const isAtual = estado.projetoAtual?.id === id;
     const caminho = proj.caminhoRaiz || '';
+    let configHtml = '';
+    if (isAtual && estado.projetoAtual?.config) {
+      const cfg = estado.projetoAtual.config;
+      configHtml = `
+        <p><strong>Ambiente:</strong> ${cfg.ambiente || 'N/A'}</p>
+        <p><strong>Versão:</strong> ${cfg.versao || 'N/A'}</p>
+        <p><strong>Idioma:</strong> ${cfg.idioma || 'N/A'}</p>
+        <p><strong>Fuso Horário:</strong> ${cfg.fusoHorario || 'N/A'}</p>
+        <p><strong>Proprietário:</strong> ${cfg.proprietario?.nome || 'N/A'} (${cfg.proprietario?.tipo || 'humano'})</p>
+        <p><strong>Objetivos:</strong></p><ul>${(cfg.objetivos || []).map(o => `<li>${o}</li>`).join('') || '<li>N/A</li>'}</ul>
+        <p><strong>Escopo Incluído:</strong></p><ul>${(cfg.escopo?.incluso || []).map(e => `<li>${e}</li>`).join('') || '<li>N/A</li>'}</ul>
+        <p><strong>Escopo Excluído:</strong></p><ul>${(cfg.escopo?.excluido || []).map(e => `<li>${e}</li>`).join('') || '<li>N/A</li>'}</ul>`;
+    }
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">${proj.nome} ${isAtual ? '<span class="badge badge--ativo">ATUAL</span>' : ''}</h3>
       <div>
@@ -499,6 +680,7 @@ window.verProjeto = async function(id) {
       <p><strong>Caminho:</strong> ${caminho}<button class="btn btn--small btn--ghost" style="margin-left:8px" data-path="${caminho}" onclick="abrirPastaExplorer(this.getAttribute('data-path'))">📂 Explorar</button></p>
       <p><strong>Ativo:</strong> ${proj.ativo ? '✓' : ''}</p>
       <p><strong>Última abertura:</strong> ${proj.ultimaAbertura || 'nunca'}</p>`;
+    el.innerHTML += configHtml;
     console.log('[verProjeto] project found:', proj.id, '| caminhoRaiz=' + proj.caminhoRaiz, '| caminho passed to Explorer=' + caminho);
     if (!caminho || !proj.caminhoRaiz) {
       console.error('[verProjeto] AVISO: caminhoRaiz vazio ou undefined!');
@@ -523,6 +705,15 @@ window.editarProjeto = async function(id) {
     $('nome-projeto').value = proj.nome || '';
     $('caminho-parental').value = proj.caminhoRaiz || proj.caminho || '';
     $('descricao-projeto').value = proj.descricao || '';
+    $('projeto-ambiente').value = config.ambiente || 'desenvolvimento';
+    $('projeto-versao').value = config.versao || '1.0.0';
+    $('projeto-idioma').value = config.idioma || 'pt-BR';
+    $('projeto-fuso').value = config.fusoHorario || 'America/Sao_Paulo';
+    $('projeto-proprietario-nome').value = config.proprietario?.nome || '';
+    $('projeto-proprietario-tipo').value = config.proprietario?.tipo || 'humano';
+    $('projeto-objetivos').value = (config.objetivos || []).join('\n');
+    $('projeto-escopo-incluso').value = (config.escopo?.incluso || []).join('\n');
+    $('projeto-escopo-excluido').value = (config.escopo?.excluido || []).join('\n');
     $('form-novo-projeto').dataset.editId = id;
     $('titulo-projeto').textContent = 'Editar Projeto';
     showModal('modal-novo-projeto');
@@ -585,6 +776,7 @@ async function renderizarAgentes(el) {
         <td>
           <button class="btn btn--small" onclick="abrirAgente('${a.id}')">Ver Perfil</button>
           <button class="btn btn--small" onclick="editarAgente('${a.id}')">Editar</button>
+          <button class="btn btn--small btn--info" onclick="gerarPromptAgente('${a.id}')">Prompt</button>
           <button class="btn btn--small btn--danger" onclick="excluirAgente('${a.id}')">Excluir</button>
         </td>`;
       tbody.appendChild(tr);
@@ -618,6 +810,7 @@ async function renderizarTarefas(el) {
         <td>
           <button class="btn btn--small" onclick="verTarefa('${t.id}')">Ver</button>
           <button class="btn btn--small" onclick="editarTarefa('${t.id}')">Editar</button>
+          <button class="btn btn--small btn--info" onclick="gerarPromptTarefa('${t.id}')">Prompt</button>
           <button class="btn btn--small" onclick="verContexto('${t.id}')">Contexto</button>
           <button class="btn btn--small btn--danger" onclick="excluirTarefa('${t.id}')">Excluir</button>
         </td>`;
@@ -820,6 +1013,99 @@ async function renderizarDashboardCoordenacao(el) {
         <div class="card"><h4>Aprendizados</h4><p>${e.aprendizados.ativos}/${e.aprendizados.total} ativos</p></div>
         <div class="card" style="grid-column:1/-1;"><h4>🔗 Relacionamentos</h4><p>${(e.tarefas.total + e.solicitacoes.total + e.artefatos.total + e.handoffs.total + e.bloqueios + e.conflitos.total + e.riscos.total + e.validacoes.total + e.residencias.total + e.checkpoints.total + e.sessoes.total + e.aprendizados.total)} entidades com vínculos ativos</p></div>
       </div>`;
+  } catch (err) {
+    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+  }
+}
+
+async function renderizarMonitor(el) {
+  try {
+    const res = await api.getMonitor();
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro || 'Nenhum dado'}</p>`; return; }
+    const m = res.dados;
+    const dataAtualizacao = new Date(m.timestamp).toLocaleString('pt-BR');
+
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;">📡 Monitor em Tempo Real</h3>
+      <span style="color:var(--text-muted);font-size:0.8rem;">Atualizado: ${dataAtualizacao}</span>
+    </div>`;
+
+    if (m.sessoesAtivas && m.sessoesAtivas.length > 0) {
+      html += `<div class="card" style="margin-bottom:16px;border-left:3px solid #27ae60;">
+        <h4>🖥️ Agentes Ativos (${m.sessoesAtivas.length})</h4>
+        <table class="table">
+          <thead><tr><th>Agente</th><th>Tarefa</th><th>Sessão</th><th>Início</th></tr></thead>
+          <tbody>`;
+      for (const s of m.sessoesAtivas) {
+        const inicio = s.inicio ? new Date(s.inicio).toLocaleString('pt-BR') : '-';
+        html += `<tr><td><strong>${s.agenteNome || s.agenteId}</strong></td><td>${s.tarefaId || '-'}</td><td>${s.id}</td><td>${inicio}</td></tr>`;
+      }
+      html += `</tbody></table></div>`;
+    } else {
+      html += `<div class="card" style="margin-bottom:16px;border-left:3px solid #95a5a6;">
+        <h4>🖥️ Nenhum agente ativo no momento</h4>
+      </div>`;
+    }
+
+    if (m.estado) {
+      html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;">
+        <div class="card"><h4>Tarefas</h4><p>${m.estado.tarefas.concluidas}/${m.estado.tarefas.total} concluídas • ${m.estado.tarefas.emExecucao} em execução • ${m.estado.tarefas.bloqueadas} bloqueadas</p></div>
+        <div class="card"><h4>Solicitações</h4><p>${m.estado.solicitacoes.pendentes} pendentes • ${m.estado.solicitacoes.aprovadas} aprovadas • ${m.estado.solicitacoes.rejeitadas} rejeitadas</p></div>
+        <div class="card"><h4>Riscos</h4><p>${m.estado.riscos.ativos} ativos • <strong style="color:#e74c3c;">${m.estado.riscos.criticos} críticos</strong></p></div>
+        <div class="card"><h4>Sessões</h4><p>${m.estado.sessoes.ativas}/${m.estado.sessoes.total} ativas</p></div>
+      </div>`;
+    }
+
+    if (m.alertas && (m.alertas.handoffsPendentes > 0 || m.alertas.bloqueiosAtivos > 0 || m.alertas.riscosCriticos > 0)) {
+      html += `<div class="card" style="margin-bottom:16px;border-left:3px solid #e74c3c;">
+        <h4>⚠️ Alertas</h4>
+        <p><strong>Handoffs pendentes:</strong> ${m.alertas.handoffsPendentes} • <strong>Bloqueios ativos:</strong> ${m.alertas.bloqueiosAtivos} • <strong>Riscos críticos:</strong> ${m.alertas.riscosCriticos}</p>`;
+
+      if (m.alertas.detalhes.handoffs && m.alertas.detalhes.handoffs.length > 0) {
+        html += `<h5 style="margin-top:12px;">Transferências Pendentes</h5>
+          <table class="table"><thead><tr><th>ID</th><th>Origem</th><th>Destino</th><th>Tarefa</th><th>Resumo</th></tr></thead><tbody>`;
+        for (const h of m.alertas.detalhes.handoffs) {
+          html += `<tr><td>${h.id}</td><td>${h.origem}</td><td>${h.destino}</td><td>${h.tarefaId || '-'}</td><td>${h.resumo || ''}</td></tr>`;
+        }
+        html += `</tbody></table>`;
+      }
+
+      if (m.alertas.detalhes.bloqueios && m.alertas.detalhes.bloqueios.length > 0) {
+        html += `<h5 style="margin-top:12px;">Bloqueios Ativos</h5>
+          <table class="table"><thead><tr><th>ID</th><th>Tarefa</th><th>Tipo</th><th>Gravidade</th><th>Descrição</th></tr></thead><tbody>`;
+        for (const b of m.alertas.detalhes.bloqueios) {
+          html += `<tr><td>${b.id}</td><td>${b.tarefaId}</td><td>${b.tipo}</td><td><span class="badge badge--bloqueada">${b.gravidade}</span></td><td>${b.descricao || ''}</td></tr>`;
+        }
+        html += `</tbody></table>`;
+      }
+
+      if (m.alertas.detalhes.riscos && m.alertas.detalhes.riscos.length > 0) {
+        html += `<h5 style="margin-top:12px;">Riscos Críticos</h5>
+          <table class="table"><thead><tr><th>ID</th><th>Título</th><th>Gravidade</th><th>Descrição</th></tr></thead><tbody>`;
+        for (const r of m.alertas.detalhes.riscos) {
+          html += `<tr><td>${r.id}</td><td>${r.titulo}</td><td><span class="badge badge--bloqueada">${r.gravidade}</span></td><td>${r.descricao || ''}</td></tr>`;
+        }
+        html += `</tbody></table>`;
+      }
+
+      html += `</div>`;
+    }
+
+    if (m.eventosRecentes && m.eventosRecentes.length > 0) {
+      html += `<div class="card">
+        <h4>📜 Eventos Recentes</h4>
+        <table class="table">
+          <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Resultado</th></tr></thead>
+          <tbody>`;
+      for (const ev of m.eventosRecentes) {
+        const data = new Date(ev.data).toLocaleString('pt-BR');
+        const cls = ev.resultado === 'sucesso' ? 'badge--ativo' : ev.resultado === 'falha' ? 'badge--bloqueada' : 'badge--inativo';
+        html += `<tr><td>${data}</td><td>${ev.tipo}</td><td>${ev.descricao}</td><td><span class="badge ${cls}">${ev.resultado}</span></td></tr>`;
+      }
+      html += `</tbody></table></div>`;
+    }
+
+    el.innerHTML = html;
   } catch (err) {
     el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
   }
@@ -1394,6 +1680,8 @@ window.abrirModalAgente = function() {
   $('agente-conhecimentos').value = '';
   ['ler','criar','alterar','executar','testar','revisar'].forEach((p) => $(`perm-${p}`).checked = true);
   ['excluir','aprovar','implantar'].forEach((p) => $(`perm-${p}`).checked = false);
+  clearDirTags('dir-perm');
+  clearDirTags('dir-proib');
   $('titulo-agente').textContent = 'Novo Agente';
   showModal('modal-agente');
 };
@@ -1423,9 +1711,14 @@ window.editarAgente = async function(id) {
     $('agente-funcao').value = p.funcao || '';
     $('agente-descricao').value = p.descricao || '';
     $('agente-estado').value = p.estado || 'ativo';
+    $('agente-dominio').value = p.dominio || 'geral';
+    $('agente-linguagem').value = p.linguagemPreferida || '';
+    $('agente-modelo').value = p.modelo?.nome || '';
+    $('dir-perm-input').value = '';
+    $('dir-proib-input').value = '';
     const dirs = estado.opcoesAgente.diretorios;
-    gerarCheckboxes('agente-diretorios-permitidos-cb', 'dir-perm', dirs, p.diretoriosPermitidos || []);
-    gerarCheckboxes('agente-diretorios-proibidos-cb', 'dir-proib', dirs, p.diretoriosProibidos || []);
+    gerarCheckboxes('agente-diretorios-permitidos-cb', 'dir-perm', dirs, (p.diretoriosPermitidos || []).filter(d => dirs.includes(d)));
+    gerarCheckboxes('agente-diretorios-proibidos-cb', 'dir-proib', dirs, (p.diretoriosProibidos || []).filter(d => dirs.includes(d)));
     gerarCheckboxes('agente-contratos-cb', 'contrato', estado.opcoesAgente.contratos, p.contratosObrigatorios || []);
     gerarCheckboxes('agente-ambientes-cb', 'ambiente', estado.opcoesAgente.ambientes, p.ambientesPermitidos || []);
     $('agente-responsabilidades').value = (p.responsabilidades || []).join('\n');
@@ -1433,6 +1726,10 @@ window.editarAgente = async function(id) {
      const perms = p.permissoes || {};
      ['ler','criar','alterar','excluir','executar','testar','revisar','aprovar','implantar'].forEach((perm) => $(`perm-${perm}`).checked = !!perms[perm]);
     $('titulo-agente').textContent = `Editar: ${p.nome}`;
+    clearDirTags('dir-perm');
+    clearDirTags('dir-proib');
+    (p.diretoriosPermitidos || []).filter(d => !dirs.includes(d)).forEach(d => addDirTag('dir-perm', d));
+    (p.diretoriosProibidos || []).filter(d => !dirs.includes(d)).forEach(d => addDirTag('dir-proib', d));
     showModal('modal-agente');
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
@@ -1508,8 +1805,14 @@ window.editarTarefa = async function(id) {
     $('tarefa-tipo').value = t.tipo;
     $('tarefa-dominio').value = t.dominio;
     $('tarefa-prioridade').value = t.prioridade;
+    $('tarefa-estimativa').value = t.estimativaHoras || '';
+    $('tarefa-data-limite').value = t.dataLimite || '';
+    $('tarefa-dependencias').value = (t.dependencias || []).join('\n');
     $('tarefa-criterios').value = (t.criteriosAceitacao || []).join('\n');
+    $('tarefa-arquivos-esperados').value = (t.arquivosPermitidos || []).join('\n');
+    $('tarefa-contexto').value = (t.contextoNecessario || []).join('\n');
     $('tarefa-contratos').value = (t.contratosObrigatorios || []).join(', ');
+    $('tarefa-tags').value = (t.tags || []).join(', ');
     $('titulo-tarefa').textContent = 'Editar Tarefa';
     showModal('modal-tarefa');
   } catch (err) {
@@ -1543,6 +1846,11 @@ window.verTarefa = async function(id) {
       <p><strong>Contratos Obrigatórios:</strong> ${(t.contratosObrigatorios || []).join(', ') || 'Nenhum'}</p>
       <p><strong>Critérios de Aceitação:</strong> ${(t.criteriosAceitacao || []).join(', ') || 'Nenhum'}</p>
       <p><strong>Dependências:</strong> ${(t.dependencias || []).join(', ') || 'Nenhuma'}</p>
+      <p><strong>Estimativa:</strong> ${t.estimativaHoras ? t.estimativaHoras + 'h' : 'N/A'}</p>
+      <p><strong>Data Limite:</strong> ${t.dataLimite || 'N/A'}</p>
+      <p><strong>Tags:</strong> ${(t.tags || []).join(', ') || 'N/A'}</p>
+      <p><strong>Arquivos Esperados:</strong> ${(t.arquivosPermitidos || []).join(', ') || 'N/A'}</p>
+      <p><strong>Contexto:</strong> ${(t.contextoNecessario || []).join('; ') || 'N/A'}</p>
       ${t.datas?.inicio ? `<p><strong>Início:</strong> ${new Date(t.datas.inicio).toLocaleString('pt-BR')}</p>` : ''}
       ${t.datas?.conclusao ? `<p><strong>Conclusão:</strong> ${new Date(t.datas.conclusao).toLocaleString('pt-BR')}</p>` : ''}
       <p><strong>Criada em:</strong> ${t.datas?.criacao ? new Date(t.datas.criacao).toLocaleString('pt-BR') : '-'}</p>
@@ -1645,72 +1953,79 @@ window.excluirContrato = async function(id) {
   }
 };
 
-$('form-contrato').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const dados = {
-    id: $('contrato-id-input').value.trim(),
-    nome: $('contrato-nome').value.trim(),
-    versao: $('contrato-versao').value.trim(),
-    estado: $('contrato-estado').value,
-    obrigatorio: $('contrato-obrigatorio').checked,
-    descricao: $('contrato-descricao').value.trim(),
-    objetivo: $('contrato-objetivo').value.trim(),
-    regras: $('contrato-regras').value.split('\n').map(s => s.trim()).filter(s => s),
-    restricoes: $('contrato-restricoes').value.split('\n').map(s => s.trim()).filter(s => s)
-  };
-  if (!dados.id || !dados.nome || !dados.versao) {
-    showToast('ID, Nome e Versão são obrigatórios', 'erro');
-    return;
-  }
-  try {
-    const res = await api.criarContrato(dados);
-    if (res.sucesso) {
-      showToast('Contrato salvo!', 'sucesso');
-      hideModal('modal-contrato');
-      carregarPainel('contratos');
-    } else {
-      showToast(res.erro, 'erro');
+  $('form-contrato').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = $('contrato-id').value;
+    const dados = {
+      id: $('contrato-id-input').value.trim(),
+      nome: $('contrato-nome').value.trim(),
+      versao: $('contrato-versao').value.trim(),
+      estado: $('contrato-estado').value,
+      obrigatorio: $('contrato-obrigatorio').checked,
+      descricao: $('contrato-descricao').value.trim(),
+      objetivo: $('contrato-objetivo').value.trim(),
+      regras: $('contrato-regras').value.split('\n').map(s => s.trim()).filter(s => s),
+      restricoes: $('contrato-restricoes').value.split('\n').map(s => s.trim()).filter(s => s)
+    };
+    if (!dados.id || !dados.nome || !dados.versao) {
+      showToast('ID, Nome e Versão são obrigatórios', 'erro');
+      return;
     }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao salvar contrato', 'erro');
-  }
-});
+    try {
+      const res = id ? await api.atualizarContrato(dados) : await api.criarContrato(dados);
+      if (res.sucesso) {
+        showToast('Contrato salvo!', 'sucesso');
+        hideModal('modal-contrato');
+        carregarPainel('contratos');
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.erro || 'Erro ao salvar contrato', 'erro');
+    }
+  });
 
-$('form-tarefa').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const id = $('tarefa-id').value;
-  const dados = {
-    titulo: $('tarefa-titulo').value.trim(),
-    objetivo: $('tarefa-objetivo').value.trim(),
-    tipo: $('tarefa-tipo').value.trim(),
-    agenteResponsavel: $('tarefa-agente').value,
-    dominio: $('tarefa-dominio').value.trim(),
-    prioridade: $('tarefa-prioridade').value,
-    criteriosAceitacao: $('tarefa-criterios').value.split('\n').map(s => s.trim()).filter(s => s),
-    contratosObrigatorios: $('tarefa-contratos').value.split(',').map(s => s.trim()).filter(s => s)
-  };
-  if (!dados.titulo || !dados.objetivo || !dados.agenteResponsavel || !dados.dominio) {
-    showToast('Campos marcados com * são obrigatórios', 'erro');
-    return;
-  }
-  try {
-    let res;
-    if (id) {
-      res = await api.atualizarTarefa(id, dados);
-    } else {
-      res = await api.criarTarefa(dados);
+  $('form-tarefa').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = $('tarefa-id').value;
+    const dados = {
+      titulo: $('tarefa-titulo').value.trim(),
+      objetivo: $('tarefa-objetivo').value.trim(),
+      tipo: $('tarefa-tipo').value.trim(),
+      agenteResponsavel: $('tarefa-agente').value,
+      dominio: $('tarefa-dominio').value.trim(),
+      prioridade: $('tarefa-prioridade').value,
+      estimativaHoras: $('tarefa-estimativa').value ? Number($('tarefa-estimativa').value) : undefined,
+      dataLimite: $('tarefa-data-limite').value || undefined,
+      dependencias: ($('tarefa-dependencias').value || '').split('\n').map(s => s.trim()).filter(s => s),
+      criteriosAceitacao: $('tarefa-criterios').value.split('\n').map(s => s.trim()).filter(s => s),
+      arquivosPermitidos: ($('tarefa-arquivos-esperados').value || '').split('\n').map(s => s.trim()).filter(s => s),
+      contextoNecessario: [$('tarefa-contexto').value.trim()].filter(Boolean),
+      contratosObrigatorios: $('tarefa-contratos').value.split(',').map(s => s.trim()).filter(s => s),
+      tags: ($('tarefa-tags').value || '').split(',').map(s => s.trim()).filter(s => s)
+    };
+    if (!dados.titulo || !dados.objetivo || !dados.agenteResponsavel || !dados.dominio) {
+      showToast('Campos marcados com * são obrigatórios', 'erro');
+      return;
     }
-    if (res.sucesso) {
-      showToast('Tarefa salva!', 'sucesso');
-      hideModal('modal-tarefa');
-      carregarPainel('tarefas');
-    } else {
-      showToast(res.erro, 'erro');
+    try {
+      let res;
+      if (id) {
+        res = await api.atualizarTarefa(id, dados);
+      } else {
+        res = await api.criarTarefa(dados);
+      }
+      if (res.sucesso) {
+        showToast('Tarefa salva!', 'sucesso');
+        hideModal('modal-tarefa');
+        carregarPainel('tarefas');
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.erro || 'Erro ao salvar tarefa', 'erro');
     }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao salvar tarefa', 'erro');
-  }
-});
+  });
 
 $('btn-cancelar-tarefa').addEventListener('click', () => hideModal('modal-tarefa'));
 
@@ -1779,12 +2094,15 @@ function coletarDadosAgente() {
     funcao: $('agente-funcao').value.trim(),
     descricao: $('agente-descricao').value.trim(),
     estado: $('agente-estado').value,
-    diretoriosPermitidos: coletarCheckboxes('dir-perm'),
-    diretoriosProibidos: coletarCheckboxes('dir-proib'),
+    dominio: $('agente-dominio').value,
+    diretoriosPermitidos: [...new Set([...coletarCheckboxes('dir-perm'), ...getDirTags('dir-perm')])],
+    diretoriosProibidos: [...new Set([...coletarCheckboxes('dir-proib'), ...getDirTags('dir-proib')])],
     contratosObrigatorios: coletarCheckboxes('contrato'),
     ambientesPermitidos: coletarCheckboxes('ambiente'),
     responsabilidades: $('agente-responsabilidades').value.split('\n').map(s => s.trim()).filter(s => s),
     conhecimentos: $('agente-conhecimentos').value.split('\n').map(s => s.trim()).filter(s => s),
+    linguagemPreferida: $('agente-linguagem').value.trim() || undefined,
+    modelo: $('agente-modelo').value.trim() ? { nome: $('agente-modelo').value.trim() } : undefined,
   };
   console.log('[coletarDadosAgente] dados:', JSON.stringify(dados));
   return dados;
@@ -1795,6 +2113,67 @@ function coletarCheckboxes(namePrefix) {
   console.log('[coletarCheckboxes]', namePrefix, '->', checked);
   return checked;
 }
+
+function clearDirTags(prefix) {
+  const container = $(`${prefix}-tags`);
+  if (container) container.innerHTML = '';
+}
+
+function getDirTags(prefix) {
+  const container = $(`${prefix}-tags`);
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('.dir-tag')).map(el => el.dataset.path || '');
+}
+
+function addDirTag(prefix, path) {
+  const container = $(`${prefix}-tags`);
+  if (!container) return;
+  path = (path || '').trim();
+  if (!path) return;
+  if (Array.from(container.querySelectorAll('.dir-tag')).some(el => (el.dataset.path || '') === path)) return;
+  const tag = document.createElement('span');
+  tag.className = 'dir-tag';
+  tag.dataset.path = path;
+  tag.innerHTML = `${path} <button type="button" class="dir-tag-remove">&times;</button>`;
+  tag.querySelector('.dir-tag-remove').addEventListener('click', () => tag.remove());
+  container.appendChild(tag);
+}
+
+function setupDirPicker(prefix) {
+  const input = $(`${prefix}-input`);
+  const addBtn = $(`${prefix}-add`);
+  const browseBtn = $(`${prefix}-browse`);
+  if (!input || !addBtn) return;
+
+  const add = () => {
+    addDirTag(prefix, input.value);
+    input.value = '';
+    input.focus();
+  };
+
+  addBtn.addEventListener('click', add);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); add(); }
+  });
+
+  if (browseBtn) {
+    browseBtn.addEventListener('click', async () => {
+      try {
+        if (window.showDirectoryPicker) {
+          const handle = await window.showDirectoryPicker();
+          addDirTag(prefix, handle.name + '/');
+        } else {
+          showToast('Navegação de pastas não suportada neste navegador. Use o campo ao lado.', 'erro');
+        }
+      } catch (e) {
+        // usuário cancelou
+      }
+    });
+  }
+}
+
+setupDirPicker('dir-perm');
+setupDirPicker('dir-proib');
 
 // Click outside modal to close
 document.addEventListener('click', function(e) {
@@ -2054,3 +2433,403 @@ $('form-solicitacao').addEventListener('submit', async function(e) {
     showToast(err?.message || err, 'erro');
   }
 });
+
+window.gerarPromptTarefa = async function(tarefaId) {
+  try {
+    const tarefaRes = await api.obterTarefa(tarefaId);
+    if (!tarefaRes.sucesso || !tarefaRes.dados) {
+      showToast('Tarefa não encontrada', 'erro');
+      return;
+    }
+    const tarefa = tarefaRes.dados;
+    const agentesRes = await api.getAgentes();
+    const agente = agentesRes.sucesso ? agentesRes.dados.find(a => a.id === tarefa.agenteResponsavel) : null;
+    const contratosRes = await api.getContratos();
+    const contratos = contratosRes.sucesso ? contratosRes.dados.filter(c => (tarefa.contratosObrigatorios || []).includes(c.id)) : [];
+    const projeto = estado.projetoAtual;
+    const caminhoProjeto = projeto?.caminhoRaiz || '';
+    const dominio = tarefa.dominio || 'geral';
+    const pastas = {
+      frontend: joinPath(caminhoProjeto, 'frontend'),
+      backend: joinPath(caminhoProjeto, 'backend'),
+      banco: joinPath(caminhoProjeto, 'banco'),
+      android: joinPath(caminhoProjeto, 'android'),
+      docs: joinPath(caminhoProjeto, 'docs'),
+      infraestrutura: joinPath(caminhoProjeto, 'infraestrutura'),
+      implantacao: joinPath(caminhoProjeto, 'implantacao'),
+      testes: joinPath(caminhoProjeto, 'testes')
+    };
+    const pastaTrabalho = pastas[dominio] || caminhoProjeto;
+    const promptContexto = `Projeto: ${projeto?.nome || 'N/A'}
+Descrição: ${projeto?.descricao || 'N/A'}
+Versão: ${projeto?.config?.versao || '1.0.0'}
+Ambiente: ${projeto?.config?.ambiente || 'desenvolvimento'}
+Idioma: ${projeto?.config?.idioma || 'pt-BR'}
+Fuso Horário: ${projeto?.config?.fusoHorario || 'America/Sao_Paulo'}
+Proprietário: ${projeto?.config?.proprietario?.nome || 'N/A'} (${projeto?.config?.proprietario?.tipo || 'humano'})
+Objetivos:
+${(projeto?.config?.objetivos || []).map(o => '- ' + o).join('\n') || '- N/A'}
+Escopo Incluído:
+${(projeto?.config?.escopo?.incluso || []).map(e => '- ' + e).join('\n') || '- N/A'}
+Escopo Excluído:
+${(projeto?.config?.escopo?.excluido || []).map(e => '- ' + e).join('\n') || '- N/A'}`;
+    const promptTarefa = `Tarefa: ${tarefa.titulo}
+Objetivo: ${tarefa.objetivo || ''}
+Tipo: ${tarefa.tipo || 'desenvolvimento'}
+Prioridade: ${tarefa.prioridade || 'media'}
+Estimativa: ${tarefa.estimativaHoras ? tarefa.estimativaHoras + 'h' : 'N/A'}
+Data Limite: ${tarefa.dataLimite || 'N/A'}
+Dependências: ${(tarefa.dependencias || []).join(', ') || 'N/A'}
+Tags: ${(tarefa.tags || []).join(', ') || 'N/A'}
+Critérios de Aceitação:
+${(tarefa.criteriosAceitacao || []).map(c => '- ' + c).join('\n') || '- N/A'}
+Arquivos Esperados:
+${(tarefa.arquivosPermitidos || []).map(f => '- ' + f).join('\n') || '- N/A'}`;
+    const promptContratos = contratos.map(c => `- ${c.nome} (${c.id}): ${c.descricao || ''}`).join('\n') || '- Nenhum contrato específico';
+    const promptCaminhos = `Pasta do projeto: ${caminhoProjeto}
+Pasta de trabalho: ${pastaTrabalho}
+Arquivos esperados: ${(tarefa.arquivosPermitidos || []).join(', ') || 'definidos pelo agente'}
+Documentação: ${joinPath(pastaTrabalho, 'docs')}
+Handoffs: ${joinPath(caminhoProjeto, '.ia', 'handoffs')}`;
+    const instrucoes = `REGRAS DE COMPORTAMENTO NO AGENTMAP:
+1. NÃO execute ações proativas sem solicitação. Apenas execute o que for solicitado.
+2. NÃO faça suposições. Se algo não estiver claro, questione antes de agir.
+3. NÃO use ferramentas irrelevantes para a tarefa atual.
+4. SEMPRE valide se o caminho/arquivo pertence ao projeto antes de manipular.
+5. SEMPRE registre auditoria das ações realizadas.
+6. SEMPRE crie handoffs ao entregar trabalho para outro agente.
+7. NÃO exclua ou altere arquivos fora da sua pasta de trabalho.
+8. NÃO compartilhe dados sensíveis (senhas, tokens, chaves) em documentos ou handoffs.
+9. SEMPRE siga os contratos do projeto antes de implementar.
+10. NÃO use ferramentas de execução (executar, implantar) sem aprovação explícita.
+
+COMO USAR AS FERRAMENTAS MCP:
+As ferramentas são chamadas pelo nome exato abaixo. Todas requerem projeto aberto.
+
+GERENCIAR PROJETO:
+- agentmap_projetos_listar: lista projetos
+- agentmap_projetos_abrir {caminhoOuId}: abre projeto
+- agentmap_projetos_atual: retorna projeto atual
+- agentmap_projetos_fechar {id}: fecha projeto
+- agentmap_integridade_verificar: verifica integridade
+
+GERENCIAR TAREFAS:
+- agentmap_tarefas_listar: lista tarefas
+- agentmap_tarefas_obter {id}: obtém tarefa
+- agentmap_tarefas_criar {dados}: cria tarefa (campos: titulo, objetivo, tipo, agenteResponsavel, dominio, prioridade, criteriosAceitacao, contratosObrigatorios, dependencias, arquivosPermitidos, contextoNecessario, estimativaHoras, dataLimite, tags)
+- agentmap_tarefas_atualizar {id, ...dados}: atualiza tarefa
+- agentmap_tarefas_alterar_estado {id, novoEstado}: altera estado (RASCUNHO|PLANEJADA|PRONTA|EM_EXECUCAO|EM_TESTE|EM_REVISAO|AGUARDANDO_APROVACAO|BLOQUEADA|CONCLUIDA)
+- agentmap_tarefas_excluir {id}: exclui tarefa
+
+GERENCIAR AGENTES:
+- agentmap_agentes_listar: lista agentes
+- agentmap_agentes_obter {id}: obtém agente com perfil
+- agentmap_agentes_criar {dados}: cria agente (campos: id, nome, funcao, descricao, estado, dominio, diretoriosPermitidos, diretoriosProibidos, contratosObrigatorios, ambientesPermitidos, responsabilidades, conhecimentos, permissoes, linguagemPreferida, modelo)
+- agentmap_agentes_atualizar {id, ...dados}: atualiza agente
+- agentmap_agentes_excluir {id}: exclui agente
+
+GERENCIAR ARQUIVOS:
+- agentmap_arquivos_listar {caminho}: lista arquivos em diretório
+- agentmap_arquivos_ler {caminho}: lê conteúdo de arquivo
+- agentmap_arquivos_excluir {caminho}: exclui arquivo ou diretório (com backup)
+IMPORTANTE: Use caminhos relativos ao projeto. NUNCA use caminhos absolutos ou ../ para fora do projeto.
+
+GERENCIAR CONTRATOS:
+- Use os arquivos JSON em .ia/contratos/ para consultar regras.
+- NÃO implemente nada que viole os contratos.
+
+COMUNICAÇÃO ENTRE AGENTES:
+- agentmap_handoffs_listar: lista handoffs
+- agentmap_handoffs_obter {id}: obtém handoff
+- agentmap_handoffs_criar {dados}: cria handoff (campos: de, para, tipo, titulo, descricao, arquivos, contexto)
+- agentmap_handoffs_atualizar {id, ...dados}: atualiza handoff
+- agentmap_handoffs_excluir {id}: exclui handoff
+
+SOLICITAÇÕES DE ALTERAÇÃO:
+- agentmap_solicitacoes_listar: lista solicitações
+- agentmap_solicitacoes_obter {id}: obtém solicitação
+- agentmap_solicitacoes_criar {dados}: cria solicitação
+- agentmap_solicitacoes_atualizar {id, ...dados}: atualiza solicitação
+- agentmap_solicitacoes_aprovar {id, agenteId, observacao}: aprova solicitação
+- agentmap_solicitacoes_rejeitar {id, agenteId, motivo}: rejeita solicitação
+- agentmap_solicitacoes_cancelar {id}: cancela solicitação
+- agentmap_solicitacoes_excluir {id}: exclui solicitação
+- agentmap_solicitacoes_historico {id}: lista histórico
+
+OUTRAS FERRAMENTAS:
+- agentmap_auditoria_listar: lista eventos de auditoria
+- agentmap_workflows_iniciar_trabalho {tarefaId, agenteId}: inicia workflow
+- agentmap_workflows_finalizar_trabalho {tarefaId, resultado}: finaliza workflow
+- agentmap_workflows_consultar_pendencias: consulta pendências
+- agentmap_workflows_obter_mapa_projeto: obtém mapa do projeto
+- agentmap_decisoes_listar/obter/criar/atualizar/excluir: decisões
+- agentmap_bloqueios_listar/obter/criar/resolver/excluir: bloqueios
+- agentmap_pendencias_listar/obter/criar/atualizar/resolver/excluir: pendências
+- agentmap_riscos_listar/obter/criar/atualizar/excluir: riscos
+
+ANTES DE INICIAR:
+1. Use agentmap_projetos_abrir ou confirme projeto aberto.
+2. Use agentmap_tarefas_obter para entender a tarefa completa.
+3. Use agentmap_agentes_obter para entender seu permissões e restrições.
+4. Leia os contratos em .ia/contratos/.
+5. Verifique handoffs pendentes.
+
+DURANTE A EXECUÇÃO:
+1. Trabalhe APENAS na sua pasta de trabalho: ${pastaTrabalho}
+2. Use agentmap_arquivos_ler para ler arquivos existentes.
+3. Use agentmap_arquivos_listar para explorar estrutura.
+4. Documente decisões importantes.
+5. Se encontrar bloqueio, crie um handoff ou solicitação.
+
+AO FINALIZAR:
+1. Crie documento de conclusão em ${joinPath(caminhoProjeto, '.ia', 'documentos')}
+2. Crie handoff em ${joinPath(caminhoProjeto, '.ia', 'handoffs')} se outro agente precisar continuar.
+3. Atualize a tarefa via agentmap_tarefas_atualizar com resultado e arquivos alterados.
+4. Registre evento em ${joinPath(caminhoProjeto, '.ia', 'auditoria', 'eventos.json')}
+    5. NÃO feche o projeto nem encerre a sessão.`;
+
+    const guideText = await fetchGuide();
+
+    const promptFinal = `Você é o agente responsável pela tarefa abaixo.
+
+${promptContexto}
+
+TAREFA:
+${promptTarefa}
+
+CONTRATOS:
+${promptContratos}
+
+CAMINHOS:
+${promptCaminhos}
+
+${instrucoes}
+
+${guideText}
+
+FORMATO DE RESPOSTA:
+- Reporte: "Tarefa concluída: [resumo]"
+- Arquivos alterados: [lista]
+- Próximos passos: [se houver]`;
+    $('prompt-contexto').value = promptContexto;
+    $('prompt-tarefa').value = promptTarefa;
+    $('prompt-contratos').value = promptContratos;
+    $('prompt-caminhos').value = promptCaminhos;
+    $('prompt-final').value = promptFinal;
+    $('prompt-titulo').textContent = `Prompt - ${tarefa.titulo}`;
+    showModal('modal-prompt');
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.gerarPromptAgente = async function(agenteId) {
+  try {
+    const agentesRes = await api.getAgentes();
+    if (!agentesRes.sucesso || !agentesRes.dados) {
+      showToast('Agentes não encontrados', 'erro');
+      return;
+    }
+    const agente = agentesRes.dados.find(a => a.id === agenteId);
+    if (!agente) {
+      showToast('Agente não encontrado', 'erro');
+      return;
+    }
+    const contratosRes = await api.getContratos();
+    const contratos = contratosRes.sucesso ? contratosRes.dados.filter(c => (agente.contratosObrigatorios || []).includes(c.id)) : [];
+    const projeto = estado.projetoAtual;
+    const caminhoProjeto = projeto?.caminhoRaiz || '';
+    const dominio = agente.dominio || 'geral';
+    const pastas = {
+      frontend: joinPath(caminhoProjeto, 'frontend'),
+      backend: joinPath(caminhoProjeto, 'backend'),
+      banco: joinPath(caminhoProjeto, 'banco'),
+      android: joinPath(caminhoProjeto, 'android'),
+      docs: joinPath(caminhoProjeto, 'docs'),
+      infraestrutura: joinPath(caminhoProjeto, 'infraestrutura'),
+      implantacao: joinPath(caminhoProjeto, 'implantacao'),
+      testes: joinPath(caminhoProjeto, 'testes')
+    };
+    const pastaTrabalho = pastas[dominio] || caminhoProjeto;
+    const promptContexto = `Projeto: ${projeto?.nome || 'N/A'}
+Descrição: ${projeto?.descricao || 'N/A'}
+Versão: ${projeto?.config?.versao || '1.0.0'}
+Ambiente: ${projeto?.config?.ambiente || 'desenvolvimento'}
+Idioma: ${projeto?.config?.idioma || 'pt-BR'}
+Fuso Horário: ${projeto?.config?.fusoHorario || 'America/Sao_Paulo'}
+Proprietário: ${projeto?.config?.proprietario?.nome || 'N/A'} (${projeto?.config?.proprietario?.tipo || 'humano'})
+Objetivos:
+${(projeto?.config?.objetivos || []).map(o => '- ' + o).join('\n') || '- N/A'}
+Escopo Incluído:
+${(projeto?.config?.escopo?.incluso || []).map(e => '- ' + e).join('\n') || '- N/A'}
+Escopo Excluído:
+${(projeto?.config?.escopo?.excluido || []).map(e => '- ' + e).join('\n') || '- N/A'}`;
+    const promptAgente = `Agente: ${agente.nome}
+Função: ${agente.funcao || ''}
+Estado: ${agente.estado || 'ativo'}
+Domínio: ${agente.dominio || 'geral'}
+Descrição: ${agente.descricao || ''}
+Linguagem Preferida: ${agente.linguagemPreferida || 'N/A'}
+Modelo: ${agente.modelo?.nome || 'N/A'}
+Diretórios permitidos: ${(agente.diretoriosPermitidos || []).join(', ') || 'todos'}
+Diretórios proibidos: ${(agente.diretoriosProibidos || []).join(', ') || 'nenhum'}
+Ambientes: ${(agente.ambientesPermitidos || []).join(', ') || 'todos'}
+Responsabilidades:
+${(agente.responsabilidades || []).map(r => '- ' + r).join('\n') || '- N/A'}
+Conhecimentos:
+${(agente.conhecimentos || []).map(c => '- ' + c).join('\n') || '- N/A'}`;
+    const promptContratos = contratos.map(c => `- ${c.nome} (${c.id}): ${c.descricao || ''}`).join('\n') || '- Nenhum contrato específico';
+    const promptCaminhos = `Pasta do projeto: ${caminhoProjeto}
+Pasta de trabalho: ${pastaTrabalho}
+Conhecimento: ${joinPath(caminhoProjeto, '.ia', 'agentes', agente.nome, 'conhecimento')}
+Recursos: ${joinPath(caminhoProjeto, '.ia', 'agentes', agente.nome, 'recursos')}`;
+    const instrucoesAgente = `REGRAS DE COMPORTAMENTO NO AGENTMAP:
+1. NÃO execute ações proativas sem solicitação. Apenas execute o que for solicitado.
+2. NÃO faça suposições. Se algo não estiver claro, questione antes de agir.
+3. NÃO use ferramentas irrelevantes para a tarefa atual.
+4. SEMPRE valide se o caminho/arquivo pertence ao projeto antes de manipular.
+5. SEMPRE registre auditoria das ações realizadas.
+6. SEMPRE crie handoffs ao entregar trabalho para outro agente.
+7. NÃO exclua ou altere arquivos fora da sua pasta de trabalho.
+8. NÃO compartilhe dados sensíveis (senhas, tokens, chaves) em documentos ou handoffs.
+9. SEMPRE siga os contratos do projeto antes de implementar.
+10. NÃO use ferramentas de execução (executar, implantar) sem aprovação explícita.
+
+COMO USAR AS FERRAMENTAS MCP:
+As ferramentas são chamadas pelo nome exato abaixo. Todas requerem projeto aberto.
+
+GERENCIAR PROJETO:
+- agentmap_projetos_listar: lista projetos
+- agentmap_projetos_abrir {caminhoOuId}: abre projeto
+- agentmap_projetos_atual: retorna projeto atual
+- agentmap_projetos_fechar {id}: fecha projeto
+- agentmap_integridade_verificar: verifica integridade
+
+GERENCIAR TAREFAS:
+- agentmap_tarefas_listar: lista tarefas
+- agentmap_tarefas_obter {id}: obtém tarefa
+- agentmap_tarefas_criar {dados}: cria tarefa (campos: titulo, objetivo, tipo, agenteResponsavel, dominio, prioridade, criteriosAceitacao, contratosObrigatorios, dependencias, arquivosPermitidos, contextoNecessario, estimativaHoras, dataLimite, tags)
+- agentmap_tarefas_atualizar {id, ...dados}: atualiza tarefa
+- agentmap_tarefas_alterar_estado {id, novoEstado}: altera estado (RASCUNHO|PLANEJADA|PRONTA|EM_EXECUCAO|EM_TESTE|EM_REVISAO|AGUARDANDO_APROVACAO|BLOQUEADA|CONCLUIDA)
+- agentmap_tarefas_excluir {id}: exclui tarefa
+
+GERENCIAR AGENTES:
+- agentmap_agentes_listar: lista agentes
+- agentmap_agentes_obter {id}: obtém agente com perfil
+- agentmap_agentes_criar {dados}: cria agente (campos: id, nome, funcao, descricao, estado, dominio, diretoriosPermitidos, diretoriosProibidos, contratosObrigatorios, ambientesPermitidos, responsabilidades, conhecimentos, permissoes, linguagemPreferida, modelo)
+- agentmap_agentes_atualizar {id, ...dados}: atualiza agente
+- agentmap_agentes_excluir {id}: exclui agente
+
+GERENCIAR ARQUIVOS:
+- agentmap_arquivos_listar {caminho}: lista arquivos em diretório
+- agentmap_arquivos_ler {caminho}: lê conteúdo de arquivo
+- agentmap_arquivos_excluir {caminho}: exclui arquivo ou diretório (com backup)
+IMPORTANTE: Use caminhos relativos ao projeto. NUNCA use caminhos absolutos ou ../ para fora do projeto.
+
+GERENCIAR CONTRATOS:
+- Use os arquivos JSON em .ia/contratos/ para consultar regras.
+- NÃO implemente nada que viole os contratos.
+
+COMUNICAÇÃO ENTRE AGENTES:
+- agentmap_handoffs_listar: lista handoffs
+- agentmap_handoffs_obter {id}: obtém handoff
+- agentmap_handoffs_criar {dados}: cria handoff (campos: de, para, tipo, titulo, descricao, arquivos, contexto)
+- agentmap_handoffs_atualizar {id, ...dados}: atualiza handoff
+- agentmap_handoffs_excluir {id}: exclui handoff
+
+SOLICITAÇÕES DE ALTERAÇÃO:
+- agentmap_solicitacoes_listar: lista solicitações
+- agentmap_solicitacoes_obter {id}: obtém solicitação
+- agentmap_solicitacoes_criar {dados}: cria solicitação
+- agentmap_solicitacoes_atualizar {id, ...dados}: atualiza solicitação
+- agentmap_solicitacoes_aprovar {id, agenteId, observacao}: aprova solicitação
+- agentmap_solicitacoes_rejeitar {id, agenteId, motivo}: rejeita solicitação
+- agentmap_solicitacoes_cancelar {id}: cancela solicitação
+- agentmap_solicitacoes_excluir {id}: exclui solicitação
+- agentmap_solicitacoes_historico {id}: lista histórico
+
+OUTRAS FERRAMENTAS:
+- agentmap_auditoria_listar: lista eventos de auditoria
+- agentmap_workflows_iniciar_trabalho {tarefaId, agenteId}: inicia workflow
+- agentmap_workflows_finalizar_trabalho {tarefaId, resultado}: finaliza workflow
+- agentmap_workflows_consultar_pendencias: consulta pendências
+- agentmap_workflows_obter_mapa_projeto: obtém mapa do projeto
+- agentmap_decisoes_listar/obter/criar/atualizar/excluir: decisões
+- agentmap_bloqueios_listar/obter/criar/resolver/excluir: bloqueios
+- agentmap_pendencias_listar/obter/criar/atualizar/resolver/excluir: pendências
+- agentmap_riscos_listar/obter/criar/atualizar/excluir: riscos
+
+ANTES DE INICIAR:
+1. Confirme que o projeto está aberto.
+2. Leia seu perfil e restrições.
+3. Verifique handoffs e documentos pendentes.
+4. Leia os contratos do projeto.
+
+DURANTE A EXECUÇÃO:
+1. Trabalhe APENAS na sua pasta de trabalho: ${pastaTrabalho}
+2. Use agentmap_arquivos_ler para ler arquivos existentes.
+3. Documente decisões importantes.
+4. Se encontrar bloqueio, crie um handoff ou solicitação.
+
+AO FINALIZAR:
+1. Crie documento de conclusão em ${joinPath(caminhoProjeto, '.ia', 'documentos')}
+2. Crie handoff em ${joinPath(caminhoProjeto, '.ia', 'handoffs')} se outro agente precisar continuar.
+3. Atualize sua tarefa via agentmap_tarefas_atualizar com resultado e arquivos alterados.
+4. Registre evento em ${joinPath(caminhoProjeto, '.ia', 'auditoria', 'eventos.json')}
+    5. NÃO feche o projeto nem encerre a sessão.`;
+
+    const guideText = await fetchGuide();
+
+    const promptFinal = `Você é o agente ${agente.nome} do projeto ${projeto?.nome || 'N/A'}.
+
+${promptContexto}
+
+AGENTE:
+${promptAgente}
+
+CONTRATOS:
+${promptContratos}
+
+CAMINHOS:
+${promptCaminhos}
+
+${instrucoesAgente}
+
+${guideText}
+
+FORMATO DE RESPOSTA:
+- Reporte: "Agente ${agente.nome} pronto para executar tarefas"
+- Crie handoffs quando necessário em: ${joinPath(caminhoProjeto, '.ia', 'handoffs')}`;
+    $('prompt-contexto').value = promptContexto;
+    $('prompt-tarefa').value = promptAgente;
+    $('prompt-contratos').value = promptContratos;
+    $('prompt-caminhos').value = promptCaminhos;
+    $('prompt-final').value = promptFinal;
+    $('prompt-titulo').textContent = `Prompt - ${agente.nome}`;
+    showModal('modal-prompt');
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+document.getElementById('btn-copiar-prompt').addEventListener('click', copiarPrompt);
+document.getElementById('btn-copiar-prompt-2').addEventListener('click', copiarPrompt);
+
+function copiarPrompt() {
+  const promptText = $('prompt-final').value;
+  if (!promptText) {
+    showToast('Nenhum prompt para copiar', 'erro');
+    return;
+  }
+  navigator.clipboard.writeText(promptText).then(() => {
+    showToast('Prompt copiado para a área de transferência!', 'sucesso');
+  }).catch(() => {
+    const textarea = document.createElement('textarea');
+    textarea.value = promptText;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showToast('Prompt copiado!', 'sucesso');
+  });
+}

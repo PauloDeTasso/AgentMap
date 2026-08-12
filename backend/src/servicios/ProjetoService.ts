@@ -6,12 +6,7 @@ import { ScaffoldService } from '../arquivos/ScaffoldService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { DependenciaService } from './DependenciaService';
-import {
-  ProjetoConfig,
-  ProjetoRegistro,
-  RegistroProjetos,
-  ResultadoOperacao
-} from '../tipos';
+import { ProjetoConfig, ProjetoRegistro, RegistroProjetos, ResultadoOperacao } from '../tipos';
 import {
   loadRegistroProjetos,
   saveRegistroProjetos,
@@ -46,9 +41,12 @@ export class ProjetoService {
   }
 
   getProjetoAtual(): ResultadoOperacao<ProjetoAberto | null> {
+    console.log('[ProjetoService.getProjetoAtual] projetoAtual no registro:', this.registro.projetoAtual || '(null)');
     if (!this.registro.projetoAtual) {
+      console.log('[ProjetoService.getProjetoAtual] nenhum projeto atual - retornando null');
       return { sucesso: true, dados: null };
     }
+    console.log('[ProjetoService.getProjetoAtual] tentando abrir projeto atual:', this.registro.projetoAtual);
     const projeto = this.abrirProjeto(this.registro.projetoAtual);
     return projeto;
   }
@@ -75,6 +73,53 @@ export class ProjetoService {
     }
     console.log('[ProjetoService.criarProjeto] Scaffold OK');
 
+    const objetivos = Array.isArray(dadosExtra?.objetivos) ? dadosExtra.objetivos : [];
+    const escopoIncluso = Array.isArray(dadosExtra?.escopoIncluso) ? dadosExtra.escopoIncluso : [];
+    const escopoExcluido = Array.isArray(dadosExtra?.escopoExcluido) ? dadosExtra.escopoExcluido : [];
+    const tecnologias = Array.isArray(dadosExtra?.tecnologias) ? dadosExtra.tecnologias : [];
+    const hoje = new Date().toISOString();
+
+    const config: ProjetoConfig = {
+      id,
+      nome,
+      descricao: descricao || '',
+      versao: String(dadosExtra?.versao || '1.0.0'),
+      estado: 'ativo',
+      idioma: String(dadosExtra?.idioma || 'pt-BR'),
+      fusoHorario: String(dadosExtra?.fusoHorario || 'America/Sao_Paulo'),
+      proprietario: {
+        tipo: (dadosExtra?.proprietarioTipo as 'humano' | 'equipe' | 'empresa') || 'humano',
+        nome: String(dadosExtra?.proprietarioNome || ''),
+      },
+      objetivos,
+      escopo: { incluso: escopoIncluso, excluido: escopoExcluido },
+      tecnologias: {
+        frontend: Array.isArray(dadosExtra?.tecnologiasFrontend) ? dadosExtra.tecnologiasFrontend : [],
+        backend: Array.isArray(dadosExtra?.tecnologiasBackend) ? dadosExtra.tecnologiasBackend : [],
+        android: Array.isArray(dadosExtra?.tecnologiasAndroid) ? dadosExtra.tecnologiasAndroid : [],
+        bancoDeDados: Array.isArray(dadosExtra?.tecnologiasBanco) ? dadosExtra.tecnologiasBanco : [],
+        infraestrutura: Array.isArray(dadosExtra?.tecnologiasInfra) ? dadosExtra.tecnologiasInfra : [],
+        testes: Array.isArray(dadosExtra?.tecnologiasTestes) ? dadosExtra.tecnologiasTestes : [],
+      },
+      ambiente: String(dadosExtra?.ambiente || 'desenvolvimento'),
+      arquiteturas: Array.isArray(dadosExtra?.arquiteturas) ? dadosExtra.arquiteturas : [],
+      padroes: Array.isArray(dadosExtra?.padroes) ? dadosExtra.padroes : [],
+      diretorios: (dadosExtra?.diretorios as Record<string, string>) || {},
+      configuracaoIa: {
+        diretorio: '/.ia',
+        contratoPrincipal: '/.ia/contratos/contrato-projeto.json',
+        estadoAtual: '/.ia/estado/estado-atual.json'
+      },
+      datas: { criacao: hoje, ultimaAtualizacao: hoje }
+    };
+
+    const fsService = new FileService(caminhoRaiz);
+    fsService.escreverJson(
+      path.win32.join('.ia', 'configuracao', 'projeto.json'),
+      config,
+      { backup: true }
+    );
+
     const registro: ProjetoRegistro = {
       id,
       nome,
@@ -87,7 +132,6 @@ export class ProjetoService {
     saveRegistroProjetos(this.registro);
     console.log('[ProjetoService.criarProjeto] SUCESSO - id=' + id + ' | nome=' + nome + ' | caminhoRaiz=' + caminhoRaiz);
 
-    const fsService = new FileService(caminhoRaiz);
     fsService.escreverJson(
       path.win32.join('.ia', 'auditoria', 'eventos.json'),
       { eventos: [{ id: uuid(), tipo: 'PROJETO_CRIADO', origem: 'gerenciador', agenteId: null, usuarioId: 'proprietario', tarefaId: null, descricao: `Projeto '${nome}' criado.`, dados: { caminhoRaiz }, resultado: 'sucesso', data: new Date().toISOString() }] }

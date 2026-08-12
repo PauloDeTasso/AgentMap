@@ -39,12 +39,13 @@ export function criarProjetoConfig(
       testes: '/testes',
       documentacao: '/docs'
     },
-    configuracaoIa: {
-      diretorio: '/.ia',
-      contratoPrincipal: '/.ia/contratos/contrato-projeto.json',
-      estadoAtual: '/.ia/estado/estado-atual.json'
-    },
-    datas: { criacao: hoje, ultimaAtualizacao: hoje }
+      configuracaoIa: {
+        diretorio: '/.ia',
+        contratoPrincipal: '/.ia/contratos/contrato-projeto.json',
+        estadoAtual: '/.ia/estado/estado-atual.json'
+      },
+      ambiente: 'desenvolvimento',
+      datas: { criacao: hoje, ultimaAtualizacao: hoje }
   };
 }
 

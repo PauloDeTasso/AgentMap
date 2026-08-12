@@ -14,8 +14,9 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
+    "baseUrl": "./src",
     "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "testes"]
+  "exclude": ["node_modules", "dist", "testes", "src/mcp-server"]
 }

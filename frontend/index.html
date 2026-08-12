@@ -41,16 +41,64 @@
        <h3 class="modal__titulo" id="titulo-projeto">Novo Projeto</h3>
       <form class="form" id="form-novo-projeto">
         <div class="form__grupo">
-          <label class="form__label" for="nome-projeto">Nome do Projeto</label>
+          <label class="form__label" for="nome-projeto">Nome do Projeto *</label>
           <input class="form__input" type="text" id="nome-projeto" required>
         </div>
         <div class="form__grupo">
-          <label class="form__label" for="caminho-parental">Pasta do Projeto</label>
+          <label class="form__label" for="caminho-parental">Pasta do Projeto *</label>
            <input class="form__input" type="text" id="caminho-parental" placeholder="C:\Usuários\...\projetos" required>
         </div>
         <div class="form__grupo">
           <label class="form__label" for="descricao-projeto">Descrição</label>
           <textarea class="form__textarea" id="descricao-projeto" rows="3"></textarea>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="projeto-ambiente">Ambiente</label>
+          <select class="form__input" id="projeto-ambiente">
+            <option value="desenvolvimento">Desenvolvimento</option>
+            <option value="homologacao">Homologação</option>
+            <option value="producao">Produção</option>
+          </select>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="projeto-versao">Versão</label>
+          <input class="form__input" type="text" id="projeto-versao" value="1.0.0">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="projeto-idioma">Idioma</label>
+          <select class="form__input" id="projeto-idioma">
+            <option value="pt-BR">Português (BR)</option>
+            <option value="en-US">Inglês (US)</option>
+            <option value="es-ES">Espanhol</option>
+          </select>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="projeto-fuso">Fuso Horário</label>
+          <input class="form__input" type="text" id="projeto-fuso" value="America/Sao_Paulo">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="projeto-proprietario-nome">Proprietário (nome)</label>
+          <input class="form__input" type="text" id="projeto-proprietario-nome" placeholder="Nome do proprietário">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="projeto-proprietario-tipo">Tipo do Proprietário</label>
+          <select class="form__input" id="projeto-proprietario-tipo">
+            <option value="humano">Humano</option>
+            <option value="equipe">Equipe</option>
+            <option value="empresa">Empresa</option>
+          </select>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="projeto-objetivos">Objetivos (um por linha)</label>
+          <textarea class="form__textarea" id="projeto-objetivos" rows="3" placeholder="Objetivo 1&#10;Objetivo 2"></textarea>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="projeto-escopo-incluso">Escopo Incluído (um por linha)</label>
+          <textarea class="form__textarea" id="projeto-escopo-incluso" rows="2"></textarea>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="projeto-escopo-excluido">Escopo Excluído (um por linha)</label>
+          <textarea class="form__textarea" id="projeto-escopo-excluido" rows="2"></textarea>
         </div>
         <div class="form__acoes">
           <button class="btn btn--primario" type="submit">Criar</button>
@@ -123,11 +171,27 @@
           </div>
           <div class="form__grupo form__grupo_full">
             <label class="form__label">Diretórios Permitidos</label>
-            <div class="form__checkbox_group" id="agente-diretorios-permitidos-cb"></div>
+            <div class="dir-picker" id="dir-perm-picker">
+              <div class="dir-tags" id="dir-perm-tags"></div>
+              <div class="dir-input-row">
+                <input class="form__input" type="text" id="dir-perm-input" placeholder="Caminho permitido (ex: frontend/, backend/...)">
+                <button type="button" class="btn btn--small btn--primario" id="dir-perm-add">Adicionar</button>
+                <button type="button" class="btn btn--small btn--ghost" id="dir-perm-browse">Navegar</button>
+              </div>
+              <div class="form__checkbox_group" id="agente-diretorios-permitidos-cb"></div>
+            </div>
           </div>
           <div class="form__grupo form__grupo_full">
             <label class="form__label">Diretórios Proibidos</label>
-            <div class="form__checkbox_group" id="agente-diretorios-proibidos-cb"></div>
+            <div class="dir-picker" id="dir-proib-picker">
+              <div class="dir-tags" id="dir-proib-tags"></div>
+              <div class="dir-input-row">
+                <input class="form__input" type="text" id="dir-proib-input" placeholder="Caminho proibido (ex: secrets/, .env)">
+                <button type="button" class="btn btn--small btn--primario" id="dir-proib-add">Adicionar</button>
+                <button type="button" class="btn btn--small btn--ghost" id="dir-proib-browse">Navegar</button>
+              </div>
+              <div class="form__checkbox_group" id="agente-diretorios-proibidos-cb"></div>
+            </div>
           </div>
           <div class="form__grupo form__grupo_full">
             <label class="form__label">Contratos Obrigatórios</label>
@@ -144,6 +208,32 @@
           <div class="form__grupo form__grupo_full">
             <label class="form__label" for="agente-conhecimentos">Conhecimentos (um por linha)</label>
             <textarea class="form__textarea" id="agente-conhecimentos" rows="3"></textarea>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="agente-dominio">Domínio *</label>
+            <select class="form__input" id="agente-dominio" required>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+              <option value="banco">Banco de Dados</option>
+              <option value="android">Android</option>
+              <option value="docs">Documentação</option>
+              <option value="infraestrutura">Infraestrutura</option>
+              <option value="testes">Testes</option>
+              <option value="seguranca">Segurança</option>
+              <option value="desempenho">Desempenho</option>
+              <option value="observabilidade">Observabilidade</option>
+              <option value="revisor">Revisor</option>
+              <option value="planejador">Planejador</option>
+              <option value="geral">Geral</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="agente-linguagem">Linguagem Preferida</label>
+            <input class="form__input" type="text" id="agente-linguagem" placeholder="Ex: TypeScript, Python">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="agente-modelo">Modelo Preferido</label>
+            <input class="form__input" type="text" id="agente-modelo" placeholder="Ex: GPT-4, Claude">
           </div>
         </div>
         <div class="form__grupo">
@@ -227,12 +317,36 @@
           </select>
         </div>
         <div class="form__grupo">
+          <label class="form__label" for="tarefa-estimativa">Estimativa (horas)</label>
+          <input class="form__input" type="number" id="tarefa-estimativa" min="1" placeholder="Ex: 4">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="tarefa-data-limite">Data Limite</label>
+          <input class="form__input" type="date" id="tarefa-data-limite">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="tarefa-dependencias">Dependências (IDs de tarefas, um por linha)</label>
+          <textarea class="form__textarea" id="tarefa-dependencias" rows="2" placeholder="TAR-2026-00001&#10;TAR-2026-00002"></textarea>
+        </div>
+        <div class="form__grupo form__grupo_full">
           <label class="form__label" for="tarefa-criterios">Critérios de Aceitação (um por linha)</label>
           <textarea class="form__textarea" id="tarefa-criterios" rows="4" placeholder="Critério 1&#10;Critério 2"></textarea>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="tarefa-arquivos-esperados">Arquivos Esperados (um por linha)</label>
+          <textarea class="form__textarea" id="tarefa-arquivos-esperados" rows="2" placeholder="frontend/index.html&#10;backend/src/api/contatos.ts"></textarea>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="tarefa-contexto">Contexto Adicional</label>
+          <textarea class="form__textarea" id="tarefa-contexto" rows="3"></textarea>
         </div>
         <div class="form__grupo">
           <label class="form__label" for="tarefa-contratos">Contratos (separados por vírgula)</label>
           <input class="form__input" type="text" id="tarefa-contratos" value="contrato-projeto">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="tarefa-tags">Tags (separadas por vírgula)</label>
+          <input class="form__input" type="text" id="tarefa-tags" placeholder="frontend, html, css">
         </div>
         <div class="form__acoes">
           <button class="btn btn--primario" type="submit">Salvar</button>
@@ -469,6 +583,71 @@
         <div class="form__acoes">
           <button class="btn btn--primario" type="submit">Salvar</button>
           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-solicitacao')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+   <!-- Modal: Prompt do Agente -->
+  <div class="modal modal--grande" id="modal-prompt" style="display:none;">
+    <div class="modal__conteudo modal__conteudo--cheio">
+      <button class="modal__fechar" onclick="hideModal('modal-prompt')">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo" id="prompt-titulo">Prompt do Agente</h3>
+        <button class="btn btn--small btn--primario" id="btn-copiar-prompt">Copiar Prompt</button>
+      </div>
+      <div class="form__grupo form__grupo_full">
+        <label class="form__label" for="prompt-contexto">Contexto do Projeto</label>
+        <textarea class="form__textarea" id="prompt-contexto" rows="4" readonly></textarea>
+      </div>
+      <div class="form__grupo form__grupo_full">
+        <label class="form__label" for="prompt-tarefa">Descrição da Tarefa</label>
+        <textarea class="form__textarea" id="prompt-tarefa" rows="4" readonly></textarea>
+      </div>
+      <div class="form__grupo form__grupo_full">
+        <label class="form__label" for="prompt-contratos">Contratos Aplicáveis</label>
+        <textarea class="form__textarea" id="prompt-contratos" rows="3" readonly></textarea>
+      </div>
+      <div class="form__grupo form__grupo_full">
+        <label class="form__label" for="prompt-caminhos">Caminhos de Trabalho</label>
+        <textarea class="form__textarea" id="prompt-caminhos" rows="2" readonly></textarea>
+      </div>
+      <div class="form__grupo form__grupo_full">
+        <label class="form__label" for="prompt-final">Prompt Completo</label>
+        <textarea class="form__textarea editor__texto" id="prompt-final" rows="14" readonly></textarea>
+      </div>
+      <div class="form__acoes">
+        <button class="btn btn--primario" type="button" id="btn-copiar-prompt-2">Copiar</button>
+        <button class="btn btn--ghost" type="button" onclick="hideModal('modal-prompt')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Configuracoes -->
+  <div class="modal" id="modal-configuracao" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-configuracao')">&times;</button>
+      <h3 class="modal__titulo">Configuracoes</h3>
+      <form class="form" id="form-configuracao">
+        <div class="form__grupo">
+          <label class="form__label" for="config-diretorio-padrao">Pasta Padrao dos Projetos *</label>
+          <input class="form__input" type="text" id="config-diretorio-padrao" required placeholder="G:\Projetos\AgenteMap_Projetos">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="config-idioma">Idioma</label>
+          <select class="form__input" id="config-idioma">
+            <option value="pt-BR">Portugues (BR)</option>
+            <option value="en-US">Ingles (US)</option>
+            <option value="es-ES">Espanhol</option>
+          </select>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="config-porta">Porta da API</label>
+          <input class="form__input" type="number" id="config-porta" min="1" max="65535">
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-configuracao')">Cancelar</button>
         </div>
       </form>
     </div>

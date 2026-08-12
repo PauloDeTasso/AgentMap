@@ -64,7 +64,10 @@ export type TipoEvento =
   | 'DECISAO_ATUALIZADA'
   | 'INTEGRIDADE_VERIFICADA'
   | 'INTEGRIDADE_FALHA'
-  | 'REGRAS_RESPEITADAS';
+  | 'REGRAS_RESPEITADAS'
+  | 'CONTATO_CRIADO'
+  | 'CONTATO_ATUALIZADO'
+  | 'CONTATO_EXCLUIDO';
 
 export class AuditoriaService {
   constructor(private fs: FileService) {}

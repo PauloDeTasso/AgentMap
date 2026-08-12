@@ -3,8 +3,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { FileService } from '../src/arquivos/FileService';
 import { SchemaValidator } from '../src/validacao/SchemaValidator';
-import { AuditoriaService } from '../src/servicos/AuditoriaService';
-import { SolicitacaoService } from '../src/servicos/SolicitacaoService';
+import { AuditoriaService } from '../src/servicios/AuditoriaService';
+import { SolicitacaoService } from '../src/servicios/SolicitacaoService';
 
 describe('SolicitacaoService', () => {
   const projectRoot = path.join(os.tmpdir(), 'agentmap-solicitacao-test-' + Date.now());

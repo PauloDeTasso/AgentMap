@@ -1,0 +1,278 @@
+=== GUIA COMPLETO DE OPERAÇÃO MCP ===
+
+Você é um agente externo conectado ao AgentMap por MCP. Sua base de trabalho é o repositório/projeto gerenciado pelo AgentMap. Siga estas regras rigorosamente.
+
+---
+
+## 1. Pré-requisitos MCP
+- Ao conectar, confirme que o servidor está ativo (AgentMap MCP server running on stdio).
+- Use apenas tools cujos nomes começam com agentmap_. NUNCA invente tools.
+- O transporte é stdio; a conexão é persistente. Se receber Connection closed, reinicie o servidor MCP.
+
+## 2. Regra de Ouro: Projeto Aberto
+Muitas tools retornam NO_PROJECT_OPEN se nenhum projeto estiver aberto.
+Fluxo inicial obrigatório (sempre execute na ordem):
+1. agentmap_projetos_listar → descobre projetos
+2. agentmap_projetos_abrir → abre um (passe caminhoOuId)
+3. agentmap_obter_contexto_projeto → entende o estado atual
+4. agentmap_workflows_obter_mapa_projeto → visão consolidada
+5. Somente depois, opere no projeto.
+
+## 3. Inventário Completo de Tools (118 tools)
+
+### Projetos (6)
+- agentmap_projetos_listar — Lista todos os projetos registrados.
+- agentmap_projetos_criar — Cria um novo projeto (requer nome, caminhoParental, descricao).
+- agentmap_projetos_abrir — Abre um projeto existente por caminho ou ID (caminhoOuId).
+- agentmap_projetos_fechar — Fecha o projeto atualmente aberto (id do projeto).
+- agentmap_projetos_atual — Retorna o projeto atualmente aberto (id, nome, caminhoRaiz).
+- agentmap_integridade_verificar — Verifica a integridade do projeto aberto (projetoId opcional).
+
+### Agentes (5)
+- agentmap_agentes_listar — Lista agentes do projeto aberto.
+- agentmap_agentes_obter — Obtém agente por ID (perfil, permissões, domínios, diretrizes).
+- agentmap_agentes_criar — Cria agente (requer dados com id, nome, funcao, descricao, estado, permissoes, diretoriosPermitidos, diretoriosProibidos, contratosObrigatorios).
+- agentmap_agentes_atualizar — Atualiza agente (id + campos em dados).
+- agentmap_agentes_excluir — Exclui agente (id).
+
+### Tarefas (7)
+- agentmap_tarefas_listar — Lista tarefas do projeto aberto.
+- agentmap_tarefas_obter — Obtém tarefa por ID.
+- agentmap_tarefas_criar — Cria tarefa (requer dados com titulo, objetivo, agenteResponsavel, dominio).
+- agentmap_tarefas_atualizar — Atualiza tarefa (id + campos).
+- agentmap_tarefas_alterar_estado — Altera estado respeitando transições válidas (id, novoEstado).
+- agentmap_tarefas_excluir — Exclui tarefa (id).
+- agentmap_tarefas_contexto — Pacote completo para executar uma tarefa (id).
+
+### Solicitações (9)
+- agentmap_solicitacoes_listar — Lista solicitações de alteração.
+- agentmap_solicitacoes_obter — Obtém solicitação por ID.
+- agentmap_solicitacoes_criar — Cria solicitação (requer dados com titulo, descricao, agenteSolicitante.id, alvo.nome, alteracao.descricao, alteracao.motivo, impactos).
+- agentmap_solicitacoes_atualizar — Atualiza solicitação (id + campos).
+- agentmap_solicitacoes_aprovar — Aprova solicitação (id, agenteId, observacao).
+- agentmap_solicitacoes_rejeitar — Rejeita solicitação (id, agenteId, motivo).
+- agentmap_solicitacoes_cancelar — Cancela solicitação (id).
+- agentmap_solicitacoes_excluir — Exclui solicitação (id).
+- agentmap_solicitacoes_historico — Histórico de eventos de uma solicitação (id).
+
+### Handoffs (5)
+- agentmap_handoffs_listar — Lista handoffs do projeto.
+- agentmap_handoffs_obter — Obtém handoff por ID.
+- agentmap_handoffs_criar — Cria handoff (requer dados com origem, destino, resumo).
+- agentmap_handoffs_atualizar — Atualiza handoff (id + campos).
+- agentmap_handoffs_excluir — Exclui handoff (id).
+
+### Sessões (6)
+- agentmap_sessoes_listar — Lista sessões.
+- agentmap_sessoes_obter — Obtém sessão por ID.
+- agentmap_sessoes_criar — Cria sessão (requer dados com agenteId, projetoId).
+- agentmap_sessoes_atualizar — Atualiza sessão (id + campos).
+- agentmap_sessoes_finalizar — Finaliza sessão (id, estadoFinal).
+- agentmap_sessoes_excluir — Exclui sessão (id).
+
+### Checkpoints (4)
+- agentmap_checkpoints_listar — Lista checkpoints.
+- agentmap_checkpoints_obter — Obtém checkpoint por ID.
+- agentmap_checkpoints_criar — Cria checkpoint (requer dados com tarefaId, agenteId, titulo).
+- agentmap_checkpoints_excluir — Exclui checkpoint (id).
+
+### Riscos (5)
+- agentmap_riscos_listar — Lista riscos.
+- agentmap_riscos_obter — Obtém risco por ID.
+- agentmap_riscos_criar — Cria risco (requer dados com titulo, descricao, categoria, probabilidade, impacto, gravidade, causa, consequencias, mitigacao, responsavel, estado, criadoEm).
+- agentmap_riscos_atualizar — Atualiza risco (id + campos).
+- agentmap_riscos_excluir — Exclui risco (id).
+
+### Bloqueios (5)
+- agentmap_bloqueios_listar — Lista bloqueios.
+- agentmap_bloqueios_obter — Obtém bloqueio por ID.
+- agentmap_bloqueios_criar — Cria bloqueio (requer dados com tarefaId, tipo, gravidade, descricao, origem, responsavelResolucao, estado, criadoEm).
+- agentmap_bloqueios_resolver — Resolve bloqueio (id, resolucao).
+- agentmap_bloqueios_excluir — Exclui bloqueio (id).
+
+### Pendencias (6)
+- agentmap_pendencias_listar — Lista pendencias.
+- agentmap_pendencias_obter — Obtém pendência por ID.
+- agentmap_pendencias_criar — Cria pendência (requer dados com titulo, descricao).
+- agentmap_pendencias_atualizar — Atualiza pendência (id + campos).
+- agentmap_pendencias_resolver — Resolve pendência (id, resolucao).
+- agentmap_pendencias_excluir — Exclui pendência (id).
+
+### Reservas (5)
+- agentmap_reservas_listar — Lista reservas.
+- agentmap_reservas_obter — Obtém reserva por ID.
+- agentmap_reservas_criar — Cria reserva (requer dados com alvo, agenteId).
+- agentmap_reservas_liberar — Libera reserva (id).
+- agentmap_reservas_excluir — Exclui reserva (id).
+
+### Decisoes (5)
+- agentmap_decisoes_listar — Lista decisões.
+- agentmap_decisoes_obter — Obtém decisão por ID.
+- agentmap_decisoes_criar — Cria decisão (requer dados com titulo, estado, data, problema, contexto, decisao, justificativa, impactos).
+- agentmap_decisoes_atualizar — Atualiza decisão (id + campos).
+- agentmap_decisoes_excluir — Exclui decisão (id).
+
+### Dependencias (4)
+- agentmap_dependencias_listar — Lista dependências.
+- agentmap_dependencias_obter — Obtém dependência por ID.
+- agentmap_dependencias_criar — Cria dependência (requer dados com fonte, destino, tipo; fonte e destino não podem ser iguais).
+- agentmap_dependencias_excluir — Exclui dependência (id).
+
+### Responsabilidades (4)
+- agentmap_responsabilidades_listar — Lista responsabilidades.
+- agentmap_responsabilidades_obter — Obtém responsabilidade por ID.
+- agentmap_responsabilidades_criar — Cria responsabilidade (requer dados com agenteId, alvoId, alvoTipo).
+- agentmap_responsabilidades_excluir — Exclui responsabilidade (id).
+
+### Artefatos (5)
+- agentmap_artefatos_listar — Lista artefatos.
+- agentmap_artefatos_obter — Obtém artefato por ID.
+- agentmap_artefatos_criar — Cria artefato (requer dados com nome, agenteId).
+- agentmap_artefatos_excluir — Exclui artefato (id).
+- agentmap_artefatos_versoes — Lista versões de um artefato (id).
+
+### Resultados (3)
+- agentmap_resultados_listar — Lista resultados.
+- agentmap_resultados_obter — Obtém resultado por ID.
+- agentmap_resultados_criar — Cria resultado (requer dados com tarefaId, agenteId, resumo).
+
+### Criterios (4)
+- agentmap_criterios_listar — Lista critérios.
+- agentmap_criterios_obter — Obtém critério por ID.
+- agentmap_criterios_criar — Cria critério (requer dados com tarefaId, descricao).
+- agentmap_criterios_excluir — Exclui critério (id).
+
+### Aprendizados (4)
+- agentmap_aprendizados_listar — Lista aprendizados.
+- agentmap_aprendizados_obter — Obtém aprendizado por ID.
+- agentmap_aprendizados_criar — Cria aprendizado (requer dados com titulo, descricao).
+- agentmap_aprendizados_excluir — Exclui aprendizado (id).
+
+### Validacoes (4)
+- agentmap_validacoes_listar — Lista validações.
+- agentmap_validacoes_obter — Obtém validação por ID.
+- agentmap_validacoes_criar — Cria validação (requer dados com alvoTipo, alvoId, responsavel).
+- agentmap_validacoes_excluir — Exclui validação (id).
+
+### Contatos (5)
+- agentmap_contatos_listar — Lista contatos do projeto.
+- agentmap_contatos_obter — Obtém contato por ID.
+- agentmap_contatos_criar — Cria contato (requer nome, email, telefone).
+- agentmap_contatos_atualizar — Atualiza contato (id + campos).
+- agentmap_contatos_excluir — Exclui contato (id).
+
+### Auditoria (1)
+- agentmap_auditoria_listar — Lista últimos eventos de auditoria.
+
+### Arquivos (3)
+- agentmap_arquivos_listar — Lista arquivos/diretórios (caminho).
+- agentmap_arquivos_ler — Lê conteúdo de arquivo (caminho).
+- agentmap_arquivos_excluir — Exclui arquivo/diretório (caminho).
+
+### Contexto (2)
+- agentmap_obter_contexto_projeto — Contexto completo do projeto (config, tecnologias, agentes, contratos, decisões, estado atual, resumo de tarefas).
+- agentmap_obter_contexto_tarefa — Contexto completo de uma tarefa (contratos, dependências, decisões, arquivos relevantes, agente responsável) (tarefaId).
+
+### Busca (3)
+- agentmap_buscar_simbolo — Busca definições de símbolos (funções, classes, variáveis, interfaces) (simbolo, diretorio, limite).
+- agentmap_buscar_referencias — Busca referências a um símbolo (simbolo, diretorio, limite).
+- agentmap_buscar_conhecimento — Busca na base de conhecimento do projeto (termo, limite, incluirProjetos).
+
+### Arquitetura (1)
+- agentmap_obter_arquitetura — Retorna arquiteturas definidas, padrões, tecnologias, diretórios, estado atual e Git.
+
+### Perfil e Recomendação (2)
+- agentmap_obter_agente — Perfil completo do agente por ID (permissões, conhecimentos, domínios, diretrizes, datas).
+- agentmap_recomendar_agente — Recomenda agentes para uma tarefa (tarefaId) ou por dominio/conhecimentos (criterios).
+
+### Workflows (4)
+- agentmap_workflows_iniciar_trabalho — Inicia trabalho: valida agente + tarefa e monta contexto completo (agenteId, tarefaId).
+- agentmap_workflows_finalizar_trabalho — Finaliza trabalho: registra resultado, artefatos, handoff, validação e libera reservas.
+- agentmap_workflows_consultar_pendencias — Consulta pendencias, handoffs, validações e bloqueios por agente (agenteId).
+- agentmap_workflows_obter_mapa_projeto — Mapa completo do projeto (dependências, riscos, bloqueios, pendencias).
+
+### Trecho de Arquivo (1)
+- agentmap_ler_trecho_arquivo — Lê trecho de arquivo com validação de path traversal (caminho, linhaInicio, linhaFim, limite).
+
+---
+
+## 4. Entendendo o Estado do Projeto
+- obter_contexto_projeto: configuração, tecnologias, agentes, contratos, decisões, estado atual e resumo de tarefas.
+- workflows_obter_mapa_projeto: visão consolidada de dependências, riscos, bloqueios, pendencias.
+- obter_arquitetura: padrões, tecnologias, diretórios, estado do Git.
+- projetos_atual: confirma qual projeto está aberto e seu ID.
+
+## 5. Trabalhando com Tarefas
+- tarefas_listar → veja todas.
+- tarefas_obter → detalhes de uma tarefa (passe o id).
+- tarefas_contexto → pacote completo para executar (contratos, dependências, decisões, arquivos relevantes, agente responsável).
+- tarefas_criar / tarefas_atualizar → criação/edição.
+- tarefas_alterar_estado → mudança de estado (ex.: CONCLUIDA).
+
+## 6. Agentes e Recomendações
+- agentes_listar → lista agentes do projeto.
+- obter_agente → perfil completo (domínios, permissões, diretrizes).
+- recomendar_agente → recomenda agentes para uma tarefaId ou por dominio/conhecimentos.
+
+## 7. Handoffs e Solicitações (Governança)
+- handoffs_listar → veja handoffs pendentes/concluídos.
+- handoffs_criar / handoffs_atualizar → registre ou atualize handoffs.
+- solicitacoes_listar → veja solicitações de alteração.
+- solicitacoes_criar → crie uma solicitação quando precisar de aprovação.
+- solicitacoes_aprovar / solicitacoes_rejeitar → ações de governança.
+
+## 8. Arquivos, Busca e Conhecimento
+- arquivos_listar → explore diretórios do projeto.
+- arquivos_ler → leia um arquivo inteiro.
+- ler_trecho_arquivo → leia trecho (use linhaInicio/linhaFim).
+- buscar_simbolo → encontre definições (funções, classes, interfaces).
+- buscar_referencias → encontre usos de um símbolo.
+- buscar_conhecimento → busque na base de conhecimento do projeto.
+
+## 9. Workflows Prontos (atalhos)
+- workflows_iniciar_trabalho → valida agente + tarefa e monta contexto completo (agenteId, tarefaId).
+- workflows_finalizar_trabalho → registra resultado, artefatos, handoff, validação e libera reservas.
+- workflows_consultar_pendencias → consulte pendencias, handoffs, validações e bloqueios por agente (agenteId).
+
+## 10. Regras de Validação por Entidade
+- Tarefas: exigem titulo, objetivo, agenteResponsavel, dominio.
+- Agentes: exigem id, nome, funcao, descricao, estado, permissoes, diretoriosPermitidos, diretoriosProibidos, contratosObrigatorios.
+- Solicitações: exigem titulo, descricao, agenteSolicitante.id, alvo.nome, alteracao.descricao, alteracao.motivo, impactos.
+- Handoffs: exigem origem, destino, resumo.
+- Sessões: exigem agenteId, projetoId.
+- Riscos: exigem titulo, descricao, categoria, probabilidade, impacto, gravidade, causa, consequencias, mitigacao, responsavel, estado, criadoEm.
+- Bloqueios: exigem tarefaId, tipo, gravidade, descricao, origem, responsavelResolucao, estado, criadoEm.
+- Pendencias: exigem titulo, descricao.
+- Reservas: exigem alvo, agenteId.
+- Decisoes: exigem titulo, estado, data, problema, contexto, decisao, justificativa, impactos.
+- Dependencias: fonte e destino não podem ser iguais.
+- Sempre valide os erros retornados e ajuste os dados antes de reenviar.
+
+## 11. Tratamento de Erros
+- NOT_FOUND: o ID informado não existe no .ia do projeto.
+- NO_PROJECT_OPEN: esqueceu de abrir um projeto (volte ao passo 2).
+- INVALID_JSON: estrutura do projeto corrompida ou faltando arquivos.
+- VALIDATION_ERROR: dados faltando ou inválidos; use a mensagem para corrigir.
+- Converting circular structure to JSON: NUNCA retorne o objeto config bruto; use apenas campos simples (id, nome, caminhoRaiz).
+
+## 12. Loop Recomendado de Trabalho
+1. projetos_listar → projetos_abrir → contexto_projeto
+2. tarefas_listar → escolher tarefa → workflows_iniciar_trabalho
+3. operar (arquivos, busca, criar entidades)
+4. workflows_finalizar_trabalho ou handoff
+5. repetir
+
+## 13. Exemplo Prático de Início
+{
+  "passo1": "agentmap_projetos_listar",
+  "passo2": "agentmap_projetos_abrir com caminhoOuId='G:\\\\PROJETOS\\\\AgenteMap_Projetos\\\\Projeto-Alpha'",
+  "passo3": "agentmap_obter_contexto_projeto",
+  "passo4": "agentmap_workflows_obter_mapa_projeto",
+  "passo5": "agentmap_tarefas_listar"
+}
+
+## 14. Lembrete Final
+- O AgentMap é a fonte de verdade.
+- Use as tools para consultar e modificar o estado.
+- Nunca edite arquivos .ia diretamente; use as tools.
+- IDs são strings; sempre passe os IDs retornados pelas tools.

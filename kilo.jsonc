@@ -1,0 +1,28 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "agentmap": {
+      "type": "local",
+      "command": ["cmd", "/c", "cd", "backend", "&&", "npx", "tsx", "src/mcp-server/index.ts"],
+      "environment": {
+        "NODE_ENV": "production",
+        "WORKSPACE": "G:/PROJETOS/WEB/AgentMap"
+      },
+      "enabled": true,
+      "timeout": 30000
+    }
+  },
+  "provider": {
+    "openrouter": {
+      "data_collection_enabled": true
+    },
+    "kilo": {
+      "data_collection_enabled": true
+    }
+  },
+  "hide_prompt_training_models": false,
+  "auto_collapse_reasoning": true,
+  "experimental": {
+    "mcp_timeout": 30000
+  }
+}
