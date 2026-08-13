@@ -2,7 +2,7 @@ import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from 
 import { carregarContexto } from '../contexto';
 import { SchemaBuscarSimbolo } from '../schemas/validacao';
 import { buscarSimboloDefinicoes, SearchHit } from '../utils/search';
-import { PathValidator, createPathValidator, DEFAULT_PROJECT_OPTIONS } from '../security/pathValidator';
+import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import * as z from 'zod';
 
@@ -30,7 +30,7 @@ mcpServer.registerTool(
     const config = getMcpConfig();
     const searchDir = diretorio || '.';
     const searchLimite = limite || config.limites.maxSearchResults;
-    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PROJECT_OPTIONS);
+    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
     try {
       const validated = pathValidator.validate(searchDir);

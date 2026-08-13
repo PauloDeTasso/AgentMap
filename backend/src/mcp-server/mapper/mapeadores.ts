@@ -1,12 +1,11 @@
 import { ProjetoAberto } from 'servicios';
-import { Agente } from 'tipos';
+import { AgenteRegistro, AgentePerfil } from 'tipos';
 
 export function mapearProjeto(projeto: ProjetoAberto): Record<string, unknown> {
   return {
     id: projeto.id,
     nome: projeto.nome,
     caminhoRaiz: projeto.caminhoRaiz,
-    descricao: projeto.descricao,
     config: projeto.config,
   };
 }
@@ -23,7 +22,7 @@ export function mapearArquitetura(
   };
 }
 
-export function mapearAgente(agente: Agente): Record<string, unknown> {
+export function mapearAgente(agente: AgentePerfil): Record<string, unknown> {
   return {
     id: agente.id,
     nome: agente.nome,
@@ -32,13 +31,13 @@ export function mapearAgente(agente: Agente): Record<string, unknown> {
     conhecimentos: agente.conhecimentos || [],
     permissoes: agente.permissoes || {},
     dominios: agente.dominios || [],
-    diretrizes: agente.diretrizes || [],
-    dataCriacao: agente.dataCriacao,
-    dataAtualizacao: agente.dataAtualizacao,
+    diretrizes: (agente as any).diretrizes || [],
+    dataCriacao: (agente as any).dataCriacao,
+    dataAtualizacao: (agente as any).dataAtualizacao,
   };
 }
 
-export function mapearAgenteRegistro(agente: Agente): Record<string, unknown> {
+export function mapearAgenteRegistro(agente: AgenteRegistro): Record<string, unknown> {
   return {
     id: agente.id,
     nome: agente.nome,

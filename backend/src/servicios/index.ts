@@ -23,3 +23,6 @@ export * from './TarefaService';
 export * from './ValidacaoService';
 export * from './StateMachineService';
 export * from './ContatoService';
+export * from './CorsService';
+export * from './ContractValidatorService';
+export * from './BackupService';

@@ -2,8 +2,7 @@ import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from 
 import { carregarContexto } from '../contexto';
 import { SchemaLerTrechoArquivo } from '../schemas/validacao';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
-import { PathValidator, createPathValidator } from '../security/pathValidator';
-import { DEFAULT_PROJECT_OPTIONS } from '../security/projectAuth';
+import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { PathTraversalError } from '../../seguranca/paths';
 import * as z from 'zod';
 
@@ -38,7 +37,7 @@ mcpServer.registerTool(
     const auditoria = createMcpAuditoria(projeto.auditoria);
     const config = getMcpConfig();
     const maxLines = limite || config.limites.maxSnippetLines;
-    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PROJECT_OPTIONS);
+    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
     try {
       const validated = pathValidator.validate(caminho || '');

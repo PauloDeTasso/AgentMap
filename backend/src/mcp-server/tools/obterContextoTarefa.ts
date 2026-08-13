@@ -11,8 +11,8 @@ mcpServer.registerTool(
       'Monta o pacote de contexto completo para uma tarefa: identidade do projeto, contratos, dependências, decisões, arquivos relevantes e perfil do agente responsável.',
     inputSchema: SchemaObterContextoTarefa,
   },
-  async (args) => {
-    const { tarefaId } = args as { tarefaId: string };
+  async (args: any) => {
+    const tarefaId = String((args && (args as any).tarefaId) || '');
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {

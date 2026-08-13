@@ -7,14 +7,29 @@ export function criarSessaoRouter(): Router {
 
   router.get('/', asyncHandler(async (req: Request, res: Response) => {
     const agenteId = req.query.agenteId as string | undefined;
-    if (agenteId) {
-      const all = req.servicos!.sessao.listar();
-      if (all.sucesso && all.dados) {
-        return responder(res, { sucesso: true, dados: all.dados.filter((s) => s.agenteId === agenteId && !s.datas.fim) });
-      }
-      return responder(res, all);
+    const servicos = (req as any).servicos;
+    const allResult = servicos?.sessao?.listar ? servicos.sessao.listar() : { sucesso: false, dados: [] };
+    if (!allResult.sucesso || !allResult.dados) {
+      return responder(res, allResult);
     }
-    return responder(res, req.servicos!.sessao.listar());
+
+    let sessoes = allResult.dados;
+    if (agenteId) {
+      sessoes = sessoes.filter((s: any) => s.agenteId === agenteId && !s.datas?.fim);
+    }
+
+    const agentesRes = servicos?.agente?.listar ? servicos.agente.listar() : { sucesso: false, dados: [] };
+    const tarefasRes = servicos?.tarefa?.listar ? servicos.tarefa.listar() : { sucesso: false, dados: [] };
+    const agentesMap = new Map((agentesRes.sucesso && agentesRes.dados ? agentesRes.dados : []).map((a: any) => [a.id, a.nome]));
+    const tarefasMap = new Map((tarefasRes.sucesso && tarefasRes.dados ? tarefasRes.dados : []).map((t: any) => [t.id, t.titulo]));
+
+    const enriquecidas = sessoes.map((s: any) => ({
+      ...s,
+      agenteNome: agentesMap.get(s.agenteId) || s.agenteId,
+      tarefaTitulo: tarefasMap.get(s.tarefaId) || s.tarefaId || null
+    }));
+
+    return responder(res, { sucesso: true, dados: enriquecidas });
   }));
 
   router.get('/:id', asyncHandler(async (req: Request, res: Response) => {

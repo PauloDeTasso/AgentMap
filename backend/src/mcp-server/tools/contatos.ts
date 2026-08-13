@@ -49,7 +49,8 @@ mcpServer.registerTool('agentmap_contatos_criar', {
 mcpServer.registerTool('agentmap_contatos_atualizar', {
   description: 'Atualiza um contato.',
   inputSchema: SchemaContatoAtualizar.passthrough(),
-}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+}, async (args: any) => {
+  const { id, ...dados } = args || {};
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;

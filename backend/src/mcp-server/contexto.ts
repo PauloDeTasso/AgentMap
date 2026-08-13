@@ -27,6 +27,8 @@ import { BloqueioService } from 'servicios';
 import { EventoService } from 'servicios';
 import { ContatoService } from 'servicios';
 import { StateMachineService } from 'servicios';
+import { ContractValidatorService } from 'servicios';
+import { BackupService } from 'servicios';
 
 export interface ProjetoContext {
   projetoId: string;
@@ -59,11 +61,14 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
     integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator),
     decisao: new DecisaoService(projeto.fileService, projeto.auditoria, validator),
     risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
-     bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),
-     contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
-     auditoria: projeto.auditoria,
-     stateMachine: stateMachineService,
-  };
+      bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),
+      contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
+      evento: eventoService,
+      auditoria: projeto.auditoria,
+      stateMachine: stateMachineService,
+      contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, validator),
+      backup: new BackupService(projeto.fileService, projeto.auditoria, validator, projeto.caminhoRaiz)
+    };
 }
 
 export function carregarContexto(projetoService: ProjetoService): ResultadoOperacao<ProjetoContext> {

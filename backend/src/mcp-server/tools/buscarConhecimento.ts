@@ -1,7 +1,7 @@
 import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaBuscarConhecimento } from '../schemas/validacao';
-import { PathValidator, createPathValidator, DEFAULT_PROJECT_OPTIONS } from '../security/pathValidator';
+import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import * as path from 'path';
 
@@ -37,7 +37,7 @@ mcpServer.registerTool(
     const config = getMcpConfig();
     const searchLimite = limite || config.limites.maxSearchResults;
     const termoLower = (termo || '').toLowerCase();
-    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PROJECT_OPTIONS);
+    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
     if (!termoLower || termoLower.length < 2) {
       const result = { sucesso: false, erro: 'termo deve ter pelo menos 2 caracteres', codigoErro: 'INVALID_INPUT' };

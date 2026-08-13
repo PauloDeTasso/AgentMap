@@ -5,17 +5,37 @@ import { setupRotas } from './api';
 import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
+import { corsService } from './servicios/CorsService';
 
 export function createApp(): Application {
   const app: Application = express();
   const settings = loadSettings();
 
-  app.use(cors({ origin: true, credentials: true }));
+  app.use(corsService.getMiddleware());
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-  app.use((req, _res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      const log = {
+        timestamp: new Date().toISOString(),
+        method: req.method,
+        url: req.url,
+        status: res.statusCode,
+        durationMs: duration,
+        userAgent: req.headers['user-agent'],
+        ip: req.ip || req.connection.remoteAddress
+      };
+      if (res.statusCode >= 500) {
+        console.error('[LOG]', JSON.stringify(log));
+      } else if (res.statusCode >= 400) {
+        console.warn('[LOG]', JSON.stringify(log));
+      } else {
+        console.log('[LOG]', JSON.stringify(log));
+      }
+    });
     next();
   });
 

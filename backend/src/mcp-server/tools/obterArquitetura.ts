@@ -29,7 +29,7 @@ mcpServer.registerTool(
     );
 
     const dados = mapearArquitetura(
-      projeto.config,
+      projeto.config as any,
       estadoResult.sucesso && estadoResult.dados ? estadoResult.dados : null,
       estadoGitResult.sucesso && estadoGitResult.dados ? estadoGitResult.dados : null
     );

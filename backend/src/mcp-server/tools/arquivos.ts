@@ -3,8 +3,7 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
-import { PathValidator, createPathValidator } from '../security/pathValidator';
-import { DEFAULT_PROJECT_OPTIONS } from '../security/projectAuth';
+import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import * as z from 'zod';
 
 mcpServer.registerTool('agentmap_arquivos_listar', {
@@ -15,7 +14,7 @@ mcpServer.registerTool('agentmap_arquivos_listar', {
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PROJECT_OPTIONS);
+  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
   const rel = String(caminho || '.');
   try {
     const validated = pathValidator.validate(rel);
@@ -38,7 +37,7 @@ mcpServer.registerTool('agentmap_arquivos_ler', {
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PROJECT_OPTIONS);
+  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
   const rel = String(caminho || '');
   try {
     const validated = pathValidator.validate(rel);
@@ -61,7 +60,7 @@ mcpServer.registerTool('agentmap_arquivos_excluir', {
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PROJECT_OPTIONS);
+  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
   const rel = String(caminho || '');
   try {
     const validated = pathValidator.validate(rel);

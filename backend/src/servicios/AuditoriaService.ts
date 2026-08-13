@@ -22,6 +22,8 @@ export type TipoEvento =
   | 'CONTRATO_CRIADO'
   | 'CONTRATO_ALTERADO'
   | 'CONTRATO_EXCLUIDO'
+  | 'CONTRATO_VALIDADO'
+  | 'CONTRATO_INVALIDO'
   | 'ARQUIVO_ALTERADO'
   | 'ARQUIVO_EXCLUIDO'
   | 'TESTE_EXECUTADO'
@@ -69,7 +71,8 @@ export type TipoEvento =
   | 'CONTATO_ATUALIZADO'
   | 'CONTATO_EXCLUIDO'
   | 'EVENTO_CRIADO'
-  | 'EVENTO_CONSUMIDO';
+  | 'EVENTO_CONSUMIDO'
+  | 'BROADCAST_ANUNCIO';
 
 export class AuditoriaService {
   constructor(private fs: FileService) {}

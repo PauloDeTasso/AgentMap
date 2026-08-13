@@ -23,6 +23,9 @@ import { BloqueioService } from '../servicios';
 import { EventoService } from '../servicios';
 import { ContatoService } from '../servicios';
 import { StateMachineService } from '../servicios';
+import { CorsService } from '../servicios/CorsService';
+import { ContractValidatorService } from '../servicios/ContractValidatorService';
+import { BackupService } from '../servicios/BackupService';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
 
@@ -52,6 +55,8 @@ export interface Servicos {
   contato: ContatoService;
   auditoria: AuditoriaService;
   stateMachine: StateMachineService;
+  contractValidator: ContractValidatorService;
+  backup: BackupService;
 }
 
 export function projectMiddleware(projetoService: ProjetoService) {
@@ -93,7 +98,9 @@ export function projectMiddleware(projetoService: ProjetoService) {
       evento: new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
       auditoria: projeto.auditoria,
-      stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)
+      stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator),
+      contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),
+      backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz)
     };
     console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
     next();

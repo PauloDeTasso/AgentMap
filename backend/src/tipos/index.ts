@@ -1036,7 +1036,7 @@ export interface EstadoProjeto {
   conflitos: { total: number; abertos: number };
   riscos: { total: number; ativos: number; criticos: number };
   validacoes: { total: number; pendentes: number; aprovadas: number; reprovadas: number };
-  residencias: { total: number; ativas: number };
+  reservas: { total: number; ativas: number };
   checkpoints: { total: number; recentes: number };
   sessoes: { total: number; ativas: number };
   aprendizados: { total: number; ativos: number };

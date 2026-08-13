@@ -21,6 +21,12 @@ export const DEFAULT_OUTPUT_LIMITS = {
   maxSearchResults: 50,
 } as const;
 
+export const DEFAULT_PATH_VALIDATOR_OPTIONS: PathValidatorOptions = {
+  allowlist: [],
+  allowHidden: true,
+  denylist: [],
+};
+
 export class PathValidator {
   readonly projectRoot: string;
   readonly allowlist: string[];

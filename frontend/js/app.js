@@ -1007,11 +1007,11 @@ async function renderizarDashboardCoordenacao(el) {
         <div class="card"><h4>Conflitos</h4><p>${e.conflitos.abertos}/${e.conflitos.total} abertos</p></div>
         <div class="card"><h4>Riscos</h4><p>${e.riscos.ativos} ativos • ${e.riscos.criticos} críticos</p></div>
         <div class="card"><h4>Validações</h4><p>${e.validacoes.pendentes} pendentes • ${e.validacoes.aprovadas} aprovadas</p></div>
-        <div class="card"><h4>Reservas</h4><p>${e.residencias.ativas}/${e.residencias.total} ativas</p></div>
+        <div class="card"><h4>Reservas</h4><p>${e.reservas.ativas}/${e.reservas.total} ativas</p></div>
         <div class="card"><h4>Marcos</h4><p>${e.checkpoints.recentes} recentes</p></div>
         <div class="card"><h4>Sessões</h4><p>${e.sessoes.ativas}/${e.sessoes.total} ativas</p></div>
         <div class="card"><h4>Aprendizados</h4><p>${e.aprendizados.ativos}/${e.aprendizados.total} ativos</p></div>
-        <div class="card" style="grid-column:1/-1;"><h4>🔗 Relacionamentos</h4><p>${(e.tarefas.total + e.solicitacoes.total + e.artefatos.total + e.handoffs.total + e.bloqueios + e.conflitos.total + e.riscos.total + e.validacoes.total + e.residencias.total + e.checkpoints.total + e.sessoes.total + e.aprendizados.total)} entidades com vínculos ativos</p></div>
+        <div class="card" style="grid-column:1/-1;"><h4>🔗 Relacionamentos</h4><p>${(e.tarefas.total + e.solicitacoes.total + e.artefatos.total + e.handoffs.total + e.bloqueios + e.conflitos.total + e.riscos.total + e.validacoes.total + e.reservas.total + e.checkpoints.total + e.sessoes.total + e.aprendizados.total)} entidades com vínculos ativos</p></div>
       </div>`;
   } catch (err) {
     el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
@@ -1038,7 +1038,8 @@ async function renderizarMonitor(el) {
           <tbody>`;
       for (const s of m.sessoesAtivas) {
         const inicio = s.inicio ? new Date(s.inicio).toLocaleString('pt-BR') : '-';
-        html += `<tr><td><strong>${s.agenteNome || s.agenteId}</strong></td><td>${s.tarefaId || '-'}</td><td>${s.id}</td><td>${inicio}</td></tr>`;
+        const tarefa = s.tarefaTitulo || s.tarefaId || '-';
+        html += `<tr><td><strong>${s.agenteNome || s.agenteId}</strong></td><td>${tarefa}</td><td>${s.id}</td><td>${inicio}</td></tr>`;
       }
       html += `</tbody></table></div>`;
     } else {
@@ -1393,7 +1394,9 @@ async function renderizarSessoes(el) {
     const tbody = table.querySelector('tbody');
     for (const s of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${s.id}</td><td>${s.agenteId}</td><td>${s.tarefaId || ''}</td><td>${s.datas.inicio || ''}</td><td>${s.datas.fim || ''}</td><td>${s.estadoFinal}</td>`;
+      const agente = s.agenteNome || s.agenteId;
+      const tarefa = s.tarefaTitulo || s.tarefaId || '';
+      tr.innerHTML = `<td>${s.id}</td><td>${agente}</td><td>${tarefa}</td><td>${s.datas.inicio || ''}</td><td>${s.datas.fim || ''}</td><td>${s.estadoFinal}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);

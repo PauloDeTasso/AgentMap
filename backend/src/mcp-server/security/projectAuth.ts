@@ -1,5 +1,5 @@
-import { ProjetoService, ProjetoAberto } from '../servicios';
-import { ResultadoOperacao } from '../tipos';
+import { ProjetoService, ProjetoAberto } from '../../servicios';
+import { ResultadoOperacao } from '../../tipos';
 import { PathValidator, createPathValidator } from './pathValidator';
 import * as path from 'path';
 
