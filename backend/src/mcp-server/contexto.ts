@@ -24,7 +24,9 @@ import { IntegridadeService } from 'servicios';
 import { DecisaoService } from 'servicios';
 import { RiscoService } from 'servicios';
 import { BloqueioService } from 'servicios';
+import { EventoService } from 'servicios';
 import { ContatoService } from 'servicios';
+import { StateMachineService } from 'servicios';
 
 export interface ProjetoContext {
   projetoId: string;
@@ -34,15 +36,17 @@ export interface ProjetoContext {
 
 export function montarServicos(projeto: ProjetoAberto): Servicos {
   const validator = projeto.validator;
+  const eventoService = new EventoService(projeto.fileService, projeto.auditoria, validator);
+  const stateMachineService = new StateMachineService(projeto.fileService, projeto.auditoria, validator);
   return {
     projeto,
     agente: new AgenteService(projeto.fileService, projeto.auditoria, validator),
-    tarefa: new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia),
+    tarefa: new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
     solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, validator),
     criterio: new CriterioService(projeto.fileService, projeto.auditoria, validator),
     resultado: new ResultadoService(projeto.fileService, projeto.auditoria, validator),
     artefato: new ArtefatoService(projeto.fileService, projeto.auditoria, validator),
-    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator),
+    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
     pendencia: new PendenciaService(projeto.fileService, projeto.auditoria, validator),
     validacao: new ValidacaoService(projeto.fileService, projeto.auditoria, validator),
     conflito: new ConflitoService(projeto.fileService, projeto.auditoria, validator),
@@ -58,6 +62,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
      bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),
      contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
      auditoria: projeto.auditoria,
+     stateMachine: stateMachineService,
   };
 }
 

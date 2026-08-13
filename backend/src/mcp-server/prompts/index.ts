@@ -16,7 +16,7 @@ mcpServer.registerPrompt(
           role: 'user',
           content: {
             type: 'text',
-            text: `Inicie o trabalho para o agente '${agenteId || ''}' na tarefa '${tarefaId || ''}'. Use as tools agentmap_workflows_iniciar_trabalho para obter o contexto completo, depois execute o trabalho seguindo os contratos e critérios de aceitação.`
+            text: `Inicie o trabalho para o agente '${agenteId || ''}' na tarefa '${tarefaId || ''}'. Use as tools agentmap_workflows_iniciar_trabalho para obter o contexto completo, depois execute o trabalho seguindo os contratos e critérios de aceitação. Antes de iniciar, consulte eventos pendentes com agentmap_eventos_pendentes({ agenteId: '${agenteId || ''}' }) para verificar se há coordenação pendente.`
           }
         }
       ]

@@ -36,12 +36,24 @@ describe('Máquina de Estados de Tarefas', () => {
     expect(TRANSICOES_ESTADO_TAREFA['EM_EXECUCAO']).toContain('EM_TESTE');
   });
 
+  test('EM_EXECUCAO → EM_REVISAO é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['EM_EXECUCAO']).toContain('EM_REVISAO');
+  });
+
+  test('EM_EXECUCAO → CONCLUIDA direto é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['EM_EXECUCAO']).toContain('CONCLUIDA');
+  });
+
   test('EM_TESTE → EM_REVISAO é válido', () => {
     expect(TRANSICOES_ESTADO_TAREFA['EM_TESTE']).toContain('EM_REVISAO');
   });
 
   test('EM_REVISAO → AGUARDANDO_APROVACAO é válido', () => {
     expect(TRANSICOES_ESTADO_TAREFA['EM_REVISAO']).toContain('AGUARDANDO_APROVACAO');
+  });
+
+  test('EM_REVISAO → CONCLUIDA direto é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['EM_REVISAO']).toContain('CONCLUIDA');
   });
 
   test('AGUARDANDO_APROVACAO → CONCLUIDA é válido', () => {
@@ -67,8 +79,8 @@ describe('Máquina de Estados de Tarefas', () => {
     expect(TRANSICOES_ESTADO_TAREFA['CANCELADA']).toHaveLength(0);
   });
 
-  test('RASCUNHO → CONCLUIDA direto é inválido', () => {
-    expect(TRANSICOES_ESTADO_TAREFA['RASCUNHO']).not.toContain('CONCLUIDA');
+  test('RASCUNHO → CONCLUIDA direto é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['RASCUNHO']).toContain('CONCLUIDA');
   });
 
   test('REJEITADA → RASCUNHO é válido (reabertura)', () => {

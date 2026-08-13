@@ -74,6 +74,7 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 - `agentmap_agentes_*` — CRUD
 - `agentmap_solicitacoes_*` — CRUD + aprovar/rejeitar/cancelar + histórico
 - `agentmap_handoffs_*` — CRUD
+- `agentmap_eventos_*` — CRUD + confirmar consumo (coordenação entre agentes)
 - `agentmap_sessoes_*` — CRUD + finalizar
 
 ### Entidades Secundárias

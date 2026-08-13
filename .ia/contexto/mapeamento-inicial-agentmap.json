@@ -1,0 +1,104 @@
+{
+  "identificacao": {
+    "id": "agentmap-admin",
+    "nome": "Administrador do AgentMap",
+    "funcao": "administracao_agentmap",
+    "descricao": "Responsavel pela administracao do AgentMap/MCP, gestao de agentes, permissoes, transicoes de estado e resolucao de limitacoes do sistema."
+  },
+  "projeto": {
+    "id": "1c93b69f-bf05-4cff-925c-a9f2bf77de1f",
+    "nome": "PAGINA PESSOAL",
+    "caminhoRaiz": "G:\\PROJETOS\\AgenteMap_Projetos\\PAGINA_PESSOAL",
+    "descricao": "UMA SITE WEB LOCAL PARA ME APRESENTAR COMO PROFISSIONAL",
+    "ambiente": "desenvolvimento",
+    "estado": "em_desenvolvimento"
+  },
+  "agentes": [
+    {
+      "id": "arquiteto",
+      "nome": "Arquiteto / Gerente do Projeto",
+      "funcao": "gerenciamento_projeto",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/arquiteto/arquiteto.json"
+    },
+    {
+      "id": "frontend",
+      "nome": "Frontend",
+      "funcao": "desenvolvimento_frontend",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/frontend/frontend.json"
+    },
+    {
+      "id": "backend",
+      "nome": "Backend",
+      "funcao": "desenvolvimento_backend",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/backend/backend.json"
+    },
+    {
+      "id": "agentmap-admin",
+      "nome": "Administrador do AgentMap",
+      "funcao": "administracao_agentmap",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/agentmap-admin/agentmap-admin.json"
+    }
+  ],
+  "tarefas": {
+    "total": 6,
+    "porEstado": {
+      "RASCUNHO": 6
+    },
+    "lista": [
+      {
+        "id": "TAR-2026-00001",
+        "titulo": "Criar Tela de Login",
+        "estado": "RASCUNHO",
+        "responsavel": "frontend"
+      },
+      {
+        "id": "TAR-2026-00002",
+        "titulo": "criar o backend da tela de login",
+        "estado": "RASCUNHO",
+        "responsavel": "backend"
+      },
+      {
+        "id": "TAR-2026-00003",
+        "titulo": "Criar Dashboard apos Login",
+        "estado": "RASCUNHO",
+        "responsavel": "frontend"
+      },
+      {
+        "id": "TAR-2026-00004",
+        "titulo": "Criar Pagina Pessoal / Home",
+        "estado": "RASCUNHO",
+        "responsavel": "frontend"
+      },
+      {
+        "id": "TAR-2026-00005",
+        "titulo": "Criar Pagina de Projetos / Portfolio",
+        "estado": "RASCUNHO",
+        "responsavel": "frontend"
+      },
+      {
+        "id": "TAR-2026-00006",
+        "titulo": "Criar Pagina de Experiencia / Carreira",
+        "estado": "RASCUNHO",
+        "responsavel": "frontend"
+      }
+    ]
+  },
+  "contratos": [
+    { "id": "contrato-projeto", "arquivo": "/.ia/contratos/contrato-projeto.json" },
+    { "id": "contrato-arquitetura", "arquivo": "/.ia/contratos/contrato-arquitetura.json" },
+    { "id": "contrato-api", "arquivo": "/.ia/contratos/contrato-api.json" },
+    { "id": "contrato-banco", "arquivo": "/.ia/contratos/contrato-banco.json" },
+    { "id": "contrato-frontend", "arquivo": "/.ia/contratos/contrato-frontend.json" },
+    { "id": "contrato-android", "arquivo": "/.ia/contratos/contrato-android.json" },
+    { "id": "contrato-seguranca", "arquivo": "/.ia/contratos/contrato-seguranca.json" },
+    { "id": "contrato-infraestrutura", "arquivo": "/.ia/contratos/contrato-infraestrutura.json" },
+    { "id": "contrato-testes", "arquivo": "/.ia/contratos/contrato-testes.json" },
+    { "id": "contrato-documentacao", "arquivo": "/.ia/contratos/contrato-documentacao.json" },
+    { "id": "contrato-interface", "arquivo": "/.ia/contratos/contrato-interface.json" }
+  ],
+  "observacoes": "Mapeamento inicial gerado pelo agentmap-admin para HOF-2026-00060."
+}

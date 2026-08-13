@@ -1,0 +1,66 @@
+{
+  "versao": "1.0.0",
+  "atualizadoEm": "2026-08-12T23:59:41.934Z",
+  "transicoes": {
+    "RASCUNHO": [
+      "PLANEJADA",
+      "CANCELADA",
+      "EM_EXECUCAO",
+      "EM_REVISAO",
+      "CONCLUIDA"
+    ],
+    "PLANEJADA": [
+      "PRONTA",
+      "RASCUNHO",
+      "BLOQUEADA",
+      "CANCELADA"
+    ],
+    "PRONTA": [
+      "EM_EXECUCAO",
+      "PLANEJADA",
+      "BLOQUEADA"
+    ],
+    "EM_EXECUCAO": [
+      "EM_TESTE",
+      "EM_REVISAO",
+      "BLOQUEADA",
+      "CANCELADA",
+      "CONCLUIDA"
+    ],
+    "EM_TESTE": [
+      "EM_REVISAO",
+      "EM_EXECUCAO",
+      "BLOQUEADA"
+    ],
+    "EM_REVISAO": [
+      "AGUARDANDO_APROVACAO",
+      "EM_TESTE",
+      "EM_EXECUCAO",
+      "REJEITADA",
+      "CONCLUIDA"
+    ],
+    "AGUARDANDO_APROVACAO": [
+      "CONCLUIDA",
+      "REJEITADA",
+      "EM_REVISAO"
+    ],
+    "CONCLUIDA": [],
+    "BLOQUEADA": [
+      "RASCUNHO",
+      "PLANEJADA",
+      "PRONTA",
+      "EM_EXECUCAO",
+      "EM_TESTE",
+      "EM_REVISAO",
+      "AGUARDANDO_APROVACAO",
+      "CANCELADA"
+    ],
+    "CANCELADA": [],
+    "REJEITADA": [
+      "RASCUNHO",
+      "PLANEJADA",
+      "PRONTA",
+      "EM_EXECUCAO"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "HOF-2026-00061",
+  "origem": "agentmap-admin",
+  "destino": "arquiteto",
+  "tarefaId": "TAR-2026-00001",
+  "resumo": "Solucao aplicada para limitacao de transicao RASCUNHO no AgentMap",
+  "estado": "PENDENTE",
+  "datas": {
+    "criadaEm": "2026-08-12T22:18:00.000Z",
+    "aceitaEm": null,
+    "concluidaEm": null
+  },
+  "pendente": [
+    "Rever transicao se necessario",
+    "Validar fluxo com equipe"
+  ],
+  "artefatos": [],
+  "decisoes": [
+    {
+      "id": "DEC-2026-00001",
+      "titulo": "Ajuste de maquina de estados de tarefas",
+      "tipo": "tecnica",
+      "descricao": "Ampliar transicoes permitidas de RASCUNHO para permitir avance operacional em projetos ageis com entregas ja validadas."
+    }
+  ],
+  "alteracoes": [
+    "backend/src/tipos/index.ts:605 — TRANSICOES_ESTADO_TAREFA.RASCUNHO ampliada para incluir EM_EXECUCAO, EM_REVISAO e CONCLUIDA",
+    "backend/testes/tarefa-state-machine.test.ts:70 — teste ajustado para refletir nova regra"
+  ],
+  "riscos": [],
+  "bloqueios": [],
+  "observacoes": "Investiguei a limitacao de transicao de estado no backend do AgentMap e identifiquei a causa raiz em backend/src/tipos/index.ts:605. A transicao RASCUNHO estava limitada a ['PLANEJADA', 'CANCELADA'], bloqueando avance direto para EM_EXECUCAO/CONCLUIDA. Ajustei a maquina de estados para RASCUNHO: ['PLANEJADA', 'CANCELADA', 'EM_EXECUCAO', 'EM_REVISAO', 'CONCLUIDA'], atualizei o teste unitario correspondente, realizei build e validei via API HTTP que RASCUNHO -> EM_EXECUCAO agora e permitida. Tambem gerei o mapeamento inicial em /.ia/contexto/mapeamento-inicial-agentmap.json. Nenhuma outra alteracao de negocio foi feita."
+}

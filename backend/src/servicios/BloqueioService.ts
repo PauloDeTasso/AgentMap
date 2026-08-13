@@ -5,6 +5,7 @@ import { SchemaValidator } from '../validacao/SchemaValidator';
 import { Bloqueio, ResultadoOperacao } from '../tipos';
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { TRANSICOES_ESTADO_BLOQUEIO, validarTransicao } from '../tipos';
+import { EventoService } from './EventoService';
 
 export class BloqueioService {
   private idGenerator: IdGenerator;
@@ -12,7 +13,8 @@ export class BloqueioService {
   constructor(
     private fs: FileService,
     private auditoria: AuditoriaService,
-    private validator: SchemaValidator
+    private validator: SchemaValidator,
+    private eventoService?: EventoService
   ) {
     this.idGenerator = new IdGenerator(fs);
   }

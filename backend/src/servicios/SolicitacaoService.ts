@@ -19,6 +19,7 @@ import { validarTransicao } from '../tipos';
 import { v4 as uuid } from 'uuid';
 
 import { IdGenerator } from '../arquivos/IdGenerator';
+import { EventoService } from './EventoService';
 
 export class SolicitacaoService {
   private idGenerator: IdGenerator;
@@ -26,7 +27,8 @@ export class SolicitacaoService {
   constructor(
     private fs: FileService,
     private auditoria: AuditoriaService,
-    private validator: SchemaValidator
+    private validator: SchemaValidator,
+    private eventoService?: EventoService
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -183,6 +185,9 @@ export class SolicitacaoService {
       `Solicitação '${id}' criada: ${solicitacao.titulo}`,
       { solicitacaoId: id, prioridade: solicitacao.prioridade, alvoTipo: solicitacao.alvo.tipo }
     );
+    if (this.eventoService && solicitacao.agenteResponsavel.id) {
+      this.eventoService.registrar({ tipo: 'SOLICITACAO_CRIADA', origem: solicitacao.agenteSolicitante.id, destino: solicitacao.agenteResponsavel.id, referenciaTipo: 'solicitacao', referenciaId: id, mensagem: `Nova solicitação de ${solicitacao.agenteSolicitante.id} para ${solicitacao.agenteResponsavel.id}: ${solicitacao.titulo}` });
+    }
     console.log('[SolicitacaoService.criar] SUCESSO - id=' + id);
     return { sucesso: true, dados: solicitacao };
   }

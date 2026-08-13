@@ -67,7 +67,9 @@ export type TipoEvento =
   | 'REGRAS_RESPEITADAS'
   | 'CONTATO_CRIADO'
   | 'CONTATO_ATUALIZADO'
-  | 'CONTATO_EXCLUIDO';
+  | 'CONTATO_EXCLUIDO'
+  | 'EVENTO_CRIADO'
+  | 'EVENTO_CONSUMIDO';
 
 export class AuditoriaService {
   constructor(private fs: FileService) {}

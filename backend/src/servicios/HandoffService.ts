@@ -2,9 +2,10 @@ import * as path from 'path';
 import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
-import { Handoff, HandoffsRegistry, ResultadoOperacao } from '../tipos';
+import { Evento, Handoff, HandoffsRegistry, ResultadoOperacao } from '../tipos';
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { TRANSICOES_ESTADO_HANDOFF, validarTransicao } from '../tipos';
+import { EventoService } from './EventoService';
 
 export class HandoffService {
   private idGenerator: IdGenerator;
@@ -12,7 +13,8 @@ export class HandoffService {
   constructor(
     private fs: FileService,
     private auditoria: AuditoriaService,
-    private validator: SchemaValidator
+    private validator: SchemaValidator,
+    private eventoService?: EventoService
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -109,6 +111,9 @@ export class HandoffService {
     registryResult.dados.handoffs.push(handoff);
     this.salvarRegistry(registryResult.dados);
     this.auditoria.registrar('HANDOFF_CRIADO', `Handoff '${id}' de '${handoff.origem}' para '${handoff.destino}'.`, { handoffId: id, origem: handoff.origem, destino: handoff.destino });
+    if (this.eventoService) {
+      this.eventoService.registrar({ tipo: 'HANDOFF_CRIADO', origem: handoff.origem, destino: handoff.destino, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Novo handoff de ${handoff.origem} para ${handoff.destino}` });
+    }
     return { sucesso: true, dados: handoff };
   }
 
@@ -150,6 +155,15 @@ export class HandoffService {
     if (atualizado.estado === 'CONCLUIDO' && !existente.dados.datas.concluidaEm) {
       atualizado.datas.concluidaEm = hoje;
       this.fs.escreverJson(this.getHandoffPath(id), atualizado, { backup: true });
+    }
+
+    if (this.eventoService && dados.estado && dados.estado !== existente.dados.estado) {
+      if (dados.estado === 'ACEITO') {
+        this.eventoService.registrar({ tipo: 'HANDOFF_ACEITO', origem: atualizado.destino, destino: atualizado.origem, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Handoff '${id}' aceito por '${atualizado.destino}'.` });
+      }
+      if (dados.estado === 'CONCLUIDO') {
+        this.eventoService.registrar({ tipo: 'HANDOFF_CONCLUIDO', origem: atualizado.destino, destino: atualizado.origem, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Handoff '${id}' concluido.` });
+      }
     }
 
     return { sucesso: true, dados: atualizado };

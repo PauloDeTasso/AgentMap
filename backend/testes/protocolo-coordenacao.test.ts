@@ -18,6 +18,7 @@ import { AprendizadoService } from '../src/servicios/AprendizadoService';
 import { DependenciaService } from '../src/servicios/DependenciaService';
 import { ResponsabilidadeService } from '../src/servicios/ResponsabilidadeService';
 import { IntegridadeService } from '../src/servicios/IntegridadeService';
+import { EventoService } from '../src/servicios/EventoService';
 
 const schemataDir = path.resolve(__dirname, '..', '..', 'esquemas');
 
@@ -33,7 +34,7 @@ function criarAmbienteTeste() {
   ['agentes', 'tarefas', 'solicitacoes', 'criterios', 'resultados', 'artefatos',
     'handoffs', 'pendencias', 'validacoes', 'conflitos', 'reservas', 'sessoes',
     'checkpoints', 'aprendizados', 'dependencias', 'responsabilidades', 'decisoes', 'riscos',
-    'historico', 'auditoria', 'estado', 'procedimentos', 'politicas', 'contexto', 'qualidade', 'permissoes', 'conhecimento', 'problemas', 'git', 'configuracao', 'contratos'].forEach((d) => {
+    'historico', 'auditoria', 'estado', 'procedimentos', 'politicas', 'contexto', 'qualidade', 'permissoes', 'conhecimento', 'problemas', 'git', 'configuracao', 'contratos', 'eventos'].forEach((d) => {
     fs.mkdirSync(path.join(iaDir, d), { recursive: true });
   });
 
@@ -45,6 +46,7 @@ function criarAmbienteTeste() {
   fs.writeFileSync(path.join(iaDir, 'riscos', 'riscos.json'), JSON.stringify({ riscos: [] }));
   fs.writeFileSync(path.join(iaDir, 'estado', 'bloqueios.json'), JSON.stringify({ bloqueios: [] }));
   fs.writeFileSync(path.join(iaDir, 'historico', 'historico.json'), JSON.stringify({ eventos: [] }));
+  fs.writeFileSync(path.join(iaDir, 'eventos', 'eventos.json'), JSON.stringify({ eventos: [] }));
 
   return { tmpDir, iaDir, fs_service, auditoria, validator, cleanup: () => fs.rmSync(tmpDir, { recursive: true, force: true }) };
 }
@@ -225,6 +227,88 @@ describe('Protocolo de Coordenação - Testes de Integração', () => {
       expect(result.sucesso).toBe(true);
       expect(result.dados?.tarefas.total).toBe(1);
       expect(result.dados?.tarefas.concluidas).toBe(0);
+    });
+  });
+
+  describe('EventoService', () => {
+    it('cria e lista eventos', async () => {
+      const svc = new EventoService(env.fs_service, env.auditoria, env.validator);
+      const res = await svc.registrar({ tipo: 'HANDOFF_CRIADO', origem: 'AGT-BACKEND', destino: 'AGT-FRONTEND', referenciaTipo: 'handoff', referenciaId: 'HOF-001', mensagem: 'Teste' });
+      expect(res.sucesso).toBe(true);
+      expect(res.dados?.id).toMatch(/^EVT-2026-/);
+
+      const list = svc.listar();
+      expect(list.sucesso).toBe(true);
+      expect(list.dados).toHaveLength(1);
+    });
+
+    it('filtra eventos por destino e estado', async () => {
+      const svc = new EventoService(env.fs_service, env.auditoria, env.validator);
+      await svc.registrar({ tipo: 'SOLICITACAO_CRIADA', origem: 'AGT-FRONTEND', destino: 'AGT-BACKEND', referenciaTipo: 'solicitacao', referenciaId: 'ALT-001', mensagem: 'Teste' });
+
+      const pendentes = svc.listar({ destino: 'AGT-BACKEND', estado: 'PENDENTE' });
+      expect(pendentes.sucesso).toBe(true);
+      expect(pendentes.dados).toHaveLength(1);
+    });
+
+    it('marca evento como consumido', async () => {
+      const svc = new EventoService(env.fs_service, env.auditoria, env.validator);
+      const res = await svc.registrar({ tipo: 'HANDOFF_CRIADO', origem: 'AGT-BACKEND', destino: 'AGT-FRONTEND', referenciaTipo: 'handoff', referenciaId: 'HOF-002', mensagem: 'Teste' });
+      const id = res.dados!.id;
+
+      const consumido = svc.marcarConsumido(id);
+      expect(consumido.sucesso).toBe(true);
+      expect(consumido.dados?.estado).toBe('CONSUMIDO');
+    });
+  });
+
+  describe('HandoffService com EventoService', () => {
+    it('emite HANDOFF_CRIADO ao criar handoff com EventoService', async () => {
+      const eventoService = new EventoService(env.fs_service, env.auditoria, env.validator);
+      const handoffService = new HandoffService(env.fs_service, env.auditoria, env.validator, eventoService);
+
+      const res = await handoffService.criar({ origem: 'AGT-BACKEND', destino: 'AGT-FRONTEND', tarefaId: 'TAR-001', resumo: 'Teste', concluido: [], pendente: [], artefatos: [], decisoes: [], alteracoes: [], riscos: [], bloqueios: [] });
+      expect(res.sucesso).toBe(true);
+
+      const eventos = eventoService.listar();
+      expect(eventos.sucesso).toBe(true);
+      expect(eventos.dados).toHaveLength(1);
+      expect(eventos.dados![0].tipo).toBe('HANDOFF_CRIADO');
+    });
+
+    it('emite HANDOFF_ACEITO ao atualizar estado com EventoService', async () => {
+      const eventoService = new EventoService(env.fs_service, env.auditoria, env.validator);
+      const handoffService = new HandoffService(env.fs_service, env.auditoria, env.validator, eventoService);
+
+      const res = await handoffService.criar({ origem: 'AGT-BACKEND', destino: 'AGT-FRONTEND', tarefaId: 'TAR-001', resumo: 'Teste', concluido: [], pendente: [], artefatos: [], decisoes: [], alteracoes: [], riscos: [], bloqueios: [] });
+      expect(res.sucesso).toBe(true);
+      const handoffId = res.dados!.id;
+
+      const eventosAntes = eventoService.listar();
+      expect(eventosAntes.sucesso).toBe(true);
+      expect(eventosAntes.dados).toHaveLength(1);
+
+      const updateRes = await handoffService.atualizar(handoffId, { estado: 'ACEITO' });
+      expect(updateRes.sucesso).toBe(true);
+
+      const eventosDepois = eventoService.listar();
+      expect(eventosDepois.sucesso).toBe(true);
+      expect(eventosDepois.dados).toHaveLength(2);
+      expect(eventosDepois.dados![1].tipo).toBe('HANDOFF_ACEITO');
+    });
+
+    it('não emite duplicado se estado não muda', async () => {
+      const eventoService = new EventoService(env.fs_service, env.auditoria, env.validator);
+      const handoffService = new HandoffService(env.fs_service, env.auditoria, env.validator, eventoService);
+
+      const res = await handoffService.criar({ origem: 'AGT-BACKEND', destino: 'AGT-FRONTEND', tarefaId: 'TAR-001', resumo: 'Teste', concluido: [], pendente: [], artefatos: [], decisoes: [], alteracoes: [], riscos: [], bloqueios: [] });
+      expect(res.sucesso).toBe(true);
+      const handoffId = res.dados!.id;
+
+      await handoffService.atualizar(handoffId, { estado: 'PENDENTE' });
+      const eventos = eventoService.listar();
+      expect(eventos.sucesso).toBe(true);
+      expect(eventos.dados).toHaveLength(1);
     });
   });
 });

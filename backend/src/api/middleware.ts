@@ -20,7 +20,9 @@ import { IntegridadeService } from '../servicios';
 import { DecisaoService } from '../servicios';
 import { RiscoService } from '../servicios';
 import { BloqueioService } from '../servicios';
+import { EventoService } from '../servicios';
 import { ContatoService } from '../servicios';
+import { StateMachineService } from '../servicios';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
 
@@ -46,8 +48,10 @@ export interface Servicos {
   decisao: DecisaoService;
   risco: RiscoService;
   bloqueio: BloqueioService;
+  evento: EventoService;
   contato: ContatoService;
   auditoria: AuditoriaService;
+  stateMachine: StateMachineService;
 }
 
 export function projectMiddleware(projetoService: ProjetoService) {
@@ -67,7 +71,7 @@ export function projectMiddleware(projetoService: ProjetoService) {
     req.servicos = {
       projeto,
       agente: new AgenteService(projeto.fileService, projeto.auditoria, projeto.validator),
-      tarefa: new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia),
+      tarefa: new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
       solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, projeto.validator),
       criterio: new CriterioService(projeto.fileService, projeto.auditoria, projeto.validator),
       resultado: new ResultadoService(projeto.fileService, projeto.auditoria, projeto.validator),
@@ -86,8 +90,10 @@ export function projectMiddleware(projetoService: ProjetoService) {
       decisao: new DecisaoService(projeto.fileService, projeto.auditoria, projeto.validator),
       risco: new RiscoService(projeto.fileService, projeto.auditoria, projeto.validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
+      evento: new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
-      auditoria: projeto.auditoria
+      auditoria: projeto.auditoria,
+      stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)
     };
     console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
     next();

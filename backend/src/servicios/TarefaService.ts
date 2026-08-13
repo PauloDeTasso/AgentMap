@@ -3,9 +3,10 @@ import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { Tarefa, TarefasRegistry, EstadoTarefa, ResultadoOperacao, AgentePerfil, Decisao, Risco, Bloqueio } from '../tipos';
-import { TRANSICOES_ESTADO_TAREFA } from '../tipos';
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { DependenciaService } from './DependenciaService';
+import { EventoService } from './EventoService';
+import { StateMachineService } from './StateMachineService';
 import { v4 as uuid } from 'uuid';
 
 export interface PacoteContexto {
@@ -28,7 +29,9 @@ export class TarefaService {
     private fs: FileService,
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
-    private dependenciaService?: DependenciaService
+    private dependenciaService?: DependenciaService,
+    private eventoService?: EventoService,
+    private stateMachineService?: StateMachineService
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -169,7 +172,10 @@ export class TarefaService {
       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
     }
     const tarefa = result.dados;
-    const transicoesValidas = TRANSICOES_ESTADO_TAREFA[tarefa.estado] || [];
+
+    const transicoesValidas = this.stateMachineService
+      ? this.stateMachineService.listarTransicoes()[tarefa.estado] || []
+      : [];
     if (!transicoesValidas.includes(novoEstado)) {
       return { sucesso: false, erro: `Transição inválida: ${tarefa.estado} → ${novoEstado}`, codigoErro: 'INVALID_TRANSITION' };
     }

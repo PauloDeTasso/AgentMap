@@ -38,6 +38,36 @@ Acesse: http://localhost:3150
 Cada projeto recebe uma pasta `.ia/` com a estrutura completa de governança.
 Veja: `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md`
 
+## Coordenação entre Agentes
+
+O AgentMap usa eventos assíncronos para coordenação entre agentes. Um agente deve consultar
+seus eventos pendentes no início de cada ciclo de trabalho e confirmá-los após processamento.
+
+```json
+{
+  "name": "agentmap_eventos_pendentes",
+  "arguments": {
+    "agenteId": "backend"
+  }
+}
+```
+
+Após processar o evento:
+```json
+{
+  "name": "agentmap_eventos_confirmar",
+  "arguments": {
+    "id": "EVT-2026-00001"
+  }
+}
+```
+
+Eventos são gerados automaticamente como efeito colateral de:
+- `agentmap_handoffs_criar` → `HANDOFF_CRIADO`
+- `agentmap_handoffs_atualizar` (estado → ACEITO) → `HANDOFF_ACEITO`
+- `agentmap_handoffs_atualizar` (estado → CONCLUIDO) → `HANDOFF_CONCLUIDO`
+- `agentmap_solicitacoes_criar` (quando há agente responsável) → `SOLICITACAO_CRIADA`
+
 ## Especificação
 
 - `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md` — spec autoritativa

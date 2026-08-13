@@ -603,12 +603,12 @@ export const ESTADOS_TAREFA: EstadoTarefa[] = [
 ];
 
 export const TRANSICOES_ESTADO_TAREFA: Record<EstadoTarefa, EstadoTarefa[]> = {
-  RASCUNHO: ['PLANEJADA', 'CANCELADA'],
+  RASCUNHO: ['PLANEJADA', 'CANCELADA', 'EM_EXECUCAO', 'EM_REVISAO', 'CONCLUIDA'],
   PLANEJADA: ['PRONTA', 'RASCUNHO', 'BLOQUEADA', 'CANCELADA'],
   PRONTA: ['EM_EXECUCAO', 'PLANEJADA', 'BLOQUEADA'],
-  EM_EXECUCAO: ['EM_TESTE', 'EM_REVISAO', 'BLOQUEADA', 'CANCELADA'],
+  EM_EXECUCAO: ['EM_TESTE', 'EM_REVISAO', 'BLOQUEADA', 'CANCELADA', 'CONCLUIDA'],
   EM_TESTE: ['EM_REVISAO', 'EM_EXECUCAO', 'BLOQUEADA'],
-  EM_REVISAO: ['AGUARDANDO_APROVACAO', 'EM_TESTE', 'EM_EXECUCAO', 'REJEITADA'],
+  EM_REVISAO: ['AGUARDANDO_APROVACAO', 'EM_TESTE', 'EM_EXECUCAO', 'REJEITADA', 'CONCLUIDA'],
   AGUARDANDO_APROVACAO: ['CONCLUIDA', 'REJEITADA', 'EM_REVISAO'],
   CONCLUIDA: [],
   BLOQUEADA: ['RASCUNHO', 'PLANEJADA', 'PRONTA', 'EM_EXECUCAO', 'EM_TESTE', 'EM_REVISAO', 'AGUARDANDO_APROVACAO', 'CANCELADA'],
@@ -989,6 +989,26 @@ export interface Responsabilidade {
 export interface ResponsabilidadesRegistry {
   responsabilidades: Responsabilidade[];
 }
+
+export interface Evento {
+  id: string;
+  tipo: TipoEvento;
+  origem: string;
+  destino: string;
+  referenciaTipo: string;
+  referenciaId: string;
+  mensagem: string;
+  estado: EstadoEvento;
+  datas: { criadoEm: string | null; consumidoEm: string | null };
+}
+
+export interface EventosRegistry {
+  eventos: Evento[];
+}
+
+export type EstadoEvento = 'PENDENTE' | 'CONSUMIDO';
+
+export type TipoEvento = 'HANDOFF_CRIADO' | 'HANDOFF_ACEITO' | 'HANDOFF_CONCLUIDO' | 'TAREFA_CONCLUIDA' | 'BLOQUEIO_CRIADO' | 'CONFLITO_DETECTADO' | 'SOLICITACAO_CRIADA' | 'TRANSIÇÃO_ATUALIZADA';
 
 export interface EventoHistorico {
   id: string;

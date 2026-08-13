@@ -24,7 +24,9 @@ import { criarResponsabilidadeRouter } from './responsabilidades';
 import { criarDecisaoRouter } from './decisoes';
 import { criarRiscoRouter } from './riscos';
 import { criarBloqueioRouter } from './bloqueios';
+import { criarEventoRouter } from './eventos';
 import { criarContatoRouter } from './contatos';
+import { criarAdminRouter } from './admin';
 
 export function setupRotas(projetoService: ProjetoService): Router {
   const router = Router();
@@ -68,7 +70,9 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/decisoes', criarDecisaoRouter());
   router.use('/api/riscos', criarRiscoRouter());
   router.use('/api/bloqueios', criarBloqueioRouter());
+  router.use('/api/eventos', criarEventoRouter());
   router.use('/api/contatos', criarContatoRouter());
+  router.use('/api/admin', criarAdminRouter());
 
   router.get('/api/estado-projeto', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.integridade.calcularEstadoProjeto(req.servicos!.projeto.id);

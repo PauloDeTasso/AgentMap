@@ -83,6 +83,7 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 2. **Resultado obrigatório**: toda tarefa deve ter resultado registrado
 3. **Handoff quando necessário**: se o trabalho crossing de domínio, gere handoff
 4. **Validação separada da conclusão**: não conclua tarefa sem validação quando aplicável
+5. **Coordenação entre agentes**: antes de iniciar trabalho, consulte `agentmap_eventos_pendentes({ agenteId: "<seu-id>" })` para verificar eventos pendentes destinados a você. Após processar um evento, marque-o como consumido com `agentmap_eventos_confirmar({ id: "<evento-id>" })`.
 
 ## Códigos de Erro
 

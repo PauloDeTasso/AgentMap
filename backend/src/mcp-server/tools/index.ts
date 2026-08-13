@@ -20,6 +20,7 @@ import './validacoes';
 import './contatos';
 import './arquivos';
 import './auditoria';
+import './eventos';
 import './workflows';
 import './obterContextoProjeto';
 import './obterArquitetura';
