@@ -30,6 +30,7 @@ import { criarContatoRouter } from './contatos';
 import { criarAdminRouter } from './admin';
 import { criarHealthRouter } from './health';
 import { criarHandoffsCentraisRouter } from './handoffs-centrais';
+import { criarMonitoramentoRouter } from './monitoramento';
 
 export function setupRotas(projetoService: ProjetoService): Router {
   const router = Router();
@@ -79,6 +80,7 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/admin', criarAdminRouter());
   router.use('/api/health', criarHealthRouter());
   router.use('/api/handoffs-centrais', criarHandoffsCentraisRouter());
+  router.use('/api/monitoramento', criarMonitoramentoRouter());
 
   router.get('/api/estado-projeto', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.integridade.calcularEstadoProjeto(req.servicos!.projeto.id);

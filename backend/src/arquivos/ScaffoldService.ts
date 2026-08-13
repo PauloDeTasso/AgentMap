@@ -49,6 +49,8 @@ import {
   criarSolicitacaoModelo
 } from './templates/governanca';
 import { ResultadoOperacao } from '../tipos';
+import { FileService } from './FileService';
+import { KiloAgentGeneratorService } from '../servicios/KiloAgentGeneratorService';
 
 const PROCEDIMENTOS_MD: Record<string, string> = {
   CRIAR_TAREFA: `# Procedimento: Criar Tarefa
@@ -353,6 +355,24 @@ export class ScaffoldService {
 
       this.criarEstruturaIa(projetoId, nome, descricao, caminhoRaiz);
 
+      try {
+        const fileService = new FileService(caminhoRaiz);
+        const agentes = AGENTES_BASE.map((a) => ({
+          ...criarAgentePerfil(a, new Date().toISOString()),
+          registro: {
+            id: a.id,
+            nome: a.nome,
+            funcao: a.funcao,
+            estado: a.estado,
+            arquivoPerfil: `/.ia/agentes/${a.subpasta}/${a.perfilId}.json`
+          }
+        }));
+        const kiloGenerator = new KiloAgentGeneratorService(fileService);
+        kiloGenerator.gerarAgentes(agentes);
+      } catch (e) {
+        console.error('[ScaffoldService] erro ao gerar agentes Kilo:', (e as Error).message);
+      }
+
       const readmeContent = `# ${nome}\n\n${descricao || ''}\n\nEste projeto é gerenciado pelo **Gerenciador Local de Projetos para Agentes de IA**.\n`;
       fsSync.writeFileSync(path.join(caminhoRaiz, 'README.md'), readmeContent, 'utf-8');
 
@@ -501,6 +521,167 @@ export class ScaffoldService {
 
     // Histórico de Coordenação
     fsSync.writeFileSync(path.join(iaRoot, 'historico', 'historico.json'), JSON.stringify({ eventos: [] }, null, 2), 'utf-8');
+
+    // Fluxo obrigatório para novos projetos
+    fsSync.writeFileSync(path.join(iaRoot, 'fluxo-desenvolvimento.json'), JSON.stringify({
+      fluxo: [
+        { ordem: 1, etapa: 'necessidade', responsavel: 'proprietario', descricao: 'Definir o objetivo e o escopo do projeto.' },
+        { ordem: 2, etapa: 'planejamento', responsavel: 'planejador-arquiteto', descricao: 'Criar estrutura de pastas, convenções e tarefas.' },
+        { ordem: 3, etapa: 'arquitetura', responsavel: 'planejador-arquiteto', descricao: 'Definir arquitetura e padrões do projeto.' },
+        { ordem: 4, etapa: 'contratos', responsavel: 'planejador-arquiteto', descricao: 'Criar contratos entre áreas e agentes.' },
+        { ordem: 5, etapa: 'tarefas', responsavel: 'planejador-arquiteto', descricao: 'Criar tarefas com dependências explícitas.' },
+        { ordem: 6, etapa: 'implementacao', responsavel: 'agente_especializado', descricao: 'Executar implementações respeitando dependências.' },
+        { ordem: 7, etapa: 'testes', responsavel: 'testes', descricao: 'Executar testes automatizados e validar cobertura.' },
+        { ordem: 8, etapa: 'seguranca', responsavel: 'seguranca', descricao: 'Aplicar checklist de segurança e validar entrada/saída.' },
+        { ordem: 9, etapa: 'revisao', responsavel: 'revisor', descricao: 'Revisar código, qualidade e aderência aos contratos.' },
+        { ordem: 10, etapa: 'aprovacao', responsavel: 'proprietario', descricao: 'Aprovar ou rejeitar entregas conforme critérios.' },
+        { ordem: 11, etapa: 'integracao', responsavel: 'git', descricao: 'Registrar alterações no Git e atualizar estado.' },
+        { ordem: 12, etapa: 'documentacao', responsavel: 'documentacao', descricao: 'Documentar entregas, decisões e exemplos.' },
+        { ordem: 13, etapa: 'atualizacao_estado', responsavel: 'gerenciador', descricao: 'Atualizar estado do projeto e métricas.' }
+      ],
+      regras: [
+        'Nenhuma tarefa deve iniciar antes de suas dependências estarem concluídas.',
+        'O planejador sempre cria o fluxo e as dependências antes de iniciar implementações.',
+        'Agentes devem consultar dependências no início de cada ciclo de trabalho.',
+        'Tarefas sem dependências podem executar em paralelo.',
+        'Tarefas com dependências devem esperar bloco/reserva antes de prosseguir.'
+      ]
+    }, null, 2), 'utf-8');
+    fsSync.writeFileSync(path.join(iaRoot, 'fluxo-trabalho.md'), `# Fluxo de Trabalho Sincronizado — ${nome}
+
+Este documento define como o trabalho deve ser organizado para respeitar dependências entre agentes.
+
+## Princípio
+
+O AgentMap registra dependências, mas **não inicia agentes automaticamente**. O fluxo real deve ser conduzido como pessoas:
+
+1. O planejador define o que deve ser feito e em que ordem.
+2. Os agentes só começam quando os pré-requisitos estão prontos.
+3. O monitoramento mostra o estado atual para decisões humanas.
+
+## Ordem padrão do projeto
+
+1. Planejador/Arquiteto
+2. Backend / Banco / Frontend / Android / Infraestrutura
+3. Testes / Segurança / Observabilidade
+4. Revisor / Documentação / Desempenho
+
+## Regras de execução
+
+- Nenhuma tarefa com dependência pendente deve iniciar.
+- Se uma tarefa dependente tentar executar antes da hora, ela deve registrar um bloqueio no AgentMap e aguardar.
+- O usuário/revisor deve usar o monitoramento para identificar gargalos e desbloqueios.
+
+## Sincronização com Kilo Code / Agent Manager
+
+- Crie worktrees apenas para tarefas sem dependências pendentes.
+- Worktrees de tarefas dependentes devem ser criados/ativados somente após a conclusão da tarefa pré-requisito.
+- Use o monitoramento do AgentMap para validar o estado antes de iniciar novos worktrees.
+`, 'utf-8');
+
+    // Fluxo padrão global
+    fsSync.writeFileSync(path.join(iaRoot, 'fluxo-trabalho-padrao.md'), `# Fluxo de Trabalho Padrão — Novos Projetos
+
+Este documento é a referência oficial para iniciar qualquer projeto no AgentMap.
+Todo agente deve seguir esta ordem antes de executar qualquer trabalho.
+
+## Regra geral
+
+- Nada é executado em paralelo sem controle explícito.
+- Cada agente só começa depois de verificar seu checklist de entrada.
+- Cada agente só termina depois de registrar todas as saídas definidas.
+- O desrespeito ao fluxo bloqueia a tarefa e é registrado como bloqueio.
+
+## Ordem oficial
+
+1. Planejador/Arquiteto
+2. Agentes de implementação: Backend, Banco, Frontend, Android, Infraestrutura
+3. Agentes de verificação: Testes, Segurança, Observabilidade
+4. Agentes de revisão e documentação: Revisor, Documentação, Desempenho
+
+## Documentos obrigatórios
+
+- \`.ia/fluxo-desenvolvimento.json\`
+- \`.ia/fluxo-trabalho.md\`
+- \`.ia/contratos/\`
+- \`.ia/tarefas/\`
+- \`.ia/dependencias/\`
+- \`.ia/procedimentos/\`
+- \`.ia/politicas/\`
+
+## Checklist global de entrada
+
+Antes de iniciar qualquer tarefa:
+- [ ] Projeto aberto no AgentMap
+- [ ] \`.ia/fluxo-desenvolvimento.json\` existe
+- [ ] \`.ia/fluxo-trabalho.md\` existe
+- [ ] Tarefa atribuída está no estado RASCUNHO, PLANEJADA ou PRONTA
+- [ ] Dependências da tarefa estão concluídas
+- [ ] Contratos obrigatórios foram lidos
+- [ ] Procedimentos obrigatórios foram lidos
+- [ ] Diretórios permitidos e proibidos foram respeitados
+- [ ] Ambiente definido em \`.ia/configuracao/ambiente.json\`
+
+## Checklist global de saída
+
+Depois de concluir qualquer tarefa:
+- [ ] Resultado registrado no AgentMap
+- [ ] Artefatos registrados no AgentMap
+- [ ] Arquivos entregues estão nos caminhos esperados
+- [ ] Tarefa evoluiu para EM_EXECUCAO e depois para CONCLUIDA
+- [ ] Handoff criado se outro agente precisar continuar
+- [ ] Bloqueios registrados se houver impedimento
+- [ ] Decisões tomadas foram registradas
+- [ ] Riscos identificados foram registrados
+- [ ] Documentação atualizada se necessário
+- [ ] Eventos pendentes foram confirmados
+- [ ] Sanitização aplicada: sem segredos, sem metadados internos
+
+## Preparação por papel
+
+Cada papel tem um documento de preparação em:
+- \`.ia/procedimentos/preparacao-<papel>.md\`
+
+## Entrega por papel
+
+Cada papel tem um documento de entrega em:
+- \`.ia/procedimentos/entrega-<papel>.md\`
+
+## Controle de estado
+
+- O agente deve consultar o estado do projeto antes de trabalhar.
+- O agente deve atualizar o estado depois de trabalhar.
+- O monitoramento deve ser usado para verificar conflitos e bloqueios.
+`, 'utf-8');
+
+    // Preparação e entrega por papel
+    const papeis = [
+      'planejador',
+      'backend',
+      'banco',
+      'frontend',
+      'android',
+      'infraestrutura',
+      'testes',
+      'seguranca',
+      'revisor',
+      'documentacao',
+      'observabilidade',
+      'desempenho'
+    ];
+    for (const papel of papeis) {
+      const prepPath = path.join(iaRoot, 'procedimentos', `preparacao-${papel}.md`);
+      const entPath = path.join(iaRoot, 'procedimentos', `entrega-${papel}.md`);
+      if (!fsSync.existsSync(prepPath)) {
+        fsSync.writeFileSync(prepPath, `# Preparação: ${papel}\n\nUse este documento antes de iniciar qualquer tarefa de ${papel}.\n`, 'utf-8');
+      }
+      if (!fsSync.existsSync(entPath)) {
+        fsSync.writeFileSync(entPath, `# Entrega: ${papel}\n\nUse este documento depois de concluir qualquer tarefa de ${papel}.\n`, 'utf-8');
+      }
+    }
+
+    // Template padrão de projeto
+    fsSync.writeFileSync(path.join(iaRoot, 'template-padrao-projeto.md'), `# Template Padrão de Projeto\n\nUse este template como base para todo novo projeto no AgentMap.\n\n## Estrutura obrigatória\n\n\`\`\`text\nprojeto/\n  .ia/\n    fluxo-desenvolvimento.json\n    fluxo-trabalho.md\n    fluxo-trabalho-padrao.md\n    procedimentos/\n      preparacao-*.md\n      entrega-*.md\n    contratos/\n    tarefas/\n    dependencias/\n    configuracao/\n    agentes/\n    estado/\n\`\`\`\n\n## Regras de criação\n\n1. O planejador sempre cria o projeto primeiro.\n2. O planejador sempre define o fluxo e as dependências antes de qualquer implementação.\n3. Nenhuma tarefa pode iniciar sem dependências atendidas.\n4. Todo agente deve ler seu documento de preparação antes de começar.\n5. Todo agente deve registrar resultado, artefatos e handoff depois de terminar.\n6. O monitoramento deve ser usado para verificar estado e bloqueios.\n\n## Checklist de criação\n\n- [ ] Projeto criado na pasta correta\n- [ ] \`.ia/fluxo-desenvolvimento.json\` criado\n- [ ] \`.ia/fluxo-trabalho.md\` criado\n- [ ] Procedimentos de preparação criados para todos os papéis\n- [ ] Procedimentos de entrega criados para todos os papéis\n- [ ] Contratos obrigatórios criados\n- [ ] Tarefas criadas com dependências explícitas\n- [ ] Agentes registrados no AgentMap\n\n## Checklist de execução\n\n- [ ] Projeto aberto no AgentMap\n- [ ] Tarefa atribuída e no estado correto\n- [ ] Dependências verificadas\n- [ ] Contratos lidos\n- [ ] Procedimentos de preparação lidos\n- [ ] Trabalho executado\n- [ ] Procedimentos de entrega seguidos\n- [ ] Resultado registrado\n- [ ] Artefatos registrados\n- [ ] Handoff criado se necessário\n- [ ] Eventos confirmados\n`, 'utf-8');
   }
 
   private criarEstruturaAgentes(iaRoot: string, hoje: string): void {

@@ -19,6 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@types/ws": "^8.18.1",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "cors": "^2.8.5",
@@ -26,6 +27,7 @@
     "express": "^4.21.2",
     "simple-git": "^3.27.1",
     "uuid": "^10.0.0",
+    "ws": "^8.21.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

@@ -122,7 +122,7 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     if (!result.sucesso || !result.dados) {
       return responder(res, result);
     }
-    const { fileService, auditoria, validator, dependencia, ...limpo } = result.dados;
+    const { fileService, auditoria, validator, dependencia, fluxo, ...limpo } = result.dados;
     return responder(res, { sucesso: true, dados: limpo });
   }));
 
@@ -140,6 +140,14 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
       return responder(res, { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' });
     }
     return responder(res, { sucesso: true, dados: projeto.config });
+  }));
+
+  router.get('/:id/fluxo/checklist', asyncHandler(async (req: Request, res: Response) => {
+    const projeto = projetoService.getProjetoCached(req.params.id);
+    if (!projeto) {
+      return responder(res, { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' });
+    }
+    return responder(res, projeto.fluxo.validarChecklist());
   }));
 
   router.put('/:id/configuracao', asyncHandler(async (req: Request, res: Response) => {

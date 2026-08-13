@@ -32,12 +32,15 @@ describe('ScaffoldService — Estrutura .ia/', () => {
     expect(fs.existsSync(path.join(configDir, 'ambiente.json'))).toBe(true);
   });
 
-  test('cria diretório de agentes com 12 agentes', () => {
+  test('cria diretório de agentes com 16 agentes', () => {
     const agentesDir = path.join(projectRoot, '.ia', 'agentes');
     const registry = JSON.parse(fs.readFileSync(path.join(agentesDir, 'agentes.json'), 'utf-8'));
-    expect(registry.agentes).toHaveLength(12);
+    expect(registry.agentes).toHaveLength(16);
     expect(registry.agentes[0].id).toBe('planejador-arquiteto');
-    expect(registry.agentes[11].id).toBe('desempenho');
+    expect(registry.agentes.some((a: { id: string }) => a.id === 'devops')).toBe(true);
+    expect(registry.agentes.some((a: { id: string }) => a.id === 'qa-testes')).toBe(true);
+    expect(registry.agentes.some((a: { id: string }) => a.id === 'security-engineer')).toBe(true);
+    expect(registry.agentes.some((a: { id: string }) => a.id === 'technical-writer')).toBe(true);
   });
 
   test.each([
@@ -52,7 +55,11 @@ describe('ScaffoldService — Estrutura .ia/', () => {
     ['revisor', 'revisor'],
     ['documentacao', 'documentacao'],
     ['observabilidade', 'observabilidade'],
-    ['desempenho', 'desempenho']
+    ['desempenho', 'desempenho'],
+    ['devops', 'devops'],
+    ['qa-testes', 'qa-testes'],
+    ['security-engineer', 'security-engineer'],
+    ['technical-writer', 'technical-writer']
   ])('cria estrutura do agente %s com perfil, habilidades e markdown', (subpasta, perfilId) => {
     const dir = path.join(projectRoot, '.ia', 'agentes', subpasta);
     expect(fs.existsSync(path.join(dir, `${perfilId}.json`))).toBe(true);
@@ -186,5 +193,34 @@ describe('ScaffoldService — Estrutura .ia/', () => {
     expect(perfil.diretoriosProibidos).toContain('/backend/**');
     expect(perfil.contratosObrigatorios).toContain('contrato-projeto');
     expect(perfil.contratosObrigatorios).toContain('contrato-api');
+  });
+
+  test('cria agentes Kilo em .kilo/agent/', () => {
+    const kiloAgentDir = path.join(projectRoot, '.kilo', 'agent');
+    expect(fs.existsSync(kiloAgentDir)).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'planejador-arquiteto.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'frontend.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'backend.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'banco.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'android.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'infraestrutura.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'testes.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'seguranca.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'revisor.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'documentacao.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'observabilidade.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'desempenho.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'devops.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'qa-testes.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'security-engineer.md'))).toBe(true);
+    expect(fs.existsSync(path.join(kiloAgentDir, 'technical-writer.md'))).toBe(true);
+  });
+
+  test('agente Kilo frontend tem frontmatter valido', () => {
+    const content = fs.readFileSync(path.join(projectRoot, '.kilo', 'agent', 'frontend.md'), 'utf-8');
+    expect(content).toContain('description: Frontend');
+    expect(content).toContain('mode: primary');
+    expect(content).toContain('steps: 25');
+    expect(content).toContain('/frontend/**');
   });
 });

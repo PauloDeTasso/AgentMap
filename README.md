@@ -638,6 +638,56 @@ O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador loc
 
 ---
 
+---
+
+# Estrutura de projetos gerenciados
+
+- Pasta base de projetos: `G:\PROJETOS\AgenteMap_Projetos\`
+- Cada projeto recebe sua própria pasta com o **mesmo nome do projeto**
+- Exemplo: projeto `PAGINA_PESSOAL` → `G:\PROJETOS\AgenteMap_Projetos\PAGINA_PESSOAL`
+
+Cada projeto gerencia uma pasta `.ia/` com contratos, tarefas, decisões, handoffs e demais entidades do AgentMap.
+
+## Regra obrigatória: fluxo e dependências
+
+Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-desenvolvimento.json`.
+O planejador deve criar tarefas e dependências explicitamente antes de iniciar implementações.
+Agentes devem consultar dependências no início de cada ciclo e só prosseguir quando elas estiverem concluídas.
+Sem dependências, tarefas podem executar em paralelo; com dependências, a execução é sequencial.
+
+## Checklist automático de novos projetos
+
+O AgentMap valida automaticamente a estrutura mínima de fluxo ao criar ou abrir um projeto:
+- `.ia/fluxo-desenvolvimento.json` obrigatório
+- `.ia/fluxo-trabalho.md` obrigatório
+- Pastas `.ia/contratos`, `.ia/tarefas`, `.ia/dependencias` obrigatórias
+- Pelo menos 1 contrato e 1 tarefa registrados
+- Sem dependências circulares
+
+Se o checklist não estiver completo, a criação/abertura do projeto é bloqueada.
+Endpoint: `GET /api/projetos/:id/fluxo/checklist`
+
+## Preparação e entrega por agente
+
+Cada agente possui documento de preparação e entrega em `.ia/procedimentos/`:
+- `preparacao-<papel>.md` — o que ler e verificar antes de começar
+- `entrega-<papel>.md` — o que registrar e entregar depois de terminar
+
+Papéis cobertos:
+planejador, backend, banco, frontend, android, infraestrutura, testes, seguranca, revisor, documentacao, observabilidade, desempenho
+
+## Regra de corporação/equipe
+
+Em projetos com múltiplos agentes:
+- O planejador define a ordem e as dependências.
+- Cada agente só inicia quando seus pré-requisitos estão prontos.
+- O monitoramento é a fonte de verdade para o estado do projeto.
+- Bloqueios devem ser registrados no AgentMap, não resolvidos informalmente.
+- Handoffs devem ser usados para transferir contexto entre agentes.
+- O revisor valida aderência aos contratos antes da documentação final.
+
+---
+
 # Organização do repositório
 
 A organização física pode variar conforme a implementação, mas os principais domínios do AgentMap são representados conceitualmente por:

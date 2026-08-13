@@ -26,6 +26,9 @@ import { StateMachineService } from '../servicios';
 import { CorsService } from '../servicios/CorsService';
 import { ContractValidatorService } from '../servicios/ContractValidatorService';
 import { BackupService } from '../servicios/BackupService';
+import { KiloDispatcherService } from '../servicios/KiloDispatcherService';
+import { MonitoramentoService } from '../servicios/MonitoramentoService';
+import { FluxoService } from '../servicios/FluxoService';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
 
@@ -57,6 +60,9 @@ export interface Servicos {
   stateMachine: StateMachineService;
   contractValidator: ContractValidatorService;
   backup: BackupService;
+  kiloDispatcher: KiloDispatcherService;
+  monitoramento: MonitoramentoService;
+  fluxo: FluxoService;
 }
 
 export function projectMiddleware(projetoService: ProjetoService) {
@@ -100,7 +106,10 @@ export function projectMiddleware(projetoService: ProjetoService) {
       auditoria: projeto.auditoria,
       stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator),
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),
-      backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz)
+      backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz),
+      kiloDispatcher: new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator),
+      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator, new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator)),
+      fluxo: new FluxoService(projeto.fileService, projeto.auditoria)
     };
     console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
     next();

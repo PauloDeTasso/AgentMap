@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentMap - Monitoramento</title>
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="stylesheet" href="css/monitoramento.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header__container">
+      <h1 class="header__titulo">AgentMap - Monitoramento de Agentes</h1>
+      <div class="header__status" id="status-ws">🔴 WebSocket Desconectado</div>
+    </div>
+  </header>
+
+  <nav class="nav" id="nav-modo">
+    <div class="nav__container">
+      <span class="nav__projeto-ativo" id="nome-projeto-ativo">PAGINA PESSOAL</span>
+      <div class="modo-toggle">
+        <span>Modo: </span>
+        <button class="modo-btn" data-modo="AUTOMATICO" id="btn-modo-auto">AUTOMÁTICO</button>
+        <button class="modo-btn" data-modo="HIBRIDO" id="btn-modo-hibrido">HÍBRIDO</button>
+        <button class="modo-btn" data-modo="MANUAL" id="btn-modo-manual">MANUAL</button>
+      </div>
+      <button class="nav__btn nav__btn--ghost" id="btn-pausar-auto">Pausar Auto-scroll</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="monitor-container">
+      <aside class="agentes-sidebar" id="agentes-sidebar">
+        <div class="agentes-header">
+          <h2>Agentes</h2>
+          <span class="agentes-count" id="agentes-count">0 agentes</span>
+        </div>
+        <div class="agentes-list" id="agentes-list">
+        </div>
+      </aside>
+
+      <section class="chat-section">
+        <div class="chat-header">
+          <h2>Chat / Monitoramento</h2>
+          <div class="chat-filtros">
+            <select id="filtro-agente" class="filtro-select">
+              <option value="todos">Todos os agentes</option>
+            </select>
+            <select id="filtro-tipo" class="filtro-select">
+              <option value="todos">Todos os tipos</option>
+            </select>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+        </div>
+        <div class="chat-input-container">
+          <input type="text" id="input-mensagem" class="chat-input" placeholder="Digite uma mensagem ou comando..." autocomplete="off">
+          <button class="chat-send" id="btn-enviar">Enviar</button>
+        </div>
+        <button class="scroll-btn" id="btn-scroll">
+          <span class="scroll-icon">↓</span>
+          <span class="scroll-badge" id="badge-novas">0</span>
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/monitoramento.js" type="module"></script>
+</body>
+</html>

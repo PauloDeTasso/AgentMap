@@ -161,6 +161,54 @@ export const AGENTES_BASE: AgenteInicial[] = [
     requerAprovacaoPara: [],
     condicoesDeParada: ['informacao_insuficiente'],
     responsabilidades: ['Analisar tempo de resposta', 'Analisar consumo de memória', 'Analisar processamento', 'Analisar consultas', 'Analisar rede', 'Analisar carregamento', 'Identificar gargalos', 'Propor melhorias']
+  },
+  {
+    id: 'devops', nome: 'DevOps Engineer', funcao: 'devops',
+    subpasta: 'devops', perfilId: 'devops', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: false, aprovar: false, implantar: true },
+    diretoriosPermitidos: ['/infraestrutura/**', '/backend/**', '/.ia/**'],
+    diretoriosProibidos: ['/frontend/**', '/android/**', '/banco/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-infraestrutura', 'contrato-seguranca'],
+    conhecimentos: ['CI/CD', 'Docker', 'Kubernetes', 'Cloud', 'Monitoramento', 'Scaling', 'IaC', 'Terraform', 'Ansible', 'GitOps', 'Observabilidade'],
+    requerAprovacaoPara: ['implantacao_producao', 'alteracao_producao', 'alteracao_rede_critica'],
+    condicoesDeParada: ['alteracao_de_infraestrutura', 'necessidade_de_segredo', 'alteracao_destrutiva'],
+    responsabilidades: ['Implementar pipeline CI/CD', 'Gerenciar containers', 'Configurar cloud', 'Monitorar infraestrutura', 'Aplicar scaling', 'Gerenciar deploy', 'Implementar IaC', 'Gerenciar segredos', 'Garantir disponibilidade']
+  },
+  {
+    id: 'qa-testes', nome: 'QA / Testes', funcao: 'qualidade_testes',
+    subpasta: 'qa-testes', perfilId: 'qa-testes', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/testes/**', '/backend/**', '/frontend/**'],
+    diretoriosProibidos: ['/android/**', '/infraestrutura/**', '/banco/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-testes', 'contrato-api', 'contrato-seguranca'],
+    conhecimentos: ['Testes automatizados', 'E2E', 'Regressão', 'Integração', 'Performance', 'Segurança', 'Jest', 'Cypress', 'JUnit', 'Testes de contrato', 'Testes de API'],
+    requerAprovacaoPara: ['alteracao_de_ambiente'],
+    condicoesDeParada: ['teste_critico_falhando', 'api_incompativel', 'violacao_de_contrato'],
+    responsabilidades: ['Executar testes automatizados', 'Criar testes E2E', 'Validar requisitos', 'Detectar regressões', 'Validar contratos', 'Validar segurança', 'Reportar bugs', 'Garantir qualidade']
+  },
+  {
+    id: 'security-engineer', nome: 'Security Engineer', funcao: 'seguranca',
+    subpasta: 'security-engineer', perfilId: 'security-engineer', estado: 'ativo',
+    permissoes: { ler: true, criar: false, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/backend/**', '/infraestrutura/**'],
+    diretoriosProibidos: ['/frontend/**', '/android/**', '/banco/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-seguranca'],
+    conhecimentos: ['Pentesting', 'Auditoria', 'Conformidade', 'Gestão de vulnerabilidades', 'OWASP', 'SAST', 'DAST', 'Criptografia', 'Gestão de segredos', 'Compliance'],
+    requerAprovacaoPara: ['aceitacao_de_risco_critico', 'alteracao_de_autenticacao', 'alteracao_de_autorizacao', 'alteracao_de_criptografia'],
+    condicoesDeParada: ['risco_critico', 'alteracao_de_seguranca', 'necessidade_de_segredo'],
+    responsabilidades: ['Realizar auditoria de segurança', 'Executar pentesting', 'Garantir conformidade', 'Gerenciar vulnerabilidades', 'Analisar código seguro', 'Implementar controles', 'Reportar riscos', 'Revisar autenticação']
+  },
+  {
+    id: 'technical-writer', nome: 'Technical Writer / Documentador', funcao: 'documentacao',
+    subpasta: 'technical-writer', perfilId: 'technical-writer', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: false, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/docs/**', '/README.md', '/.ia/**'],
+    diretoriosProibidos: ['/backend/**', '/frontend/**', '/android/**', '/banco/**', '/infraestrutura/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-documentacao'],
+    conhecimentos: ['Documentação de API', 'Runbook', 'Manuais', 'Onboarding', 'Arquitetura', 'Procedimentos', 'Swagger/OpenAPI', 'Markdown', 'Guias'],
+    requerAprovacaoPara: [],
+    condicoesDeParada: ['informacao_insuficiente'],
+    responsabilidades: ['Documentar APIs', 'Criar runbooks', 'Escrever manuais', 'Documentar procedimentos', 'Criar guias de onboarding', 'Documentar decisões arquiteturais', 'Manter documentação atualizada']
   }
 ];
 

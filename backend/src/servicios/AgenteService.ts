@@ -3,6 +3,7 @@ import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { AgenteRegistro, AgentesRegistry, AgentePerfil, ResultadoOperacao, Permissoes, EstadoEntidade } from '../tipos';
+import { KiloAgentGeneratorService } from './KiloAgentGeneratorService';
 
 export class AgenteService {
   constructor(
@@ -100,6 +101,14 @@ export class AgenteService {
 
     this.auditoria.registrar('AGENTE_CRIADO', `Agente '${perfil.nome}' criado.`, { agenteId: perfil.id });
 
+    try {
+      const kiloGen = new KiloAgentGeneratorService(this.fs);
+      const agenteAtual = { ...fullPerfil, registro: { id: perfil.id, nome: perfil.nome, funcao: perfil.funcao, estado: perfil.estado, arquivoPerfil: `/.ia/agentes/${subpasta}/${subpasta}.json` } } as AgentePerfil & { registro: AgenteRegistro };
+      kiloGen.gerarAgentes([agenteAtual]);
+    } catch (e) {
+      console.error('[AgenteService] erro ao gerar agente Kilo:', (e as Error).message);
+    }
+
     return { sucesso: true, dados: fullPerfil };
   }
 
@@ -126,6 +135,15 @@ export class AgenteService {
     }
 
     this.auditoria.registrar('AGENTE_ATUALIZADO', `Agente '${id}' atualizado.`, { agenteId: id });
+
+    try {
+      const kiloGen = new KiloAgentGeneratorService(this.fs);
+      const agenteAtual = { ...atualizado, registro: existente.registro } as AgentePerfil & { registro: AgenteRegistro };
+      kiloGen.gerarAgentes([agenteAtual]);
+    } catch (e) {
+      console.error('[AgenteService] erro ao atualizar agente Kilo:', (e as Error).message);
+    }
+
     return { sucesso: true, dados: atualizado };
   }
 

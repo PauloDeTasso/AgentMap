@@ -6,6 +6,7 @@ import { ScaffoldService } from '../arquivos/ScaffoldService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { DependenciaService } from './DependenciaService';
+import { FluxoService } from './FluxoService';
 import { ProjetoConfig, ProjetoRegistro, RegistroProjetos, ResultadoOperacao } from '../tipos';
 import {
   loadRegistroProjetos,
@@ -23,6 +24,7 @@ export interface ProjetoAberto {
   validator: SchemaValidator;
   config: ProjetoConfig;
   dependencia: DependenciaService;
+  fluxo: FluxoService;
 }
 
 export class ProjetoService {
@@ -120,6 +122,15 @@ export class ProjetoService {
       { backup: true }
     );
 
+    const fluxo = new FluxoService(fsService, new AuditoriaService(fsService));
+    const checklistResult = fluxo.validarChecklist();
+    if (checklistResult.sucesso && checklistResult.dados) {
+      const pendentes = fluxo.obterPendentes(checklistResult.dados);
+      if (pendentes.length > 0) {
+        return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+      }
+    }
+
     const registro: ProjetoRegistro = {
       id,
       nome,
@@ -177,9 +188,18 @@ export class ProjetoService {
       auditoria,
       validator: this.validator,
       config,
-      dependencia: new DependenciaService(fileService, auditoria, this.validator)
+      dependencia: new DependenciaService(fileService, auditoria, this.validator),
+      fluxo: new FluxoService(fileService, auditoria)
     };
     console.log('[ProjetoService.abrirProjeto] ProjetoAberto criado - id:', projeto.id, 'nome:', projeto.nome, 'caminho:', projeto.caminhoRaiz);
+
+    const checklistResult = projeto.fluxo.validarChecklist();
+    if (checklistResult.sucesso && checklistResult.dados) {
+      const pendentes = projeto.fluxo.obterPendentes(checklistResult.dados);
+      if (pendentes.length > 0) {
+        return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+      }
+    }
 
     this.projetosAbertos.set(config.id, projeto);
     this.registro = registrarProjeto(this.registro, { id: config.id, nome: config.nome, caminhoRaiz, ativo: true, ultimaAbertura: new Date().toISOString() });
