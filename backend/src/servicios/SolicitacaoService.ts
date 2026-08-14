@@ -293,3 +293,4 @@ export class SolicitacaoService {
     return { sucesso: true, dados: eventos };
   }
 }
+

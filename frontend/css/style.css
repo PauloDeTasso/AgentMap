@@ -4,7 +4,7 @@
   --surface-alt: #242833;
   --border: #333947;
   --text: #e4e6eb;
-  --text-muted: #8a8f99;
+  --text-muted: #9ca3af;
   --primary: #4a90d9;
   --primary-hover: #5aa8eb;
   --accent: #6c5ce7;
@@ -139,6 +139,14 @@ body {
 
 .btn:hover {
   background: var(--primary-hover);
+}
+
+.btn:focus-visible,
+.form__input:focus-visible,
+.form__textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .btn--primario {

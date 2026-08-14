@@ -65,7 +65,11 @@ mcpServer.registerTool('agentmap_workflows_finalizar_trabalho', {
     estado: 'PENDENTE'
   });
   if (sessaoId) {
-    await ctx.dados!.servicos.sessao.finalizar(String(sessaoId), { estadoFinal: String(dados.estado || 'CONCLUIDA') });
+    const sessaoResult = await ctx.dados!.servicos.sessao.finalizar(String(sessaoId), { estadoFinal: String(dados.estado || 'CONCLUIDA') });
+    if (!sessaoResult.sucesso) {
+      auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, sessaoResult);
+      return toMcpResult(sessaoResult);
+    }
   }
   const finalResult = { sucesso: true, dados: { resultado: resultado.dados, handoff: handoff.dados } };
   auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, finalResult);
@@ -120,10 +124,10 @@ mcpServer.registerTool('agentmap_workflows_obter_mapa_projeto', {
       projeto: ctx.dados!.projeto.config,
       agentes: agentes.sucesso ? agentes.dados : [],
       tarefas: tarefas.sucesso ? tarefas.dados : [],
-      estado: estado.sucesso ? estado.dados : null,
+      estado: estado.sucesso && estado.dados ? estado.dados : null,
       decisoes: decisoes.sucesso ? decisoes.dados : [],
-      contratos: contratos.sucesso ? contratos.dados : null,
-      permissoes: permissoes.sucesso ? permissoes.dados : null
+      contratos: contratos.sucesso && contratos.dados ? contratos.dados : null,
+      permissoes: permissoes.sucesso && permissoes.dados ? permissoes.dados : null
     }
   };
   auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, resultado);

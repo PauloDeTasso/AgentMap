@@ -17,6 +17,7 @@ export interface GerenciadorSettings {
     banco: string;
     usuario: string;
   };
+  limitesMcp?: Record<string, unknown>;
 }
 
 const DEFAULT_SETTINGS: GerenciadorSettings = {

@@ -26,7 +26,7 @@ mcpServer.registerTool(
     inputSchema: SchemaRecomendarAgente,
   },
   async (args) => {
-    const { tarefaId, dominio, conhecimentos } = args as { tarefaId?: string; dominio?: string; conhecimentos?: string[] };
+    const { tarefaId, criterios } = args as { tarefaId?: string; criterios?: Record<string, unknown> };
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
@@ -36,22 +36,33 @@ mcpServer.registerTool(
     const { projeto, servicos } = ctx.dados;
     const auditoria = createMcpAuditoria(projeto.auditoria);
 
-    let targetDominio: string = dominio || '';
-    let targetConhecimentos: string[] = conhecimentos || [];
+    let targetDominio: string = '';
+    let targetConhecimentos: string[] = [];
     let agenteAtual: string | null = null;
 
     if (tarefaId) {
       const tarefaResult = servicos.tarefa.obter(tarefaId || '');
       if (!tarefaResult.sucesso || !tarefaResult.dados) {
         const result = tarefaResult;
-        auditoria.registrarToolCall('agentmap_recomendar_agente', projeto, { tarefaId }, result);
+        auditoria.registrarToolCall('agentmap_recomendar_agente', projeto, { tarefaId, criterios }, result);
         return toMcpResult(result);
       }
       const tarefa: Tarefa = tarefaResult.dados;
-      targetDominio = tarefa.dominio || dominio || '';
+      targetDominio = tarefa.dominio || '';
       agenteAtual = tarefa.agenteResponsavel || null;
       if (!targetConhecimentos.length && tarefa.contextoNecessario) {
         targetConhecimentos = tarefa.contextoNecessario;
+      }
+    }
+
+    if (criterios && typeof criterios === 'object') {
+      const dominioCriterio = (criterios as any).dominio;
+      const conhecimentosCriterio = (criterios as any).conhecimentos;
+      if (typeof dominioCriterio === 'string') {
+        targetDominio = dominioCriterio;
+      }
+      if (Array.isArray(conhecimentosCriterio)) {
+        targetConhecimentos = conhecimentosCriterio.map((item: any) => String(item));
       }
     }
 
@@ -59,14 +70,14 @@ mcpServer.registerTool(
       return toMcpData({
         sucesso: false,
         codigo: 'MISSING_FIELDS',
-        mensagem: 'Forneça tarefaId, ou dominio + conhecimentos',
+        mensagem: 'Forneça tarefaId, ou criterios com dominio/conhecimentos',
       });
     }
 
     const agentesResult = servicos.agente.listar();
     if (!agentesResult.sucesso || !agentesResult.dados) {
       const result = agentesResult;
-      auditoria.registrarToolCall('agentmap_recomendar_agente', projeto, { tarefaId, dominio, conhecimentos }, result);
+      auditoria.registrarToolCall('agentmap_recomendar_agente', projeto, { tarefaId, criterios }, result);
       return toMcpResult(result);
     }
 
@@ -141,7 +152,7 @@ mcpServer.registerTool(
       recomendacoes: recomendacoes.filter((r) => r.pontuacao > 0).slice(0, 5),
     };
 
-    auditoria.registrarToolCall('agentmap_recomendar_agente', projeto, { tarefaId, dominio, conhecimentos }, { sucesso: true, dados });
+    auditoria.registrarToolCall('agentmap_recomendar_agente', projeto, { tarefaId, criterios }, { sucesso: true, dados });
     return toMcpData(dados);
   }
 );

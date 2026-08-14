@@ -32,6 +32,8 @@ import { BackupService } from 'servicios';
 import { KiloDispatcherService } from 'servicios/KiloDispatcherService';
 import { MonitoramentoService } from 'servicios/MonitoramentoService';
 import { FluxoService } from 'servicios/FluxoService';
+import { InstanciaService } from 'servicios/InstanciaService';
+import { OrquestradorService } from 'servicios/OrquestradorService';
 
 export interface ProjetoContext {
   projetoId: string;
@@ -62,9 +64,9 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
     aprendizado: new AprendizadoService(projeto.fileService, projeto.auditoria, validator),
     dependencia: new DependenciaService(projeto.fileService, projeto.auditoria, validator),
     responsabilidade: new ResponsabilidadeService(projeto.fileService, projeto.auditoria, validator),
-          integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator, projeto.fluxo),
-    decisao: new DecisaoService(projeto.fileService, projeto.auditoria, validator),
-    risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
+      integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator, projeto.fluxo),
+      decisao: new DecisaoService(projeto.fileService, projeto.auditoria, validator),
+      risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
       evento: eventoService,
@@ -74,7 +76,20 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
       backup: new BackupService(projeto.fileService, projeto.auditoria, validator, projeto.caminhoRaiz),
       kiloDispatcher: kiloDispatcher,
       monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, validator, kiloDispatcher),
-      fluxo: new FluxoService(projeto.fileService, projeto.auditoria)
+      fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
+      instancia: new InstanciaService(projeto.fileService, projeto.auditoria, validator),
+      orquestrador: new OrquestradorService(
+        projeto.fileService,
+        projeto.auditoria,
+        projeto.validator,
+        projeto.caminhoRaiz,
+        projeto.id,
+        new InstanciaService(projeto.fileService, projeto.auditoria, validator),
+        eventoService,
+        new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
+        new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
+        new DependenciaService(projeto.fileService, projeto.auditoria, validator)
+      )
     };
 }
 

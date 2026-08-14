@@ -64,3 +64,4 @@ export class ContractValidatorService {
     return { sucesso: true, dados: resultados };
   }
 }
+

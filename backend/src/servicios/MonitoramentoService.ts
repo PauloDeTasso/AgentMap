@@ -347,3 +347,4 @@ export class MonitoramentoService extends EventEmitter {
     return this.dispatcher.listarLogs(limite);
   }
 }
+

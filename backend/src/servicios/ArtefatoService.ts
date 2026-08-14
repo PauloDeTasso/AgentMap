@@ -140,3 +140,4 @@ export class ArtefatoService {
     return { sucesso: true, dados: true };
   }
 }
+

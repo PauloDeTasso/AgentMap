@@ -17,11 +17,8 @@ export function criarAgenteRouter(): Router {
   }));
 
   router.post('/', asyncHandler(async (req: Request, res: Response) => {
-    console.log('[POST /api/agentes] body recebido:', JSON.stringify(req.body));
     const perfil: Omit<AgentePerfil, 'datas'> & { permissoes: Permissoes } = req.body;
-    console.log('[POST /api/agentes] perfil.id:', perfil?.id, '| nome:', perfil?.nome, '| permissoes:', JSON.stringify(perfil?.permissoes));
     const result = await req.servicos!.agente.criar(perfil);
-    console.log('[POST /api/agentes] resultado:', JSON.stringify({ sucesso: result.sucesso, erro: result?.erro, codigoErro: result?.codigoErro }));
     return responder(res, result, 201);
   }));
 

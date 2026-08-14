@@ -126,3 +126,4 @@ export class ConflitoService {
     return { sucesso: true, dados: true };
   }
 }
+

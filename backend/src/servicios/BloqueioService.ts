@@ -91,3 +91,4 @@ export class BloqueioService {
     return { sucesso: true, dados: true };
   }
 }
+

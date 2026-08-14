@@ -77,7 +77,9 @@ export class FileService {
       if (opcoes.backup && fs.existsSync(caminhoAbsoluto)) {
         this.criarBackup(caminhoAbsoluto);
       }
-      fs.writeFileSync(caminhoAbsoluto, conteudo, 'utf-8');
+      const tmpPath = caminhoAbsoluto + '.tmp-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+      fs.writeFileSync(tmpPath, conteudo, 'utf-8');
+      fs.renameSync(tmpPath, caminhoAbsoluto);
       const relPath = path.win32.relative(this.projectRoot, caminhoAbsoluto).replace(/\\/g, '/');
       return { sucesso: true, dados: relPath };
     } catch (e) {

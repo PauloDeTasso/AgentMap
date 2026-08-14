@@ -140,8 +140,7 @@ export async function buscarSimboloDefinicoes(
   if (tipo === 'funcao' || tipo === 'todos') {
     patterns.push(new RegExp(`\\bfunction\\s+${escaped}\\b`, 'gi'));
     patterns.push(new RegExp(`\\bconst\\s+${escaped}\\s*=`, 'gi'));
-    patterns.push(new RegExp(`\\bconst\\s+{}\\s*=\\s*${escaped}`, 'gi'));
-    patterns.push(new RegExp(`\\b${escaped}\\s*=\\s*\\(`, 'gi'));
+    patterns.push(new RegExp(`\\bconst\\s+${escaped}\\s*=\\s*\\(`, 'gi'));
   }
   if (tipo === 'classe' || tipo === 'todos') {
     patterns.push(new RegExp(`\\bclass\\s+${escaped}\\b`, 'gi'));
@@ -151,7 +150,7 @@ export async function buscarSimboloDefinicoes(
     patterns.push(new RegExp(`\\b(?:const|let|var)\\s+${escaped}\\b`, 'gi'));
   }
   if (tipo === 'constante' || tipo === 'todos') {
-    patterns.push(new RegExp(`\\bconst\\s+${escaped}\\b`, 'g'));
+    patterns.push(new RegExp(`\\bconst\\s+${escaped}\\b`, 'gi'));
   }
   if (tipo === 'interface' || tipo === 'todos') {
     patterns.push(new RegExp(`\\binterface\\s+${escaped}\\b`, 'gi'));
@@ -174,6 +173,7 @@ export async function buscarSimboloDefinicoes(
       if (hits.length >= limite) break;
       const line = lines[i];
       for (const pattern of allPatterns) {
+        pattern.lastIndex = 0;
         const match = pattern.exec(line);
         if (match) {
           hits.push({
@@ -182,7 +182,6 @@ export async function buscarSimboloDefinicoes(
             conteudo: line.trim(),
             colunaInicio: match.index,
           });
-          pattern.lastIndex = 0;
           break;
         }
       }

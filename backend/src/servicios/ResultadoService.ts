@@ -152,3 +152,4 @@ export class ResultadoService {
     return { sucesso: true, dados: true };
   }
 }
+

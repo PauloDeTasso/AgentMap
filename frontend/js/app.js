@@ -1686,19 +1686,22 @@ async function renderizarRiscos(el) {
 
 window.navegarPasta = function(caminho = null) {
   const input = document.getElementById('caminho-pasta');
-  pastaAtual = caminho !== null ? caminho : (input ? input.value : '.');
+  const raw = caminho !== null ? caminho : (input ? input.value : '.');
+  pastaAtual = sanitizePath(raw) || '.';
   carregarPainel('arquivos');
 };
 
 window.abrirPasta = function(caminho) {
-  pastaAtual = caminho;
+  pastaAtual = sanitizePath(caminho) || '.';
   carregarPainel('arquivos');
 };
 
 window.abrirPastaExplorer = async function(caminho) {
-  console.log('[abrirPastaExplorer] chamado com caminho=' + caminho);
+  const safePath = sanitizePath(caminho);
+  if (!safePath) { showToast('Caminho inválido', 'erro'); return; }
+  console.log('[abrirPastaExplorer] chamado com caminho=' + safePath);
   try {
-    const res = await api.abrirPastaExplorer(caminho);
+    const res = await api.abrirPastaExplorer(safePath);
     console.log('[abrirPastaExplorer] resposta:', res.sucesso, res.dados || res.erro);
     if (res.sucesso) {
       showToast('Pasta aberta no Explorador!', 'sucesso');
@@ -1712,12 +1715,14 @@ window.abrirPastaExplorer = async function(caminho) {
 };
 
 async function editarArquivo(caminho) {
+  const safePath = sanitizePath(caminho);
+  if (!safePath) { showToast('Caminho inválido', 'erro'); return; }
   try {
-    const res = await api.lerArquivo(caminho);
+    const res = await api.lerArquivo(safePath);
     if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    $('editor-titulo').textContent = caminho;
+    $('editor-titulo').textContent = safePath;
     $('editor-texto').value = res.dados;
-    arquivoContexto = caminho;
+    arquivoContexto = safePath;
     showModal('modal-editor');
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
@@ -1725,9 +1730,11 @@ async function editarArquivo(caminho) {
 }
 
 async function excluirArquivo(caminho) {
-  if (!confirm(`Excluir "${caminho}"? Esta ação não pode ser revertida.`)) return;
+  const safePath = sanitizePath(caminho);
+  if (!safePath) { showToast('Caminho inválido', 'erro'); return; }
+  if (!confirm(`Excluir "${safePath}"? Esta ação não pode ser revertida.`)) return;
   try {
-    const res = await api.excluirArquivo(caminho, true);
+    const res = await api.excluirArquivo(safePath, true);
     if (res.sucesso) {
       showToast('Arquivo excluído!', 'sucesso');
       carregarPainel('arquivos');

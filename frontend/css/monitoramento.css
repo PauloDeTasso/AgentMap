@@ -399,6 +399,14 @@
   color: #c9d1d9;
 }
 
+.modo-btn:focus-visible,
+.chat-input:focus-visible,
+.chat-send:focus-visible,
+.filtro-select:focus-visible {
+  outline: 2px solid #388bfd;
+  outline-offset: 2px;
+}
+
 .modo-btn--ativo {
   background: #388bfd;
   color: #fff;

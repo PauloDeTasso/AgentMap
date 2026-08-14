@@ -50,9 +50,13 @@ export function loadMcpConfig(): McpConfig {
   if (cachedConfig) {
     return { ...cachedConfig };
   }
+  const s = loadSettings();
   return {
     ...DEFAULT_MCP_CONFIG,
-    limites: { ...DEFAULT_MCP_CONFIG.limites },
+    limites: {
+      ...DEFAULT_MCP_CONFIG.limites,
+      ...(s.limitesMcp || {})
+    }
   };
 }
 

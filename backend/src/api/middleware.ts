@@ -29,6 +29,8 @@ import { BackupService } from '../servicios/BackupService';
 import { KiloDispatcherService } from '../servicios/KiloDispatcherService';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
 import { FluxoService } from '../servicios/FluxoService';
+import { InstanciaService } from '../servicios/InstanciaService';
+import { OrquestradorService } from '../servicios/OrquestradorService';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
 
@@ -63,6 +65,8 @@ export interface Servicos {
   kiloDispatcher: KiloDispatcherService;
   monitoramento: MonitoramentoService;
   fluxo: FluxoService;
+  instancia: InstanciaService;
+  orquestrador: OrquestradorService;
 }
 
 export function projectMiddleware(projetoService: ProjetoService) {
@@ -109,7 +113,20 @@ export function projectMiddleware(projetoService: ProjetoService) {
       backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz),
       kiloDispatcher: new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator),
       monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator, new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator)),
-      fluxo: new FluxoService(projeto.fileService, projeto.auditoria)
+      fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
+      instancia: new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+      orquestrador: new OrquestradorService(
+        projeto.fileService,
+        projeto.auditoria,
+        projeto.validator,
+        projeto.caminhoRaiz,
+        projeto.id,
+        new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
+        new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator)
+      )
     };
     console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
     next();

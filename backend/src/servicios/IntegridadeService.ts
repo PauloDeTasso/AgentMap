@@ -395,3 +395,4 @@ export class IntegridadeService {
     return { sucesso: true, dados: estado };
   }
 }
+

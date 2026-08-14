@@ -1,0 +1,267 @@
+{
+  "tarefas": [
+    {
+      "id": "TAR-2026-00001",
+      "titulo": "Planejar estrutura do projeto",
+      "descricao": "Definir estrutura de pastas, convenções e tarefas para o projeto.",
+      "objetivo": "Garantir que o projeto tenha organização básica antes de qualquer implementação.",
+      "tipo": "planejamento",
+      "estado": "PENDENTE",
+      "prioridade": "critica",
+      "agenteResponsavel": "planejador-arquiteto",
+      "dominio": "planejamento",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Estrutura de pastas definida",
+        "Convenções documentadas",
+        "Tarefas criadas"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-14T19:54:01.699Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-14T20:15:00.000Z",
+        "conclusao": null
+      }
+    },
+    {
+      "id": "TAR-2026-00002",
+      "titulo": "Criar schema e dados de exemplo",
+      "descricao": "Definir estrutura JSON dos produtos e popular com dados de exemplo.",
+      "objetivo": "Garantir dados de exemplo para desenvolvimento e testes.",
+      "tipo": "banco_de_dados",
+      "estado": "RASCUNHO",
+      "prioridade": "media",
+      "agenteResponsavel": "banco",
+      "dominio": "banco",
+      "ambiente": "desenvolvimento",
+      "dependencias": [
+        "TAR-2026-00001"
+      ],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Schema JSON definido",
+        "Dados de exemplo criados",
+        "Estrutura validada"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-14T19:54:01.699Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-14T19:54:01.699Z",
+        "conclusao": null
+      }
+    },
+    {
+      "id": "TAR-2026-00003",
+      "titulo": "Implementar API CRUD de produtos",
+      "descricao": "Criar API REST em memória para gerenciar produtos.",
+      "objetivo": "Garantir endpoints funcionais para o frontend.",
+      "tipo": "desenvolvimento",
+      "estado": "RASCUNHO",
+      "prioridade": "alta",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [
+        "TAR-2026-00002"
+      ],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Endpoints funcionando",
+        "Validação de dados",
+        "Códigos HTTP corretos"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-14T19:54:01.699Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-14T19:54:01.699Z",
+        "conclusao": null
+      }
+    },
+    {
+      "id": "TAR-2026-00004",
+      "titulo": "Criar interface web do catálogo",
+      "descricao": "Desenvolver página HTML com formulário e tabela para gerenciar produtos.",
+      "objetivo": "Garantir interface funcional para usuário.",
+      "tipo": "desenvolvimento_frontend",
+      "estado": "RASCUNHO",
+      "prioridade": "alta",
+      "agenteResponsavel": "frontend",
+      "dominio": "frontend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [
+        "TAR-2026-00003"
+      ],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Página carrega corretamente",
+        "Formulário funciona",
+        "Lista atualiza em tempo real"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-14T19:54:01.699Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-14T19:54:01.699Z",
+        "conclusao": null
+      }
+    },
+    {
+      "id": "TAR-TESTE-001",
+      "titulo": "Tarefa Teste",
+      "descricao": "",
+      "objetivo": "Testar sistema",
+      "tipo": "desenvolvimento",
+      "estado": "RASCUNHO",
+      "prioridade": "alta",
+      "agenteResponsavel": "agente-teste",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-14T20:00:19.263Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-14T20:00:19.263Z",
+        "conclusao": null
+      }
+    }
+  ],
+  "estatisticas": {
+    "RASCUNHO": 4,
+    "PENDENTE": 1,
+    "total": 5
+  }
+}

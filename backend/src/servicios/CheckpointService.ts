@@ -98,3 +98,4 @@ export class CheckpointService {
     return { sucesso: true, dados: true };
   }
 }
+

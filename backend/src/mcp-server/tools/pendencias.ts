@@ -7,14 +7,17 @@ import * as z from 'zod';
 
 mcpServer.registerTool('agentmap_pendencias_listar', {
   description: 'Lista pendencias.',
-  inputSchema: z.object({})
-}, async () => {
+  inputSchema: z.object({ tarefaId: z.string().optional() })
+}, async ({ tarefaId }: { tarefaId?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = ctx.dados!.servicos.pendencia.listar();
-  auditoria.registrarToolCall('agentmap_pendencias_listar', projeto, {}, resultado);
+  if (resultado.sucesso && resultado.dados && tarefaId) {
+    resultado.dados = resultado.dados.filter((p: any) => p.tarefaId === String(tarefaId || ''));
+  }
+  auditoria.registrarToolCall('agentmap_pendencias_listar', projeto, { tarefaId }, resultado);
   if (!resultado.sucesso) return toMcpResult(resultado);
   return toMcpData(resultado.dados);
 });

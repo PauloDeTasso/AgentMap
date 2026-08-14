@@ -7,14 +7,14 @@ import * as z from 'zod';
 
 mcpServer.registerTool('agentmap_handoffs_listar', {
   description: 'Lista todos os handoffs do projeto.',
-  inputSchema: z.object({})
-}, async () => {
+  inputSchema: z.object({ destino: z.string().optional() })
+}, async ({ destino }: { destino?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.handoff.listar();
-  auditoria.registrarToolCall('agentmap_handoffs_listar', projeto, {}, resultado);
+  const resultado = destino ? ctx.dados!.servicos.handoff.listarPorDestino(String(destino || '')) : ctx.dados!.servicos.handoff.listar();
+  auditoria.registrarToolCall('agentmap_handoffs_listar', projeto, { destino }, resultado);
   if (!resultado.sucesso) return toMcpResult(resultado);
   return toMcpData(resultado.dados);
 });

@@ -110,3 +110,4 @@ export class CriterioService {
     return { sucesso: true, dados: true };
   }
 }
+

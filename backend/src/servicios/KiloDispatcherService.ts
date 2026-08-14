@@ -296,3 +296,4 @@ export class KiloDispatcherService {
     return { sucesso: true };
   }
 }
+

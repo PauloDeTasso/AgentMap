@@ -7,14 +7,14 @@ import * as z from 'zod';
 
 mcpServer.registerTool('agentmap_checkpoints_listar', {
   description: 'Lista checkpoints.',
-  inputSchema: z.object({})
-}, async () => {
+  inputSchema: z.object({ tarefaId: z.string().optional() })
+}, async ({ tarefaId }: { tarefaId?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.checkpoint.listar();
-  auditoria.registrarToolCall('agentmap_checkpoints_listar', projeto, {}, resultado);
+  const resultado = tarefaId ? ctx.dados!.servicos.checkpoint.listarPorTarefa(String(tarefaId || '')) : ctx.dados!.servicos.checkpoint.listar();
+  auditoria.registrarToolCall('agentmap_checkpoints_listar', projeto, { tarefaId }, resultado);
   if (!resultado.sucesso) return toMcpResult(resultado);
   return toMcpData(resultado.dados);
 });

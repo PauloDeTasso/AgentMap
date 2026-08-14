@@ -1,4 +1,3 @@
-const WS_URL = `ws://${window.location.host.replace(/^.*:/, '')}/ws/monitoramento`;
 const API_BASE = '/api/monitoramento';
 
 let ws = null;
@@ -8,6 +7,10 @@ let agentesCache = [];
 let filtroAgente = 'todos';
 let filtroTipo = 'todos';
 let modoAtual = null;
+function generateMsgId() {
+  msgCounter += 1;
+  return `MSG-${Date.now()}-${msgCounter}`;
+}
 
 function sanitizarConteudo(conteudo) {
   if (typeof conteudo !== 'string') return conteudo;
@@ -133,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (json.sucesso) {
         atualizarModoAtivo(modo);
         adicionarMensagem({
-          id: `MSG-${Date.now()}`,
+          id: generateMsgId(),
           timestamp: new Date().toISOString(),
           tipo: 'MODO_ALTERADO',
           emissor: 'usuario',
@@ -274,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify({ comando, payload })
     }).then(() => {
       adicionarMensagem({
-        id: `MSG-${Date.now()}`,
+        id: generateMsgId(),
         timestamp: new Date().toISOString(),
         tipo: 'INTERVENCAO_USUARIO',
         emissor: 'usuario',

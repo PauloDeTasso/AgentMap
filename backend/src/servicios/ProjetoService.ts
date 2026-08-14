@@ -267,3 +267,4 @@ export class ProjetoService {
     return { sucesso: true, dados: config };
   }
 }
+

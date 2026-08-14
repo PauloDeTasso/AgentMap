@@ -1,0 +1,67 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Catálogo de Produtos" [level=1] [ref=e4]
+      - navigation [ref=e16]:
+        - button "Sair" [ref=e17] [cursor=pointer]
+  - main [ref=e5]:
+    - generic [ref=e19]:
+      - heading "Produtos" [level=2] [ref=e20]
+      - generic [ref=e21]:
+        - searchbox "Buscar produtos" [ref=e23]
+        - combobox "Ordenar por" [ref=e24]:
+          - option "Nome" [selected]
+          - option "Preço"
+          - option "Categoria"
+          - option "Data de criação"
+        - combobox "Direção da ordenação" [ref=e25]:
+          - option "Ascendente" [selected]
+          - option "Descendente"
+        - button "Novo Produto" [ref=e26] [cursor=pointer]
+      - table "Lista de produtos" [ref=e28]:
+        - rowgroup [ref=e29]:
+          - row [ref=e30]:
+            - columnheader "Nome" [ref=e31]
+            - columnheader "Categoria" [ref=e32]
+            - columnheader "Preço" [ref=e33]
+            - columnheader "Ações" [ref=e34]
+        - rowgroup [ref=e35]:
+          - row [ref=e36]:
+            - cell "Cadeira Ergonomica" [ref=e37]
+            - cell "Moveis" [ref=e38]
+            - cell "R$ 899,00" [ref=e39]
+            - cell [ref=e40]:
+              - button "Editar Cadeira Ergonomica" [ref=e41] [cursor=pointer]: Editar
+              - button "Excluir Cadeira Ergonomica" [ref=e42] [cursor=pointer]: Excluir
+          - row [ref=e43]:
+            - cell "Monitor 24\"" [ref=e44]
+            - cell "Monitores" [ref=e45]
+            - cell "R$ 1.299,00" [ref=e46]
+            - cell [ref=e47]:
+              - button "Editar Monitor 24" [ref=e48] [cursor=pointer]: Editar
+              - button "Excluir Monitor 24" [ref=e49] [cursor=pointer]: Excluir
+          - row [ref=e50]:
+            - cell "Mouse Wireless" [ref=e51]
+            - cell "Perifericos" [ref=e52]
+            - cell "R$ 89,90" [ref=e53]
+            - cell [ref=e54]:
+              - button "Editar Mouse Wireless" [ref=e55] [cursor=pointer]: Editar
+              - button "Excluir Mouse Wireless" [ref=e56] [cursor=pointer]: Excluir
+          - row [ref=e57]:
+            - cell "Teclado Mecanico" [ref=e58]
+            - cell "Perifericos" [ref=e59]
+            - cell "R$ 299,90" [ref=e60]
+            - cell [ref=e61]:
+              - button "Editar Teclado Mecanico" [ref=e62] [cursor=pointer]: Editar
+              - button "Excluir Teclado Mecanico" [ref=e63] [cursor=pointer]: Excluir
+          - row [ref=e64]:
+            - cell "Webcam HD" [ref=e65]
+            - cell "Perifericos" [ref=e66]
+            - cell "R$ 199,90" [ref=e67]
+            - cell [ref=e68]:
+              - button "Editar Webcam HD" [ref=e69] [cursor=pointer]: Editar
+              - button "Excluir Webcam HD" [ref=e70] [cursor=pointer]: Excluir
+      - generic "Paginação" [ref=e71]:
+        - button "Anterior" [disabled] [ref=e72]
+        - generic [ref=e73]: 1 / 1
+        - button "Próxima" [disabled] [ref=e74]

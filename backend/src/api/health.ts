@@ -12,8 +12,7 @@ export function criarHealthRouter(): Router {
         sucesso: true,
         dados: {
           status: 'ok',
-          timestamp: new Date().toISOString(),
-          projectRoot: process.cwd()
+          timestamp: new Date().toISOString()
         }
       });
     }

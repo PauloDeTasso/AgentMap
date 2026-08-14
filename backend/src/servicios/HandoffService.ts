@@ -180,3 +180,4 @@ export class HandoffService {
     return { sucesso: true, dados: true };
   }
 }
+

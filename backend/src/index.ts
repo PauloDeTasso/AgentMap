@@ -32,11 +32,4 @@ if (projetoResult.sucesso && projetoResult.dados) {
   wsServer.iniciar(server);
 } else {
   console.log('[WebSocket] Nenhum projeto aberto — WebSocket iniciado sem monitoramento');
-  const validator = new SchemaValidator(esquemasPath);
-  const fileService = new (require('./arquivos/FileService').FileService)(process.cwd());
-  const auditoria = new (require('./servicios/AuditoriaService').AuditoriaService)(fileService, validator);
-  const dispatcher = new KiloDispatcherService(fileService, auditoria, validator);
-  const monitoramento = new MonitoramentoService(fileService, auditoria, validator, dispatcher);
-  const wsServer = new MonitoramentoWebSocket(monitoramento);
-  wsServer.iniciar(server);
 }

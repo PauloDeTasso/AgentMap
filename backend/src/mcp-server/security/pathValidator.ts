@@ -23,7 +23,7 @@ export const DEFAULT_OUTPUT_LIMITS = {
 
 export const DEFAULT_PATH_VALIDATOR_OPTIONS: PathValidatorOptions = {
   allowlist: [],
-  allowHidden: true,
+  allowHidden: false,
   denylist: [],
 };
 

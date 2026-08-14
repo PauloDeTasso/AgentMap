@@ -12,7 +12,7 @@ mcpServer.registerTool(
     inputSchema: SchemaObterContextoTarefa,
   },
   async (args: any) => {
-    const tarefaId = String((args && (args as any).tarefaId) || '');
+    const tarefaId = String((args && (args as any).id) || '');
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
@@ -23,7 +23,7 @@ mcpServer.registerTool(
     const auditoria = createMcpAuditoria(projeto.auditoria);
 
     const resultado = await servicos.tarefa.montarContexto(tarefaId || '');
-    auditoria.registrarToolCall('agentmap_obter_contexto_tarefa', projeto, { tarefaId }, resultado);
+    auditoria.registrarToolCall('agentmap_obter_contexto_tarefa', projeto, { id: tarefaId }, resultado);
 
     return toMcpResult(resultado);
   }

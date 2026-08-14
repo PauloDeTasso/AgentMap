@@ -13,7 +13,7 @@ mcpServer.registerTool(
     inputSchema: SchemaObterAgente,
   },
   async (args) => {
-    const { agenteId } = args as any;
+    const { id } = args as { id: string };
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
       return toMcpResult(ctx);
@@ -22,8 +22,8 @@ mcpServer.registerTool(
     const { projeto, servicos } = ctx.dados;
     const auditoria = createMcpAuditoria(projeto.auditoria);
 
-    const resultado = await servicos.agente.obter(String((agenteId as any) || ''));
-    auditoria.registrarToolCall('agentmap_obter_agente', projeto, { agenteId }, resultado);
+    const resultado = await servicos.agente.obter(String(id || ''));
+    auditoria.registrarToolCall('agentmap_obter_agente', projeto, { id }, resultado);
 
     if (!resultado.sucesso || !resultado.dados) {
       return toMcpResult(resultado);
