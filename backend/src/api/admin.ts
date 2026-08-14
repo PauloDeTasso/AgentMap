@@ -149,24 +149,6 @@ export function criarAdminRouter(): Router {
     }
   }));
 
-  router.get('/broadcast', asyncHandler(async (req: Request, res: Response) => {
-    const mensagem = req.query.mensagem;
-    if (!mensagem || typeof mensagem !== 'string') {
-      return responder(res, { sucesso: false, erro: 'mensagem é obrigatória', codigoErro: 'MISSING_FIELDS' }, 400);
-    }
-    const auditoria = (req as any).servicos?.auditoria;
-    if (auditoria) {
-      auditoria.registrar('BROADCAST_ANUNCIO', String(mensagem), { origem: 'agentmap-admin' });
-    }
-    return responder(res, {
-      sucesso: true,
-      dados: {
-        mensagem,
-        timestamp: new Date().toISOString()
-      }
-    });
-  }));
-
   router.get('/outbox', asyncHandler(async (req: Request, res: Response) => {
     const dispatcher = (req as any).servicos?.kiloDispatcher;
     if (!dispatcher) {

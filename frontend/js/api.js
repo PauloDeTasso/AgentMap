@@ -3,18 +3,45 @@ const API_BASE = '/api';
 class ApiClient {
   constructor() {
     this.cache = new Map();
+    this.apiKey = null;
+    this.initPromise = this.loadApiKey();
+  }
+
+  async loadApiKey() {
+    try {
+      const res = await fetch('/api/auth/key');
+      if (res.ok) {
+        const data = await res.json();
+        this.apiKey = data.dados?.apiKey || null;
+      }
+    } catch {
+      this.apiKey = null;
+    }
   }
 
   async request(endpoint, options = {}) {
+    await this.initPromise;
     const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(this.apiKey ? { 'X-API-Key': this.apiKey } : {}),
+      ...options.headers
+    };
     const opts = {
-      headers: { 'Content-Type': 'application/json', ...options.headers },
+      headers,
       ...options
     };
+    const cacheKey = options.method && options.method !== 'GET' ? null : `${options.method || 'GET'}:${url}`;
+    if (cacheKey && this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
     const res = await fetch(url, opts);
     const data = await res.json().catch(() => null);
     if (!res.ok) {
-      throw { status: res.status, ...data };
+      throw { status: res.status, ...(data || {}) };
+    }
+    if (cacheKey) {
+      this.cache.set(cacheKey, data);
     }
     return data;
   }
@@ -64,7 +91,6 @@ class ApiClient {
   }
 
   async getConfiguracao(projetoId = null) {
-    const endpoint = projetoId ? `/projetos/${projetoId}/configuracao` : '/projetos/atual';
     if (projetoId) return this.request(`/projetos/${projetoId}/configuracao`);
     const res = await this.request('/projetos/atual');
     if (!res.sucesso || !res.dados) return res;

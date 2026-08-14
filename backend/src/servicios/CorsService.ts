@@ -24,8 +24,8 @@ export class CorsService {
   getMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
       const origin = req.headers.origin;
-      if (!origin || this.config.origins.includes(origin) || process.env.NODE_ENV === 'test') {
-        res.header('Access-Control-Allow-Origin', origin || '*');
+      if (origin && this.config.origins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
         res.header('Access-Control-Allow-Methods', this.config.methods.join(', '));
         res.header('Access-Control-Allow-Headers', this.config.allowedHeaders.join(', '));
         res.header('Access-Control-Allow-Credentials', String(this.config.credentials));
@@ -47,3 +47,4 @@ export class CorsService {
 }
 
 export const corsService = new CorsService();
+

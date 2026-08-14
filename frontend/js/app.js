@@ -7,6 +7,50 @@ function joinPath(...parts) {
   }).join('/').replace(/\\/g, '/');
 }
 
+function escapeHtml(text) {
+  if (text == null) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+
+function escapeAttr(text) {
+  if (text == null) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function sanitizePath(path) {
+  if (!path || typeof path !== 'string') return '';
+  const trimmed = path.trim().replace(/\\/g, '/');
+  if (trimmed.includes('..') || trimmed.startsWith('/') || trimmed.startsWith('\\')) return '';
+  return trimmed;
+}
+
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+function formatDate(isoString) {
+  if (!isoString) return '-';
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return isoString;
+  const tz = estado.projetoAtual?.config?.fusoHorario || 'UTC';
+  try {
+    return date.toLocaleString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch {
+    return date.toLocaleString('pt-BR');
+  }
+}
+
 let estado = {
   projetoAtual: null,
   agentes: [],
@@ -14,7 +58,6 @@ let estado = {
   arquivos: [],
   settings: null,
   opcoesAgente: { diretorios: [], contratos: [], ambientes: [] },
-  fileServiceCache: new Map(),
   solicitacoes: [],
   filtroAgenteSolicitacoes: { agenteId: null, tipo: 'todos' },
 };
@@ -25,6 +68,78 @@ function $(id) { return document.getElementById(id); }
 
 function showModal(id) { $(id).style.display = 'flex'; }
 function hideModal(id) { $(id).style.display = 'none'; }
+
+function setButtonLoading(btn, loading) {
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.dataset.originalText = btn.textContent;
+  btn.textContent = loading ? 'Salvando...' : (btn.dataset.originalText || btn.textContent);
+}
+
+function restoreButton(btn) {
+  if (!btn) return;
+  btn.disabled = false;
+  if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText;
+}
+
+function setupModalAria() {
+  document.querySelectorAll('.modal').forEach((modal, index) => {
+    if (!modal.hasAttribute('role')) {
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      const titulo = modal.querySelector('.modal__titulo');
+      if (titulo) {
+        modal.setAttribute('aria-labelledby', titulo.id || `modal-titulo-${index}`);
+        if (!titulo.id) titulo.id = `modal-titulo-${index}`;
+      }
+    }
+  });
+}
+
+function showConfirmModal(title, fields, onConfirm) {
+  const titulo = $('confirmacao-titulo');
+  const corpo = $('confirmacao-corpo');
+  const btnOk = $('confirmacao-btn-ok');
+  titulo.textContent = title;
+  corpo.innerHTML = '';
+  const inputs = {};
+  for (const [key, config] of Object.entries(fields)) {
+    const grupo = document.createElement('div');
+    grupo.className = 'form__grupo';
+    const label = document.createElement('label');
+    label.className = 'form__label';
+    label.textContent = config.label;
+    grupo.appendChild(label);
+    const input = document.createElement('input');
+    input.className = 'form__input';
+    if (config.type === 'textarea') {
+      const ta = document.createElement('textarea');
+      ta.className = 'form__textarea';
+      ta.rows = config.rows || 2;
+      ta.value = config.value || '';
+      grupo.appendChild(ta);
+      inputs[key] = ta;
+    } else {
+      input.type = config.type || 'text';
+      input.value = config.value || '';
+      if (config.placeholder) input.placeholder = config.placeholder;
+      grupo.appendChild(input);
+      inputs[key] = input;
+    }
+    corpo.appendChild(grupo);
+  }
+  const newBtnOk = btnOk.cloneNode(true);
+  btnOk.parentNode.replaceChild(newBtnOk, btnOk);
+  newBtnOk.addEventListener('click', async () => {
+    const data = {};
+    for (const [key, el] of Object.entries(inputs)) {
+      data[key] = el.value;
+    }
+    hideModal('modal-confirmacao');
+    await onConfirm(data);
+  });
+  showModal('modal-confirmacao');
+}
 
 async function fetchGuide() {
   try {
@@ -154,6 +269,7 @@ async function init() {
   await renderizarTelaInicial();
   console.log('[init] tela inicial renderizada');
   setupEventListeners();
+  setupModalAria();
 }
 
 async function carregarSettings() {
@@ -208,12 +324,12 @@ async function renderizarTelaInicial() {
   if (projetosEncontrados.length > 0) {
     html += `<div style="margin-top:16px;"><h3 style="margin:0 0 8px 0;">${projetosEncontrados.length} projeto(s) encontrado(s) em ${dir}</h3><div style="display:flex;flex-direction:column;gap:8px;">`;
     for (const p of projetosEncontrados) {
-      const descricaoHtml = p.descricao ? `<br><small style="color:var(--text-muted);">${p.descricao}</small>` : '';
-      const caminhoEscapado = p.caminho.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      console.log('[renderizarTelaInicial] projeto:', p.nome, '| caminho=', p.caminho, '| escapado=', caminhoEscapado);
+      const descricaoHtml = p.descricao ? `<br><small style="color:var(--text-muted);">${escapeHtml(p.descricao)}</small>` : '';
+      const caminhoAttr = escapeAttr(p.caminho);
+      console.log('[renderizarTelaInicial] projeto:', p.nome, '| caminho=', p.caminho, '| attr=', caminhoAttr);
       html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);">
-        <div><strong>${p.nome}</strong>${descricaoHtml}<br><small style="color:var(--text-muted);">${p.caminho}</small></div>
-        <button class="btn btn--primario" onclick="abrirProjetoPasta('${caminhoEscapado}')">Abrir</button>
+        <div><strong>${escapeHtml(p.nome)}</strong>${descricaoHtml}<br><small style="color:var(--text-muted);">${escapeHtml(p.caminho)}</small></div>
+        <button class="btn btn--primario" onclick="abrirProjetoPasta('${caminhoAttr}')">Abrir</button>
       </div>`;
     }
     html += `</div></div>`;
@@ -347,6 +463,8 @@ function setupEventListeners() {
 
   $('form-configuracao').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = e.submitter || $('form-configuracao').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
     const body = {
       diretorioProjetosDefault: $('config-diretorio-padrao').value.trim(),
       idioma: $('config-idioma').value,
@@ -364,15 +482,19 @@ function setupEventListeners() {
       }
     } catch (err) {
       showToast(err?.erro || 'Erro ao salvar configurações', 'erro');
+    } finally {
+      restoreButton(btn);
     }
   });
 
   $('form-novo-projeto').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btn = e.submitter || $('form-novo-projeto').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
     const nome = $('nome-projeto').value.trim();
     const caminhoParental = $('caminho-parental').value.trim();
     const descricao = $('descricao-projeto').value.trim();
-    if (!nome || !caminhoParental) return;
+    if (!nome || !caminhoParental) { restoreButton(btn); return; }
     const editId = $('form-novo-projeto').dataset.editId;
     try {
       let res;
@@ -431,13 +553,17 @@ function setupEventListeners() {
       }
     } catch (err) {
       showToast(err?.erro || 'Erro ao criar projeto', 'erro');
+    } finally {
+      restoreButton(btn);
     }
   });
 
   $('form-abrir-projeto').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const caminho = $('caminho-abrir').value.trim();
-    if (!caminho) return;
+    const btn = e.submitter || $('form-abrir-projeto').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const caminho = sanitizePath($('caminho-abrir').value);
+    if (!caminho) { showToast('Caminho inválido', 'erro'); restoreButton(btn); return; }
     try {
       const res = await api.abrirProjeto(caminho, caminho);
       if (res.sucesso) {
@@ -451,6 +577,8 @@ function setupEventListeners() {
       }
     } catch (err) {
       showToast(err?.erro || 'Erro ao abrir projeto', 'erro');
+    } finally {
+      restoreButton(btn);
     }
   });
 
@@ -479,6 +607,20 @@ function setupEventListeners() {
 
   $('btn-salvar-arquivo').addEventListener('click', salvarArquivo);
   $('btn-confirmar-salvar').addEventListener('click', salvarArquivo);
+
+  const filtroAgenteId = $('filtro-agente-id');
+  const filtroAgenteTipo = $('filtro-agente-tipo');
+  if (filtroAgenteId && filtroAgenteTipo) {
+    const aplicarFiltroSolicitacoes = debounce(() => {
+      estado.filtroAgenteSolicitacoes = {
+        agenteId: filtroAgenteId.value || null,
+        tipo: filtroAgenteTipo.value
+      };
+      renderizarSolicitacoes($('painel-atividade'));
+    }, 300);
+    filtroAgenteId.addEventListener('input', aplicarFiltroSolicitacoes);
+    filtroAgenteTipo.addEventListener('change', aplicarFiltroSolicitacoes);
+  }
 }
 
 function renderizarDashboard() {
@@ -577,7 +719,7 @@ async function carregarPainel(painel) {
 async function renderizarProjetos(el) {
   try {
     const res = await api.listarProjetos();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const projetos = res.dados;
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Projetos (${projetos.length})</h3>
@@ -593,18 +735,18 @@ async function renderizarProjetos(el) {
       const caminho = p.caminhoRaiz || p.caminho || '';
       const isAtual = estado.projetoAtual?.id === p.id;
       const badge = isAtual ? ' <span class="badge badge--ativo">ATUAL</span>' : '';
-      tr.innerHTML = `<td>${p.nome || ''}${badge}</td><td>${caminho}</td>
+      tr.innerHTML = `<td>${escapeHtml(p.nome || '')}${badge}</td><td>${escapeHtml(caminho)}</td>
         <td>
-          <button class="btn btn--small" onclick="verProjeto('${p.id}')">Ver</button>
-          <button class="btn btn--small" onclick="abrirProjeto('${p.id}')">Abrir</button>
-          <button class="btn btn--small" onclick="editarProjeto('${p.id}')">Editar</button>
-          <button class="btn btn--small btn--danger" onclick="excluirProjeto('${p.id}', '${(p.nome || '').replace(/'/g, "\\'")}')">Excluir</button>
+          <button class="btn btn--small" onclick="verProjeto('${escapeAttr(p.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="abrirProjeto('${escapeAttr(p.id)}')">Abrir</button>
+          <button class="btn btn--small" onclick="editarProjeto('${escapeAttr(p.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>
         </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
@@ -659,27 +801,27 @@ window.verProjeto = async function(id) {
     if (isAtual && estado.projetoAtual?.config) {
       const cfg = estado.projetoAtual.config;
       configHtml = `
-        <p><strong>Ambiente:</strong> ${cfg.ambiente || 'N/A'}</p>
-        <p><strong>Versão:</strong> ${cfg.versao || 'N/A'}</p>
-        <p><strong>Idioma:</strong> ${cfg.idioma || 'N/A'}</p>
-        <p><strong>Fuso Horário:</strong> ${cfg.fusoHorario || 'N/A'}</p>
-        <p><strong>Proprietário:</strong> ${cfg.proprietario?.nome || 'N/A'} (${cfg.proprietario?.tipo || 'humano'})</p>
-        <p><strong>Objetivos:</strong></p><ul>${(cfg.objetivos || []).map(o => `<li>${o}</li>`).join('') || '<li>N/A</li>'}</ul>
-        <p><strong>Escopo Incluído:</strong></p><ul>${(cfg.escopo?.incluso || []).map(e => `<li>${e}</li>`).join('') || '<li>N/A</li>'}</ul>
-        <p><strong>Escopo Excluído:</strong></p><ul>${(cfg.escopo?.excluido || []).map(e => `<li>${e}</li>`).join('') || '<li>N/A</li>'}</ul>`;
+        <p><strong>Ambiente:</strong> ${escapeHtml(cfg.ambiente || 'N/A')}</p>
+        <p><strong>Versão:</strong> ${escapeHtml(cfg.versao || 'N/A')}</p>
+        <p><strong>Idioma:</strong> ${escapeHtml(cfg.idioma || 'N/A')}</p>
+        <p><strong>Fuso Horário:</strong> ${escapeHtml(cfg.fusoHorario || 'N/A')}</p>
+        <p><strong>Proprietário:</strong> ${escapeHtml(cfg.proprietario?.nome || 'N/A')} (${escapeHtml(cfg.proprietario?.tipo || 'humano')})</p>
+        <p><strong>Objetivos:</strong></p><ul>${(cfg.objetivos || []).map(o => `<li>${escapeHtml(o)}</li>`).join('') || '<li>N/A</li>'}</ul>
+        <p><strong>Escopo Incluído:</strong></p><ul>${(cfg.escopo?.incluso || []).map(e => `<li>${escapeHtml(e)}</li>`).join('') || '<li>N/A</li>'}</ul>
+        <p><strong>Escopo Excluído:</strong></p><ul>${(cfg.escopo?.excluido || []).map(e => `<li>${escapeHtml(e)}</li>`).join('') || '<li>N/A</li>'}</ul>`;
     }
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;">${proj.nome} ${isAtual ? '<span class="badge badge--ativo">ATUAL</span>' : ''}</h3>
+      <h3 style="margin:0;">${escapeHtml(proj.nome)} ${isAtual ? '<span class="badge badge--ativo">ATUAL</span>' : ''}</h3>
       <div>
-        <button class="btn btn--small" onclick="abrirProjeto('${proj.id}')">Abrir</button>
-        <button class="btn btn--small" onclick="editarProjeto('${proj.id}')">Editar</button>
-        <button class="btn btn--small btn--danger" onclick="excluirProjeto('${proj.id}', '${(proj.nome || '').replace(/'/g, "\\'")}')">Excluir</button>
+        <button class="btn btn--small" onclick="abrirProjeto('${escapeAttr(proj.id)}')">Abrir</button>
+        <button class="btn btn--small" onclick="editarProjeto('${escapeAttr(proj.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(proj.id)}', '${escapeAttr((proj.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>
       </div>
     </div>`;
-    el.innerHTML += `<p><strong>ID:</strong> ${proj.id}</p>
-      <p><strong>Caminho:</strong> ${caminho}<button class="btn btn--small btn--ghost" style="margin-left:8px" data-path="${caminho}" onclick="abrirPastaExplorer(this.getAttribute('data-path'))">📂 Explorar</button></p>
+    el.innerHTML += `<p><strong>ID:</strong> ${escapeHtml(proj.id)}</p>
+      <p><strong>Caminho:</strong> ${escapeHtml(caminho)}<button class="btn btn--small btn--ghost" style="margin-left:8px" data-path="${escapeAttr(caminho)}" onclick="abrirPastaExplorer(this.getAttribute('data-path'))">📂 Explorar</button></p>
       <p><strong>Ativo:</strong> ${proj.ativo ? '✓' : ''}</p>
-      <p><strong>Última abertura:</strong> ${proj.ultimaAbertura || 'nunca'}</p>`;
+      <p><strong>Última abertura:</strong> ${escapeHtml(proj.ultimaAbertura || 'nunca')}</p>`;
     el.innerHTML += configHtml;
     console.log('[verProjeto] project found:', proj.id, '| caminhoRaiz=' + proj.caminhoRaiz, '| caminho passed to Explorer=' + caminho);
     if (!caminho || !proj.caminhoRaiz) {
@@ -756,7 +898,7 @@ async function renderizarAgentes(el) {
   try {
     const res = await api.getAgentes();
     console.log('[renderizarAgentes] resposta API:', JSON.stringify({ sucesso: res.sucesso, dadosLength: res.dados?.length, isArray: Array.isArray(res.dados) }));
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const agentes = Array.isArray(res.dados) ? res.dados : res.dados?.agentes || [];
     if (agentes.length === 0) {
       el.innerHTML = '<p class="painel-vazio">Nenhum agente cadastrado.</p><button class="btn btn--primario" style="margin-top:12px" onclick="abrirModalAgente()">+ Novo Agente</button>';
@@ -772,25 +914,25 @@ async function renderizarAgentes(el) {
     const tbody = table.querySelector('tbody');
     for (const a of agentes) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${a.nome}</td><td>${a.funcao}</td><td><span class="badge badge--${a.estado === 'ativo' ? 'ativo' : 'inativo'}">${a.estado}</span></td>
+      tr.innerHTML = `<td>${escapeHtml(a.nome)}</td><td>${escapeHtml(a.funcao)}</td><td><span class="badge badge--${a.estado === 'ativo' ? 'ativo' : 'inativo'}">${escapeHtml(a.estado)}</span></td>
         <td>
-          <button class="btn btn--small" onclick="abrirAgente('${a.id}')">Ver Perfil</button>
-          <button class="btn btn--small" onclick="editarAgente('${a.id}')">Editar</button>
-          <button class="btn btn--small btn--info" onclick="gerarPromptAgente('${a.id}')">Prompt</button>
-          <button class="btn btn--small btn--danger" onclick="excluirAgente('${a.id}')">Excluir</button>
+          <button class="btn btn--small" onclick="abrirAgente('${escapeAttr(a.id)}')">Ver Perfil</button>
+          <button class="btn btn--small" onclick="editarAgente('${escapeAttr(a.id)}')">Editar</button>
+          <button class="btn btn--small btn--info" onclick="gerarPromptAgente('${escapeAttr(a.id)}')">Prompt</button>
+          <button class="btn btn--small btn--danger" onclick="excluirAgente('${escapeAttr(a.id)}')">Excluir</button>
         </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarTarefas(el) {
   try {
     const res = await api.getTarefas();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const tarefas = res.dados;
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Tarefas (${tarefas.length})</h3>
@@ -806,26 +948,26 @@ async function renderizarTarefas(el) {
     const tbody = table.querySelector('tbody');
     for (const t of tarefas) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${t.id}</td><td>${t.titulo}</td><td><span class="badge badge--${t.estado}">${t.estado}</span></td><td>${t.prioridade}</td><td>${t.agenteResponsavel}</td>
+      tr.innerHTML = `<td>${escapeHtml(t.id)}</td><td>${escapeHtml(t.titulo)}</td><td><span class="badge badge--${t.estado}">${escapeHtml(t.estado)}</span></td><td>${escapeHtml(t.prioridade)}</td><td>${escapeHtml(t.agenteResponsavel)}</td>
         <td>
-          <button class="btn btn--small" onclick="verTarefa('${t.id}')">Ver</button>
-          <button class="btn btn--small" onclick="editarTarefa('${t.id}')">Editar</button>
-          <button class="btn btn--small btn--info" onclick="gerarPromptTarefa('${t.id}')">Prompt</button>
-          <button class="btn btn--small" onclick="verContexto('${t.id}')">Contexto</button>
-          <button class="btn btn--small btn--danger" onclick="excluirTarefa('${t.id}')">Excluir</button>
+          <button class="btn btn--small" onclick="verTarefa('${escapeAttr(t.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarTarefa('${escapeAttr(t.id)}')">Editar</button>
+          <button class="btn btn--small btn--info" onclick="gerarPromptTarefa('${escapeAttr(t.id)}')">Prompt</button>
+          <button class="btn btn--small" onclick="verContexto('${escapeAttr(t.id)}')">Contexto</button>
+          <button class="btn btn--small btn--danger" onclick="excluirTarefa('${escapeAttr(t.id)}')">Excluir</button>
         </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarContratos(el) {
   try {
     const res = await api.getContratos();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const contratos = res.dados.contratos || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Contratos (${contratos.length})</h3>
@@ -838,24 +980,24 @@ async function renderizarContratos(el) {
     const tbody = table.querySelector('tbody');
     for (const c of contratos) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.id}</td><td>${c.nome}</td><td>${c.versao}</td><td>${c.estado}</td><td>${c.obrigatorio ? '✓' : ''}</td>
+      tr.innerHTML = `<td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.nome)}</td><td>${escapeHtml(c.versao)}</td><td>${escapeHtml(c.estado)}</td><td>${c.obrigatorio ? '✓' : ''}</td>
         <td>
-          <button class="btn btn--small" onclick="verContrato('${c.id}')">Ver</button>
-          <button class="btn btn--small" onclick="editarContrato('${c.id}')">Editar</button>
-          <button class="btn btn--small btn--danger" onclick="excluirContrato('${c.id}')">Excluir</button>
+          <button class="btn btn--small" onclick="verContrato('${escapeAttr(c.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarContrato('${escapeAttr(c.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirContrato('${escapeAttr(c.id)}')">Excluir</button>
         </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarSolicitacoes(el) {
   try {
     const res = await api.getSolicitacoes();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const todas = Array.isArray(res.dados) ? res.dados : [];
     estado.solicitacoes = todas;
     let solicitacoes = todas;
@@ -875,8 +1017,8 @@ async function renderizarSolicitacoes(el) {
       <button class="btn btn--small btn--primario" onclick="abrirModalSolicitacao()">+ Nova Solicitação</button>
     </div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;padding:8px;background:#1a1a2e;border-radius:6px;">
-      <input class="form__input" type="text" id="filtro-agente-id" placeholder="ID do agente (ex: AGENTE-01)" style="max-width:200px;" value="${estado.filtroAgenteSolicitacoes?.agenteId || ''}" oninput="estado.filtroAgenteSolicitacoes={agenteId:this.value||null,tipo:estado.filtroAgenteSolicitacoes?.tipo||'todos'}" />
-      <select class="form__input" id="filtro-agente-tipo" style="max-width:160px;" onchange="estado.filtroAgenteSolicitacoes={agenteId:document.getElementById('filtro-agente-id').value||null,tipo:this.value}; renderizarSolicitacoes($('painel-atividade'))">
+      <input class="form__input" type="text" id="filtro-agente-id" placeholder="ID do agente (ex: AGENTE-01)" style="max-width:200px;" value="${escapeAttr(estado.filtroAgenteSolicitacoes?.agenteId || '')}" />
+      <select class="form__input" id="filtro-agente-tipo" style="max-width:160px;">
         <option value="todos" ${!estado.filtroAgenteSolicitacoes?.tipo || estado.filtroAgenteSolicitacoes?.tipo === 'todos' ? 'selected' : ''}>Todas</option>
         <option value="solicitante" ${estado.filtroAgenteSolicitacoes?.tipo === 'solicitante' ? 'selected' : ''}>Sou o Solicitante</option>
         <option value="responsavel" ${estado.filtroAgenteSolicitacoes?.tipo === 'responsavel' ? 'selected' : ''}>Sou o Responsável</option>
@@ -895,17 +1037,17 @@ async function renderizarSolicitacoes(el) {
     for (const s of solicitacoes) {
       const tr = document.createElement('tr');
       const badgeClass = s.prioridade === 'CRITICA' ? 'critico' : s.prioridade === 'ALTA' ? 'alerta' : s.prioridade === 'BAIXA' ? 'inativo' : 'ativo';
-      tr.innerHTML = `<td>${s.id}</td><td>${s.titulo}</td><td>${s.agenteSolicitante.id}</td><td>${s.agenteResponsavel.id || '-'}</td><td><span class="badge badge--${badgeClass}">${s.prioridade}</span></td><td><span class="badge badge--${badgeStatus(s.status)}">${s.status}</span></td><td>${s.aprovacao.status}</td>
+      tr.innerHTML = `<td>${escapeHtml(s.id)}</td><td>${escapeHtml(s.titulo)}</td><td>${escapeHtml(s.agenteSolicitante.id)}</td><td>${escapeHtml(s.agenteResponsavel.id || '-')}</td><td><span class="badge badge--${badgeClass}">${escapeHtml(s.prioridade)}</span></td><td><span class="badge badge--${badgeStatus(s.status)}">${escapeHtml(s.status)}</span></td><td>${escapeHtml(s.aprovacao.status)}</td>
         <td>
-          <button class="btn btn--small" onclick="verSolicitacao('${s.id}')">Ver</button>
-          <button class="btn btn--small" onclick="editarSolicitacao('${s.id}')">Editar</button>
-          ${s.status !== 'PENDENTE' ? '<button class="btn btn--small btn--danger" onclick="excluirSolicitacao(\'' + s.id + '\')">Excluir</button>' : ''}
+          <button class="btn btn--small" onclick="verSolicitacao('${escapeAttr(s.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarSolicitacao('${escapeAttr(s.id)}')">Editar</button>
+          ${s.status !== 'PENDENTE' ? '<button class="btn btn--small btn--danger" onclick="excluirSolicitacao(\'' + escapeAttr(s.id) + '\')">Excluir</button>' : ''}
         </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
@@ -915,7 +1057,7 @@ let pastaAtual = '.';
 async function renderizarArquivos(el) {
   try {
     const res = await api.listarArquivos(pastaAtual);
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     el.innerHTML = `<div style="margin-bottom:12px;">
       <div class="painel-lateral__titulo">Navegação de Arquivos</div>
       <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
@@ -929,49 +1071,48 @@ async function renderizarArquivos(el) {
     for (const f of res.dados) {
       const li = document.createElement('li');
       li.className = `file-list__item file-list__item--${f.tipo}`;
-      li.innerHTML = `<span class="file-list__nome">${f.nome}${f.tipo === 'diretorio' ? '/' : ''}</span><span class="file-list__tamanho">${f.tipo === 'arquivo' ? f.tamanho + ' B' : ''}</span>`;
+      li.innerHTML = `<span class="file-list__nome">${escapeHtml(f.nome)}${f.tipo === 'diretorio' ? '/' : ''}</span><span class="file-list__tamanho">${f.tipo === 'arquivo' ? f.tamanho + ' B' : ''}</span>`;
       if (f.tipo === 'diretorio') {
-        li.innerHTML += `<button class="btn btn--small" onclick="abrirPasta('${f.caminho}')">Abrir</button>`;
+        li.innerHTML += `<button class="btn btn--small" onclick="abrirPasta('${escapeAttr(f.caminho)}')">Abrir</button>`;
       }
       if (f.tipo === 'arquivo' && (f.extensao === 'json' || f.extensao === 'md' || f.extensao === 'txt')) {
-        li.innerHTML += `<button class="btn btn--small" onclick="editarArquivo('${f.caminho}')">Editar</button>`;
+        li.innerHTML += `<button class="btn btn--small" onclick="editarArquivo('${escapeAttr(f.caminho)}')">Editar</button>`;
       }
       if (f.tipo === 'arquivo') {
-        li.innerHTML += `<button class="btn btn--small btn--danger" onclick="excluirArquivo('${f.caminho}')">Excluir</button>`;
+        li.innerHTML += `<button class="btn btn--small btn--danger" onclick="excluirArquivo('${escapeAttr(f.caminho)}')">Excluir</button>`;
       }
       el.querySelector('ul').appendChild(li);
     }
-    el.querySelector('ul').innerHTML += '</ul>';
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarEstado(el) {
   try {
     const res = await api.getEstado();
-    if (!res.sucesso || !res.dados) { el.innerHTML = `<p class="painel-vazio">${res.erro || 'Nenhum estado'}</p>`; return; }
+    if (!res.sucesso || !res.dados) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro || 'Nenhum estado')}</p>`; return; }
     const e = res.dados;
     el.innerHTML = `<h3>Estado do Projeto</h3>
-      <p><strong>Projeto:</strong> ${e.projetoId || e.nome || ''}</p>
-      <p><strong>Estado:</strong> ${e.estado || ''}</p>
-      <p><strong>Fase:</strong> ${e.fase || ''}</p>
-      <p><strong>Versão:</strong> ${e.versao || ''}</p>
+      <p><strong>Projeto:</strong> ${escapeHtml(e.projetoId || e.nome || '')}</p>
+      <p><strong>Estado:</strong> ${escapeHtml(e.estado || '')}</p>
+      <p><strong>Fase:</strong> ${escapeHtml(e.fase || '')}</p>
+      <p><strong>Versão:</strong> ${escapeHtml(e.versao || '')}</p>
       <p><strong>Agentes ativos:</strong> ${e.agentesAtivos}</p>
       <p><strong>Tarefas ativas:</strong> ${e.tarefasAtivas}</p>
       <p><strong>Tarefas bloqueadas:</strong> ${e.tarefasBloqueadas}</p>
       <p><strong>Testes:</strong> ${e.testes?.aprovados}/${e.testes?.total} aprovados</p>
       <p><strong>Qualidade:</strong> ${e.qualidade?.percentual}% (${e.qualidade?.pendenciasCriticas} críticas)</p>
-      <p><strong>Segurança:</strong> ${e.seguranca?.estado} (${e.seguranca?.riscosCriticos} críticos, ${e.seguranca?.riscosAltos} altos)</p>`;
+      <p><strong>Segurança:</strong> ${escapeHtml(e.seguranca?.estado || '')} (${e.seguranca?.riscosCriticos} críticos, ${e.seguranca?.riscosAltos} altos)</p>`;
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarAuditoria(el) {
   try {
     const res = await api.getAuditoria();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const eventos = res.dados;
     el.innerHTML = `<h3>Auditoria (${eventos.length} eventos)</h3>`;
     if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado.</p>'; return; }
@@ -981,21 +1122,21 @@ async function renderizarAuditoria(el) {
     const tbody = table.querySelector('tbody');
     for (const ev of eventos) {
       const tr = document.createElement('tr');
-      const data = new Date(ev.data).toLocaleString('pt-BR');
+      const data = formatDate(ev.data);
       const cls = ev.resultado === 'sucesso' ? 'badge--ativo' : ev.resultado === 'falha' ? 'badge--bloqueada' : 'badge--inativo';
-      tr.innerHTML = `<td>${data}</td><td>${ev.tipo}</td><td>${ev.descricao}</td><td><span class="badge ${cls}">${ev.resultado}</span></td>`;
+      tr.innerHTML = `<td>${escapeHtml(data)}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td><span class="badge ${cls}">${escapeHtml(ev.resultado)}</span></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-       el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+     el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarDashboardCoordenacao(el) {
   try {
     const res = await api.getEstadoProjeto();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const e = res.dados;
     el.innerHTML = `<h3>📊 Estado do Projeto</h3>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
@@ -1014,16 +1155,16 @@ async function renderizarDashboardCoordenacao(el) {
         <div class="card" style="grid-column:1/-1;"><h4>🔗 Relacionamentos</h4><p>${(e.tarefas.total + e.solicitacoes.total + e.artefatos.total + e.handoffs.total + e.bloqueios + e.conflitos.total + e.riscos.total + e.validacoes.total + e.reservas.total + e.checkpoints.total + e.sessoes.total + e.aprendizados.total)} entidades com vínculos ativos</p></div>
       </div>`;
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarMonitor(el) {
   try {
     const res = await api.getMonitor();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro || 'Nenhum dado'}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro || 'Nenhum dado')}</p>`; return; }
     const m = res.dados;
-    const dataAtualizacao = new Date(m.timestamp).toLocaleString('pt-BR');
+    const dataAtualizacao = formatDate(m.timestamp);
 
     let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <h3 style="margin:0;">📡 Monitor em Tempo Real</h3>
@@ -1037,9 +1178,9 @@ async function renderizarMonitor(el) {
           <thead><tr><th>Agente</th><th>Tarefa</th><th>Sessão</th><th>Início</th></tr></thead>
           <tbody>`;
       for (const s of m.sessoesAtivas) {
-        const inicio = s.inicio ? new Date(s.inicio).toLocaleString('pt-BR') : '-';
+        const inicio = s.inicio ? formatDate(s.inicio) : '-';
         const tarefa = s.tarefaTitulo || s.tarefaId || '-';
-        html += `<tr><td><strong>${s.agenteNome || s.agenteId}</strong></td><td>${tarefa}</td><td>${s.id}</td><td>${inicio}</td></tr>`;
+        html += `<tr><td><strong>${escapeHtml(s.agenteNome || s.agenteId)}</strong></td><td>${escapeHtml(tarefa)}</td><td>${escapeHtml(s.id)}</td><td>${escapeHtml(inicio)}</td></tr>`;
       }
       html += `</tbody></table></div>`;
     } else {
@@ -1066,7 +1207,7 @@ async function renderizarMonitor(el) {
         html += `<h5 style="margin-top:12px;">Transferências Pendentes</h5>
           <table class="table"><thead><tr><th>ID</th><th>Origem</th><th>Destino</th><th>Tarefa</th><th>Resumo</th></tr></thead><tbody>`;
         for (const h of m.alertas.detalhes.handoffs) {
-          html += `<tr><td>${h.id}</td><td>${h.origem}</td><td>${h.destino}</td><td>${h.tarefaId || '-'}</td><td>${h.resumo || ''}</td></tr>`;
+          html += `<tr><td>${escapeHtml(h.id)}</td><td>${escapeHtml(h.origem)}</td><td>${escapeHtml(h.destino)}</td><td>${escapeHtml(h.tarefaId || '-')}</td><td>${escapeHtml(h.resumo || '')}</td></tr>`;
         }
         html += `</tbody></table>`;
       }
@@ -1075,7 +1216,7 @@ async function renderizarMonitor(el) {
         html += `<h5 style="margin-top:12px;">Bloqueios Ativos</h5>
           <table class="table"><thead><tr><th>ID</th><th>Tarefa</th><th>Tipo</th><th>Gravidade</th><th>Descrição</th></tr></thead><tbody>`;
         for (const b of m.alertas.detalhes.bloqueios) {
-          html += `<tr><td>${b.id}</td><td>${b.tarefaId}</td><td>${b.tipo}</td><td><span class="badge badge--bloqueada">${b.gravidade}</span></td><td>${b.descricao || ''}</td></tr>`;
+          html += `<tr><td>${escapeHtml(b.id)}</td><td>${escapeHtml(b.tarefaId)}</td><td>${escapeHtml(b.tipo)}</td><td><span class="badge badge--bloqueada">${escapeHtml(b.gravidade)}</span></td><td>${escapeHtml(b.descricao || '')}</td></tr>`;
         }
         html += `</tbody></table>`;
       }
@@ -1084,7 +1225,7 @@ async function renderizarMonitor(el) {
         html += `<h5 style="margin-top:12px;">Riscos Críticos</h5>
           <table class="table"><thead><tr><th>ID</th><th>Título</th><th>Gravidade</th><th>Descrição</th></tr></thead><tbody>`;
         for (const r of m.alertas.detalhes.riscos) {
-          html += `<tr><td>${r.id}</td><td>${r.titulo}</td><td><span class="badge badge--bloqueada">${r.gravidade}</span></td><td>${r.descricao || ''}</td></tr>`;
+          html += `<tr><td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.titulo)}</td><td><span class="badge badge--bloqueada">${escapeHtml(r.gravidade)}</span></td><td>${escapeHtml(r.descricao || '')}</td></tr>`;
         }
         html += `</tbody></table>`;
       }
@@ -1099,23 +1240,23 @@ async function renderizarMonitor(el) {
           <thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Resultado</th></tr></thead>
           <tbody>`;
       for (const ev of m.eventosRecentes) {
-        const data = new Date(ev.data).toLocaleString('pt-BR');
+        const data = formatDate(ev.data);
         const cls = ev.resultado === 'sucesso' ? 'badge--ativo' : ev.resultado === 'falha' ? 'badge--bloqueada' : 'badge--inativo';
-        html += `<tr><td>${data}</td><td>${ev.tipo}</td><td>${ev.descricao}</td><td><span class="badge ${cls}">${ev.resultado}</span></td></tr>`;
+        html += `<tr><td>${escapeHtml(data)}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td><span class="badge ${cls}">${escapeHtml(ev.resultado)}</span></td></tr>`;
       }
       html += `</tbody></table></div>`;
     }
 
     el.innerHTML = html;
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarResultados(el) {
   try {
     const res = await api.getResultados();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">✅ Resultados (${items.length})</h3>
@@ -1128,21 +1269,21 @@ async function renderizarResultados(el) {
     const tbody = table.querySelector('tbody');
     for (const r of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id}</td><td>${r.tarefaId}</td><td>${r.agenteId}</td><td>${r.resumo}</td>
-        <td><span class="badge badge--ativo">${r.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verResultado('${r.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.tarefaId)}</td><td>${escapeHtml(r.agenteId)}</td><td>${escapeHtml(r.resumo)}</td>
+        <td><span class="badge badge--ativo">${escapeHtml(r.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verResultado('${escapeAttr(r.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarArtefatos(el) {
   try {
     const res = await api.getArtefatos();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">📦 Artefatos (${items.length})</h3>
@@ -1155,21 +1296,21 @@ async function renderizarArtefatos(el) {
     const tbody = table.querySelector('tbody');
     for (const a of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${a.id}</td><td>${a.nome}</td><td>${a.tipo}</td><td>${a.agenteId}</td><td>${a.tarefaId || ''}</td>
-        <td><span class="badge badge--ativo">${a.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verArtefato('${a.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(a.id)}</td><td>${escapeHtml(a.nome)}</td><td>${escapeHtml(a.tipo)}</td><td>${escapeHtml(a.agenteId)}</td><td>${escapeHtml(a.tarefaId || '')}</td>
+        <td><span class="badge badge--ativo">${escapeHtml(a.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verArtefato('${escapeAttr(a.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarHandoffs(el) {
   try {
     const res = await api.getHandoffs();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🤝 Transferências (${items.length})</h3>
@@ -1183,21 +1324,21 @@ async function renderizarHandoffs(el) {
     for (const h of items) {
       const tr = document.createElement('tr');
       const badgeClass = h.estado === 'PENDENTE' ? 'badge--ativo' : h.estado === 'CONCLUIDO' ? 'badge--ativo' : 'badge--inativo';
-      tr.innerHTML = `<td>${h.id}</td><td>${h.origem}</td><td>${h.destino}</td><td>${h.tarefaId || ''}</td><td>${h.resumo}</td>
-        <td><span class="badge ${badgeClass}">${h.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verHandoff('${h.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(h.id)}</td><td>${escapeHtml(h.origem)}</td><td>${escapeHtml(h.destino)}</td><td>${escapeHtml(h.tarefaId || '')}</td><td>${escapeHtml(h.resumo)}</td>
+        <td><span class="badge ${badgeClass}">${escapeHtml(h.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verHandoff('${escapeAttr(h.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarValidacoes(el) {
   try {
     const res = await api.getValidacoes();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔒 Validações (${items.length})</h3>
@@ -1211,21 +1352,21 @@ async function renderizarValidacoes(el) {
     for (const v of items) {
       const tr = document.createElement('tr');
       const badgeClass = v.estado === 'APROVADO' ? 'badge--ativo' : v.estado === 'REPROVADO' ? 'badge--bloqueada' : v.estado === 'APROVADO_COM_RESSALVAS' ? 'badge--inativo' : 'badge--ativo';
-      tr.innerHTML = `<td>${v.id}</td><td>${v.alvoId}</td><td>${v.alvoTipo}</td><td>${v.responsavel}</td>
-        <td><span class="badge ${badgeClass}">${v.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verValidacao('${v.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(v.id)}</td><td>${escapeHtml(v.alvoId)}</td><td>${escapeHtml(v.alvoTipo)}</td><td>${escapeHtml(v.responsavel)}</td>
+        <td><span class="badge ${badgeClass}">${escapeHtml(v.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verValidacao('${escapeAttr(v.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarPendencias(el) {
   try {
     const res = await api.getPendencias();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">⏳ Pendências (${items.length})</h3>
@@ -1239,21 +1380,21 @@ async function renderizarPendencias(el) {
     for (const p of items) {
       const tr = document.createElement('tr');
       const badgeClass = p.estado === 'RESOLVIDO' ? 'badge--ativo' : p.estado === 'CANCELADO' ? 'badge--inativo' : 'badge--bloqueada';
-      tr.innerHTML = `<td>${p.id}</td><td>${p.titulo}</td><td>${p.tipo}</td><td>${p.prioridade}</td>
-        <td><span class="badge ${badgeClass}">${p.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verPendencia('${p.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(p.id)}</td><td>${escapeHtml(p.titulo)}</td><td>${escapeHtml(p.tipo)}</td><td>${escapeHtml(p.prioridade)}</td>
+        <td><span class="badge ${badgeClass}">${escapeHtml(p.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verPendencia('${escapeAttr(p.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarConflitos(el) {
   try {
     const res = await api.getConflitos();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">⚡ Conflitos (${items.length})</h3>
@@ -1267,21 +1408,21 @@ async function renderizarConflitos(el) {
     for (const c of items) {
       const tr = document.createElement('tr');
       const badgeClass = c.estado === 'RESOLVIDO' ? 'badge--ativo' : c.estado === 'CANCELADO' ? 'badge--inativo' : 'badge--bloqueada';
-      tr.innerHTML = `<td>${c.id}</td><td>${c.titulo}</td><td>${c.tipo}</td><td>${c.severidade}</td>
-        <td><span class="badge ${badgeClass}">${c.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verConflito('${c.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.titulo)}</td><td>${escapeHtml(c.tipo)}</td><td>${escapeHtml(c.severidade)}</td>
+        <td><span class="badge ${badgeClass}">${escapeHtml(c.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verConflito('${escapeAttr(c.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarReservas(el) {
   try {
     const res = await api.getReservas();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔒 Reservas (${items.length})</h3>
@@ -1295,21 +1436,21 @@ async function renderizarReservas(el) {
     for (const r of items) {
       const tr = document.createElement('tr');
       const badgeClass = r.estado === 'ATIVA' ? 'badge--ativo' : 'badge--inativo';
-      tr.innerHTML = `<td>${r.id}</td><td>${r.alvo}</td><td>${r.tipoAlvo}</td><td>${r.agenteId}</td>
-        <td><span class="badge ${badgeClass}">${r.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verReserva('${r.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.alvo)}</td><td>${escapeHtml(r.tipoAlvo)}</td><td>${escapeHtml(r.agenteId)}</td>
+        <td><span class="badge ${badgeClass}">${escapeHtml(r.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verReserva('${escapeAttr(r.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarDecisoes(el) {
   try {
     const res = await api.getDecisoes();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<h3>💭 Decisões (${items.length})</h3>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma decisão registrada.</p>'; return; }
@@ -1319,19 +1460,19 @@ async function renderizarDecisoes(el) {
     const tbody = table.querySelector('tbody');
     for (const d of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.id}</td><td>${d.titulo}</td><td>${d.estado}</td><td>${d.data}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(d.id)}</td><td>${escapeHtml(d.titulo)}</td><td>${escapeHtml(d.estado)}</td><td>${escapeHtml(d.data)}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarDependencias(el) {
   try {
     const res = await api.getDependencias();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔗 Dependências (${items.length})</h3>
@@ -1344,21 +1485,21 @@ async function renderizarDependencias(el) {
     const tbody = table.querySelector('tbody');
     for (const d of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${d.id}</td><td>${d.fonteTipo}:${d.fonteId}</td><td>${d.tipo}</td><td>${d.destinoTipo}:${d.destinoId}</td>
-        <td><span class="badge badge--ativo">${d.estado}</span></td>
-        <td><button class="btn btn--small" onclick="verDependencia('${d.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(d.id)}</td><td>${escapeHtml(d.fonteTipo)}:${escapeHtml(d.fonteId)}</td><td>${escapeHtml(d.tipo)}</td><td>${escapeHtml(d.destinoTipo)}:${escapeHtml(d.destinoId)}</td>
+        <td><span class="badge badge--ativo">${escapeHtml(d.estado)}</span></td>
+        <td><button class="btn btn--small" onclick="verDependencia('${escapeAttr(d.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarResponsabilidades(el) {
   try {
     const res = await api.getResponsabilidades();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">👥 Responsabilidades (${items.length})</h3>
@@ -1371,19 +1512,19 @@ async function renderizarResponsabilidades(el) {
     const tbody = table.querySelector('tbody');
     for (const r of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id}</td><td>${r.agenteId}</td><td>${r.alvoId}</td><td>${r.alvoTipo}</td><td>${r.nivel}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.agenteId)}</td><td>${escapeHtml(r.alvoId)}</td><td>${escapeHtml(r.alvoTipo)}</td><td>${escapeHtml(r.nivel)}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarSessoes(el) {
   try {
     const res = await api.getSessoes();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     const ativas = items.filter((s) => !s.datas.fim);
     el.innerHTML = `<h3>🖥️ Sessões (${items.length} total, ${ativas.length} ativas)</h3>`;
@@ -1396,19 +1537,19 @@ async function renderizarSessoes(el) {
       const tr = document.createElement('tr');
       const agente = s.agenteNome || s.agenteId;
       const tarefa = s.tarefaTitulo || s.tarefaId || '';
-      tr.innerHTML = `<td>${s.id}</td><td>${agente}</td><td>${tarefa}</td><td>${s.datas.inicio || ''}</td><td>${s.datas.fim || ''}</td><td>${s.estadoFinal}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(s.id)}</td><td>${escapeHtml(agente)}</td><td>${escapeHtml(tarefa)}</td><td>${escapeHtml(s.datas.inicio || '')}</td><td>${escapeHtml(s.datas.fim || '')}</td><td>${escapeHtml(s.estadoFinal)}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarCheckpoints(el) {
   try {
     const res = await api.getCheckpoints();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">📍 Marcos (${items.length})</h3>
@@ -1421,20 +1562,20 @@ async function renderizarCheckpoints(el) {
     const tbody = table.querySelector('tbody');
     for (const c of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.id}</td><td>${c.tarefaId}</td><td>${c.agenteId}</td><td>${c.titulo}</td><td>${c.tipo}</td>
-        <td><button class="btn btn--small" onclick="verCheckpoint('${c.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.tarefaId)}</td><td>${escapeHtml(c.agenteId)}</td><td>${escapeHtml(c.titulo)}</td><td>${escapeHtml(c.tipo)}</td>
+        <td><button class="btn btn--small" onclick="verCheckpoint('${escapeAttr(c.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarAprendizados(el) {
   try {
     const res = await api.getAprendizados();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">📚 Aprendizados (${items.length})</h3>
@@ -1447,20 +1588,20 @@ async function renderizarAprendizados(el) {
     const tbody = table.querySelector('tbody');
     for (const a of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${a.id}</td><td>${a.titulo}</td><td>${a.categoria}</td><td>${a.utilidade}</td><td>${a.estado}</td>
-        <td><button class="btn btn--small" onclick="verAprendizado('${a.id}')">Ver</button></td>`;
+      tr.innerHTML = `<td>${escapeHtml(a.id)}</td><td>${escapeHtml(a.titulo)}</td><td>${escapeHtml(a.categoria)}</td><td>${escapeHtml(a.utilidade)}</td><td>${escapeHtml(a.estado)}</td>
+        <td><button class="btn btn--small" onclick="verAprendizado('${escapeAttr(a.id)}')">Ver</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarHistorico(el) {
   try {
     const res = await api.getAuditoria();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const eventos = res.dados || [];
     el.innerHTML = `<h3>📜 Histórico de Coordenação (${eventos.length} eventos)</h3>`;
     if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado.</p>'; return; }
@@ -1470,19 +1611,19 @@ async function renderizarHistorico(el) {
     const tbody = table.querySelector('tbody');
     for (const ev of eventos) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${new Date(ev.data).toLocaleString('pt-BR')}</td><td>${ev.tipo}</td><td>${ev.descricao}</td><td>${ev.agenteId || ''}</td><td>${ev.tarefaId || ''}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(formatDate(ev.data))}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td>${escapeHtml(ev.agenteId || '')}</td><td>${escapeHtml(ev.tarefaId || '')}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarIntegridade(el) {
   try {
     const res = await api.getIntegridade();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const data = res.dados;
     el.innerHTML = `<h3>🔍 Verificação de Integridade</h3>
       <p><strong>Estado:</strong> <span class="badge ${data.estado === 'OK' ? 'badge--ativo' : 'badge--bloqueada'}">${data.estado}</span></p>
@@ -1490,19 +1631,19 @@ async function renderizarIntegridade(el) {
     if (data.inconsistencias.length > 0) {
       el.innerHTML += '<h4>Detalhes:</h4><ul>';
       for (const inc of data.inconsistencias) {
-        el.innerHTML += `<li>${inc}</li>`;
+        el.innerHTML += `<li>${escapeHtml(inc)}</li>`;
       }
       el.innerHTML += '</ul>';
     }
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarBloqueios(el) {
   try {
     const res = await api.getBloqueios();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<h3>🚫 Bloqueios (${items.length})</h3>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum bloqueio registrado.</p>'; return; }
@@ -1512,19 +1653,19 @@ async function renderizarBloqueios(el) {
     const tbody = table.querySelector('tbody');
     for (const b of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${b.id}</td><td>${b.tarefaId}</td><td>${b.agenteId || ''}</td><td>${b.motivo}</td><td>${b.estado}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(b.id)}</td><td>${escapeHtml(b.tarefaId)}</td><td>${escapeHtml(b.agenteId || '')}</td><td>${escapeHtml(b.motivo)}</td><td>${escapeHtml(b.estado)}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
 async function renderizarRiscos(el) {
   try {
     const res = await api.getRiscos();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${res.erro}</p>`; return; }
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     el.innerHTML = `<h3>⚠️ Riscos (${items.length})</h3>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum risco registrado.</p>'; return; }
@@ -1534,12 +1675,12 @@ async function renderizarRiscos(el) {
     const tbody = table.querySelector('tbody');
     for (const r of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.id}</td><td>${r.titulo}</td><td>${r.categoria}</td><td>${r.gravidade}</td><td>${r.estado}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.titulo)}</td><td>${escapeHtml(r.categoria)}</td><td>${escapeHtml(r.gravidade)}</td><td>${escapeHtml(r.estado)}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
 
@@ -1613,8 +1754,10 @@ function salvarArquivo() {
 
 $('form-criar-arquivo').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const btn = e.submitter || $('form-criar-arquivo').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
   const nome = $('nome-novo-arquivo').value.trim();
-  if (!nome) return;
+  if (!nome) { restoreButton(btn); return; }
   const caminho = pastaAtual === '.' ? nome : `${pastaAtual}/${nome}`;
   try {
     const res = await api.escreverArquivo(caminho, $('conteudo-novo-arquivo').value);
@@ -1628,6 +1771,8 @@ $('form-criar-arquivo').addEventListener('submit', async function(e) {
     }
   } catch (err) {
     showToast(err?.erro || 'Erro ao criar arquivo', 'erro');
+  } finally {
+    restoreButton(btn);
   }
 });
 
@@ -1639,11 +1784,11 @@ window.abrirAgente = async function(id) {
     if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
     const p = res.dados;
     const el = document.getElementById('painel-atividade');
-    let html = `<h3>${p.registro.nome}</h3>
-      <p><strong>Função:</strong> ${p.funcao}</p>
-      <p><strong>Estado:</strong> ${p.estado}</p>
-      <p><strong>Domínios permitidos:</strong> ${p.diretoriosPermitidos.join(', ') || 'nenhum'}</p>
-      <p><strong>Contratos obrigatórios:</strong> ${p.contratosObrigatorios.join(', ') || 'nenhum'}</p>`;
+    let html = `<h3>${escapeHtml(p.registro.nome)}</h3>
+      <p><strong>Função:</strong> ${escapeHtml(p.funcao)}</p>
+      <p><strong>Estado:</strong> ${escapeHtml(p.estado)}</p>
+      <p><strong>Domínios permitidos:</strong> ${escapeHtml((p.diretoriosPermitidos || []).join(', ') || 'nenhum')}</p>
+      <p><strong>Contratos obrigatórios:</strong> ${escapeHtml((p.contratosObrigatorios || []).join(', ') || 'nenhum')}</p>`;
     el.innerHTML = html;
     const table = document.createElement('table');
     table.className = 'table';
@@ -1651,7 +1796,7 @@ window.abrirAgente = async function(id) {
     const tbody = table.querySelector('tbody');
     for (const [k, v] of Object.entries(p.permissoes)) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${k}</td><td>${v ? '✓' : ''}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(k)}</td><td>${v ? '✓' : ''}</td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1696,7 +1841,7 @@ function gerarCheckboxes(containerId, namePrefix, opcoes, selecionados) {
   opcoes.forEach((opt) => {
     const label = document.createElement('label');
     label.className = 'form__checkbox';
-    label.innerHTML = `<input type="checkbox" name="${namePrefix}" value="${opt}" ${selecionados.includes(opt) ? 'checked' : ''}> ${opt}`;
+    label.innerHTML = `<input type="checkbox" name="${escapeAttr(namePrefix)}" value="${escapeAttr(opt)}" ${selecionados.includes(opt) ? 'checked' : ''}> ${escapeHtml(opt)}`;
     container.appendChild(label);
   });
   console.log('[gerarCheckboxes]', containerId, '- opções:', opcoes.length, '| selecionados:', selecionados);
@@ -1728,7 +1873,7 @@ window.editarAgente = async function(id) {
     $('agente-conhecimentos').value = (p.conhecimentos || []).join('\n');
      const perms = p.permissoes || {};
      ['ler','criar','alterar','excluir','executar','testar','revisar','aprovar','implantar'].forEach((perm) => $(`perm-${perm}`).checked = !!perms[perm]);
-    $('titulo-agente').textContent = `Editar: ${p.nome}`;
+     $('titulo-agente').textContent = `Editar: ${escapeHtml(p.nome)}`;
     clearDirTags('dir-perm');
     clearDirTags('dir-proib');
     (p.diretoriosPermitidos || []).filter(d => !dirs.includes(d)).forEach(d => addDirTag('dir-perm', d));
@@ -1841,23 +1986,23 @@ window.verTarefa = async function(id) {
     const t = res.dados;
     const el = document.getElementById('painel-atividade');
     let html = `<div style="padding:8px;">
-      <h3>${t.id} — ${t.titulo}</h3>
-      <p><strong>Estado:</strong> <span class="badge badge--${t.estado}">${t.estado}</span> | <strong>Prioridade:</strong> ${t.prioridade}</p>
-      <p><strong>Objetivo:</strong> ${t.objetivo}</p>
-      <p><strong>Tipo:</strong> ${t.tipo} | <strong>Domínio:</strong> ${t.dominio} | <strong>Ambiente:</strong> ${t.ambiente}</p>
-      <p><strong>Agente Responsável:</strong> ${t.agenteResponsavel}</p>
-      <p><strong>Contratos Obrigatórios:</strong> ${(t.contratosObrigatorios || []).join(', ') || 'Nenhum'}</p>
-      <p><strong>Critérios de Aceitação:</strong> ${(t.criteriosAceitacao || []).join(', ') || 'Nenhum'}</p>
-      <p><strong>Dependências:</strong> ${(t.dependencias || []).join(', ') || 'Nenhuma'}</p>
-      <p><strong>Estimativa:</strong> ${t.estimativaHoras ? t.estimativaHoras + 'h' : 'N/A'}</p>
-      <p><strong>Data Limite:</strong> ${t.dataLimite || 'N/A'}</p>
-      <p><strong>Tags:</strong> ${(t.tags || []).join(', ') || 'N/A'}</p>
-      <p><strong>Arquivos Esperados:</strong> ${(t.arquivosPermitidos || []).join(', ') || 'N/A'}</p>
-      <p><strong>Contexto:</strong> ${(t.contextoNecessario || []).join('; ') || 'N/A'}</p>
-      ${t.datas?.inicio ? `<p><strong>Início:</strong> ${new Date(t.datas.inicio).toLocaleString('pt-BR')}</p>` : ''}
-      ${t.datas?.conclusao ? `<p><strong>Conclusão:</strong> ${new Date(t.datas.conclusao).toLocaleString('pt-BR')}</p>` : ''}
-      <p><strong>Criada em:</strong> ${t.datas?.criacao ? new Date(t.datas.criacao).toLocaleString('pt-BR') : '-'}</p>
-      <p><strong>Última atualização:</strong> ${t.datas?.ultimaAtualizacao ? new Date(t.datas.ultimaAtualizacao).toLocaleString('pt-BR') : '-'}</p>
+      <h3>${escapeHtml(t.id)} — ${escapeHtml(t.titulo)}</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--${t.estado}">${escapeHtml(t.estado)}</span> | <strong>Prioridade:</strong> ${escapeHtml(t.prioridade)}</p>
+      <p><strong>Objetivo:</strong> ${escapeHtml(t.objetivo || '')}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(t.tipo)} | <strong>Domínio:</strong> ${escapeHtml(t.dominio)} | <strong>Ambiente:</strong> ${escapeHtml(t.ambiente)}</p>
+      <p><strong>Agente Responsável:</strong> ${escapeHtml(t.agenteResponsavel || '')}</p>
+      <p><strong>Contratos Obrigatórios:</strong> ${escapeHtml((t.contratosObrigatorios || []).join(', ') || 'Nenhum')}</p>
+      <p><strong>Critérios de Aceitação:</strong> ${escapeHtml((t.criteriosAceitacao || []).join(', ') || 'Nenhum')}</p>
+      <p><strong>Dependências:</strong> ${escapeHtml((t.dependencias || []).join(', ') || 'Nenhuma')}</p>
+      <p><strong>Estimativa:</strong> ${t.estimativaHoras ? escapeHtml(t.estimativaHoras + 'h') : 'N/A'}</p>
+      <p><strong>Data Limite:</strong> ${escapeHtml(t.dataLimite || 'N/A')}</p>
+      <p><strong>Tags:</strong> ${escapeHtml((t.tags || []).join(', ') || 'N/A')}</p>
+      <p><strong>Arquivos Esperados:</strong> ${escapeHtml((t.arquivosPermitidos || []).join(', ') || 'N/A')}</p>
+      <p><strong>Contexto:</strong> ${escapeHtml((t.contextoNecessario || []).join('; ') || 'N/A')}</p>
+      ${t.datas?.inicio ? `<p><strong>Início:</strong> ${formatDate(t.datas.inicio)}</p>` : ''}
+      ${t.datas?.conclusao ? `<p><strong>Conclusão:</strong> ${formatDate(t.datas.conclusao)}</p>` : ''}
+      <p><strong>Criada em:</strong> ${t.datas?.criacao ? formatDate(t.datas.criacao) : '-'}</p>
+      <p><strong>Última atualização:</strong> ${t.datas?.ultimaAtualizacao ? formatDate(t.datas.ultimaAtualizacao) : '-'}</p>
     </div>`;
     const container = document.createElement('div');
     container.innerHTML = html;
@@ -1888,7 +2033,7 @@ window.abrirModalContrato = function(contrato = null) {
     $('contrato-objetivo').value = contrato.objetivo || '';
     $('contrato-regras').value = (contrato.regras || []).join('\n');
     $('contrato-restricoes').value = (contrato.restricoes || []).join('\n');
-    $('titulo-contrato').textContent = `Editar: ${contrato.nome}`;
+    $('titulo-contrato').textContent = `Editar: ${escapeHtml(contrato.nome)}`;
   } else {
     $('contrato-id-input').value = '';
     $('titulo-contrato').textContent = 'Novo Contrato';
@@ -1903,23 +2048,23 @@ window.verContrato = async function(id) {
     const c = res.dados;
     const el = document.getElementById('painel-atividade');
     let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;">${c.nome}</h3>
+      <h3 style="margin:0;">${escapeHtml(c.nome)}</h3>
       <div>
-        <button class="btn btn--small" onclick="abrirModalContrato(${JSON.stringify(c).replace(/"/g, '&quot;')})">Editar</button>
-        <button class="btn btn--small btn--danger" onclick="excluirContrato('${c.id}')">Excluir</button>
+        <button class="btn btn--small" onclick="editarContrato('${escapeAttr(c.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirContrato('${escapeAttr(c.id)}')">Excluir</button>
       </div>
     </div>`;
-    html += `<p><strong>ID:</strong> ${c.id}</p>
-      <p><strong>Versão:</strong> ${c.versao}</p>
-      <p><strong>Estado:</strong> ${c.estado}</p>
+    html += `<p><strong>ID:</strong> ${escapeHtml(c.id)}</p>
+      <p><strong>Versão:</strong> ${escapeHtml(c.versao)}</p>
+      <p><strong>Estado:</strong> ${escapeHtml(c.estado)}</p>
       <p><strong>Obrigatório:</strong> ${c.obrigatorio ? '✓' : ''}</p>
-      <p><strong>Descrição:</strong> ${c.descricao || ''}</p>
-      <p><strong>Objetivo:</strong> ${c.objetivo || ''}</p>`;
+      <p><strong>Descrição:</strong> ${escapeHtml(c.descricao || '')}</p>
+      <p><strong>Objetivo:</strong> ${escapeHtml(c.objetivo || '')}</p>`;
     if (c.regras?.length) {
-      html += `<p><strong>Regras:</strong></p><ul>${c.regras.map(r => `<li>${r}</li>`).join('')}</ul>`;
+      html += `<p><strong>Regras:</strong></p><ul>${c.regras.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`;
     }
     if (c.restricoes?.length) {
-      html += `<p><strong>Restrições:</strong></p><ul>${c.restricoes.map(r => `<li>${r}</li>`).join('')}</ul>`;
+      html += `<p><strong>Restrições:</strong></p><ul>${c.restricoes.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`;
     }
     el.innerHTML = html;
     const relacionados = await carregarItensRelacionados('artefato', c.id);
@@ -1958,6 +2103,8 @@ window.excluirContrato = async function(id) {
 
   $('form-contrato').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const btn = e.submitter || $('form-contrato').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
     const id = $('contrato-id').value;
     const dados = {
       id: $('contrato-id-input').value.trim(),
@@ -1972,6 +2119,7 @@ window.excluirContrato = async function(id) {
     };
     if (!dados.id || !dados.nome || !dados.versao) {
       showToast('ID, Nome e Versão são obrigatórios', 'erro');
+      restoreButton(btn);
       return;
     }
     try {
@@ -1985,11 +2133,15 @@ window.excluirContrato = async function(id) {
       }
     } catch (err) {
       showToast(err?.erro || 'Erro ao salvar contrato', 'erro');
+    } finally {
+      restoreButton(btn);
     }
   });
 
   $('form-tarefa').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const btn = e.submitter || $('form-tarefa').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
     const id = $('tarefa-id').value;
     const dados = {
       titulo: $('tarefa-titulo').value.trim(),
@@ -2009,6 +2161,7 @@ window.excluirContrato = async function(id) {
     };
     if (!dados.titulo || !dados.objetivo || !dados.agenteResponsavel || !dados.dominio) {
       showToast('Campos marcados com * são obrigatórios', 'erro');
+      restoreButton(btn);
       return;
     }
     try {
@@ -2027,6 +2180,8 @@ window.excluirContrato = async function(id) {
       }
     } catch (err) {
       showToast(err?.erro || 'Erro ao salvar tarefa', 'erro');
+    } finally {
+      restoreButton(btn);
     }
   });
 
@@ -2036,6 +2191,8 @@ $('btn-cancelar-tarefa').addEventListener('click', () => hideModal('modal-tarefa
 $('form-agente').addEventListener('submit', async function(e) {
   console.log('[form-agente submit] iniciado');
   e.preventDefault();
+  const btn = e.submitter || $('form-agente').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
   const id = $('agente-id').value;
   const dados = coletarDadosAgente();
   console.log('[form-agente submit] dados coletados:', JSON.stringify({
@@ -2049,16 +2206,19 @@ $('form-agente').addEventListener('submit', async function(e) {
   if (!dados.id || !dados.nome || !dados.funcao || !dados.descricao) {
     showToast('Campos marcados com * são obrigatórios', 'erro');
     console.error('[form-agente submit] validação falhou: campos obrigatórios vazios');
+    restoreButton(btn);
     return;
   }
   if (dados.diretoriosPermitidos.length === 0) {
     showToast('Selecione pelo menos um diretório permitido', 'erro');
     console.error('[form-agente submit] validação falhou: nenhum diretório permitido selecionado');
+    restoreButton(btn);
     return;
   }
   if (dados.contratosObrigatorios.length === 0) {
     showToast('Selecione pelo menos um contrato obrigatório', 'erro');
     console.error('[form-agente submit] validação falhou: nenhum contrato selecionado');
+    restoreButton(btn);
     return;
   }
   dados.permissoes = {};
@@ -2085,6 +2245,8 @@ $('form-agente').addEventListener('submit', async function(e) {
   } catch (err) {
     console.error('[form-agente submit] exceção:', err);
     showToast(err?.erro || err?.message || 'Erro ao salvar agente', 'erro');
+  } finally {
+    restoreButton(btn);
   }
 });
 
@@ -2137,7 +2299,7 @@ function addDirTag(prefix, path) {
   const tag = document.createElement('span');
   tag.className = 'dir-tag';
   tag.dataset.path = path;
-  tag.innerHTML = `${path} <button type="button" class="dir-tag-remove">&times;</button>`;
+  tag.innerHTML = `${escapeHtml(path)} <button type="button" class="dir-tag-remove">&times;</button>`;
   tag.querySelector('.dir-tag-remove').addEventListener('click', () => tag.remove());
   container.appendChild(tag);
 }
@@ -2232,7 +2394,7 @@ function popularImpactosCheckboxes(selected = []) {
   for (const imp of IMPACTOS_DISPONIVEIS) {
     const wrapper = document.createElement('label');
     wrapper.className = 'form__checkbox';
-    wrapper.innerHTML = `<input type="checkbox" name="impacto" value="${imp}" ${selected.includes(imp) ? 'checked' : ''}> ${imp}`;
+    wrapper.innerHTML = `<input type="checkbox" name="impacto" value="${escapeAttr(imp)}" ${selected.includes(imp) ? 'checked' : ''}> ${escapeHtml(imp)}`;
     container.appendChild(wrapper);
   }
   $('solicitacao-impactos').value = selected.join('\n');
@@ -2284,7 +2446,6 @@ window.abrirModalSolicitacao = function(solicitacao = null) {
     popularAgentesSelect();
     popularTarefasSelect();
   }
-  document.getElementById('solicitacao-impactos-cb').addEventListener('change', atualizarImpactosHidden);
   showModal('modal-solicitacao');
 };
 
@@ -2296,35 +2457,35 @@ window.verSolicitacao = async function(id) {
     const historicoRes = await api.getSolicitacaoHistorico(id);
     const historicos = historicoRes.sucesso ? historicoRes.dados : [];
     let html = `<div style="padding:8px;">
-      <h3>${s.id} — ${s.titulo}</h3>
-      <p><strong>Status:</strong> <span class="badge badge--ativo">${s.status}</span> | <strong>Prioridade:</strong> ${s.prioridade}</p>
-      <p><strong>Solicitante:</strong> ${s.agenteSolicitante.id} | <strong>Responsável:</strong> ${s.agenteResponsavel.id || 'Nenhum'}</p>
-      <p><strong>Alvo:</strong> ${s.alvo.tipo} — ${s.alvo.nome}</p>
-      ${s.alvo.identificador ? `<p><strong>Identificador:</strong> ${s.alvo.identificador}</p>` : ''}
-      ${s.alvo.localizacao ? `<p><strong>Localização:</strong> <code>${s.alvo.localizacao}</code></p>` : ''}
-      <p><strong>Alteração:</strong> ${s.alteracao.tipo} — ${s.alteracao.descricao}</p>
-      <p><strong>Motivo:</strong> ${s.alteracao.motivo}</p>
-      ${s.alteracao.arquivosAfetados?.length ? `<p><strong>Arquivos Afetados:</strong> ${s.alteracao.arquivosAfetados.join(', ')}</p>` : ''}
-      <p><strong>Impactos:</strong> ${s.impactos.join(', ')}</p>
-      ${s.dependencias?.length ? `<p><strong>Dependências:</strong> ${s.dependencias.join(', ')}</p>` : ''}
+      <h3>${escapeHtml(s.id)} — ${escapeHtml(s.titulo)}</h3>
+      <p><strong>Status:</strong> <span class="badge badge--ativo">${escapeHtml(s.status)}</span> | <strong>Prioridade:</strong> ${escapeHtml(s.prioridade)}</p>
+      <p><strong>Solicitante:</strong> ${escapeHtml(s.agenteSolicitante.id)} | <strong>Responsável:</strong> ${escapeHtml(s.agenteResponsavel.id || 'Nenhum')}</p>
+      <p><strong>Alvo:</strong> ${escapeHtml(s.alvo.tipo)} — ${escapeHtml(s.alvo.nome)}</p>
+      ${s.alvo.identificador ? `<p><strong>Identificador:</strong> ${escapeHtml(s.alvo.identificador)}</p>` : ''}
+      ${s.alvo.localizacao ? `<p><strong>Localização:</strong> <code>${escapeHtml(s.alvo.localizacao)}</code></p>` : ''}
+      <p><strong>Alteração:</strong> ${escapeHtml(s.alteracao.tipo)} — ${escapeHtml(s.alteracao.descricao)}</p>
+      <p><strong>Motivo:</strong> ${escapeHtml(s.alteracao.motivo)}</p>
+      ${s.alteracao.arquivosAfetados?.length ? `<p><strong>Arquivos Afetados:</strong> ${escapeHtml(s.alteracao.arquivosAfetados.join(', '))}</p>` : ''}
+      <p><strong>Impactos:</strong> ${escapeHtml(s.impactos.join(', '))}</p>
+      ${s.dependencias?.length ? `<p><strong>Dependências:</strong> ${escapeHtml(s.dependencias.join(', '))}</p>` : ''}
       <p><strong>Requer Aprovação:</strong> ${s.requerAprovacao ? 'Sim' : 'Não'}</p>
-      <p><strong>Aprovação:</strong> ${s.aprovacao.status} ${s.aprovacao.agenteId ? `(por ${s.aprovacao.agenteId})` : ''} ${s.aprovacao.data ? `(${new Date(s.aprovacao.data).toLocaleString('pt-BR')})` : ''}</p>
-      ${s.tarefaOrigem ? `<p><strong>Tarefa de Origem:</strong> ${s.tarefaOrigem.id}</p>` : ''}
-      <p><strong>Criada em:</strong> ${s.datas.criadaEm ? new Date(s.datas.criadaEm).toLocaleString('pt-BR') : '-'}</p>
-      <p><strong>Atualizada em:</strong> ${s.datas.atualizadaEm ? new Date(s.datas.atualizadaEm).toLocaleString('pt-BR') : '-'}</p>
-      ${s.datas.concluidaEm ? `<p><strong>Concluída em:</strong> ${new Date(s.datas.concluidaEm).toLocaleString('pt-BR')}</p>` : ''}
-      ${s.observacoes ? `<p><strong>Observações:</strong> ${s.observacoes}</p>` : ''}
+      <p><strong>Aprovação:</strong> ${escapeHtml(s.aprovacao.status)} ${s.aprovacao.agenteId ? `(por ${escapeHtml(s.aprovacao.agenteId)})` : ''} ${s.aprovacao.data ? `(${formatDate(s.aprovacao.data)})` : ''}</p>
+      ${s.tarefaOrigem ? `<p><strong>Tarefa de Origem:</strong> ${escapeHtml(s.tarefaOrigem.id)}</p>` : ''}
+      <p><strong>Criada em:</strong> ${s.datas.criadaEm ? formatDate(s.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${s.datas.atualizadaEm ? formatDate(s.datas.atualizadaEm) : '-'}</p>
+      ${s.datas.concluidaEm ? `<p><strong>Concluída em:</strong> ${formatDate(s.datas.concluidaEm)}</p>` : ''}
+      ${s.observacoes ? `<p><strong>Observações:</strong> ${escapeHtml(s.observacoes)}</p>` : ''}
     `;
     if (s.requerAprovacao && s.status === 'PENDENTE') {
       html += `<div style="margin-top:16px;padding-top:12px;border-top:1px solid #333;">
-        <button class="btn btn--small btn--primario" onclick="aprovarSolicitacao('${s.id}')">Aprovar</button>
-        <button class="btn btn--small btn--danger" onclick="rejeitarSolicitacao('${s.id}')">Rejeitar</button>
+        <button class="btn btn--small btn--primario" onclick="aprovarSolicitacao('${escapeAttr(s.id)}')">Aprovar</button>
+        <button class="btn btn--small btn--danger" onclick="rejeitarSolicitacao('${escapeAttr(s.id)}')">Rejeitar</button>
       </div>`;
     }
       if (historicos.length > 0) {
       html += `<h4 style="margin-top:16px;">Histórico</h4><ul>`;
       for (const h of historicos) {
-        html += `<li><span class="badge badge--ativo">${h.tipo}</span> ${h.data ? new Date(h.data).toLocaleString('pt-BR') : ''} ${h.agenteId ? `(por ${h.agenteId})` : ''} ${h.observacao ? '- "' + h.observacao + '"' : ''}</li>`;
+        html += `<li><span class="badge badge--ativo">${escapeHtml(h.tipo)}</span> ${h.data ? formatDate(h.data) : ''} ${h.agenteId ? `(por ${escapeHtml(h.agenteId)})` : ''} ${h.observacao ? '- "' + escapeHtml(h.observacao) + '"' : ''}</li>`;
       }
       html += `</ul>`;
     }
@@ -2337,7 +2498,7 @@ window.verSolicitacao = async function(id) {
     relEl.innerHTML = renderizarSecaoRelacionados(relacionados);
     el.appendChild(relEl);
   } catch (err) {
-    el.innerHTML = `<p class="painel-vazio">Erro: ${err?.message || err}</p>`;
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 };
 
@@ -2364,36 +2525,41 @@ window.excluirSolicitacao = async function(id) {
 };
 
 window.aprovarSolicitacao = async function(id) {
-  const agente = prompt('Digite o ID do agente aprovador:');
-  if (!agente) return;
-  const obs = prompt('Observação (opcional):') || null;
-  try {
-    const res = await api.aprovarSolicitacao(id, agente, obs);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    showToast('Solicitação aprovada.', 'sucesso');
-    await renderizarSolicitacoes($('painel-atividade'));
-  } catch (err) {
-    showToast(err?.message || err, 'erro');
-  }
+  showConfirmModal('Aprovar Solicitação', {
+    agenteId: { label: 'ID do agente aprovador', placeholder: 'AGENTE-01' },
+    observacao: { label: 'Observação (opcional)', type: 'textarea', rows: 2 }
+  }, async (data) => {
+    try {
+      const res = await api.aprovarSolicitacao(id, data.agenteId, data.observacao || null);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      showToast('Solicitação aprovada.', 'sucesso');
+      await renderizarSolicitacoes($('painel-atividade'));
+    } catch (err) {
+      showToast(err?.message || err, 'erro');
+    }
+  });
 };
 
 window.rejeitarSolicitacao = async function(id) {
-  const agente = prompt('Digite o ID do agente rejeitador:');
-  if (!agente) return;
-  const motivo = prompt('Motivo da rejeição:');
-  if (!motivo) return;
-  try {
-    const res = await api.rejeitarSolicitacao(id, agente, motivo);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    showToast('Solicitação rejeitada.', 'sucesso');
-    await renderizarSolicitacoes($('painel-atividade'));
-  } catch (err) {
-    showToast(err?.message || err, 'erro');
-  }
+  showConfirmModal('Rejeitar Solicitação', {
+    agenteId: { label: 'ID do agente rejeitador', placeholder: 'AGENTE-01' },
+    motivo: { label: 'Motivo da rejeição', type: 'textarea', rows: 2 }
+  }, async (data) => {
+    try {
+      const res = await api.rejeitarSolicitacao(id, data.agenteId, data.motivo);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      showToast('Solicitação rejeitada.', 'sucesso');
+      await renderizarSolicitacoes($('painel-atividade'));
+    } catch (err) {
+      showToast(err?.message || err, 'erro');
+    }
+  });
 };
 
 $('form-solicitacao').addEventListener('submit', async function(e) {
   e.preventDefault();
+  const btn = e.submitter || $('form-solicitacao').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
   atualizarImpactosHidden();
   const id = $('solicitacao-id').value;
   const dados = {
@@ -2428,12 +2594,14 @@ $('form-solicitacao').addEventListener('submit', async function(e) {
     } else {
       res = await api.criarSolicitacao(dados);
     }
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    if (!res.sucesso) { showToast(res.erro, 'erro'); restoreButton(btn); return; }
     showToast(id ? 'Solicitação atualizada.' : 'Solicitação criada.', 'sucesso');
     hideModal('modal-solicitacao');
     await renderizarSolicitacoes($('painel-atividade'));
   } catch (err) {
     showToast(err?.message || err, 'erro');
+  } finally {
+    restoreButton(btn);
   }
 });
 
@@ -2808,7 +2976,7 @@ FORMATO DE RESPOSTA:
     $('prompt-contratos').value = promptContratos;
     $('prompt-caminhos').value = promptCaminhos;
     $('prompt-final').value = promptFinal;
-    $('prompt-titulo').textContent = `Prompt - ${agente.nome}`;
+    $('prompt-titulo').textContent = `Prompt - ${escapeHtml(agente.nome)}`;
     showModal('modal-prompt');
   } catch (err) {
     showToast(err?.message || err, 'erro');
@@ -2835,4 +3003,9 @@ function copiarPrompt() {
     document.body.removeChild(textarea);
     showToast('Prompt copiado!', 'sucesso');
   });
+}
+
+const impactoCheckboxContainer = document.getElementById('solicitacao-impactos-cb');
+if (impactoCheckboxContainer) {
+  impactoCheckboxContainer.addEventListener('change', atualizarImpactosHidden);
 }

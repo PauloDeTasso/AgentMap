@@ -6,11 +6,29 @@ import { RegistroProjetos, ProjetoRegistro } from '../tipos';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const LOCK_FILE = path.join(require('os').tmpdir(), 'agentmap-projetos-lock');
+
+function adquirirLock(): boolean {
+  try {
+    const fd = fs.openSync(LOCK_FILE, 'w');
+    fs.writeSync(fd, String(process.pid));
+    fs.closeSync(fd);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function liberarLock() {
+  try {
+    fs.unlinkSync(LOCK_FILE);
+  } catch {
+    // ignore
+  }
+}
+
 export function criarProjetoRouter(projetoService: ProjetoService): Router {
   const router = Router();
-
-  // Static (non-parameterized) routes MUST be registered before /:id
-  // so Express does not match them as the id parameter.
 
   router.get('/', asyncHandler(async (_req: Request, res: Response) => {
     return responder(res, projetoService.listarProjetos());
@@ -18,15 +36,22 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
 
   router.get('/scan', asyncHandler(async (req: Request, res: Response) => {
     const { pasta } = req.query;
-    const targetDir = typeof pasta === 'string' ? pasta : loadSettings().diretorioProjetosDefault;
-    if (!targetDir || !fs.existsSync(targetDir)) {
+    let targetDir = typeof pasta === 'string' ? pasta : loadSettings().diretorioProjetosDefault;
+    if (!targetDir || typeof targetDir !== 'string') {
+      return responder(res, { sucesso: false, erro: 'Pasta nao encontrada', codigoErro: 'DIR_NOT_FOUND' }, 404);
+    }
+    if (targetDir.includes('..')) {
+      return responder(res, { sucesso: false, erro: 'Caminho inválido', codigoErro: 'INVALID_PATH' }, 400);
+    }
+    const resolved = path.resolve(targetDir);
+    if (!fs.existsSync(resolved) || !fs.statSync(resolved).isDirectory()) {
       return responder(res, { sucesso: false, erro: 'Pasta nao encontrada', codigoErro: 'DIR_NOT_FOUND' }, 404);
     }
     const projetosEncontrados: Array<{ nome: string; caminho: string; descricao?: string; id?: string }> = [];
-    const entries = fs.readdirSync(targetDir, { withFileTypes: true });
+    const entries = fs.readdirSync(resolved, { withFileTypes: true });
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
-      const caminho = path.join(targetDir, entry.name);
+      const caminho = path.join(resolved, entry.name);
       const iaPath = path.join(caminho, '.ia');
       if (fs.existsSync(iaPath) && fs.statSync(iaPath).isDirectory()) {
         let nome = entry.name;
@@ -63,7 +88,9 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
   }));
 
   router.get('/settings', (_req: Request, res: Response) => {
-    return res.status(200).json({ sucesso: true, dados: loadSettings() });
+    const settings = loadSettings();
+    const { postgresConfig, ...safeSettings } = settings;
+    return res.status(200).json({ sucesso: true, dados: safeSettings });
   });
 
   router.put('/settings', (req: Request, res: Response) => {
@@ -95,29 +122,37 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
 
   router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     const { nome, ativo } = req.body;
-    const projetos = projetoService.listarProjetos();
-    if (!projetos.sucesso || !projetos.dados) {
-      return responder(res, { sucesso: false, erro: 'Erro ao listar projetos', codigoErro: 'LIST_ERROR' });
+    let locked = false;
+    try {
+      if (!adquirirLock()) {
+        return responder(res, { sucesso: false, erro: 'Operação concorrente. Tente novamente.', codigoErro: 'CONFLICT' }, 409);
+      }
+      locked = true;
+      const projetos = projetoService.listarProjetos();
+      if (!projetos.sucesso || !projetos.dados) {
+        return responder(res, { sucesso: false, erro: 'Erro ao listar projetos', codigoErro: 'LIST_ERROR' });
+      }
+      const index = projetos.dados.findIndex((p: any) => p.id === req.params.id);
+      if (index < 0) {
+        return responder(res, { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+      }
+      const atualizado = {
+        ...projetos.dados[index],
+        nome: nome ?? projetos.dados[index].nome,
+        ativo: ativo ?? projetos.dados[index].ativo
+      };
+      const novoRegistro: RegistroProjetos = { projetos: [...projetos.dados], projetoAtual: projetoService.getProjetoAtual().dados?.id ?? null };
+      novoRegistro.projetos[index] = atualizado;
+      saveRegistroProjetos(novoRegistro);
+      return responder(res, { sucesso: true, dados: atualizado });
+    } finally {
+      if (locked) liberarLock();
     }
-    const index = projetos.dados.findIndex((p: any) => p.id === req.params.id);
-    if (index < 0) {
-      return responder(res, { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' }, 404);
-    }
-    const atualizado = {
-      ...projetos.dados[index],
-      nome: nome ?? projetos.dados[index].nome,
-      ativo: ativo ?? projetos.dados[index].ativo
-    };
-    const novoRegistro: RegistroProjetos = { projetos: [...projetos.dados], projetoAtual: projetoService.getProjetoAtual().dados?.id ?? null };
-    novoRegistro.projetos[index] = atualizado;
-    saveRegistroProjetos(novoRegistro);
-    return responder(res, { sucesso: true, dados: atualizado });
   }));
 
   router.post('/:id/abrir', asyncHandler(async (req: Request, res: Response) => {
     const { caminho } = req.body;
     const idOuPath = caminho || req.params.id;
-    console.log('[POST /api/projetos/:id/abrir] params.id=' + req.params.id + ' | body.caminho=' + (caminho || 'null') + ' | using=' + idOuPath);
     const result = projetoService.abrirProjeto(idOuPath);
     if (!result.sucesso || !result.dados) {
       return responder(res, result);

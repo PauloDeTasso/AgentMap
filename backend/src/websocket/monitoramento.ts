@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
 import { MonitoramentoService, MensagemMonitoramento } from '../servicios/MonitoramentoService';
+import { API_KEY } from '../seguranca/auth';
 
 export class MonitoramentoWebSocket {
   private wss: WebSocketServer | null = null;
@@ -15,7 +16,15 @@ export class MonitoramentoWebSocket {
   iniciar(server: Server, caminho = '/ws/monitoramento'): void {
     this.wss = new WebSocketServer({ server, path: caminho });
 
-    this.wss.on('connection', (ws: WebSocket) => {
+    this.wss.on('connection', (ws: WebSocket, req: any) => {
+      const url = new URL(req.url || '', `http://${req.headers.host}`);
+      const token = url.searchParams.get('token') || req.headers['x-api-key'];
+      if (!token || token !== API_KEY) {
+        ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Não autorizado' } }));
+        ws.close(1008, 'Unauthorized');
+        return;
+      }
+
       console.log('[WebSocket] Cliente conectado ao monitoramento');
       this.clientes.add(ws);
 

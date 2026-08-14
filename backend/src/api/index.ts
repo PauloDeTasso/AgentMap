@@ -31,6 +31,9 @@ import { criarAdminRouter } from './admin';
 import { criarHealthRouter } from './health';
 import { criarHandoffsCentraisRouter } from './handoffs-centrais';
 import { criarMonitoramentoRouter } from './monitoramento';
+import { criarInstanciaRouter } from './instancias';
+import { criarOrquestradorRouter } from './orquestrador';
+import { criarAuthRouter } from './auth';
 
 export function setupRotas(projetoService: ProjetoService): Router {
   const router = Router();
@@ -38,6 +41,8 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0' } });
   });
+
+  router.use('/api/auth', criarAuthRouter());
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
@@ -81,6 +86,8 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/health', criarHealthRouter());
   router.use('/api/handoffs-centrais', criarHandoffsCentraisRouter());
   router.use('/api/monitoramento', criarMonitoramentoRouter());
+  router.use('/api/instancias', criarInstanciaRouter());
+  router.use('/api/orquestrador', criarOrquestradorRouter());
 
   router.get('/api/estado-projeto', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.integridade.calcularEstadoProjeto(req.servicos!.projeto.id);

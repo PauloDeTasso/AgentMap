@@ -6,12 +6,59 @@ import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
 import { corsService } from './servicios/CorsService';
+import { authMiddleware, API_KEY } from './seguranca/auth';
+import { csrfMiddleware } from './seguranca/csrf';
+
+const PUBLIC_PATHS = new Set([
+  '/api/status',
+  '/api/projetos/settings',
+  '/api/auth/key',
+]);
+
+function shouldSkipAuth(req: express.Request): boolean {
+  if (req.method === 'GET' && PUBLIC_PATHS.has(req.path)) return true;
+  if (req.path === '/api/projetos' && req.method === 'GET') return true;
+  if (req.path === '/api/projetos/scan' && req.method === 'GET') return true;
+  if (req.path === '/api/projetos/atual' && req.method === 'GET') return true;
+  return false;
+}
+
+function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'");
+  next();
+}
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 60000;
+const RATE_LIMIT_MAX = 120;
+
+function rateLimitMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const key = req.ip || 'unknown';
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return next();
+  }
+  entry.count++;
+  if (entry.count > RATE_LIMIT_MAX) {
+    res.setHeader('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)));
+    return res.status(429).json({ sucesso: false, erro: 'Muitas requisições', codigoErro: 'RATE_LIMIT' });
+  }
+  next();
+}
 
 export function createApp(): Application {
   const app: Application = express();
   const settings = loadSettings();
 
+  app.use(securityHeaders);
   app.use(corsService.getMiddleware());
+  app.use(rateLimitMiddleware);
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -43,6 +90,16 @@ export function createApp(): Application {
   const validator = new SchemaValidator(esquemasPath);
   const projetoService = new ProjetoService(validator);
 
+  app.use((req, res, next) => {
+    if (shouldSkipAuth(req)) return next();
+    return authMiddleware(req, res, next);
+  });
+
+  app.use((req, res, next) => {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+    return csrfMiddleware(req, res, next);
+  });
+
   app.use('/', setupRotas(projetoService));
 
   const frontendPath = path.resolve(__dirname, '..', '..', 'frontend');
@@ -64,9 +121,7 @@ export function createApp(): Application {
     console.error('=== ERRO INTERNO ===');
     console.error('  Metodo:', req.method);
     console.error('  URL:', req.url);
-    console.error('  Body:', JSON.stringify(req.body).substring(0, 500));
     console.error('  Erro:', err?.message || err);
-    console.error('  Stack:', err?.stack || 'sem stack');
     console.error('  Codigo:', err?.codigoErro || 'N/A');
     console.error('====================');
     res.status(500).json({ sucesso: false, erro: 'Erro interno do servidor', codigoErro: 'INTERNAL_ERROR' });
