@@ -62,7 +62,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
     aprendizado: new AprendizadoService(projeto.fileService, projeto.auditoria, validator),
     dependencia: new DependenciaService(projeto.fileService, projeto.auditoria, validator),
     responsabilidade: new ResponsabilidadeService(projeto.fileService, projeto.auditoria, validator),
-    integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator),
+          integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator, projeto.fluxo),
     decisao: new DecisaoService(projeto.fileService, projeto.auditoria, validator),
     risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),

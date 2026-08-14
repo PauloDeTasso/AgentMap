@@ -51,7 +51,7 @@ export class FluxoService {
   }
 
   private existeArquivo(caminhoRelativo: string): boolean {
-    const result = this.fs.lerJson<any>(caminhoRelativo);
+    const result = this.fs.ler(caminhoRelativo);
     return result.sucesso && result.dados !== null && result.dados !== undefined;
   }
 
@@ -63,7 +63,7 @@ export class FluxoService {
   private contarArquivos(caminhoRelativo: string): number {
     const result = this.fs.listar(caminhoRelativo);
     if (!result.sucesso || !Array.isArray(result.dados)) return 0;
-    return result.dados.filter((item: any) => typeof item === 'string' && !item.endsWith('/')).length;
+    return result.dados.filter((item: any) => item && item.tipo === 'arquivo').length;
   }
 
   private contemTarefas(): boolean {

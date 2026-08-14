@@ -2,6 +2,7 @@ import * as path from 'path';
 import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
+import { FluxoService } from './FluxoService';
 import { EstadoProjeto, ResultadoOperacao, SolicitacaoAlteracao, Tarefa, HistoricoCoordenacao, Bloqueio, ResultadoEntity, CriterioAceitacao, Artefato, Handoff, Validacao, Conflito, Reserva, Sessao, Checkpoint, Aprendizado, Dependencia, Responsabilidade, Decisao, Risco, Pendencia } from '../tipos';
 import { v4 as uuid } from 'uuid';
 
@@ -18,7 +19,8 @@ export class IntegridadeService {
   constructor(
     private fs: FileService,
     private auditoria: AuditoriaService,
-    private validator: SchemaValidator
+    private validator: SchemaValidator,
+    private fluxo?: FluxoService
   ) {}
 
   async verificar(projetoId: string): Promise<ResultadoOperacao<{ inconsistencias: string[]; estado: string }>> {
@@ -279,6 +281,16 @@ export class IntegridadeService {
     const historicoRes = this.fs.lerJson<HistoricoCoordenacao>(path.win32.join('.ia', 'historico', 'historico.json'));
     if (!historicoRes.sucesso) {
       inconsistencias.push('Arquivo historico/historico.json não encontrado');
+    }
+
+    if (this.fluxo) {
+      const checklist = this.fluxo.validarChecklist();
+      if (checklist.sucesso && checklist.dados) {
+        const pendentes = this.fluxo.obterPendentes(checklist.dados);
+        if (pendentes.length > 0) {
+          inconsistencias.push(`Checklist de fluxo pendente: ${pendentes.join('; ')}`);
+        }
+      }
     }
 
     this.auditoria.registrar('INTEGRIDADE_VERIFICADA', `Verificação de integridade: ${inconsistencias.length} inconsistências`, { projetoId, inconsistencias: inconsistencias.length });

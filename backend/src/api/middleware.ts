@@ -97,7 +97,7 @@ export function projectMiddleware(projetoService: ProjetoService) {
       aprendizado: new AprendizadoService(projeto.fileService, projeto.auditoria, projeto.validator),
       dependencia: new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
       responsabilidade: new ResponsabilidadeService(projeto.fileService, projeto.auditoria, projeto.validator),
-      integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, projeto.validator),
+      integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.fluxo),
       decisao: new DecisaoService(projeto.fileService, projeto.auditoria, projeto.validator),
       risco: new RiscoService(projeto.fileService, projeto.auditoria, projeto.validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
