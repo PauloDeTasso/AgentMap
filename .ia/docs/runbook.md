@@ -2,7 +2,7 @@
 
 ## Visão geral
 - Servidor backend: `http://localhost:3150`
-- Inicialização do projeto: `agentmap_agentmap_projetos_abrir`
+- Inicialização do projeto: `agentmap_projetos_abrir`
 - Health check: `GET /api/health`
 - Tarefas, agentes, contratos, handoffs, pendencias, bloqueios, riscos, decisões, eventos, sessões, reservas, checkpoints, dependências, responsabilidades, aprendizados, contatos, critérios, resultados, artefatos, conflitos, integridade.
 

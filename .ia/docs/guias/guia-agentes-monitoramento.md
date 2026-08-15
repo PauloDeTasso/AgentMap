@@ -57,6 +57,14 @@ PUT /api/monitoramento/agente/{agenteId}/status
 
 Quando um agente está operando, ele pode reportar status usando estas ferramentas:
 
+### Formato MCP 2026
+
+As tools do AgentMap seguem o padrão MCP 2026:
+- **Sucesso:** `content` (texto JSON) + `structuredContent` (dados validados por `outputSchema`)
+- **Erro:** `content` + `isError: true` com mensagem acionável para auto-correção
+- **Validação:** `inputSchema` Zod valida argumentos antes da execução
+- **Anotações:** tools read-only usam `readOnlyHint: true`
+
 ### Comandos via MCP Tools
 
 - `agentmap_tarefas_contexto` — obtém contexto completo da tarefa

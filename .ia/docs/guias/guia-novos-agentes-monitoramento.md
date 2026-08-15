@@ -69,6 +69,8 @@ Criar diretório de workspace e pastas de outbox:
 
 ## 2. Como Obter Session ID via Agent Manager
 
+O paralelismo real é via **Agent Manager** (extensão VS Code), que cria worktrees isolados por agente. Não há CLI `kilo` standalone.
+
 ### Via MCP Tool
 
 ```json

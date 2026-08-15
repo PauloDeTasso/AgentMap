@@ -113,6 +113,23 @@ Eventos são gerados automaticamente como efeito colateral de:
 - `agentmap_handoffs_atualizar` (estado → CONCLUIDO) → `HANDOFF_CONCLUIDO`
 - `agentmap_solicitacoes_criar` (quando há agente responsável) → `SOLICITACAO_CRIADA`
 
+## Integração com Kilo Code / VS Code (2026)
+
+O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
+
+- **Transporte:** STDIO local (`npx tsx src/mcp-server/index.ts`)
+- **SDK:** `@modelcontextprotocol/sdk` v1.30.0
+- **Tools:** 124 tools registradas com `registerTool`, seguindo o padrão MCP 2026:
+  - `outputSchema` + `structuredContent` para dados estruturados
+  - `isError: true` para erros de execução
+  - Annotations (`readOnlyHint`, `destructiveHint`, etc)
+  - Validação de entrada via Zod
+- **Configuração:** `kilo.jsonc` na raiz ou `~/.config/kilo/kilo.jsonc` (global)
+- **Paralelismo real:** **Agent Manager** (extensão VS Code) cria worktrees isolados por agente
+- **VS Code 1.115+:** inclui preview de **Agents app** com sessões paralelas em worktrees
+
+O AgentMap **não executa agentes** e **não depende de CLI `kilo` standalone**. Ele fornece contexto, ferramentas e governança; o paralelismo é responsabilidade do Agent Manager.
+
 ## Especificação
 
 - `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md` — spec autoritativa
