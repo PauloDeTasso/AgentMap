@@ -239,15 +239,78 @@ Recursos assináveis:
 
 ## 🤖 Agentes ativos
 
-${(agentsList ?? []).length > 0 ? (agentsList as any[]).map((a: any) => `- **${a.nome}** (\`${a.id}\`) — ${a.funcao}`).join('\n') : '- Nenhum projeto aberto. Abra um projeto primeiro.'}
+${(agentsList ?? []).length > 0 ? (agentsList as any[]).map((a: any) => '- **' + a.nome + '** (`' + a.id + '`) — ' + a.funcao).join('\n') : '- Nenhum projeto aberto. Abra um projeto primeiro.'}
+
+## 📡 MCP Subscriptions & Change Notifications
+
+O AgentMap suporta notificacoes em tempo real via dois modos:
+
+**2025 (legacy):**
+- \`resources/subscribe\` + \`resources/unsubscribe\`
+- Notificacao: \`notifications/resources/updated\`
+
+**2026 (moderno):**
+- \`subscriptions/listen\` com filtro \`resourceSubscriptions\`
+- Notificacao: \`notifications/subscriptions/acknowledged\` + \`notifications/resources/updated\` com \`_meta['io.modelcontextprotocol-subscriptionId']\`
+- Cancelamento: \`notifications/cancelled\`
+- Apos reconexao stdio, o cliente deve re-listen
+
+**Recursos assinaveis:**
+- \`agentmap://solicitacoes/{agenteId}\`
+- \`agentmap://handoffs/{agenteId}\`
+- \`agentmap://bloqueios/{projetoId}\`
+
+**Coalescencia:** EventBus agrupa notificacoes do mesmo URI em janela de 100ms.
+
+## 🛠️ CLI & Worktree
+
+**CLI:**
+- \`npm run dev\` — Backend + frontend na porta 3150
+- \`npm run mcp\` — MCP Server via stdio
+- \`npm test\` — Testes
+- \`npm run lint\` — Typecheck
+
+**Worktree (paralelismo real):**
+- \`git worktree list\` — Lista worktrees ativos
+- Cada agente trabalha em seu proprio worktree isolado
+- Agent Manager (extensao VS Code) cria worktrees automaticamente
+
+## 🤖 Agent Manager
+
+- Painel de paralelismo real para VS Code
+- Gerencia worktrees isolados por agente
+- Cria sessoes, atribui secoes, executa agentes em paralelo
+
+## 🔐 Seguranca
+
+- **API Key:** Header \`x-api-key\` obrigatorio para API REST
+- **CSRF:** Middleware ativo para metodos nao-GET
+- **CORS:** Configurado para origins locais de desenvolvimento
+- **Path Traversal:** Protecao em todos os caminhos de arquivo
+- **Autorizacao:** \`authorizeResourceAccess()\` valida acesso por projeto
+
+## 📁 Estrutura & Fluxo
+
+- Projetos vivem em pasta configuravel (ex: \`G:\\PROJETOS\\AgenteMap_Projetos\\\`)
+- Cada projeto tem pasta \`.ia/\` com contratos, tarefas, dependencias, etc.
+- \`.ia/fluxo-trabalho.md\` e obrigatorio
+- Checklist automatico valida estrutura minima
+
+## 📡 Eventos & WebSocket
+
+- **Eventos assincronos:** \`agentmap_eventos_pendentes\` + \`agentmap_eventos_confirmar\`
+- **Eventos custom:** \`POST /api/eventos/custom\`
+- **WebSocket:** \`ws://localhost:3150/ws/monitoramento\` para monitoramento em tempo real
 
 ## 💡 Dicas
 
-- Use \`agentmap_obter_contexto_projeto\` para ver contratos, decisões e estado.
-- Use \`agentmap_eventos_pendentes\` antes de iniciar trabalho.
-- Use \`agentmap_handoffs_criar\` para transferir contexto entre agentes.
-- Use \`resources/subscribe\` para receber notificações automáticas.
-- Consulte \`agentmap://playbook\` para padrões de uso recomendados.
+- Use \`agentmap_descobrir\` para ver todas as capabilities disponiveis
+- Use \`agentmap_sugerir_fluxo\` para recomendacoes de tools por objetivo
+- Consulte \`agentmap://playbook\` para padroes de uso detalhados
+- Use \`agentmap_obter_contexto_projeto\` para ver contratos, decisoes e estado
+- Use \`agentmap_eventos_pendentes\` antes de iniciar trabalho
+- Use \`agentmap_handoffs_criar\` para transferir contexto entre agentes
+- Use subscriptions para receber notificacoes automaticas
 
 > **Nota:** este resource é somente leitura e não requer projeto aberto.
 `;
