@@ -6,6 +6,8 @@
 
 O **AgentMap** é um sistema local criado para permitir que múltiplos agentes de Inteligência Artificial trabalhem de forma coordenada sobre o mesmo projeto.
 
+Compatível com **Windows**, **Linux** e **macOS**.
+
 O AgentMap funciona como uma **memória operacional compartilhada e uma camada de coordenação do projeto**, permitindo que os agentes consultem, registrem e atualizem informações estruturadas sobre o trabalho em andamento.
 
 A comunicação operacional não depende de conversas diretas entre agentes.
@@ -689,25 +691,77 @@ Exemplo de evento custom:
 
 # Como usar
 
-## Desenvolvimento
+## Pré-requisitos
+
+- Node.js 18+
+- npm
+- Git
+- VS Code (opcional, para integração com Kilo Code / Agent Manager)
+
+## Instalação
+
+```bash
+git clone <url-do-repositorio>
+cd AgentMap
+cd backend
+npm install
+```
+
+## Iniciar o sistema
 
 ```bash
 cd backend
-npm install
 npm run dev
 ```
 
-Acesse:
-- Frontend: http://localhost:3150
-- API: http://localhost:3150/api
-- MCP: `npx tsx src/mcp-server/index.ts`
+Isso inicia:
+- Backend + API REST em `http://localhost:3150`
+- Frontend (interface web) servido automaticamente
+- MCP Server via STDIO (para integração com Kilo Code)
+
+## Acessar
+
+- **Frontend / Dashboard:** http://localhost:3150
+- **API REST:** http://localhost:3150/api
+- **Status:** http://localhost:3150/api/status
+- **Health:** http://localhost:3150/api/health
+- **MCP Server (Kilo Code):** `npx tsx src/mcp-server/index.ts`
 
 ## Criar um projeto novo
 
 1. Acesse o frontend em `http://localhost:3150`
-2. Clique em "Novo Projeto"
+2. Clique em **"Novo Projeto"**
 3. Preencha nome e pasta destino
 4. O scaffold gera automaticamente a estrutura `.ia/` completa
+
+> **Nota:** A pasta base de projetos é configurável. No Windows, o padrão é `G:\PROJETOS\AgenteMap_Projetos\`. Em Linux/macOS, use qualquer caminho como `~/projetos/agentmap/`. Você pode alterar o padrão nas configurações do projeto.
+
+## Autenticação
+
+Todas as requisições à API devem incluir a chave de API no header `x-api-key`.
+
+A chave é gerada automaticamente na primeira execução e armazenada em `backend/.local/.api-key`.
+
+Para obter a chave atual:
+```bash
+curl http://localhost:3150/api/auth/key
+```
+
+Para verificar se uma chave é válida:
+```bash
+curl -X POST http://localhost:3150/api/auth/verify \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey":"sua-chave-aqui"}'
+```
+
+## Integração com Kilo Code / VS Code
+
+1. Abra o projeto no VS Code
+2. Verifique se o arquivo `kilo.jsonc` existe na raiz
+3. Na extensão Kilo Code, o MCP do AgentMap deve aparecer automaticamente
+4. Se não aparecer, recarregue a janela: `Ctrl+Shift+P` → `Developer: Reload Window`
+
+O AgentMap **não executa agentes**. Ele fornece contexto, ferramentas e governança via MCP. O paralelismo é responsabilidade do Agent Manager (extensão VS Code).
 
 ## Fluxo recomendado para agentes
 

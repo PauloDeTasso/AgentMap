@@ -2,7 +2,7 @@
 
 ## O que é
 
-Gerenciador local para Windows 11 que organiza projetos, agentes, contratos, tarefas,
+Gerenciador local para Windows, Linux e macOS que organiza projetos, agentes, contratos, tarefas,
 contexto, conhecimento e governança através de arquivos reais no sistema de arquivos.
 
 O arquivo é a informação principal. PostgreSQL é opcional (não implementado no momento; apenas pasta para futura expansão).
@@ -37,9 +37,10 @@ Acesse: http://localhost:3150
 
 ## Estrutura de pastas de projetos
 
-- Pasta base de projetos: `G:\PROJETOS\AgenteMap_Projetos\`
+- Pasta base de projetos: configurável por projeto (caminho absoluto ou relativo)
 - Cada projeto recebe sua própria pasta com o **mesmo nome do projeto**
-- Exemplo: projeto `PAGINA_PESSOAL` → `G:\PROJETOS\AgenteMap_Projetos\PAGINA_PESSOAL`
+- Exemplo Windows: projeto `PAGINA_PESSOAL` → `G:\PROJETOS\AgenteMap_Projetos\PAGINA_PESSOAL`
+- Exemplo Linux/macOS: projeto `PAGINA_PESSOAL` → `~/projetos/agentmap/PAGINA_PESSOAL`
 
 ## Estrutura de um projeto gerenciado
 
