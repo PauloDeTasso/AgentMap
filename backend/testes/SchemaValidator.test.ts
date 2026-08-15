@@ -56,7 +56,7 @@ describe('SchemaValidator', () => {
       id: 'contrato-api',
       nome: 'Contrato da API',
       versao: '1.0.0',
-      estado: 'ATIVO',
+      estado: 'ativo',
       historico: [{ versao: '1.0.0', data: '2026-01-01T00:00:00.000Z', alteracao: 'Criação' }]
     };
     const result = validator.validar('contrato', dados);
@@ -70,7 +70,7 @@ describe('SchemaValidator', () => {
       objetivo: 'Objetivo',
       tipo: 'desenvolvimento',
       estado: 'RASCUNHO',
-      prioridade: 'media',
+      prioridade: 'MEDIA',
       agenteResponsavel: 'frontend',
       dominio: 'frontend',
       ambiente: 'desenvolvimento'
@@ -86,7 +86,7 @@ describe('SchemaValidator', () => {
       objetivo: 'Obj',
       tipo: 'dev',
       estado: 'invalido',
-      prioridade: 'media',
+      prioridade: 'MEDIA',
       agenteResponsavel: 'fe',
       dominio: 'fe',
       ambiente: 'dev'
