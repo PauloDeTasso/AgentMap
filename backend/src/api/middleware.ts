@@ -26,7 +26,6 @@ import { StateMachineService } from '../servicios';
 import { CorsService } from '../servicios/CorsService';
 import { ContractValidatorService } from '../servicios/ContractValidatorService';
 import { BackupService } from '../servicios/BackupService';
-import { KiloDispatcherService } from '../servicios/KiloDispatcherService';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
 import { FluxoService } from '../servicios/FluxoService';
 import { InstanciaService } from '../servicios/InstanciaService';
@@ -62,7 +61,6 @@ export interface Servicos {
   stateMachine: StateMachineService;
   contractValidator: ContractValidatorService;
   backup: BackupService;
-  kiloDispatcher: KiloDispatcherService;
   monitoramento: MonitoramentoService;
   fluxo: FluxoService;
   instancia: InstanciaService;
@@ -111,7 +109,6 @@ export function projectMiddleware(projetoService: ProjetoService) {
       stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator),
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),
       backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz),
-      kiloDispatcher: new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator),
       monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator),
       fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
       instancia: new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),

@@ -50,7 +50,6 @@ import {
 } from './templates/governanca';
 import { ResultadoOperacao } from '../tipos';
 import { FileService } from './FileService';
-import { KiloAgentGeneratorService } from '../servicios/KiloAgentGeneratorService';
 
 const PROCEDIMENTOS_MD: Record<string, string> = {
   CRIAR_TAREFA: `# Procedimento: Criar Tarefa
@@ -369,10 +368,8 @@ export class ScaffoldService {
             arquivoPerfil: `/.ia/agentes/${a.subpasta}/${a.perfilId}.json`
           }
         }));
-        const kiloGenerator = new KiloAgentGeneratorService(fileService);
-        kiloGenerator.gerarAgentes(agentes);
       } catch (e) {
-        console.error('[ScaffoldService] erro ao gerar agentes Kilo:', (e as Error).message);
+        console.error('[ScaffoldService] erro ao scaffold projeto:', (e as Error).message);
       }
 
       const readmeContent = `# ${nome}\n\n${descricao || ''}\n\nEste projeto é gerenciado pelo **Gerenciador Local de Projetos para Agentes de IA**.\n`;
