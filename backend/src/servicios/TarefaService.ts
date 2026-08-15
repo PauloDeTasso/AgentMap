@@ -2,7 +2,7 @@ import * as path from 'path';
 import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
-import { Tarefa, TarefasRegistry, EstadoTarefa, ResultadoOperacao, AgentePerfil, Decisao, Risco, Bloqueio } from '../tipos';
+import { Tarefa, TarefasRegistry, EstadoTarefa, ResultadoOperacao, AgentePerfil, Decisao, Risco, Bloqueio, Execucao, ExecucoesRegistry, EstadoExecucao } from '../tipos';
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { DependenciaService } from './DependenciaService';
 import { EventoService } from './EventoService';

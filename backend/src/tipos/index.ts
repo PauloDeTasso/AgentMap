@@ -615,9 +615,7 @@ export const ESTADOS_TAREFA: EstadoTarefa[] = [
   'ORFA',
   'RECUPERANDO',
   'CANCELADA',
-  'REJEITADA',
-  'ORFA',
-  'RECUPERANDO'
+  'REJEITADA'
 ];
 
 export const TRANSICOES_ESTADO_TAREFA: Record<EstadoTarefa, EstadoTarefa[]> = {
@@ -1098,26 +1096,10 @@ export const TIPOS_CONFLITO: TipoConflito[] = ['RECURSO_DUPLICADO', 'DECISAO_INC
 export const TIPOS_ARTEFATO: TipoArtefato[] = ['ARQUIVO', 'CLASSE', 'METODO', 'MODULO', 'CONTRATO', 'MIGRACAO', 'TESTE', 'DOCUMENTACAO', 'CONFIGURACAO', 'SCRIPT', 'DIAGRAMA'];
 export const TIPOS_PENDENCIA: TipoPendencia[] = ['IMPLEMENTACAO', 'VALIDACAO', 'CORRECAO', 'COMPLETUDE'];
 
-export type TipoEvento = 'HANDOFF_CRIADO' | 'HANDOFF_ACEITO' | 'HANDOFF_CONCLUIDO' | 'TAREFA_CONCLUIDA' | 'BLOQUEIO_CRIADO' | 'CONFLITO_DETECTADO' | 'SOLICITACAO_CRIADA' | 'TRANSIÇÃO_ATUALIZADA' | 'DISPATCH_INICIADO' | 'DISPATCH_SUCESSO' | 'DISPATCH_ERRO' | 'MODO_AUTONOMIA_ALTERADO' | 'INSTANCIA_DESCONECTADA' | 'TAREFA_RECONCILIADA' | 'EVENTO_CRIADO' | 'EVENTO_CONSUMIDO';
-
-export type ModoAutonomia = 'MANUAL' | 'ASSISTIDA' | 'AUTONOMA';
-
 export interface DispatchEventoKilo {
   type: 'step_start' | 'text' | 'step_finish' | 'error' | 'permission' | 'system';
   timestamp: number;
 }
-
-export interface DispatchLog {
-  id: string;
-  timestamp: string;
-  status: string;
-  exitCode?: number;
-  duracaoMs?: number;
-  sessionId?: string | null;
-  eventos?: DispatchEventoKilo[];
-}
-export const TIPOS_CHECKPOINT: TipoCheckpoint[] = ['INTERMEDIARIO', 'DECISAO', 'ENTREGA'];
-export const ESTADOS_PROBLEMA: EstadoProblema[] = ['ABERTO', 'EM_ANALISE', 'RESOLVIDO', 'CANCELADO'];
 
 export type EstadoInstancia = 'REGISTRADA' | 'CONECTADA' | 'DESCONECTADA' | 'ERRO';
 export type ModoAutonomia = 'MANUAL' | 'ASSISTIDA' | 'AUTONOMA';

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  "mcp": {
+    "agentmap": {
+      "environment": {
+      }
+    }
+  },
+  "provider": {
+    "openrouter": {
+      "data_collection_enabled": false
+    },
+    "kilo": {
+      "data_collection_enabled": false
+    }
+  }
+}

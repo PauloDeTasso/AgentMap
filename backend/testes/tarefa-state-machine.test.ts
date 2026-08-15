@@ -103,8 +103,8 @@ describe('Máquina de Estados de Tarefas', () => {
     }
   });
 
-  test('EM_EXECUCAO → ORFA é válido (recuperação)', () => {
-    expect(TRANSICOES_ESTADO_TAREFA['EM_EXECUCAO']).toContain('ORFA');
+  test('EM_EXECUCAO → TIMEOUT é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['EM_EXECUCAO']).toContain('TIMEOUT');
   });
 
   test('ORFA → RECUPERANDO é válido', () => {
@@ -115,12 +115,12 @@ describe('Máquina de Estados de Tarefas', () => {
     expect(TRANSICOES_ESTADO_TAREFA['RECUPERANDO']).toContain('PRONTA');
   });
 
-  test('RECUPERANDO → CONCLUIDA é válido', () => {
-    expect(TRANSICOES_ESTADO_TAREFA['RECUPERANDO']).toContain('CONCLUIDA');
+  test('RECUPERANDO → EM_EXECUCAO é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['RECUPERANDO']).toContain('EM_EXECUCAO');
   });
 
-  test('ORFA → EM_EXECUCAO é válido', () => {
-    expect(TRANSICOES_ESTADO_TAREFA['ORFA']).toContain('EM_EXECUCAO');
+  test('ORFA → CANCELADA é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['ORFA']).toContain('CANCELADA');
   });
 
   test('RECUPERANDO → EM_EXECUCAO é válido', () => {
