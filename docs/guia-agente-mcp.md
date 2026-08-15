@@ -67,12 +67,14 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 {
   "name": "agentmap_handoffs_criar",
   "arguments": {
-    "origem": "backend",
-    "destino": "frontend",
-    "tarefaId": "TAR-2026-00042",
-    "resumo": "Backend concluído, aguardando integração",
-    "pendente": ["Integração com API"],
-    "estado": "PENDENTE"
+    "dados": {
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": "TAR-2026-00042",
+      "resumo": "Backend concluído, aguardando integração",
+      "pendente": ["Integração com API"],
+      "estado": "PENDENTE"
+    }
   }
 }
 ```
@@ -84,7 +86,8 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 3. **Handoff quando necessário**: se o trabalho crossing de domínio, gere handoff
 4. **Validação separada da conclusão**: não conclua tarefa sem validação quando aplicável
 5. **Coordenação entre agentes**: antes de iniciar trabalho, consulte `agentmap_eventos_pendentes({ agenteId: "<seu-id>" })` para verificar eventos pendentes destinados a você. Após processar um evento, marque-o como consumido com `agentmap_eventos_confirmar({ id: "<evento-id>" })`.
-6. **Subscrições MCP**: use `resources/subscribe` para receber notificações automáticas de mudanças em `agentmap://solicitacoes/{seu-id}`, `agentmap://handoffs/{seu-id}` e `agentmap://bloqueios/{projeto-id}`. Após receber `notifications/resources/updated`, chame `resources/read` para obter os dados atualizados.
+6. **Subscrições MCP (2025):** use `resources/subscribe` para receber notificações automáticas de mudanças em `agentmap://solicitacoes/{seu-id}`, `agentmap://handoffs/{seu-id}` e `agentmap://bloqueios/{projeto-id}`. Após receber `notifications/resources/updated`, chame `resources/read` para obter os dados atualizados.
+7. **Subscrições MCP (2026):** use `subscriptions/listen` com `resourceSubscriptions` para receber notificações com `_meta.subscriptionId`. Após reconexão stdio, re-liste; o servidor não mantém estado entre reconexões.
 
 ## Formato de Resposta MCP 2026
 
@@ -109,22 +112,20 @@ O AgentMap suporta subscrições de recursos para notificações em tempo real. 
 | `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
 | `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto atual |
 
-### Como se inscrever
+### Modo 2025 — `resources/subscribe`
 
 ```json
 {
-  "name": "agentmap_recursos_inscrever",
-  "arguments": {
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "resources/subscribe",
+  "params": {
     "uri": "agentmap://solicitacoes/AGT-BACKEND"
   }
 }
 ```
 
-> **Nota:** A tool `resources/subscribe` é um método MCP direto. Consulte a documentação do seu cliente MCP para verificar a sintaxe exata de chamada.
-
-### Como receber notificações
-
-Quando um recurso assinado muda, o servidor envia uma notificação:
+Quando um recurso assinado muda, o servidor envia:
 
 ```json
 {
@@ -149,7 +150,7 @@ Após receber a notificação, leia o recurso atualizado:
 }
 ```
 
-### Como cancelar subscrição
+Para cancelar:
 
 ```json
 {
@@ -161,6 +162,65 @@ Após receber a notificação, leia o recurso atualizado:
   }
 }
 ```
+
+### Modo 2026 — `subscriptions/listen`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "subscriptions/listen",
+  "params": {
+    "notifications": {
+      "resourceSubscriptions": [
+        "agentmap://solicitacoes/AGT-BACKEND"
+      ]
+    }
+  }
+}
+```
+
+O servidor confirma com:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/subscriptions/acknowledged",
+  "params": {},
+  "_meta": {
+    "io.modelcontextprotocol/subscriptionId": "1"
+  }
+}
+```
+
+Notificações de mudança incluem o ID da subscrição:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  },
+  "_meta": {
+    "io.modelcontextprotocol/subscriptionId": "1"
+  }
+}
+```
+
+Para cancelar:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/cancelled",
+  "params": {
+    "requestId": "1"
+  }
+}
+```
+
+> **Importante:** no modo 2026, o cliente deve re-listar após reconexão stdio. O servidor não mantém estado de subscrição entre reconexões.
 
 ### Regras de autorização
 

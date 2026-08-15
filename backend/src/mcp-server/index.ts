@@ -6,8 +6,6 @@ import { globalEventBus } from './events/event-bus';
 import './resources';
 import './tools';
 
-mcpServer.setToolRequestHandlers();
-
 async function main() {
   const transport = new StdioServerTransport();
   console.error('AgentMap MCP server running on stdio');

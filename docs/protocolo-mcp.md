@@ -91,6 +91,7 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 - `agentmap_dependencias_*`, `agentmap_responsabilidades_*`
 - `agentmap_artefatos_*`, `agentmap_resultados_*`, `agentmap_criterios_*`
 - `agentmap_aprendizados_*`, `agentmap_validacoes_*`
+- `agentmap_contatos_*` — CRUD de contatos do projeto
 
 ### Workflows
 - `agentmap_workflows_iniciar_trabalho` — Inicia trabalho com contexto completo
@@ -98,10 +99,26 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 - `agentmap_workflows_consultar_pendencias` — Pendencias por agente
 - `agentmap_workflows_obter_mapa_projeto` — Mapa completo do projeto
 
-### Infra
-- `agentmap_arquivos_listar` — Lista arquivos (COM path safety)
+### Worktree / Paralelismo
+- `agentmap_tarefas_prontas_para_worktree` — Tarefas sem dependência pendente
+- `agentmap_verificar_dependencias_pendentes` — Verifica dependências de uma tarefa
+- `agentmap_abrir_worktree` — Cria worktree automaticamente para uma tarefa
+
+### Contexto & Conhecimento
+- `agentmap_obter_contexto_projeto` — Contexto completo do projeto
+- `agentmap_obter_contexto_tarefa` — Contexto completo de uma tarefa
+- `agentmap_obter_agente` — Perfil completo de um agente
+- `agentmap_obter_arquitetura` — Informações de arquitetura
+- `agentmap_recomendar_agente` — Recomenda agentes para uma tarefa
+- `agentmap_buscar_conhecimento` — Busca na base de conhecimento
+- `agentmap_buscar_referencias` — Busca referências a símbolos
+- `agentmap_buscar_simbolo` — Busca definições de símbolos
+
+### Arquivos & Auditoria
+- `agentmap_arquivos_listar` — Lista arquivos do projeto
 - `agentmap_arquivos_ler` — Lê arquivo
 - `agentmap_arquivos_excluir` — Exclui arquivo
+- `agentmap_ler_trecho_arquivo` — Lê trecho de arquivo com validação
 - `agentmap_auditoria_listar` — Eventos de auditoria
 
 ## Resources
@@ -120,8 +137,11 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 | `agentmap://handoffs/{agenteId}` | Handoffs de um agente |
 | `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto |
 
-### Subscriptions (MCP 2025)
-O servidor suporta `resources/subscribe` e `resources/unsubscribe` para notificações em tempo real:
+### Subscriptions (MCP 2025 + 2026)
+
+O AgentMap suporta dois modos de subscrição compatíveis com diferentes versões do protocolo MCP.
+
+#### Modo 2025 — `resources/subscribe`
 
 ```json
 {
@@ -156,7 +176,64 @@ Quando um recurso assinado muda, o servidor envia:
 }
 ```
 
-O cliente deve então chamar `resources/read` para obter o conteúdo atualizado.
+#### Modo 2026 — `subscriptions/listen`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "subscriptions/listen",
+  "params": {
+    "notifications": {
+      "resourceSubscriptions": [
+        "agentmap://solicitacoes/AGT-BACKEND"
+      ]
+    }
+  }
+}
+```
+
+O servidor responde com:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/subscriptions/acknowledged",
+  "params": {},
+  "_meta": {
+    "io.modelcontextprotocol/subscriptionId": "1"
+  }
+}
+```
+
+Quando um recurso muda, a notificação inclui o ID da subscrição:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  },
+  "_meta": {
+    "io.modelcontextprotocol/subscriptionId": "1"
+  }
+}
+```
+
+Para cancelar, o cliente envia:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/cancelled",
+  "params": {
+    "requestId": "1"
+  }
+}
+```
+
+> **Nota:** no modo 2026, o cliente deve re-listar após reconexão stdio. O servidor não mantém estado de subscrição entre reconexões.
 
 ### Autorização
 Subscrições e leituras de recursos passam por `authorizeResourceAccess()`:

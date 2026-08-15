@@ -14,7 +14,7 @@ O MCP (Model Context Protocol) do AgentMap é uma camada de acesso que expõe os
 
 ```
 backend/src/mcp-server/
-├── index.ts                      # Entry point stdio
+├── index.ts                      # Entry point stdio + setToolRequestHandlers
 ├── server.ts                     # McpServer instance, capabilities, resources, subscriptions
 ├── contexto.ts                   # ProjetoContext: carrega projeto atual + serviços
 ├── erros/
@@ -22,11 +22,12 @@ backend/src/mcp-server/
 ├── events/
 │   └── event-bus.ts              # EventBus local: publish/subscribe + coalescência por URI
 ├── resources/
-│   ├── index.ts                  # Resources estáticos + templates + handlers subscribe/unsubscribe
+│   ├── index.ts                  # Resources estáticos + templates + handlers subscribe/unsubscribe + listen 2026
 │   ├── uri-factory.ts            # URIs canônicas agentmap://... com encodeURIComponent
 │   └── authorization.ts          # authorizeResourceAccess(): valida acesso antes de subscribe/read
 ├── subscriptions/
-│   └── subscription-manager.ts   # Gerenciamento de subscriptions por session/URI
+│   ├── subscription-manager.ts   # Gerenciamento de subscriptions por session/URI (2025 + 2026)
+│   └── protocol-adapter.ts       # Adaptador de protocolo para dual-era routing
 ├── tools/
 │   ├── base.ts                   # Helper: executarServico<T>(servico, metodo, args)
 │   ├── projeto.ts                # status, projetos_listar, projetos_criar, projetos_abrir, projetos_fechar, projetos_atual
@@ -50,6 +51,7 @@ backend/src/mcp-server/
 │   ├── validacoes.ts             # listar, obter, criar, atualizar, aprovar, rejeitar, excluir
 │   ├── arquivos.ts               # listar, ler, escrever, excluir (COM isPathSafe)
 │   ├── auditoria.ts              # listar (ultimos N eventos)
+│   ├── contatos.ts               # listar, obter, criar, atualizar, excluir
 │   └── workflows.ts              # iniciar_trabalho, finalizar_trabalho, consultar_pendencias, obter_mapa_projeto
 ├── prompts/
 │   └── index.ts                  # agentmap-iniciar-trabalho, agentmap-finalizar-trabalho, etc.
@@ -133,6 +135,8 @@ npm run mcp    # Inicia o servidor MCP via stdio
 - [x] Prompts (4 prompts operacionais)
 - [x] Manifesto JSON
 - [x] MCP Resource Subscriptions (EventBus, SubscriptionManager, URI Factory, Authorization, templates dinâmicos)
+- [x] Subscriptions dual-era (2025 legacy + 2026 listen)
+- [x] Graceful shutdown para streams 2026
 - [x] Documentação
 
 ## Riscos e Mitigações
@@ -157,5 +161,8 @@ npm run mcp    # Inicia o servidor MCP via stdio
 - **Retorno erro:** `content` + `isError: true`
 - **Backwards compatibility:** `content` sempre retornado para clients legados
 - **Resources:** registradas com `registerResource(name, uri/template, metadata, callback)`
-- **Subscriptions:** handlers `resources/subscribe` + `resources/unsubscribe` via `setRequestHandler`
-- **Notificações:** `server.sendResourceUpdated({ uri })` para clientes inscritos
+- **Subscriptions 2025:** handlers `resources/subscribe` + `resources/unsubscribe` via `setRequestHandler`
+- **Subscriptions 2026:** handler `subscriptions/listen` via `setRequestHandler` com filtro `resourceSubscriptions`
+- **Notificações:** `server.sendResourceUpdated({ uri })` para clientes inscritos no modo 2025
+- **Notificações 2026:** `server.notification({ method: 'notifications/resources/updated', params: { uri }, _meta: { subscriptionId } })`
+- **Dual-era routing:** o servidor suporta ambos os modos simultaneamente; clients 2025 usam `resources/subscribe`, clients 2026 usam `subscriptions/listen`

@@ -515,6 +515,38 @@ O AgentMap suporta **subscrições de recursos MCP** para notificações em temp
 | `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
 | `agentmap://bloqueios/{projetoId}` | Bloqueios ativos do projeto |
 
+### Modos de subscrição
+
+#### 2025 — `resources/subscribe`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "resources/subscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+#### 2026 — `subscriptions/listen`
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "subscriptions/listen",
+  "params": {
+    "notifications": {
+      "resourceSubscriptions": [
+        "agentmap://solicitacoes/AGT-BACKEND"
+      ]
+    }
+  }
+}
+```
+
 ### Fluxo de subscrição
 
 ```mermaid
@@ -534,6 +566,10 @@ sequenceDiagram
     M-->>A: JSON com dados atualizados
 ```
 
+### Notificações 2026
+
+No modo 2026, o servidor envia `notifications/subscriptions/acknowledged` e usa `_meta["io.modelcontextprotocol/subscriptionId"]` para identificar a subscription. O cliente deve re-listar após reconexão stdio; o servidor não mantém estado de subscription entre reconexões.
+
 ### Características
 
 - **Capabilities anunciadas:** `resources.subscribe: true` e `resources.listChanged: true`
@@ -541,8 +577,9 @@ sequenceDiagram
 - **Autorização centralizada:** `authorizeResourceAccess()` valida acesso antes de inscrever ou ler
 - **Coalescência:** bursts de mudanças são agrupados em 1 notificação por URI (janela de 100ms)
 - **Limpeza automática:** subscrições são removidas no disconnect da sessão
+- **Graceful shutdown:** streams 2026 recebem resultado vazio antes do fechamento
 
-### Exemplo de uso
+### Exemplo de uso (2025)
 
 ```json
 {
@@ -747,6 +784,8 @@ O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 - **Validação de entrada** via Zod em todas as tools
 - **Anotações** (`readOnly`, `destructive`, `idempotent`) para orientar o cliente
 - **Erros via `isError: true`** com mensagens acionáveis para auto-correção do modelo
+- **Subscriptions dual-era:** `resources/subscribe` (2025) e `subscriptions/listen` (2026-07-28) coexistem; o servidor roteia automaticamente conforme a versão do protocolo anunciada no `initialize`
+- **Graceful shutdown:** streams `subscriptions/listen` são encerrados com resultado vazio antes do fechamento do transporte
 
 ### Ecossistema Kilo Code / VS Code 2026
 
