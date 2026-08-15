@@ -19,11 +19,11 @@ export function safeStringify(obj: unknown): string {
 
 export type McpContent = {
   content: Array<{ type: 'text'; text: string }>;
-  structuredContent?: unknown;
+  structuredContent?: Record<string, unknown>;
   isError?: boolean;
 };
 
-export function toMcpResult<T>(result: ResultadoOperacao<T>, structuredContent?: T): McpContent {
+export function toMcpResult<T>(result: ResultadoOperacao<T>): McpContent {
   if (!result.sucesso) {
     return {
       content: [
@@ -50,11 +50,11 @@ export function toMcpResult<T>(result: ResultadoOperacao<T>, structuredContent?:
         })
       }
     ],
-    structuredContent: structuredContent ?? result.dados
+    structuredContent: (result.dados as Record<string, unknown>) ?? undefined
   };
 }
 
-export function toMcpData(dados: unknown, structuredContent?: unknown): McpContent {
+export function toMcpData(dados: unknown): McpContent {
   return {
     content: [
       {
@@ -62,7 +62,7 @@ export function toMcpData(dados: unknown, structuredContent?: unknown): McpConte
         text: safeStringify(dados)
       }
     ],
-    structuredContent: structuredContent ?? dados
+    structuredContent: dados as Record<string, unknown>
   };
 }
 
