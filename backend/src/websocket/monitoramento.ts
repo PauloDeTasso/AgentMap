@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import { Server } from 'http';
+import { Server, IncomingMessage } from 'http';
 import { MonitoramentoService, MensagemMonitoramento } from '../servicios/MonitoramentoService';
 import { API_KEY } from '../seguranca/auth';
 
@@ -7,14 +7,27 @@ export class MonitoramentoWebSocket {
   private wss: WebSocketServer | null = null;
   private clientes: Set<WebSocket> = new Set();
 
+  private ORIGINS_PERMITIDAS: string[];
+
   constructor(private monitoramento: MonitoramentoService) {
     this.monitoramento.on('mensagem', (msg: MensagemMonitoramento) => {
       this.enviarParaTodos(msg);
     });
+    const porta = process.env.PORTA || '3150';
+    this.ORIGINS_PERMITIDAS = [
+      `http://localhost:${porta}`,
+      `http://localhost:3150`,
+      `http://127.0.0.1:${porta}`,
+      `http://127.0.0.1:3150`
+    ];
   }
 
   iniciar(server: Server, caminho = '/ws/monitoramento'): void {
-    this.wss = new WebSocketServer({ server, path: caminho });
+    this.wss = new WebSocketServer({
+      server,
+      path: caminho,
+      verifyClient: (info: { origin: string; req: IncomingMessage; secure: boolean }) => this.verificarOrigem(info)
+    });
 
     this.wss.on('connection', (ws: WebSocket, req: any) => {
       const token = req.headers['authorization']?.replace('Bearer ', '') || req.headers['x-api-key'];
@@ -79,6 +92,12 @@ export class MonitoramentoWebSocket {
     });
 
     console.log(`[WebSocket] Servidor de monitoramento iniciado em ws://localhost:${process.env.PORTA || 3150}${caminho}`);
+  }
+
+  private verificarOrigem(info: { origin: string; req: IncomingMessage; secure: boolean }): boolean {
+    const origin = info.origin || (info.req.headers && (info.req.headers as any).origin);
+    if (!origin) return true;
+    return this.ORIGINS_PERMITIDAS.includes(origin);
   }
 
   private async processarMensagem(ws: WebSocket, payload: any): Promise<void> {
