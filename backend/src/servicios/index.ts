@@ -12,6 +12,7 @@ export * from './EventoService';
 export * from './HandoffService';
 export * from './IntegridadeService';
 export * from './PendenciaService';
+export * from './MonitoramentoService';
 export * from './ProjetoService';
 export * from './ReservaService';
 export * from './ResponsabilidadeService';
