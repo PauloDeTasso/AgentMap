@@ -1,5 +1,5 @@
 import { EventBus, ResourceChangedEvent } from '../src/mcp-server/events/event-bus';
-import { SubscriptionManager } from '../src/mcp-server/subscriptions/subscription-manager';
+import { SubscriptionManager, ListenSubscription } from '../src/mcp-server/subscriptions/subscription-manager';
 import {
   solicitacoesUri,
   handoffsUri,
@@ -116,6 +116,91 @@ describe('SubscriptionManager', () => {
     manager.subscribe('session-2', 'agentmap://a');
     manager.subscribe('session-1', 'agentmap://b');
     expect(manager.getSubscriptionCount()).toBe(3);
+  });
+
+  test('addListenSubscription registra subscription', () => {
+    const resolve = jest.fn();
+    manager.addListenSubscription({
+      subscriptionId: 'listen-1',
+      filter: { resourceSubscriptions: ['agentmap://a'] },
+      sessionId: 'session-1',
+      active: true,
+      resolve
+    });
+    expect(manager.getListenSubscriptionCount()).toBe(1);
+    expect(manager.getListenSubscribersForUri('agentmap://a')).toEqual(['listen-1']);
+    expect(manager.getListenSubscribersForUri('agentmap://b')).toEqual([]);
+  });
+
+  test('removeListenSubscription marca como inativa', () => {
+    const resolve = jest.fn();
+    manager.addListenSubscription({
+      subscriptionId: 'listen-1',
+      filter: { resourceSubscriptions: ['agentmap://a'] },
+      sessionId: 'session-1',
+      active: true,
+      resolve
+    });
+    manager.removeListenSubscription('listen-1');
+    expect(manager.getListenSubscriptionCount()).toBe(0);
+    expect(manager.getListenSubscribersForUri('agentmap://a')).toEqual([]);
+  });
+
+  test('getAllListenSubscriptions retorna apenas ativas', () => {
+    manager.addListenSubscription({
+      subscriptionId: 'listen-1',
+      filter: { resourceSubscriptions: ['agentmap://a'] },
+      sessionId: 'session-1',
+      active: true,
+      resolve: () => {}
+    });
+    manager.addListenSubscription({
+      subscriptionId: 'listen-2',
+      filter: { resourceSubscriptions: ['agentmap://b'] },
+      sessionId: 'session-2',
+      active: false,
+      resolve: () => {}
+    });
+    expect(manager.getAllListenSubscriptions()).toHaveLength(1);
+    expect(manager.getAllListenSubscriptions()[0].subscriptionId).toBe('listen-1');
+  });
+
+  test('resolveAllListenSubscriptions chama resolve em todas ativas', () => {
+    const resolve1 = jest.fn();
+    const resolve2 = jest.fn();
+    manager.addListenSubscription({
+      subscriptionId: 'listen-1',
+      filter: { resourceSubscriptions: ['agentmap://a'] },
+      sessionId: 'session-1',
+      active: true,
+      resolve: resolve1
+    });
+    manager.addListenSubscription({
+      subscriptionId: 'listen-2',
+      filter: { resourceSubscriptions: ['agentmap://b'] },
+      sessionId: 'session-2',
+      active: true,
+      resolve: resolve2
+    });
+    manager.resolveAllListenSubscriptions({});
+    expect(resolve1).toHaveBeenCalledWith({});
+    expect(resolve2).toHaveBeenCalledWith({});
+    expect(manager.getListenSubscriptionCount()).toBe(0);
+  });
+
+  test('legacy e listen subscriptions sao independentes', () => {
+    manager.subscribe('session-1', 'agentmap://a');
+    manager.addListenSubscription({
+      subscriptionId: 'listen-1',
+      filter: { resourceSubscriptions: ['agentmap://a'] },
+      sessionId: 'session-1',
+      active: true,
+      resolve: () => {}
+    });
+    expect(manager.getSubscribers('agentmap://a')).toEqual(['session-1']);
+    expect(manager.getListenSubscribersForUri('agentmap://a')).toEqual(['listen-1']);
+    expect(manager.getSubscriptionCount()).toBe(1);
+    expect(manager.getListenSubscriptionCount()).toBe(1);
   });
 });
 

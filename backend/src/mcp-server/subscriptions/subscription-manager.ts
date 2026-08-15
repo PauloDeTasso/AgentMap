@@ -2,19 +2,34 @@ export interface Subscription {
   sessionId: string;
   uri: string;
   createdAt: number;
+  protocolVersion: '2025' | '2026';
+}
+
+export interface ListenSubscription {
+  subscriptionId: string;
+  filter: {
+    resourceSubscriptions: string[];
+    toolsListChanged?: boolean;
+    promptsListChanged?: boolean;
+    resourcesListChanged?: boolean;
+  };
+  sessionId: string;
+  active: boolean;
+  resolve: (value: any) => void;
 }
 
 export class SubscriptionManager {
   private subscriptions: Map<string, Set<Subscription>> = new Map();
+  private listenSubscriptions: Map<string, ListenSubscription> = new Map();
 
-  subscribe(sessionId: string, uri: string): void {
+  subscribe(sessionId: string, uri: string, protocolVersion: '2025' | '2026' = '2025'): void {
     if (!this.subscriptions.has(uri)) {
       this.subscriptions.set(uri, new Set());
     }
     const existing = this.subscriptions.get(uri)!;
     const found = Array.from(existing).find((s: Subscription) => s.sessionId === sessionId);
     if (!found) {
-      existing.add({ sessionId, uri, createdAt: Date.now() });
+      existing.add({ sessionId, uri, createdAt: Date.now(), protocolVersion });
     }
   }
 
@@ -54,6 +69,54 @@ export class SubscriptionManager {
       count += subs.size;
     }
     return count;
+  }
+
+  addListenSubscription(subscription: ListenSubscription): void {
+    this.listenSubscriptions.set(subscription.subscriptionId, subscription);
+  }
+
+  removeListenSubscription(subscriptionId: string): void {
+    const sub = this.listenSubscriptions.get(subscriptionId);
+    if (sub) {
+      sub.active = false;
+    }
+    this.listenSubscriptions.delete(subscriptionId);
+  }
+
+  getListenSubscription(subscriptionId: string): ListenSubscription | undefined {
+    return this.listenSubscriptions.get(subscriptionId);
+  }
+
+  getListenSubscribersForUri(uri: string): string[] {
+    const result: string[] = [];
+    for (const sub of this.listenSubscriptions.values()) {
+      if (sub.active && sub.filter.resourceSubscriptions.includes(uri)) {
+        result.push(sub.subscriptionId);
+      }
+    }
+    return result;
+  }
+
+  getAllListenSubscriptions(): ListenSubscription[] {
+    return Array.from(this.listenSubscriptions.values()).filter((s) => s.active);
+  }
+
+  getListenSubscriptionCount(): number {
+    return this.getAllListenSubscriptions().length;
+  }
+
+  resolveAllListenSubscriptions(value: unknown): void {
+    for (const sub of this.listenSubscriptions.values()) {
+      if (sub.active) {
+        sub.active = false;
+        try {
+          sub.resolve(value);
+        } catch {
+          // ignore resolve errors
+        }
+      }
+    }
+    this.listenSubscriptions.clear();
   }
 }
 

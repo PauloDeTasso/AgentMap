@@ -31,7 +31,6 @@ mcpServer.registerTool('agentmap_handoffs_listar', {
   title: 'Listar Handoffs',
   description: 'Lista todos os handoffs do projeto.',
   inputSchema: z.object({ destino: z.string().optional() }),
-  outputSchema: z.array(handoffSchema),
   annotations: {
     readOnlyHint: true
   }

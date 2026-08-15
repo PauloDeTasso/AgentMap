@@ -9,13 +9,6 @@ mcpServer.registerTool('agentmap_projetos_listar', {
   title: 'Listar Projetos',
   description: 'Lista todos os projetos registrados no AgentMap.',
   inputSchema: z.object({}),
-  outputSchema: z.array(z.object({
-    id: z.string(),
-    nome: z.string(),
-    caminhoRaiz: z.string(),
-    ativo: z.boolean(),
-    ultimaAbertura: z.string().nullable()
-  })),
   annotations: {
     readOnlyHint: true
   }

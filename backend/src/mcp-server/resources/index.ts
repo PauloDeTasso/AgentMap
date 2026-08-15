@@ -1,10 +1,12 @@
-import { mcpServer } from '../server';
-import { projetoService } from '../server';
+import { mcpServer, projetoService } from '../server';
 import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp';
+import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol';
+import { Variables } from '@modelcontextprotocol/sdk/shared/uriTemplate';
+import { ServerRequest, ServerNotification } from '@modelcontextprotocol/sdk/types';
 import { solicitacoesUri, handoffsUri, bloqueiosUri, parseSolicitacoesUri, parseHandoffsUri, parseBloqueiosUri, getResourceType } from './uri-factory';
 import { authorizeResourceAccess } from './authorization';
 import { globalEventBus } from '../events/event-bus';
-import { subscriptionManager } from '../subscriptions/subscription-manager';
+import { subscriptionManager, ListenSubscription } from '../subscriptions/subscription-manager';
 import { carregarContexto } from '../contexto';
 import { SolicitacaoAlteracao } from 'tipos';
 import { z } from 'zod';
@@ -119,7 +121,7 @@ mcpServer.registerResource(
     description: 'Solicitações de alteração de um agente.',
     mimeType: 'application/json'
   },
-  async (uri, _variables, extra) => {
+  async (uri: URL, _variables: Variables, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
     const agenteId = parseSolicitacoesUri(uri.toString());
     if (!agenteId) {
       return {
@@ -202,7 +204,7 @@ mcpServer.registerResource(
     description: 'Handoffs de um agente.',
     mimeType: 'application/json'
   },
-  async (uri, _variables, extra) => {
+  async (uri: URL, _variables: Variables, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
     const agenteId = parseHandoffsUri(uri.toString());
     if (!agenteId) {
       return {
@@ -271,7 +273,7 @@ mcpServer.registerResource(
     description: 'Bloqueios do projeto.',
     mimeType: 'application/json'
   },
-  async (uri, _variables, extra) => {
+  async (uri: URL, _variables: Variables, extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
     const projetoId = parseBloqueiosUri(uri.toString());
     if (!projetoId) {
       return {
@@ -326,11 +328,58 @@ mcpServer.registerResource(
   }
 );
 
+const ListenRequestSchema = z.object({
+  method: z.literal('subscriptions/listen'),
+  params: z.object({
+    notifications: z.object({
+      resourceSubscriptions: z.array(z.string()).optional(),
+      toolsListChanged: z.boolean().optional(),
+      promptsListChanged: z.boolean().optional(),
+      resourcesListChanged: z.boolean().optional()
+    })
+  })
+});
+
+const CancelledNotificationSchema = z.object({
+  method: z.literal('notifications/cancelled'),
+  params: z.object({
+    requestId: z.string(),
+    reason: z.string().optional()
+  })
+});
+
+function getSessionId(extra: any): string {
+  return extra.sessionId || extra.requestInfo?.sessionId || 'stdio-session';
+}
+
+async function sendAcknowledged(subscriptionId: string): Promise<void> {
+  await mcpServer.server.notification({
+    method: 'notifications/subscriptions/acknowledged',
+    params: {
+      _meta: {
+        'io.modelcontextprotocol/subscriptionId': subscriptionId
+      }
+    }
+  } as any);
+}
+
+async function sendResourceUpdatedForListen(uri: string, subscriptionId: string): Promise<void> {
+  await mcpServer.server.notification({
+    method: 'notifications/resources/updated',
+    params: {
+      uri,
+      _meta: {
+        'io.modelcontextprotocol/subscriptionId': subscriptionId
+      }
+    }
+  } as any);
+}
+
 mcpServer.server.setRequestHandler(
   SubscribeRequestSchema,
   async (request: any, extra: any) => {
     const uri = request.params.uri;
-    const sessionId = extra.sessionId || extra.requestInfo?.sessionId || 'stdio-session';
+    const sessionId = getSessionId(extra);
 
     const projetoResult = projetoService.getProjetoAtual();
     if (!projetoResult.sucesso || !projetoResult.dados) {
@@ -351,7 +400,7 @@ mcpServer.server.setRequestHandler(
   UnsubscribeRequestSchema,
   async (request: any, extra: any) => {
     const uri = request.params.uri;
-    const sessionId = extra.sessionId || extra.requestInfo?.sessionId || 'stdio-session';
+    const sessionId = getSessionId(extra);
 
     subscriptionManager.unsubscribe(sessionId, uri);
     console.error(`[MCP] Unsubscribe: session=${sessionId} uri=${uri}`);
@@ -359,16 +408,96 @@ mcpServer.server.setRequestHandler(
   }
 );
 
+mcpServer.server.setRequestHandler(
+  ListenRequestSchema,
+  async (request: any, extra: any) => {
+    const filter = request.params.notifications || {};
+    const sessionId = getSessionId(extra);
+    const subscriptionId = String(request.id);
+
+    const urisToAuthorize = filter.resourceSubscriptions || [];
+    const projetoResult = projetoService.getProjetoAtual();
+    if (!projetoResult.sucesso || !projetoResult.dados) {
+      return { content: [{ type: 'text', text: JSON.stringify({ sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }) }] };
+    }
+
+    for (const uri of urisToAuthorize) {
+      if (!authorizeResourceAccess(projetoResult.dados, uri)) {
+        return { content: [{ type: 'text', text: JSON.stringify({ sucesso: false, erro: `Acesso não autorizado para ${uri}`, codigoErro: 'UNAUTHORIZED' }) }] };
+      }
+    }
+
+    const subscription: ListenSubscription = {
+      subscriptionId,
+      filter: {
+        resourceSubscriptions: urisToAuthorize,
+        toolsListChanged: filter.toolsListChanged,
+        promptsListChanged: filter.promptsListChanged,
+        resourcesListChanged: filter.resourcesListChanged
+      },
+      sessionId,
+      active: true,
+      resolve: () => {}
+    };
+
+    subscriptionManager.addListenSubscription(subscription);
+
+    console.error(`[MCP] Listen: session=${sessionId} subscriptionId=${subscriptionId} uris=${urisToAuthorize.join(',')}`);
+
+    sendAcknowledged(subscriptionId).catch((err) => {
+      console.error(`[MCP] Falha ao enviar acknowledged para ${subscriptionId}:`, err);
+    });
+
+    return new Promise((resolve) => {
+      subscription.resolve = resolve;
+
+      extra.signal.addEventListener('abort', () => {
+        console.error(`[MCP] Listen aborted: subscriptionId=${subscriptionId}`);
+        subscriptionManager.removeListenSubscription(subscriptionId);
+        resolve({});
+      });
+    });
+  }
+);
+
+mcpServer.server.setNotificationHandler(
+  CancelledNotificationSchema,
+  async (notification: any) => {
+    const requestId = notification.params?.requestId;
+    if (!requestId) return;
+
+    const sub = subscriptionManager.getListenSubscription(requestId);
+    if (sub && sub.active) {
+      console.error(`[MCP] Listen cancelled by client: subscriptionId=${requestId}`);
+      subscriptionManager.removeListenSubscription(requestId);
+    }
+  }
+);
+
 globalEventBus.subscribe((event) => {
   console.error('[E2E-DEBUG] EventBus handler fired', JSON.stringify(event));
-  const subscribers = subscriptionManager.getSubscribers(event.uri);
-  if (subscribers.length > 0) {
-    console.error('[E2E-DEBUG] sendResourceUpdated called');
+
+  const legacySubscribers = subscriptionManager.getSubscribers(event.uri);
+  if (legacySubscribers.length > 0) {
+    console.error('[E2E-DEBUG] sendResourceUpdated called for legacy');
     mcpServer.server.sendResourceUpdated({ uri: event.uri }).catch((err) => {
-      console.error(`[MCP] Falha ao enviar notificação para ${event.uri}:`, err);
-      for (const sessionId of subscribers) {
+      console.error(`[MCP] Falha ao enviar notificação legacy para ${event.uri}:`, err);
+      for (const sessionId of legacySubscribers) {
         subscriptionManager.unsubscribeAll(sessionId);
       }
     });
   }
+
+  const listenSubscriberIds = subscriptionManager.getListenSubscribersForUri(event.uri);
+  if (listenSubscriberIds.length > 0) {
+    console.error('[E2E-DEBUG] sendResourceUpdated called for listen', JSON.stringify(listenSubscriberIds));
+    for (const subscriptionId of listenSubscriberIds) {
+      sendResourceUpdatedForListen(event.uri, subscriptionId).catch((err) => {
+        console.error(`[MCP] Falha ao enviar notificação listen para ${event.uri} (${subscriptionId}):`, err);
+        subscriptionManager.removeListenSubscription(subscriptionId);
+      });
+    }
+  }
 });
+
+

@@ -70,7 +70,6 @@ mcpServer.registerTool('agentmap_agentes_listar', {
   title: 'Listar Agentes',
   description: 'Lista todos os agentes do projeto aberto.',
   inputSchema: z.object({}),
-  outputSchema: z.array(agenteRegistroSchema),
   annotations: {
     readOnlyHint: true
   }

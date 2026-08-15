@@ -6,6 +6,8 @@ import { globalEventBus } from './events/event-bus';
 import './resources';
 import './tools';
 
+mcpServer.setToolRequestHandlers();
+
 async function main() {
   const transport = new StdioServerTransport();
   console.error('AgentMap MCP server running on stdio');
@@ -28,10 +30,14 @@ async function main() {
   const shutdown = async (signal: string) => {
     console.error(`Received ${signal}, shutting down...`);
     try {
+      subscriptionManager.resolveAllListenSubscriptions({});
+      await new Promise((resolve) => setTimeout(resolve, 100));
       await mcpServer.close();
     } catch (e) {
       console.error('Error during MCP server shutdown:', e);
     }
+    subscriptionManager.unsubscribeAll('');
+    globalEventBus.shutdown();
     process.exit(0);
   };
 

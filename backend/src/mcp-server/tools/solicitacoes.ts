@@ -56,7 +56,6 @@ mcpServer.registerTool('agentmap_solicitacoes_listar', {
   title: 'Listar Solicitacoes',
   description: 'Lista todas as solicitações de alteracao do projeto.',
   inputSchema: z.object({}),
-  outputSchema: z.array(solicitacaoSchema),
   annotations: {
     readOnlyHint: true
   }
@@ -196,7 +195,6 @@ mcpServer.registerTool('agentmap_solicitacoes_historico', {
   title: 'Historico da Solicitacao',
   description: 'Lista o historico de eventos de uma solicitacao.',
   inputSchema: z.object({ id: z.string() }),
-  outputSchema: z.array(eventoHistoricoSchema),
   annotations: {
     readOnlyHint: true
   }

@@ -11,16 +11,15 @@ export function csrfMiddleware(req: Request, res: Response, next: NextFunction) 
   if (!origin && !referer) {
     return res.status(403).json({ sucesso: false, erro: 'CSRF: origem inválida', codigoErro: 'CSRF_INVALID' });
   }
-  if (origin && referer) {
-    try {
-      const originHost = new URL(origin).host;
-      const refererHost = new URL(referer).host;
-      if (originHost !== host || refererHost !== host) {
-        return res.status(403).json({ sucesso: false, erro: 'CSRF: origem não confere', codigoErro: 'CSRF_INVALID' });
-      }
-    } catch {
-      return res.status(403).json({ sucesso: false, erro: 'CSRF: origem inválida', codigoErro: 'CSRF_INVALID' });
+  try {
+    const originHost = origin ? new URL(origin).host : null;
+    const refererHost = referer ? new URL(referer).host : null;
+    const isValid = (originHost === host || refererHost === host);
+    if (!isValid) {
+      return res.status(403).json({ sucesso: false, erro: 'CSRF: origem não confere', codigoErro: 'CSRF_INVALID' });
     }
+  } catch {
+    return res.status(403).json({ sucesso: false, erro: 'CSRF: origem inválida', codigoErro: 'CSRF_INVALID' });
   }
   next();
 }

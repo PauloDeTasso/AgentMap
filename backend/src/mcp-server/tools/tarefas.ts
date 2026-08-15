@@ -53,7 +53,6 @@ mcpServer.registerTool('agentmap_tarefas_listar', {
   title: 'Listar Tarefas',
   description: 'Lista todas as tarefas do projeto aberto.',
   inputSchema: z.object({}),
-  outputSchema: z.array(tarefaSchema),
   annotations: {
     readOnlyHint: true
   }
