@@ -29,7 +29,6 @@ import { ContatoService } from 'servicios';
 import { StateMachineService } from 'servicios';
 import { ContractValidatorService } from 'servicios';
 import { BackupService } from 'servicios';
-import { KiloDispatcherService } from 'servicios/KiloDispatcherService';
 import { MonitoramentoService } from 'servicios/MonitoramentoService';
 import { FluxoService } from 'servicios/FluxoService';
 import { InstanciaService } from 'servicios/InstanciaService';
@@ -45,7 +44,6 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
   const validator = projeto.validator;
   const eventoService = new EventoService(projeto.fileService, projeto.auditoria, validator);
   const stateMachineService = new StateMachineService(projeto.fileService, projeto.auditoria, validator);
-  const kiloDispatcher = new KiloDispatcherService(projeto.fileService, projeto.auditoria, validator);
   return {
     projeto,
     agente: new AgenteService(projeto.fileService, projeto.auditoria, validator),
@@ -74,7 +72,6 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
       stateMachine: stateMachineService,
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, validator),
       backup: new BackupService(projeto.fileService, projeto.auditoria, validator, projeto.caminhoRaiz),
-      kiloDispatcher: kiloDispatcher,
       monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, validator),
       fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
       instancia: new InstanciaService(projeto.fileService, projeto.auditoria, validator),
