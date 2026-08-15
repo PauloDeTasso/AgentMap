@@ -3,10 +3,10 @@ import { EventEmitter } from 'events';
 import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
-import { KiloDispatcherService } from './KiloDispatcherService';
+import { ModoAutonomia } from '../tipos';
 import { ResultadoOperacao } from '../tipos';
 
-export type ModoOperacao = 'AUTOMATICO' | 'HIBRIDO' | 'MANUAL';
+export type ModoOperacao = ModoAutonomia;
 export type StatusAgente = 'ATIVO' | 'AGUARDANDO' | 'ERRO' | 'OFFLINE' | 'DISPONIVEL';
 
 export interface MensagemMonitoramento {
@@ -31,13 +31,14 @@ export interface StatusAgenteMonitoramento {
   tarefaAtualId?: string;
   tarefaAtualTitulo?: string;
   ultimaAtividade: string;
+  ultimoHeartbeat: string;
   sessionId?: string;
-  autoApprove: boolean;
 }
 
 export interface ConfigMonitoramento {
   modoGlobal: ModoOperacao;
   ultimaAtualizacao: string;
+  timeoutHeartbeat: number;
 }
 
 export class MonitoramentoService extends EventEmitter {
@@ -49,8 +50,7 @@ export class MonitoramentoService extends EventEmitter {
   constructor(
     private fs: FileService,
     private auditoria: AuditoriaService,
-    private validator: SchemaValidator,
-    private dispatcher: KiloDispatcherService
+    private validator: SchemaValidator
   ) {
     super();
     this.setMaxListeners(100);
@@ -72,8 +72,9 @@ export class MonitoramentoService extends EventEmitter {
     const result = this.fs.lerJson<ConfigMonitoramento>(this.configPath);
     if (!result.sucesso || !result.dados) {
       return {
-        modoGlobal: 'AUTOMATICO',
-        ultimaAtualizacao: new Date().toISOString()
+        modoGlobal: 'MANUAL',
+        ultimaAtualizacao: new Date().toISOString(),
+        timeoutHeartbeat: 300000
       };
     }
     return result.dados;
@@ -111,9 +112,11 @@ export class MonitoramentoService extends EventEmitter {
     agenteId?: string
   ): ResultadoOperacao<ConfigMonitoramento> {
     if (escopo === 'GLOBAL') {
+      const configAtual = this.carregarConfig();
       const config: ConfigMonitoramento = {
         modoGlobal: modo,
-        ultimaAtualizacao: new Date().toISOString()
+        ultimaAtualizacao: new Date().toISOString(),
+        timeoutHeartbeat: configAtual.timeoutHeartbeat
       };
       const result = this.fs.escreverJson(this.configPath, config);
       if (!result.sucesso) {
@@ -144,7 +147,8 @@ export class MonitoramentoService extends EventEmitter {
           nome: agenteId,
           status: 'DISPONIVEL' as StatusAgente,
           modo,
-          ultimaAtividade: new Date().toISOString()
+          ultimaAtividade: new Date().toISOString(),
+          ultimoHeartbeat: new Date().toISOString()
         };
         this.fs.escreverJson(statusPath, defaultConfig);
       }
@@ -172,7 +176,6 @@ export class MonitoramentoService extends EventEmitter {
       tarefaId?: string;
       tarefaTitulo?: string;
       sessionId?: string;
-      autoApprove?: boolean;
       conteudo?: string;
       tipo?: string;
       progresso?: number;
@@ -187,10 +190,10 @@ export class MonitoramentoService extends EventEmitter {
       id: agenteId,
       nome: agenteId,
       status,
-      modo: dados?.autoApprove ? 'AUTOMATICO' : (status === 'ERRO' ? 'HIBRIDO' : config.modoGlobal),
+      modo: config.modoGlobal,
       ultimaAtividade: new Date().toISOString(),
+      ultimoHeartbeat: new Date().toISOString(),
       sessionId: dados?.sessionId,
-      autoApprove: dados?.autoApprove ?? false,
       tarefaAtualId: dados?.tarefaId,
       tarefaAtualTitulo: dados?.tarefaTitulo
     };
@@ -252,7 +255,7 @@ export class MonitoramentoService extends EventEmitter {
           status: 'DISPONIVEL' as StatusAgente,
           modo: config.modoGlobal,
           ultimaAtividade: new Date().toISOString(),
-          autoApprove: false
+          ultimoHeartbeat: new Date().toISOString()
         };
         agentes.push(info);
       }
@@ -286,6 +289,60 @@ export class MonitoramentoService extends EventEmitter {
     this.emit('mensagem', mensagem);
   }
 
+  registrarHeartbeat(agenteId: string): ResultadoOperacao<string> {
+    const statusPath = path.win32.join(this.statusPath, `${agenteId}.json`);
+    const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
+    const config = this.carregarConfig();
+
+    let info: StatusAgenteMonitoramento;
+    if (result.sucesso && result.dados) {
+      info = { ...result.dados, ultimoHeartbeat: new Date().toISOString() };
+    } else {
+      info = {
+        id: agenteId,
+        nome: agenteId,
+        status: 'DISPONIVEL' as StatusAgente,
+        modo: config.modoGlobal,
+        ultimaAtividade: new Date().toISOString(),
+        ultimoHeartbeat: new Date().toISOString()
+      };
+    }
+
+    const writeResult = this.fs.escreverJson(statusPath, info);
+    if (!writeResult.sucesso) {
+      return { sucesso: false, erro: writeResult.erro, codigoErro: writeResult.codigoErro };
+    }
+
+    return { sucesso: true };
+  }
+
+  verificarOrfaos(): ResultadoOperacao<string[]> {
+    const config = this.carregarConfig();
+    const agora = Date.now();
+    const timeout = config.timeoutHeartbeat || 300000;
+    const agentesResult = this.fs.listar('.ia/agentes');
+    const orfaos: string[] = [];
+
+    if (!agentesResult.sucesso || !agentesResult.dados) {
+      return { sucesso: true, dados: orfaos };
+    }
+
+    for (const agente of agentesResult.dados) {
+      const statusPath = path.win32.join(this.statusPath, `${agente.nome}.json`);
+      const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
+      if (!result.sucesso || !result.dados) continue;
+
+      const ultimoHb = new Date(result.dados.ultimoHeartbeat).getTime();
+      if (agora - ultimoHb > timeout) {
+        orfaos.push(agente.nome);
+        this.fs.escreverJson(statusPath, { ...result.dados, status: 'ORFA' as StatusAgente });
+      }
+    }
+
+    this.auditoria.registrar('AGENTES_ORFAOS', `${orfaos.length} agentes órfãos detectados`, { orfaos });
+    return { sucesso: true, dados: orfaos };
+  }
+
   async executarIntervencao(
     comando: string,
     payload: Record<string, unknown>
@@ -311,40 +368,15 @@ export class MonitoramentoService extends EventEmitter {
     return { sucesso: true, dados: { comando, payload, timestamp: msg.timestamp } };
   }
 
-  listarPendentesDispatcher(agenteId?: string) {
-    return this.dispatcher.listarPendentes(agenteId);
+  listarPendentesDispatcher(_agenteId?: string) {
+    return { sucesso: true, dados: [] };
   }
 
-  async executarPendenteDispatcher(agenteId: string) {
-    const result = await this.dispatcher.executarPendente(agenteId);
-    if (!result.sucesso || !result.dados) {
-      return result;
-    }
-
-    const log = result.dados;
-    const msg: MensagemMonitoramento = {
-      id: `MSG-${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      tipo: 'DISPATCH_EXECUTADO',
-      emissor: 'dispatcher',
-      agenteId,
-      tarefaId: log.tarefaId,
-      conteudo: `Dispatch ${log.status} para ${agenteId}`,
-      progresso: log.status === 'SUCESSO' ? 100 : 0,
-      dados: {
-        comando: log.comando,
-        status: log.status,
-        exitCode: log.exitCode,
-        duracaoMs: log.duracaoMs,
-        sessionId: log.sessionId
-      }
-    };
-    this.adicionarMensagem(msg);
-    return result;
+  async executarPendenteDispatcher(_agenteId: string) {
+    return { sucesso: false, erro: 'Dispatcher depreciado. Use Agent Manager worktrees.', codigoErro: 'NOT_IMPLEMENTED' };
   }
 
-  listarLogsDispatcher(limite = 100) {
-    return this.dispatcher.listarLogs(limite);
+  listarLogsDispatcher(_limite = 100) {
+    return { sucesso: true, dados: [] };
   }
 }
-

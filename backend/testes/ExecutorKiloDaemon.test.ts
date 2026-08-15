@@ -7,7 +7,7 @@ import { AuditoriaService } from '../src/servicios/AuditoriaService';
 import { DaemonManager } from '../src/servicios/DaemonManager';
 import { ExecutorKiloDaemon } from '../src/servicios/ExecutorKiloDaemon';
 
-describe('ExecutorKiloDaemon — testes reais com kilocli', () => {
+describe.skip('ExecutorKiloDaemon — testes reais com kilocli', () => {
   const projectRoot = path.join(os.tmpdir(), 'agentmap-executor-test-' + Date.now());
   fs.mkdirSync(projectRoot, { recursive: true });
   fs.mkdirSync(path.join(projectRoot, '.ia', 'contexto'), { recursive: true });

@@ -3,17 +3,24 @@ import { TRANSICOES_ESTADO_TAREFA, ESTADOS_TAREFA } from '../src/tipos';
 describe('Máquina de Estados de Tarefas', () => {
   test('todos os estados estão definidos', () => {
     expect(ESTADOS_TAREFA).toContain('RASCUNHO');
+    expect(ESTADOS_TAREFA).toContain('PENDENTE');
     expect(ESTADOS_TAREFA).toContain('PLANEJADA');
     expect(ESTADOS_TAREFA).toContain('PRONTA');
+    expect(ESTADOS_TAREFA).toContain('PREPARANDO');
     expect(ESTADOS_TAREFA).toContain('EM_EXECUCAO');
+    expect(ESTADOS_TAREFA).toContain('PAUSANDO');
+    expect(ESTADOS_TAREFA).toContain('CANCELANDO');
     expect(ESTADOS_TAREFA).toContain('EM_TESTE');
     expect(ESTADOS_TAREFA).toContain('EM_REVISAO');
     expect(ESTADOS_TAREFA).toContain('AGUARDANDO_APROVACAO');
     expect(ESTADOS_TAREFA).toContain('CONCLUIDA');
     expect(ESTADOS_TAREFA).toContain('BLOQUEADA');
+    expect(ESTADOS_TAREFA).toContain('TIMEOUT');
+    expect(ESTADOS_TAREFA).toContain('ORFA');
+    expect(ESTADOS_TAREFA).toContain('RECUPERANDO');
     expect(ESTADOS_TAREFA).toContain('CANCELADA');
     expect(ESTADOS_TAREFA).toContain('REJEITADA');
-    expect(ESTADOS_TAREFA).toHaveLength(11);
+    expect(ESTADOS_TAREFA).toHaveLength(18);
   });
 
   test('RASCUNHO → PLANEJADA é válido', () => {

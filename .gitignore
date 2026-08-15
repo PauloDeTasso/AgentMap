@@ -202,6 +202,11 @@ credentials.json
 service-account.json
 serviceAccount.json
 
+**/.api-key
+**/dispatch-log.json
+**/daemon-mapping.json
+**/estado.json
+
 # ==========================================
 
 # CHAVES / CERTIFICADOS

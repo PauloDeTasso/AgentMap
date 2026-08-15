@@ -112,7 +112,7 @@ export function projectMiddleware(projetoService: ProjetoService) {
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),
       backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz),
       kiloDispatcher: new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator),
-      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator, new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator)),
+      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator),
       fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
       instancia: new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
       orquestrador: new OrquestradorService(

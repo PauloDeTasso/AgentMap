@@ -12,7 +12,6 @@ import { csrfMiddleware } from './seguranca/csrf';
 const PUBLIC_PATHS = new Set([
   '/api/status',
   '/api/projetos/settings',
-  '/api/auth/key',
 ]);
 
 function shouldSkipAuth(req: express.Request): boolean {
@@ -59,8 +58,8 @@ export function createApp(): Application {
   app.use(securityHeaders);
   app.use(corsService.getMiddleware());
   app.use(rateLimitMiddleware);
-  app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
   app.use((req, res, next) => {
     const start = Date.now();
@@ -90,18 +89,6 @@ export function createApp(): Application {
   const validator = new SchemaValidator(esquemasPath);
   const projetoService = new ProjetoService(validator);
 
-  app.use((req, res, next) => {
-    if (shouldSkipAuth(req)) return next();
-    return authMiddleware(req, res, next);
-  });
-
-  app.use((req, res, next) => {
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
-    return csrfMiddleware(req, res, next);
-  });
-
-  app.use('/', setupRotas(projetoService));
-
   const frontendPath = path.resolve(__dirname, '..', '..', 'frontend');
   app.use(express.static(frontendPath, {
     maxAge: 0,
@@ -114,6 +101,18 @@ export function createApp(): Application {
       }
     }
   }));
+
+  app.use((req, res, next) => {
+    if (shouldSkipAuth(req)) return next();
+    return authMiddleware(req, res, next);
+  });
+
+  app.use((req, res, next) => {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+    return csrfMiddleware(req, res, next);
+  });
+
+  app.use('/', setupRotas(projetoService));
 
   app.use('/esquemas', express.static(esquemasPath));
 

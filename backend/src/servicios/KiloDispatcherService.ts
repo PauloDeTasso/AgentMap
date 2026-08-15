@@ -1,3 +1,8 @@
+/**
+ * @deprecated KiloDispatcherService depende de CLI `kilo` inexistente e caminho hardcoded.
+ * O paralelismo real é via Agent Manager worktrees.
+ * Mantido apenas para referência histórica.
+ */
 import * as path from 'path';
 import * as fs from 'fs';
 import { execSync } from 'child_process';
@@ -189,9 +194,7 @@ export class KiloDispatcherService {
   }
 
   private montarComando(configAgente: DispatchConfig['agentes'][string], prompt: string): { cmd: string; args: string[] } {
-    const kiloCmd = process.platform === 'win32'
-      ? 'C:\\Users\\Administrator\\AppData\\Roaming\\npm\\kilo.cmd'
-      : 'kilo';
+    const kiloCmd = process.env.KILO_CMD || 'kilo';
     const args: string[] = ['run'];
     args.push('--agent');
     args.push(configAgente.kiloAgent);

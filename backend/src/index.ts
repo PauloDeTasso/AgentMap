@@ -26,8 +26,7 @@ const projetoService = new ProjetoService(validator);
 const projetoResult = projetoService.getProjetoAtual();
 if (projetoResult.sucesso && projetoResult.dados) {
   const projeto = projetoResult.dados;
-  const dispatcher = new KiloDispatcherService(projeto.fileService, projeto.auditoria, projeto.validator);
-  const monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator, dispatcher);
+  const monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator);
   const wsServer = new MonitoramentoWebSocket(monitoramento);
   wsServer.iniciar(server);
 } else {

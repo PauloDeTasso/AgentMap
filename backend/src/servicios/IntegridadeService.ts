@@ -335,7 +335,7 @@ export class IntegridadeService {
         concluidas: tarefas.filter((t) => t.estado === 'CONCLUIDA').length,
         emExecucao: tarefas.filter((t) => t.estado === 'EM_EXECUCAO').length,
         bloqueadas: tarefas.filter((t) => t.estado === 'BLOQUEADA').length,
-        pendentes: tarefas.filter((t) => ['RASCUNHO', 'PLANEJADA', 'PRONTA'].includes(t.estado)).length
+        pendentes: tarefas.filter((t) => ['RASCUNHO', 'PENDENTE', 'PLANEJADA', 'PRONTA'].includes(t.estado)).length
       },
       solicitacoes: {
         total: solicitacoes.length,

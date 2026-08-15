@@ -20,7 +20,7 @@ export const API_KEY = ensureAuthFile();
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   if (process.env.NODE_ENV === 'test') return next();
-  const provided = req.headers['x-api-key'] || req.query.apiKey;
+  const provided = req.headers['x-api-key'];
   if (!provided || provided !== API_KEY) {
     return res.status(401).json({ sucesso: false, erro: 'Não autorizado', codigoErro: 'UNAUTHORIZED' });
   }

@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as fs from 'fs';
 import { AgentePerfil } from '../tipos';
 
 export class PathTraversalError extends Error {
@@ -28,7 +29,22 @@ export function resolveProjectPath(projectRoot: string, relPath: string): Valida
   if (!dentroDaRaiz) {
     throw new PathTraversalError(`Caminho '${relPath}' escapa da raiz do projeto`, relPath);
   }
-  return { caminhoAbsoluto: absoluto, caminhoRelativo: relativo, dentroDaRaiz };
+
+  try {
+    const real = fs.realpathSync(absoluto);
+    const realRel = path.win32.relative(root, real).replace(/\\/g, '/');
+    const realDentro = real === root || real.startsWith(root + path.win32.sep);
+    if (!realDentro) {
+      throw new PathTraversalError(`Caminho '${relPath}' escapa da raiz via symlink/junction (real: ${realRel})`, relPath);
+    }
+  } catch (e: any) {
+    if (e instanceof PathTraversalError) throw e;
+    if (e instanceof Error && (e as any).code !== 'ENOENT') {
+      throw new PathTraversalError(`Erro ao resolver symlink para '${relPath}': ${e.message}`, relPath);
+    }
+  }
+
+  return { caminhoAbsoluto: absoluto, caminhoRelativo: relativo, dentroDaRaiz: true };
 }
 
 export function resolveIaPath(projectRoot: string, relPath: string): ValidacaoCaminhoResult {

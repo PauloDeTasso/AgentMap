@@ -786,6 +786,14 @@ O AgentMap não depende exclusivamente do Kilo Code.
 
 Outros clientes podem ser integrados posteriormente.
 
+## Configuração do Kilo
+
+O arquivo `kilo.jsonc` define a integração com o MCP do AgentMap.
+
+O campo `data_collection_enabled` controla se dados de uso são coletados pelos provedores. Por padrão, está desabilitado no arquivo `kilo.local.jsonc` (não versionado).
+
+Variáveis de ambiente e configurações locais devem ser definidas em `kilo.local.jsonc`, que é ignorado pelo Git.
+
 ---
 
 # Segurança

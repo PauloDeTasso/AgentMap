@@ -61,6 +61,7 @@ export class TarefaService {
   private getDirPorEstado(estado: EstadoTarefa): string {
     const map: Partial<Record<EstadoTarefa, string>> = {
       RASCUNHO: 'rascunho',
+      PENDENTE: 'pendentes',
       PLANEJADA: 'planejadas',
       PRONTA: 'prontas',
       EM_EXECUCAO: 'execucao',
@@ -186,7 +187,7 @@ export class TarefaService {
 
     if (this.dependenciaService) {
       if (novoEstado === 'EM_EXECUCAO') {
-        const depsResult = this.dependenciaService.listarPorFonte(tarefa.id);
+        const depsResult = this.dependenciaService.listarPorDestino(tarefa.id);
         if (depsResult.sucesso && depsResult.dados) {
           const pendentes = depsResult.dados.filter((d) => d.estado === 'ATIVA');
           if (pendentes.length > 0) {

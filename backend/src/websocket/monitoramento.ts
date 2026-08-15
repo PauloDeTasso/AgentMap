@@ -17,8 +17,7 @@ export class MonitoramentoWebSocket {
     this.wss = new WebSocketServer({ server, path: caminho });
 
     this.wss.on('connection', (ws: WebSocket, req: any) => {
-      const url = new URL(req.url || '', `http://${req.headers.host}`);
-      const token = url.searchParams.get('token') || req.headers['x-api-key'];
+      const token = req.headers['authorization']?.replace('Bearer ', '') || req.headers['x-api-key'];
       if (!token || token !== API_KEY) {
         ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Não autorizado' } }));
         ws.close(1008, 'Unauthorized');

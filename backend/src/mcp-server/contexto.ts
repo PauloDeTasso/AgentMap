@@ -75,7 +75,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, validator),
       backup: new BackupService(projeto.fileService, projeto.auditoria, validator, projeto.caminhoRaiz),
       kiloDispatcher: kiloDispatcher,
-      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, validator, kiloDispatcher),
+      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, validator),
       fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
       instancia: new InstanciaService(projeto.fileService, projeto.auditoria, validator),
       orquestrador: new OrquestradorService(

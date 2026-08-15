@@ -1,11 +1,11 @@
 # Análise de Realidade — Orquestração Multiagente do AgentMap
-## Data: 2026-08-13
+## Data: 2026-08-15
 
 ## 1. Validação do Kilo Instalado
 
 ### 1.1 Resultado da Validação
 - **CLI `kilo` no PATH:** NÃO ENCONTRADO
-- **Extensão VS Code Kilo:** Instalada (`.kilocode` presente em `C:\Users\Administrator\.kilocode` e `.kilo` no projeto)
+- **Extensão VS Code Kilo:** Instalada (`.kilocode` presente e `.kilo` no projeto)
 - **Instalação standalone:** NÃO EXISTE
 - **Conclusão:** O Kilo está disponível **apenas como extensão VS Code**, não como CLI de linha de comando independente.
 
@@ -16,31 +16,46 @@
 
 ---
 
-## 2. Mapeamento do que REALMENTE Existe
+## 2. Mecanismo Real de Paralelismo: Agent Manager Worktrees
 
-### 2.1 Backend (Node.js + TypeScript + Express)
+O paralelismo real no AgentMap é obtido através do **Agent Manager nativo** com **git worktrees isolados**.
+
+Cada agente opera em seu próprio worktree, permitindo execução paralela de tarefas independentes. A coordenação ocorre via:
+- Handoffs formais entre agentes
+- Dependências explícitas entre tarefas
+- Validação de critérios de aceitação
+- Auditoria no AgentMap
+
+**Não existe daemon Kilo nem CLI `kilo run` automatizado.** O Agent Manager é a camada de execução.
+
+---
+
+## 3. Mapeamento do que REALMENTE Existe
+
+### 3.1 Backend (Node.js + TypeScript + Express)
 - **Estrutura:** `backend/src/` com serviços, API REST, MCP server
 - **Rotas API:** `/health`, `/api/auth/*`, `/api/admin/*`, `/api/tarefas`, `/api/handoffs`, etc.
 - **MCP Server:** Implementado em `backend/src/mcp-server/` usando `@modelcontextprotocol/sdk`
 - **State Machine:** `StateMachineService.ts` + `.ia/configuracao/transicoes.json` — **FUNCIONAL**
 - **Transições carregadas dinamicamente** do JSON (não hardcoded)
+- **Instância Service:** `InstanciaService.ts` — **FUNCIONAL**, implementa identidade completa (`instanciaId`, `workspaceId`, `sessaoId`, `workspacePath`, `modoAutonomia`)
 - **Testes:** Jest configurado
 - **Build:** TypeScript 5.8.2, compila para `dist/`
 
-### 2.2 Frontend (HTML5 + CSS3 + JS vanilla)
+### 3.2 Frontend (HTML5 + CSS3 + JS vanilla)
 - Páginas: login, dashboard, home, projetos, experiência
 - Interface web do AgentMap acessível via backend
 - Sem framework SPA — HTML/CSS/JS puro
 
-### 2.3 MCP / AgentMap
+### 3.3 MCP / AgentMap
 - **Protocolo:** stdio (não HTTP/SSE)
-- **Tools disponíveis:** 40+ tools funcionando via MCP
+- **Tools disponíveis:** 121 tools funcionando via MCP
 - **Agentes cadastrados:** arquiteto, frontend, backend, agentmap-admin, dba
 - **Sistema de governança:** tarefas, handoffs, resultados, contratos, procedimentos, contexto
 - **Persistência:** Arquivos JSON em `.ia/`
 - **Validação:** JSON Schema + Zod
 
-### 2.4 Infraestrutura
+### 3.4 Infraestrutura
 - Runbook documentado
 - Procedimentos em `.ia/procedimentos/`
 - Health check em `/api/health`
@@ -48,102 +63,88 @@
 - CORS dinâmico
 - Backup automático
 - Readiness em `/api/admin/readiness`
-- Broadcast em `/api/admin/broadcast`
-- Estado unificado do projeto em `/api/admin/estado-projeto`
 
 ---
 
-## 3. Gaps Reais entre Plano e Realidade
+## 4. Serviços Funcionais vs Código Morto
 
-### 3.1 Orquestração Multiagente — NÃO EXISTE
-| Recurso Planejado | Status Real |
-|-------------------|-------------|
-| Orquestração real com Kilo Code | NÃO EXISTE |
-| `kilo daemon` rodando por workspace/agente | NÃO EXISTE (CLI não instalado) |
-| `kilo run --attach` integrado ao AgentMap | NÃO EXISTE (CLI não instalado) |
-| `kilo mcp add` configurado para HTTP/SSE | NÃO EXISTE (MCP atual é stdio) |
-| Extensão VS Code como executor automatizado | NÃO EXISTE (apenas instância humana) |
-| Identidade de instâncias (instanciaId, workspaceId, sessaoId) | NÃO EXISTE |
-| Heartbeat real entre instâncias | NÃO EXISTE |
-| Comunicação bidirecional em tempo real (WebSocket) | NÃO EXISTE |
-| Fila de tarefas persistente | NÃO EXISTE |
-| Despacho automático por instância/workspace | NÃO EXISTE |
-| Autonomia MANUAL/ASSISTIDA/AUTONOMA real | NÃO EXISTE |
-| Aprovação/intervenção via web | NÃO EXISTE |
-| Recuperação de falhas (daemon caiu, sessão órfã) | NÃO EXISTE |
-| Testes multiinstância | NÃO EXISTE |
+### Funcionais
+| Serviço | Status |
+|---------|--------|
+| `InstanciaService.ts` | ✅ Funcional — identidade de instância completa |
+| `StateMachineService.ts` | ✅ Funcional — transições dinâmicas |
+| `ScaffoldService.ts` | ✅ Funcional — gera estrutura de projetos |
+| `MonitoramentoService.ts` | ✅ Funcional — monitora agentes |
+| `TarefaService.ts` | ✅ Funcional — CRUD de tarefas |
+| `HandoffService.ts` | ✅ Funcional — handoffs entre agentes |
+| `EventoService.ts` | ✅ Funcional — eventos assíncronos |
+| MCP Tools (121 arquivos) | ✅ Funcionais |
 
-### 3.2 O que É REAL (confirmado)
-- `kilo` como **extensão VS Code** — existe, mas limitado a uso humano
-- MCP via stdio — existe e funciona
-- State machine dinâmica — existe e funciona
-- API REST completa — existe e funciona
-- Frontend funcional — existe e funciona
-- Sistema de governança por arquivos — existe e funciona
-
-### 3.3 O que é FANTASIA no plano original
-- Modo `orchestrator` nativo do Kilo — **descontinuado/não existe**
-- `kilo console` — **descontinuado**
-- API pública da extensão VS Code para controle externo — **não documentada/não suportada**
-- `agent_manager` como tool genérica de orquestração — **não existe**, é feature de worktrees da extensão
+### Código Morto / Depreciado
+| Serviço/Arquivo | Status | Motivo |
+|-----------------|--------|--------|
+| `DaemonManager.ts` | ❌ Morto | Depende de `kilo daemon` (CLI inexistente) |
+| `ExecutorKiloDaemon.ts` | ❌ Morto | Usa `spawnSync('kilo run ...')` (CLI inexistente) |
+| `KiloDispatcherService.ts` | ⚠️ Depreciado | Caminho hardcoded + dependência de CLI morto |
+| Rotas `/dispatch`, `/recuperar` em `api/orquestrador.ts` | ⚠️ Depreciadas | Chamam código morto |
+| `GET /api/auth/key` | ❌ Removida | Exponha API key em texto plano |
 
 ---
 
-## 4. Plano de Ação Corrigido
+## 5. Gaps Reais entre Plano e Realidade
 
-### Fase 1: Aceitar a Realidade (ATUAL)
-- **Kilo não tem CLI standalone** nesta máquina
-- Orquestração via `kilo daemon` + `kilo run --attach` **não é viável** agora
-- O MCP atual via stdio **já é funcional** para cooperação entre agentes
+### 5.1 O que JÁ EXISTE
+- Identidade de instâncias via `InstanciaService.ts`
+- State machine dinâmica via JSON
+- MCP stdio funcional
+- API REST completa
+- Frontend funcional
+- Sistema de governança por arquivos
+- Agent Manager com worktrees (paralelismo real)
 
-### Fase 2: Usar o que já Funciona
-- **MCP stdio** como canal de comunicação entre agentes
-- **Handoffs** para coordenação assíncrona (já implementado)
-- **Solicitações** para aprovações (já implementado)
-- **Sessões** para rastreamento de trabalho (já implementado)
+### 5.2 O que é FALTA (gaps reais)
+| Gap Real | Descrição |
+|----------|-----------|
+| Sequenciamento de dependências | Falta tool MCP `verificarDependenciasPendentes` |
+| Estados de execução expandidos | `EstadoTarefa` precisa de `PREPARANDO`, `PAUSANDO`, `CANCELANDO`, `ORFA`, `RECUPERANDO`, `BLOQUEADA`, `TIMEOUT` |
+| Heartbeat | Falta detecção de órfãos e timeout |
+| Validação de critérios | Falta pipeline: Kilo terminou → critérios → validação → CONCLUÍDA |
+| Execução real via Agent Manager | Falta tool MCP `abrirWorktree` integrada ao Agent Manager |
+| Intervenção via web | Falta controle real de pausar/cancelar/redirecionar |
 
-### Fase 3: Evitar Dependências Externas Imaginárias
-- NÃO aguardar `kilo daemon` para evoluir
-- NÃO propor migração para HTTP/SSE sem necessidade real
-- NÃO criar arquitetura de orquestração baseada em features que não existem
-
-### Fase 4: Melhorar o que Existe
-1. **Ampliar tools MCP** para cobrir cenários reais de cooperação
-2. **Implementar eventos automáticos** como efeito colateral de handoffs/solicitações (já documentado no AGENTS.md)
-3. **Adicionar heartbeat via arquivos** (polling de `.ia/sessoes/`)
-4. **Criar fila simples baseada em arquivos** (`.ia/fila/` ou similar)
-5. **Implementar modos de autonomia** como políticas no AgentMap (não via Kilo)
-
-### Fase 5: Validar com o Mundo Real
-- Testar cooperação entre múltiplos agentes usando MCP stdio
-- Medir latência e confiabilidade dos handoffs
-- Documentar limitações reais descobertas
+### 5.3 O que NÃO EXISTE (e não deve ser criado)
+- `kilo daemon` automatizado
+- CLI `kilo` standalone
+- Orquestração via HTTP/SSE
+- API pública da extensão VS Code
 
 ---
 
-## 5. Decisões Técnicas Corrigidas
+## 6. Decisões Técnicas Corrigidas
 
-1. **Executor:** NÃO existirá `kilo daemon` automatizado. A extensão VS Code será usada apenas como **instância humana GERENTE**.
+1. **Executor:** O Agent Manager com worktrees é o mecanismo real de paralelismo.
 2. **Comunicação entre agentes:** MCP stdio + arquivos JSON (handoffs, eventos, sessões).
-3. **Orquestrador:** NÃO será um serviço separado. O AgentMap itself é o orquestrador via governança de arquivos.
-4. **Autonomia:** Mapeada para políticas de permissão do AgentMap, não para flags do Kilo.
-5. **Eventos:** Sistema de eventos assíncronos já previsto no AGENTS.md — implementar como efeito colateral de operações existentes.
+3. **Orquestrador:** O AgentMap itself é o orquestrador via governança de arquivos.
+4. **Autonomia:** Mapeada para políticas de permissão do AgentMap.
+5. **Eventos:** Sistema de eventos assíncronos já previsto no AGENTS.md.
+6. **Path Security:** Proteção contra symlinks/junctions via `fs.realpathSync`.
 
 ---
 
-## 6. Próximos Passos Realistas
+## 7. Próximos Passos Realistas
 
-1. **Imediato:** Aceitar que `kilo daemon` não está disponível e ajustar TAR-2026-00014
-2. **Curto prazo:** Implementar eventos automáticos do AgentMap (handoffs → eventos)
-3. **Médio prazo:** Ampliar tools MCP para automação real dentro das capacidades existentes
-4. **Longo prazo:** Se Kilo CLI for instalado no futuro, reavaliar integração
+1. **Imediato:** Remover código morto (DaemonManager, ExecutorKiloDaemon) e rotas depreciadas.
+2. **Curto prazo:** Expandir `EstadoTarefa`, implementar heartbeat e detecção de órfãos.
+3. **Médio prazo:** Criar tools MCP `tarefasProntasParaWorktree`, `verificarDependenciasPendentes`, `abrirWorktree`.
+4. **Longo prazo:** Integração real com Agent Manager para abertura automática de worktrees.
 
 ---
 
-## 7. Arquivos de Referência
+## 8. Arquivos de Referência
 
-- `AGENTMAP_ORQUESTRACAO_REAL.md` — documento original (parcialmente correto, mas baseado em features inexistentes)
-- `mcp-implementation-prompt.md` — prompt real do Kilo encontrado em `.kilo/plans/`
+- `AGENTS.md` — regras do AgentMap
+- `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md` — spec autoritativa
+- `backend/src/servicios/InstanciaService.ts` — identidade de instância
 - `backend/src/servicios/StateMachineService.ts` — state machine funcional
-- `backend/src/api/admin.ts` — admin API funcional
-- `.ia/configuracao/transicoes.json` — transições dinâmicas funcionando
+- `backend/src/seguranca/paths.ts` — path security com symlink protection
+- `.ia/configuracao/transicoes.json` — transições dinâmicas

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { DaemonManager } from '../src/servicios/DaemonManager';
 
-describe('DaemonManager — testes reais com kilocli', () => {
+describe.skip('DaemonManager — testes reais com kilocli', () => {
   const projectRoot = path.join(os.tmpdir(), 'agentmap-daemon-test-' + Date.now());
   fs.mkdirSync(projectRoot, { recursive: true });
   fs.mkdirSync(path.join(projectRoot, '.ia', 'contexto'), { recursive: true });

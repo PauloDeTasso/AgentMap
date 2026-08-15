@@ -185,7 +185,7 @@ export class OrquestradorService {
         const tarefaDepResult = this.tarefaService.obter(dep.destinoId);
         if (tarefaDepResult.sucesso && tarefaDepResult.dados) {
           const tarefaDep = tarefaDepResult.dados;
-          const estadosParaExecucao: EstadoTarefa[] = ['PLANEJADA', 'PRONTA'];
+          const estadosParaExecucao: EstadoTarefa[] = ['PENDENTE', 'PLANEJADA', 'PRONTA'];
           if (estadosParaExecucao.includes(tarefaDep.estado)) {
             await this.tarefaService.alterarEstado(tarefaDep.id, 'PRONTA' as EstadoTarefa);
           }

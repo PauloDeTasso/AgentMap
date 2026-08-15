@@ -5,8 +5,7 @@
       "type": "local",
       "command": ["cmd", "/c", "cd", "backend", "&&", "npx", "tsx", "src/mcp-server/index.ts"],
       "environment": {
-        "NODE_ENV": "production",
-        "WORKSPACE": "G:/PROJETOS/WEB/AgentMap"
+        "NODE_ENV": "production"
       },
       "enabled": true,
       "timeout": 30000

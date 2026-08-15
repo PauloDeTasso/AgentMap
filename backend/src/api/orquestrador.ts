@@ -1,17 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { asyncHandler, responder } from './middleware';
-import { OrquestradorDispatchPayload, OrquestradorStatus } from '../servicios/OrquestradorService';
 
 export function criarOrquestradorRouter(): Router {
   const router = Router();
 
   router.post('/dispatch', asyncHandler(async (req: Request, res: Response) => {
-    const payload: OrquestradorDispatchPayload = req.body;
-    if (!payload.tarefaId || !payload.mensagem) {
-      return responder(res, { sucesso: false, erro: 'tarefaId e mensagem são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
-    }
-    const result = await req.servicos!.orquestrador.dispatch(payload);
-    return responder(res, result, result.sucesso ? 202 : 400);
+    return responder(res, { sucesso: false, erro: 'Endpoint depreciado: dispatch via CLI Kilo não está disponível. Use Agent Manager worktrees.', codigoErro: 'NOT_IMPLEMENTED' }, 501);
   }));
 
   router.get('/status', asyncHandler(async (req: Request, res: Response) => {
@@ -38,8 +32,7 @@ export function criarOrquestradorRouter(): Router {
   }));
 
   router.post('/recuperar', asyncHandler(async (req: Request, res: Response) => {
-    const result = await req.servicos!.orquestrador.recuperarEstado();
-    return responder(res, result);
+    return responder(res, { sucesso: false, erro: 'Endpoint depreciado: recuperação via CLI Kilo não está disponível. Use Agent Manager worktrees.', codigoErro: 'NOT_IMPLEMENTED' }, 501);
   }));
 
   return router;
