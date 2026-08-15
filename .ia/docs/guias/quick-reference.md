@@ -17,14 +17,12 @@ npx tsc --noEmit      # Verificar TypeScript
 npm run build         # Compilar
 ```
 
-### Kilo CLI
+### Agent Manager
 
 ```bash
-kilo --version                           # 7.4.21
-kilo run --agent orchestrator --dir "..." --auto --format json "..."
-kilo agent list                          # Listar agentes
-kilo session list --format json          # Listar sessões
-kilo daemon start                        # Iniciar daemon (opcional)
+# O paralelismo real é via Agent Manager (extensão VS Code)
+# Cria worktrees isolados para cada agente
+# Use as MCP tools: agent_manager
 ```
 
 ### API
@@ -33,19 +31,20 @@ kilo daemon start                        # Iniciar daemon (opcional)
 # Health
 curl http://localhost:3150/api/health
 
-# Dispatch
-curl -X POST http://localhost:3150/api/admin/dispatch/backend
-curl http://localhost:3150/api/admin/dispatch-log
+# Tarefas
+curl http://localhost:3150/api/tarefas
+
+# Handoffs
+curl http://localhost:3150/api/handoffs
 
 # Monitoramento
 curl http://localhost:3150/api/monitoramento/mensagens
 curl http://localhost:3150/api/monitoramento/agentes
-curl http://localhost:3150/api/monitoramento/modo
 
 # Modo
 curl -X POST http://localhost:3150/api/monitoramento/modo \
   -H "Content-Type: application/json" \
-  -d '{"modo":"AUTOMATICO","escopo":"GLOBAL"}'
+  -d '{"modo":"AUTONOMA","escopo":"GLOBAL"}'
 ```
 
 ---

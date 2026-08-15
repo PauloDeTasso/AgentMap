@@ -49,18 +49,17 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 
 ### 3.3 MCP / AgentMap
 - **Protocolo:** stdio (não HTTP/SSE)
-- **Tools disponíveis:** 121 tools funcionando via MCP
+- **Tools disponíveis:** 33 tools MCP registradas e funcionais
 - **Agentes cadastrados:** arquiteto, frontend, backend, agentmap-admin, dba
 - **Sistema de governança:** tarefas, handoffs, resultados, contratos, procedimentos, contexto
 - **Persistência:** Arquivos JSON em `.ia/`
 - **Validação:** JSON Schema + Zod
 
 ### 3.4 Infraestrutura
-- Runbook documentado
-- Procedimentos em `.ia/procedimentos/`
+- Runbook documentado em `.ia/docs/runbook.md`
 - Health check em `/api/health`
-- Métricas em `/api/admin/metricas`
 - CORS dinâmico
+- Auditoria automática de ações
 - Backup automático
 - Readiness em `/api/admin/readiness`
 
@@ -78,7 +77,7 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 | `TarefaService.ts` | ✅ Funcional — CRUD de tarefas |
 | `HandoffService.ts` | ✅ Funcional — handoffs entre agentes |
 | `EventoService.ts` | ✅ Funcional — eventos assíncronos |
-| MCP Tools (121 arquivos) | ✅ Funcionais |
+| MCP Tools | ✅ Funcionais — 33 tools registradas |
 
 ### Código Morto / Depreciado
 | Serviço/Arquivo | Status | Motivo |

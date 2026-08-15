@@ -118,17 +118,17 @@
 
 | Botão | Modo | Comportamento |
 |-------|------|---------------|
-| **AUTOMÁTICO** | Todos os agentes executam sem intervenção. Ideal para testes e tarefas repetitivas. |
-| **HÍBRIDO** | Agentes executam automaticamente, mas ações críticas pedem aprovação. |
+| **AUTONOMO** | Todos os agentes executam sem intervenção. Ideal para testes e tarefas repetitivas. |
+| **ASSISTIDA** | Agentes executam automaticamente, mas ações críticas pedem aprovação. |
 | **MANUAL** | Todas as ações requerem sua aprovação antes de executar. |
 
 ### Como Alterar
 
 Clique no botão do modo desejado. O botão ativo ficará destacado em azul. A mudança é imediata e afeta todos os agentes.
+### Ações Críticas (bloqueio no ASSISTIDA)
 
-### Ações Críticas (bloqueio no HÍBRIDO)
+No modo ASSISTIDA, estas ações pedem aprovação:
 
-No modo HÍBRIDO, estas ações pedem aprovação:
 - Alterações em produção
 - Mudanças de schema de banco
 - Deploys

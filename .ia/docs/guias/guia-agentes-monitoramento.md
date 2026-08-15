@@ -53,11 +53,33 @@ PUT /api/monitoramento/agente/{agenteId}/status
 
 ---
 
-## 2. Comandos Automáticos Disponíveis
+## 2. Comandos Disponíveis via MCP/API
 
-Quando um agente executa via `kilo run`, ele pode reportar status usando estes comandos no prompt:
+Quando um agente está operando, ele pode reportar status usando estas ferramentas:
 
-### Comandos no Prompt do Agente
+### Comandos via MCP Tools
+
+- `agentmap_tarefas_contexto` — obtém contexto completo da tarefa
+- `agentmap_workflows_iniciar_trabalho` — inicia trabalho validando agente + tarefa
+- `agentmap_workflows_finalizar_trabalho` — finaliza trabalho registrando resultado e handoff
+- `agentmap_workflows_consultar_pendencias` — consulta pendências, handoffs, validações, bloqueios
+- `agentmap_handoffs_criar` — cria handoff para próximo agente
+- `agentmap_eventos_listar` — lista eventos pendentes
+- `agentmap_eventos_confirmar` — confirma consumo de evento
+- `agentmap_sessoes_criar` — cria sessão de trabalho
+- `agentmap_sessoes_finalizar` — finaliza sessão
+- `agentmap_tarefas_alterar_estado` — altera estado da tarefa
+- `agentmap_bloqueios_criar` — registra bloqueio
+- `agentmap_riscos_criar` — registra risco
+- `agentmap_decisoes_criar` — registra decisão
+- `agentmap_aprendizados_criar` — registra aprendizado
+
+### Comandos via API REST
+
+- `PUT /api/monitoramento/agente/{agenteId}/status` — atualiza status do agente
+- `POST /api/handoffs` — cria handoff
+- `POST /api/tarefas/:id/estado` — altera estado da tarefa
+- `WebSocket /ws/monitoramento` — comunicação em tempo real
 
 | Comando | Uso | Exemplo |
 |---------|-----|---------|
@@ -138,13 +160,13 @@ O evento `HANDOFF_CRIADO` é automaticamente gerado e visível no monitoramento.
 
 ## 5. Como Respeitar o Modo de Operação
 
-### Modo AUTOMÁTICO
+### Modo AUTONOMO
 
-- Execute tarefas sem aprovação humana.
-- Use `--auto` no Kilo CLI.
+- Execute tarefas sem aprovação humana quando dentro do escopo autorizado.
 - Reporte status via API/WebSocket.
+- Registre ações na auditoria.
 
-### Modo HÍBRIDO
+### Modo ASSISTIDA
 
 - Execute tarefas normalmente.
 - Para **ações críticas**, emitir status `AGUARDANDO` com tipo `SOLICITAR_APROVACAO`.
@@ -153,7 +175,7 @@ O evento `HANDOFF_CRIADO` é automaticamente gerado e visível no monitoramento.
 
 ### Modo MANUAL
 
-- **Todo comando** deve reportar `AGUARDANDO` + `SOLICITAR_APROVACAO`.
+- **Toda ação** deve reportar `AGUARDANDO` + `SOLICITAR_APROVACAO`.
 - NÃO execute nada sem aprovação explícita.
 - O gerente aprova via clique no botão ✅ ou via API:
 
@@ -183,10 +205,12 @@ curl -X PUT http://localhost:3150/api/monitoramento/agente/{agenteId}/status \
 
 ## 7. Status Iniciais de Cada Agente
 
-| Agente | Modo Atual | Comando Kilo |
+| Agente | Modo Atual | Como Executar |
 |--------|-----------|--------------|
-| **frontend** | AUTOMÁTICO (`--auto`) | `kilo run --agent orchestrator --dir frontend/ --auto --format json "..."` |
-| **backend** | AUTOMÁTICO (`--auto`) | `kilo run --agent orchestrator --dir backend/ --auto --format json "..."` |
-| **dba** | ASSISTIDA (sem `--auto`) | `kilo run --agent orchestrator --dir banco/ --format json "..."` |
-| **agentmap-admin** | MANUAL (sem `--auto`) | `kilo run --agent orchestrator --format json "..."` |
-| **arquiteto** | AUTOMÁTICO (`--auto`) | `kilo run --agent orchestrator --dir . --auto --format json "..."` |
+| **frontend** | AUTONOMO | Agent Manager worktree |
+| **backend** | AUTONOMO | Agent Manager worktree |
+| **dba** | ASSISTIDA | Agent Manager worktree |
+| **agentmap-admin** | MANUAL | Agent Manager worktree |
+| **arquiteto** | AUTONOMO | Agent Manager worktree |
+
+> **Nota:** O paralelismo real é via Agent Manager + worktrees. Não há CLI `kilo` standalone.

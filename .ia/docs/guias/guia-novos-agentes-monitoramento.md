@@ -67,19 +67,27 @@ Criar diretório de workspace e pastas de outbox:
 
 ---
 
-## 2. Como Obter Session ID
+## 2. Como Obter Session ID via Agent Manager
 
-### Via CLI
-
-```bash
-kilo run --agent orchestrator --format json "ola"
-```
-
-O `sessionId` é retornado no output JSON do Kilo:
+### Via MCP Tool
 
 ```json
-{"type":"step_start","sessionID":"ses_001abc...","part":{"sessionID":"ses_001abc..."}}
+{
+  "name": "agent_manager",
+  "arguments": {
+    "mode": "worktree",
+    "tasks": [
+      {
+        "name": "novo-agente",
+        "prompt": "Instruções iniciais...",
+        "branchName": "feature/novo-agente"
+      }
+    ]
+  }
+}
 ```
+
+O `sessionId` é retornado na resposta do Agent Manager.
 
 ### Registrar na Configuração
 
@@ -93,6 +101,8 @@ Atualize `.ia/configuracao/agentes-config.json` com seu sessionId:
   }
 }
 ```
+
+> **Nota:** O paralelismo real é via Agent Manager + worktrees. Não há CLI `kilo` standalone.
 
 ---
 
@@ -191,24 +201,24 @@ TAREFA_FINALIZADA: Implementacao concluida
 3. **Reportar erros imediatamente.**
    - Use `ERRO` sempre que encontrar um problema.
 
-4. **Solicite aprovação para ações críticas no modo HÍBRIDO/MANUAL.**
+4. **Solicite aprovação para ações críticas no modo ASSISTIDA/MANUAL.**
    - Deploy, drop de tabelas, delete massivo, mudanças de schema.
 
 5. **Use filtros na interface de monitoramento.**
    - A interface suporta filtro por agente e tipo de mensagem.
 
 6. **Não ignore mensagens de `AGUARDANDO`.**
-   - No modo HÍBRIDO/MANUAL, o sistema pausa até você obter aprovação.
+   - No modo ASSISTIDA/MANUAL, o sistema pausa até você obter aprovação.
 
 ---
 
 ## 6. Checklist de Onboarding
 
-- [ ] Criar agente via `POST /api/agentes`
+- [ ] Criar agente via `agentmap_agentes_criar` ou `POST /api/agentes`
 - [ ] Adicionar configuração em `agentes-config.json`
 - [ ] Criar diretório workspace e pasta `.ia/outbox/{agenteId}/`
-- [ ] Obter sessionId via `kilo run`
-- [ ] Testar dispatch via `POST /api/admin/dispatch/{agenteId}`
-- [ ] Reportar status inicial via `PUT /api/monitoramento/agente/{agenteId}/status`
+- [ ] Obter sessionId via Agent Manager
+- [ ] Testar handoff via `agentmap_handoffs_criar`
+- [ ] Reportar status inicial via `agentmap_sessoes_criar`
 - [ ] Conectar ao WebSocket `/ws/monitoramento`
 - [ ] Enviar primeira mensagem no chat

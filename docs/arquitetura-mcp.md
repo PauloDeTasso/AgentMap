@@ -95,15 +95,17 @@ npm run mcp    # Inicia o servidor MCP via stdio
   "mcpServers": {
     "agentmap": {
       "command": "npx",
-      "args": ["tsx", "G:/PROJETOS/WEB/AgentMap/backend/src/mcp-server/index.ts"],
+      "args": ["tsx", "backend/src/mcp-server/index.ts"],
+      "cwd": ".",
       "env": {
-        "NODE_ENV": "production",
-        "WORKSPACE": "G:/PROJETOS/WEB/AgentMap"
+        "NODE_ENV": "production"
       }
     }
   }
 }
 ```
+
+> **Nota:** Use caminhos relativos ou configure o diretório de trabalho (`cwd`). Caminhos absolutos como `G:/PROJETOS/WEB/AgentMap/...` quebram se o projeto for movido ou clonado em outro local.
 
 ## Estado da Implementação
 
