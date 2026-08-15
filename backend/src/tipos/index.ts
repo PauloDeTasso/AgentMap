@@ -1,4 +1,4 @@
-export type EstadoTarefa =
+﻿export type EstadoTarefa =
   | 'RASCUNHO'
   | 'PLANEJADA'
   | 'PRONTA'
@@ -990,6 +990,26 @@ export interface ResponsabilidadesRegistry {
   responsabilidades: Responsabilidade[];
 }
 
+export interface Evento {
+  id: string;
+  tipo: TipoEvento;
+  origem: string;
+  destino: string;
+  referenciaTipo: string;
+  referenciaId: string;
+  mensagem: string;
+  estado: EstadoEvento;
+  datas: { criadoEm: string | null; consumidoEm: string | null };
+}
+
+export interface EventosRegistry {
+  eventos: Evento[];
+}
+
+export type EstadoEvento = 'PENDENTE' | 'CONSUMIDO';
+
+export type TipoEvento = 'HANDOFF_CRIADO' | 'HANDOFF_ACEITO' | 'HANDOFF_CONCLUIDO' | 'TAREFA_CONCLUIDA' | 'BLOQUEIO_CRIADO' | 'CONFLITO_DETECTADO' | 'SOLICITACAO_CRIADA' | 'TRANSIÇÃO_ATUALIZADA' | 'DISPATCH_INICIADO' | 'DISPATCH_SUCESSO' | 'DISPATCH_ERRO' | 'CONFIG_DISPATCH_ATUALIZADA' | 'DISPATCH_FALHA_PERMANENTE' | 'MODO_GLOBAL_ALTERADO' | 'MODO_AGENTE_ALTERADO' | 'STATUS_AGENTE_ATUALIZADO' | 'INTERVENCAO_MANUAL' | 'INSTANCIA_REGISTRADA' | 'INSTANCIA_CONECTADA' | 'INSTANCIA_DESCONECTADA' | 'INSTANCIA_ERRO' | 'INSTANCIA_ATUALIZADA' | 'INSTANCIA_EXCLUIDA' | 'MODO_AUTONOMIA_ALTERADO' | 'TAREFA_RECONCILIADA' | 'PROJETO_CRIADO' | 'PROJETO_ABERTO' | 'AGENTE_CRIADO' | 'AGENTE_ATUALIZADO' | 'AGENTE_EXCLUIDO' | 'TAREFA_CRIADA' | 'TAREFA_ATRIBUIDA' | 'TAREFA_INICIADA' | 'TAREFA_CANCELADA' | 'TAREFA_BLOQUEADA' | 'TAREFA_DESBLOQUEADA' | 'TAREFA_ESTADO_ALTERADO' | 'TAREFA_EXCLUIDA' | 'CONTRATO_CRIADO' | 'CONTRATO_ALTERADO' | 'CONTRATO_EXCLUIDO' | 'CONTRATO_VALIDADO' | 'CONTRATO_INVALIDO' | 'ARQUIVO_ALTERADO' | 'ARQUIVO_EXCLUIDO' | 'TESTE_EXECUTADO' | 'REVISAO_REALIZADA' | 'APROVACAO_SOLICITADA' | 'APROVACAO_CONCEDIDA' | 'APROVACAO_REJEITADA' | 'IMPLANTACAO_REALIZADA' | 'SEGURANCA_VIOLACAO' | 'BACKUP_CRIADO' | 'SOLICITACAO_ALTERADA' | 'SOLICITACAO_APROVADA' | 'SOLICITACAO_REJEITADA' | 'SOLICITACAO_EXCLUIDA' | 'CRITERIO_CRIADO' | 'RESULTADO_REGISTRADO' | 'ARTEFATO_CRIADO' | 'VALIDACAO_INICIADA' | 'VALIDACAO_CONCLUIDA' | 'BLOQUEIO_RESOLVIDO' | 'CONFLITO_CRIADO' | 'CONFLITO_RESOLVIDO' | 'RISCO_CRIADO' | 'RISCO_ATUALIZADO' | 'RESPONSABILIDADE_REGISTRADA' | 'RESERVA_CRIADA' | 'RESERVA_LIBERADA' | 'SESSAO_INICIADA' | 'SESSAO_FINALIZADA' | 'CHECKPOINT_CRIADO' | 'APRENDIZADO_REGISTRADO' | 'PENDENCIA_CRIADA' | 'PENDENCIA_RESOLVIDA' | 'DEPENDENCIA_CRIADA' | 'DECISAO_CRIADA' | 'DECISAO_ATUALIZADA' | 'INTEGRIDADE_VERIFICADA' | 'INTEGRIDADE_FALHA' | 'REGRAS_RESPEITADAS' | 'CONTATO_CRIADO' | 'CONTATO_ATUALIZADO' | 'CONTATO_EXCLUIDO' | 'EVENTO_CRIADO' | 'EVENTO_CONSUMIDO' | 'BROADCAST_ANUNCIO' | 'CHECKLIST_FLUXO_VERIFICADO';
+
 export interface EventoHistorico {
   id: string;
   tipo: TipoHistoricoCoordenacao;
@@ -1016,7 +1036,7 @@ export interface EstadoProjeto {
   conflitos: { total: number; abertos: number };
   riscos: { total: number; ativos: number; criticos: number };
   validacoes: { total: number; pendentes: number; aprovadas: number; reprovadas: number };
-  residencias: { total: number; ativas: number };
+  reservas: { total: number; ativas: number };
   checkpoints: { total: number; recentes: number };
   sessoes: { total: number; ativas: number };
   aprendizados: { total: number; ativos: number };
@@ -1034,3 +1054,88 @@ export const TIPOS_ARTEFATO: TipoArtefato[] = ['ARQUIVO', 'CLASSE', 'METODO', 'M
 export const TIPOS_PENDENCIA: TipoPendencia[] = ['IMPLEMENTACAO', 'VALIDACAO', 'CORRECAO', 'COMPLETUDE'];
 export const TIPOS_CHECKPOINT: TipoCheckpoint[] = ['INTERMEDIARIO', 'DECISAO', 'ENTREGA'];
 export const ESTADOS_PROBLEMA: EstadoProblema[] = ['ABERTO', 'EM_ANALISE', 'RESOLVIDO', 'CANCELADO'];
+
+export type EstadoInstancia = 'REGISTRADA' | 'CONECTADA' | 'DESCONECTADA' | 'ERRO';
+export type ModoAutonomia = 'MANUAL' | 'ASSISTIDA' | 'AUTONOMA';
+
+export interface Instancia {
+  id: string;
+  instanciaId: string;
+  agenteId: string;
+  projetoId: string;
+  workspaceId: string;
+  workspacePath: string;
+  tipoInstancia: 'EXECUTOR' | 'GERENTE';
+  sessaoId: string | null;
+  status: EstadoInstancia;
+  modoAutonomia: ModoAutonomia;
+  ultimaAtividade: string | null;
+  versaoKilo: string | null;
+  capabilities: string[];
+  porta: number | null;
+  pid: number | null;
+  datas: { criacao: string | null; atualizacao: string | null; ultimaConexao: string | null };
+}
+
+export interface InstanciasRegistry {
+  instancias: Instancia[];
+}
+
+export const ESTADOS_INSTANCIA: EstadoInstancia[] = ['REGISTRADA', 'CONECTADA', 'DESCONECTADA', 'ERRO'];
+
+export interface KiloDaemonState {
+  running: boolean;
+  stale: boolean;
+  state: {
+    pid: number;
+    hostname: string;
+    port: number;
+    url: string;
+    urls: Record<string, string>;
+    username: string;
+    version: string;
+    startedAt: string;
+    log: string;
+  };
+  health: {
+    healthy: boolean;
+    version: string;
+  };
+  file: string;
+  started: boolean;
+  reused: boolean;
+}
+
+export interface DispatchEventoKilo {
+  type: 'step_start' | 'text' | 'step_finish' | 'error' | 'permission' | 'system';
+  timestamp: number;
+  sessionID: string;
+  part?: {
+    id: string;
+    sessionID: string;
+    messageID: string;
+    type: string;
+    text?: string;
+    reason?: string;
+    model?: { providerID: string; modelID: string };
+    metrics?: { generation: number; source: string };
+    time?: { start: number; end: number; elapsed: number };
+    cost?: number;
+    tokens?: { total: number; input: number; output: number; reasoning: number; cache: { read: number; write: number } };
+  };
+}
+
+export interface DispatchLog {
+  id: string;
+  timestamp: string;
+  instanciaId: string;
+  tarefaId?: string;
+  comando: string;
+  status: 'SUCESSO' | 'ERRO' | 'PENDENTE';
+  sessionId?: string;
+  stdout?: string;
+  stderr?: string;
+  exitCode?: number;
+  duracaoMs?: number;
+  eventos?: DispatchEventoKilo[];
+}

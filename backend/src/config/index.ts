@@ -1,4 +1,4 @@
-import * as path from 'path';
+﻿import * as path from 'path';
 import * as fs from 'fs';
 import { RegistroProjetos, ProjetoRegistro } from '../tipos';
 
@@ -17,6 +17,7 @@ export interface GerenciadorSettings {
     banco: string;
     usuario: string;
   };
+  limitesMcp?: Record<string, unknown>;
 }
 
 const DEFAULT_SETTINGS: GerenciadorSettings = {

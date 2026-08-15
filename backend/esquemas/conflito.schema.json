@@ -1,0 +1,27 @@
+﻿{
+  "$id": "conflito",
+  "type": "object",
+  "required": ["id", "titulo", "descricao", "tipo", "severidade", "estado", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^CON-[A-Z0-9-]+$", "minLength": 1 },
+    "titulo": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string", "minLength": 1 },
+    "tipo": { "type": "string", "enum": ["RECURSO_DUPLICADO", "DECISAO_INCOMPATIVEL", "VERSAO_INCOMPATIVEL", "CONTRATO_INCOMPATIVEL", "TAREFA_INCOMPATIVEL"] },
+    "severidade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+    "tarefaId": { "type": ["string", "null"] },
+    "agenteId": { "type": ["string", "null"] },
+    "referencias": { "type": "array", "items": { "type": "string" } },
+    "origem": { "type": ["string", "null"] },
+    "resolucao": { "type": ["string", "null"] },
+    "estado": { "type": "string", "enum": ["ABERTO", "EM_RESOLUCAO", "RESOLVIDO", "CANCELADO"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "resolvidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "resolvidaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

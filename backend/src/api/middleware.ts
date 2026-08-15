@@ -20,6 +20,9 @@ import { IntegridadeService } from '../servicios';
 import { DecisaoService } from '../servicios';
 import { RiscoService } from '../servicios';
 import { BloqueioService } from '../servicios';
+import { EventoService } from '../servicios';
+import { InstanciaService } from '../servicios';
+import { OrquestradorService } from '../servicios/OrquestradorService';
 import { ContatoService } from '../servicios';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
@@ -46,6 +49,9 @@ export interface Servicos {
   decisao: DecisaoService;
   risco: RiscoService;
   bloqueio: BloqueioService;
+  evento: EventoService;
+  instancia: InstanciaService;
+  orquestrador: OrquestradorService;
   contato: ContatoService;
   auditoria: AuditoriaService;
 }
@@ -86,6 +92,24 @@ export function projectMiddleware(projetoService: ProjetoService) {
       decisao: new DecisaoService(projeto.fileService, projeto.auditoria, projeto.validator),
       risco: new RiscoService(projeto.fileService, projeto.auditoria, projeto.validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
+      evento: new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+      instancia: new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+      orquestrador: new OrquestradorService(
+        projeto.fileService,
+        projeto.auditoria,
+        projeto.validator,
+        projeto.caminhoRaiz,
+        projeto.id,
+        new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia),
+        new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new CriterioService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new ValidacaoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new ArtefatoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new ResultadoService(projeto.fileService, projeto.auditoria, projeto.validator)
+      ),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
       auditoria: projeto.auditoria
     };

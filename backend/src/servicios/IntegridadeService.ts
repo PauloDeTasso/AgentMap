@@ -357,7 +357,7 @@ export class IntegridadeService {
         aprovadas: validacoes.filter((v) => v.estado === 'APROVADO').length,
         reprovadas: validacoes.filter((v) => v.estado === 'REPROVADO').length
       },
-      residencias: {
+      reservas: {
         total: reservas.length,
         ativas: reservas.filter((r) => r.estado === 'ATIVA').length
       },

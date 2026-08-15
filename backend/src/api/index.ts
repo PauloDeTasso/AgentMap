@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+﻿import { Router, Request, Response } from 'express';
 import * as path from 'path';
 import { ProjetoService } from '../servicios/ProjetoService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
@@ -7,6 +7,7 @@ import { criarAgenteRouter } from './agentes';
 import { criarTarefaRouter } from './tarefas';
 import { criarArquivoRouter } from './arquivos';
 import { criarContratoRouter } from './contratos';
+import { criarContratosValidacaoRouter } from './contratos-validacao';
 import { criarSolicitacaoRouter } from './solicitacoes';
 import { criarCriterioRouter } from './criterios';
 import { criarResultadoRouter } from './resultados';
@@ -24,7 +25,15 @@ import { criarResponsabilidadeRouter } from './responsabilidades';
 import { criarDecisaoRouter } from './decisoes';
 import { criarRiscoRouter } from './riscos';
 import { criarBloqueioRouter } from './bloqueios';
+import { criarEventoRouter } from './eventos';
 import { criarContatoRouter } from './contatos';
+import { criarAdminRouter } from './admin';
+import { criarHealthRouter } from './health';
+import { criarHandoffsCentraisRouter } from './handoffs-centrais';
+import { criarMonitoramentoRouter } from './monitoramento';
+import { criarInstanciaRouter } from './instancias';
+import { criarOrquestradorRouter } from './orquestrador';
+import { criarAuthRouter } from './auth';
 
 export function setupRotas(projetoService: ProjetoService): Router {
   const router = Router();
@@ -32,6 +41,8 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0' } });
   });
+
+  router.use('/api/auth', criarAuthRouter());
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
@@ -51,6 +62,7 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/tarefas', criarTarefaRouter());
   router.use('/api/arquivos', criarArquivoRouter());
   router.use('/api/contratos', criarContratoRouter());
+  router.use('/api/contratos', criarContratosValidacaoRouter());
   router.use('/api/solicitacoes', criarSolicitacaoRouter());
   router.use('/api/criterios', criarCriterioRouter());
   router.use('/api/resultados', criarResultadoRouter());
@@ -68,7 +80,14 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/decisoes', criarDecisaoRouter());
   router.use('/api/riscos', criarRiscoRouter());
   router.use('/api/bloqueios', criarBloqueioRouter());
+  router.use('/api/eventos', criarEventoRouter());
   router.use('/api/contatos', criarContatoRouter());
+  router.use('/api/admin', criarAdminRouter());
+  router.use('/api/health', criarHealthRouter());
+  router.use('/api/handoffs-centrais', criarHandoffsCentraisRouter());
+  router.use('/api/monitoramento', criarMonitoramentoRouter());
+  router.use('/api/instancias', criarInstanciaRouter());
+  router.use('/api/orquestrador', criarOrquestradorRouter());
 
   router.get('/api/estado-projeto', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.integridade.calcularEstadoProjeto(req.servicos!.projeto.id);
@@ -77,14 +96,15 @@ export function setupRotas(projetoService: ProjetoService): Router {
 
   router.get('/api/monitor', asyncHandler(async (req: Request, res: Response) => {
     const servicos = req.servicos!;
-    const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes] = await Promise.all([
+    const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes, tarefasRes] = await Promise.all([
       servicos.integridade.calcularEstadoProjeto(servicos.projeto.id),
       servicos.sessao.listar(),
       servicos.auditoria.listar(20),
       servicos.handoff.listar(),
       servicos.bloqueio.listar(),
       servicos.risco.listar(),
-      servicos.agente.listar()
+      servicos.agente.listar(),
+      servicos.tarefa.listar()
     ]);
 
     const sessoesAtivas = sessoesRes.sucesso && sessoesRes.dados ? sessoesRes.dados.filter((s: any) => !s.datas?.fim) : [];
@@ -92,6 +112,7 @@ export function setupRotas(projetoService: ProjetoService): Router {
     const bloqueiosAtivos = bloqueiosRes.sucesso && bloqueiosRes.dados ? bloqueiosRes.dados.filter((b: any) => b.estado === 'ATIVO') : [];
     const riscosCriticos = riscosRes.sucesso && riscosRes.dados ? riscosRes.dados.filter((r: any) => r.gravidade === 'CRITICA' && r.estado === 'ATIVO') : [];
     const agentesMap = new Map((agentesRes.sucesso && agentesRes.dados ? agentesRes.dados : []).map((a: any) => [a.id, a.nome]));
+    const tarefasMap = new Map((tarefasRes.sucesso && tarefasRes.dados ? tarefasRes.dados : []).map((t: any) => [t.id, t.titulo]));
 
     const monitor = {
       projeto: servicos.projeto.config,
@@ -101,6 +122,7 @@ export function setupRotas(projetoService: ProjetoService): Router {
         agenteId: s.agenteId,
         agenteNome: agentesMap.get(s.agenteId) || s.agenteId,
         tarefaId: s.tarefaId,
+        tarefaTitulo: tarefasMap.get(s.tarefaId) || s.tarefaId || null,
         inicio: s.datas?.inicio,
         contextoConsultado: s.contextoConsultado
       })),
