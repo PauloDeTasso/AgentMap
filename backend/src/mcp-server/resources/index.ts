@@ -10,6 +10,8 @@ import { subscriptionManager, ListenSubscription } from '../subscriptions/subscr
 import { carregarContexto } from '../contexto';
 import { SolicitacaoAlteracao } from 'tipos';
 import { z } from 'zod';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const SubscribeRequestSchema = z.object({
   method: z.literal('resources/subscribe'),
@@ -204,7 +206,7 @@ Bem-vindo ao **AgentMap**. Este é um sistema local de coordenação, memória o
 4. **Obtenha contexto:** use \`agentmap_obter_contexto_projeto\` para entender o estado atual.
 5. **Use workflows:** \`agentmap_workflows_iniciar_trabalho\` para começar uma tarefa com contexto completo.
 
-## 📚 Playbook (padrões de uso)
+## 📚 Playbook & Guia de Eficácia
 
 Use o resource \`agentmap://playbook\` para ver fluxos prontos:
 - Ciclo de trabalho completo
@@ -212,6 +214,13 @@ Use o resource \`agentmap://playbook\` para ver fluxos prontos:
 - Processamento de solicitação
 - Diagnóstico de bloqueios
 - Auditoria e compliance
+
+Use o resource \`agentmap://guia-eficacia\` para entender **quando, por que e como** usar cada ferramenta em cenários reais:
+- Planejamento, codificação, testes, debug, code review
+- Workflows por domínio (backend, frontend, banco, android)
+- Combinações poderosas de ferramentas
+- Erros fatais e como evitá-los
+- Níveis de maestria
 
 ## 📡 Subscriptions (notificações em tempo real)
 
@@ -366,7 +375,7 @@ Este playbook contém os padrões de uso recomendados para operar o AgentMap de 
 2. \`agentmap_solicitacoes_obter\` — Obtenha detalhes
 3. \`agentmap_verificar_dependencias_pendentes\` — Verifique dependências
 4. Execute a alteração solicitada
-5. \`agentmap_solicitacoes_aprov ar\` ou \`rejeitar\` conforme resultado
+5. \`agentmap_solicitacoes_aprovar\` ou \`rejeitar\` conforme resultado
 
 ## Ciclo 5: Monitoramento contínuo
 
@@ -388,6 +397,25 @@ Este playbook contém os padrões de uso recomendados para operar o AgentMap de 
     return {
       contents: [{
         uri: 'agentmap://playbook',
+        mimeType: 'text/markdown',
+        text: markdown
+      }]
+    };
+  }
+);
+
+mcpServer.registerResource(
+  'agentmap-guia-eficacia',
+  'agentmap://guia-eficacia',
+  {
+    description: 'Guia de eficácia do AgentMap: quando, por que e como usar cada ferramenta em cenários reais.',
+    mimeType: 'text/markdown'
+  },
+  async () => {
+    const markdown = fs.readFileSync(path.join(__dirname, '..', 'resources', 'guia-eficacia.md'), 'utf-8');
+    return {
+      contents: [{
+        uri: 'agentmap://guia-eficacia',
         mimeType: 'text/markdown',
         text: markdown
       }]

@@ -19,5 +19,9 @@
   "playbook": {
     "resource": "agentmap://playbook",
     "tool": "agentmap_sugerir_fluxo"
+  },
+  "guiaEficacia": {
+    "resource": "agentmap://guia-eficacia",
+    "descricao": "Ensina quando, por que e como usar cada ferramenta em cenários reais"
   }
 }

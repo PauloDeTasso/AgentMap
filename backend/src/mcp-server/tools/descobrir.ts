@@ -52,11 +52,12 @@ mcpServer.registerTool('agentmap_descobrir', {
       resource: 'agentmap://onboarding',
       prompt: 'agentmap-onboarding',
       playbook: 'agentmap://playbook',
+      guiaEficacia: 'agentmap://guia-eficacia',
       initializeInstructions: 'Use tools para gerenciar projetos, tarefas, agentes, solicitacoes, handoffs, sessoes e demais entidades do AgentMap.'
     },
     capabilities: {
       tools: Object.keys((mcpServer as any)._registeredTools || {}),
-      resources: ['agentmap://status', 'agentmap://manifest', 'agentmap://projeto', 'agentmap://onboarding', 'agentmap://playbook', 'agentmap://solicitacoes/{agenteId}', 'agentmap://handoffs/{agenteId}', 'agentmap://bloqueios/{projetoId}'],
+      resources: ['agentmap://status', 'agentmap://manifest', 'agentmap://projeto', 'agentmap://onboarding', 'agentmap://playbook', 'agentmap://guia-eficacia', 'agentmap://solicitacoes/{agenteId}', 'agentmap://handoffs/{agenteId}', 'agentmap://bloqueios/{projetoId}'],
       prompts: ['agentmap-iniciar-trabalho', 'agentmap-finalizar-trabalho', 'agentmap-processar-handoff', 'agentmap-processar-solicitacao', 'agentmap-onboarding'],
       subscriptions: {
         legacy: 'resources/subscribe (2025)',
@@ -79,7 +80,7 @@ mcpServer.registerTool('agentmap_descobrir', {
       protocolo: '2025-03-26 / 2026-07-28',
       sdk: '@modelcontextprotocol/sdk v1.30.0',
       tools: Object.keys((mcpServer as any)._registeredTools || {}).length,
-      resources: 8,
+      resources: 9,
       prompts: 5
     },
     subscriptions: {
