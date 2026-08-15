@@ -67,10 +67,11 @@ mcpServer.registerTool(
     }
 
     if (!targetDominio && !targetConhecimentos.length) {
-      return toMcpData({
+      return toMcpResult({
         sucesso: false,
-        codigo: 'MISSING_FIELDS',
-        mensagem: 'Forneça tarefaId, ou criterios com dominio/conhecimentos',
+        codigoErro: 'MISSING_FIELDS',
+        erro: 'Forneça tarefaId, ou criterios com dominio/conhecimentos',
+        dados: null
       });
     }
 

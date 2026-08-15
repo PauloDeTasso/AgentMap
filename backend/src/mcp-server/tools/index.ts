@@ -31,3 +31,4 @@ import './buscarSimbolo';
 import './buscarReferencias';
 import './buscarConhecimento';
 import './obterContextoTarefa';
+import './worktree';

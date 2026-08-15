@@ -36,7 +36,7 @@ mcpServer.registerTool('agentmap_projetos_abrir', {
     const { id, nome, caminhoRaiz, config } = resultado.dados;
     return toMcpData({ id, nome, caminhoRaiz, config });
   }
-  return toMcpData({ sucesso: resultado.sucesso, codigo: resultado.codigoErro, mensagem: resultado.erro });
+  return toMcpResult({ sucesso: resultado.sucesso, codigoErro: resultado.codigoErro, erro: resultado.erro, dados: null });
 });
 
 mcpServer.registerTool('agentmap_projetos_fechar', {
@@ -58,7 +58,7 @@ mcpServer.registerTool('agentmap_projetos_atual', {
     const { id, nome, caminhoRaiz } = resultado.dados;
     return toMcpData({ id, nome, caminhoRaiz });
   }
-  return toMcpData({ sucesso: resultado.sucesso, codigo: resultado.codigoErro, mensagem: resultado.erro });
+  return toMcpResult({ sucesso: resultado.sucesso, codigoErro: resultado.codigoErro, erro: resultado.erro, dados: null });
 });
 
 mcpServer.registerTool('agentmap_integridade_verificar', {

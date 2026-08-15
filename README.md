@@ -642,15 +642,14 @@ O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador loc
 
 # Estrutura de projetos gerenciados
 
-- Pasta base de projetos: `G:\PROJETOS\AgenteMap_Projetos\`
+- Pasta base de projetos: configurável por projeto (caminho absoluto ou relativo)
 - Cada projeto recebe sua própria pasta com o **mesmo nome do projeto**
-- Exemplo: projeto `PAGINA_PESSOAL` → `G:\PROJETOS\AgenteMap_Projetos\PAGINA_PESSOAL`
 
 Cada projeto gerencia uma pasta `.ia/` com contratos, tarefas, decisões, handoffs e demais entidades do AgentMap.
 
 ## Regra obrigatória: fluxo e dependências
 
-Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-desenvolvimento.json`.
+Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-trabalho.md`.
 O planejador deve criar tarefas e dependências explicitamente antes de iniciar implementações.
 Agentes devem consultar dependências no início de cada ciclo e só prosseguir quando elas estiverem concluídas.
 Sem dependências, tarefas podem executar em paralelo; com dependências, a execução é sequencial.
@@ -658,7 +657,6 @@ Sem dependências, tarefas podem executar em paralelo; com dependências, a exec
 ## Checklist automático de novos projetos
 
 O AgentMap valida automaticamente a estrutura mínima de fluxo ao criar ou abrir um projeto:
-- `.ia/fluxo-desenvolvimento.json` obrigatório
 - `.ia/fluxo-trabalho.md` obrigatório
 - Pastas `.ia/contratos`, `.ia/tarefas`, `.ia/dependencias` obrigatórias
 - Pelo menos 1 contrato e 1 tarefa registrados
@@ -667,56 +665,7 @@ O AgentMap valida automaticamente a estrutura mínima de fluxo ao criar ou abrir
 Se o checklist não estiver completo, a criação/abertura do projeto é bloqueada.
 Endpoint: `GET /api/projetos/:id/fluxo/checklist`
 
-## Preparação e entrega por agente
-
-Cada agente possui documento de preparação e entrega em `.ia/procedimentos/`:
-- `preparacao-<papel>.md` — o que ler e verificar antes de começar
-- `entrega-<papel>.md` — o que registrar e entregar depois de terminar
-
-Papéis cobertos:
-planejador, backend, banco, frontend, android, infraestrutura, testes, seguranca, revisor, documentacao, observabilidade, desempenho
-
-## Agente Orquestrador
-
-O projeto pode incluir um agente orquestrador em `.ia/agentes/orquestrador/` para automatizar o fluxo de trabalho.
-
-Funções:
-- Consultar estado do projeto periodicamente
-- Identificar tarefas prontas para execução
-- Verificar dependências pendentes
-- Criar handoffs e eventos automaticamente
-- Enviar prompts para agentes responsáveis
-- Registrar bloqueios quando necessário
-- Aplicar circuit breaker contra loops infinitos
-
-Estrutura:
-- `.ia/agentes/orquestrador/orquestrador-perfil.json`
-- `.ia/agentes/orquestrador/habilidades.json`
-- `.ia/agentes/orquestrador/instrucoes.md`
-- `.ia/agentes/orquestrador/personalidade.md`
-- `.ia/agentes/orquestrador/regras.md`
-- `.ia/agentes/orquestrador/contexto.md`
-- `.ia/agentes/orquestrador/memoria.md`
-- `.ia/orquestrador/estado.json`
-- `.ia/orquestrador/polling.js`
-- `.ia/orquestrador/filewatcher.js`
-- `.ia/orquestrador/package.json`
-- `.ia/orquestrador/logs.md`
-
-Limites de segurança:
-- Máximo de 5 comandos por minuto por agente
-- Máximo de 3 tentativas de reenvio por tarefa
-- Timeout de 30 minutos por tarefa
-- Se loop detectado: pausar por 5 minutos
-
-Como usar:
-```bash
-cd .ia/orquestrador
-npm install
-node polling.js
-```
-
-## Regra de corporação/equipe
+## Coordenação entre Agentes
 
 Em projetos com múltiplos agentes:
 - O planejador define a ordem e as dependências.
@@ -730,33 +679,16 @@ Em projetos com múltiplos agentes:
 
 # Organização do repositório
 
-A organização física pode variar conforme a implementação, mas os principais domínios do AgentMap são representados conceitualmente por:
-
-```text
-AgentMap/
-│
-├── projetos/
-├── agentes/
-├── tarefas/
-├── contratos/
-├── decisoes/
-├── solicitacoes-alteracao/
-├── dependencias/
-├── reservas/
-├── bloqueios/
-├── conflitos/
-├── handoffs/
-├── resultados/
-├── validacoes/
-├── checkpoints/
-├── riscos/
-├── aprendizados/
-├── historico/
-├── schemas/
-├── docs/
-├── mcp/
-└── web/
-```
+O AgentMap está organizado em:
+- `backend/` — API Node.js + TypeScript + Express + MCP Server
+- `frontend/` — Interface web HTML/CSS/JS vanilla
+- `.ia/` — Dados do projeto (tarefas, contratos, agentes, handoffs, etc.)
+- `esquemas/` — JSON Schemas de validação
+- `banco/` — PostgreSQL opcional (metadados)
+- `PLANO GERAL/` — Documentação de planejamento e especificações
+- `docs/` — Guias e documentação adicional
+- `A FAZER/` — Lista de tarefas pendentes
+- `erros/` — Documentação de erros e inconsistências encontradas
 
 A estrutura real do repositório deve ser considerada a autoridade.
 

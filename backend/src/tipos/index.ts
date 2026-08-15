@@ -16,9 +16,7 @@
   | 'ORFA'
   | 'RECUPERANDO'
   | 'CANCELADA'
-  | 'REJEITADA'
-  | 'ORFA'
-  | 'RECUPERANDO';
+  | 'REJEITADA';
 
 export type EstadoEntidade = 'ativo' | 'inativo' | 'arquivado' | 'disponivel' | 'rascunho';
 

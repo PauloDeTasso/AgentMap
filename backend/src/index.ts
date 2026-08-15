@@ -3,7 +3,6 @@ import { loadSettings } from './config';
 import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { MonitoramentoService } from './servicios/MonitoramentoService';
-import { KiloDispatcherService } from './servicios/KiloDispatcherService';
 import { MonitoramentoWebSocket } from './websocket/monitoramento';
 import * as path from 'path';
 
