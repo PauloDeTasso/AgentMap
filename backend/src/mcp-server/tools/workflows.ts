@@ -1,32 +1,42 @@
 import { mcpServer } from '../server';
-import { toMcpResult, toMcpData } from '../utils/helpers';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import * as z from 'zod';
 
 mcpServer.registerTool('agentmap_workflows_iniciar_trabalho', {
+  title: 'Iniciar Trabalho',
   description: 'Inicia trabalho: valida agente + tarefa e monta contexto completo.',
-  inputSchema: z.object({ agenteId: z.string(), tarefaId: z.string() })
+  inputSchema: z.object({ agenteId: z.string(), tarefaId: z.string() }),
+  outputSchema: z.object({
+    agente: z.unknown(),
+    tarefa: z.unknown(),
+    contexto: z.unknown(),
+    sessao: z.unknown()
+  }).passthrough(),
+  annotations: {
+    readOnlyHint: false
+  }
 }, async ({ agenteId, tarefaId }: { agenteId: string, tarefaId: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const agenteResult = ctx.dados!.servicos.agente.obter(String(agenteId || ''));
   if (!agenteResult.sucesso) {
     auditoria.registrarToolCall('agentmap_workflows_iniciar_trabalho', projeto, { agenteId, tarefaId }, agenteResult);
-    return toMcpResult(agenteResult);
+    return mcpError(agenteResult);
   }
   const tarefaResult = ctx.dados!.servicos.tarefa.obter(String(tarefaId || ''));
   if (!tarefaResult.sucesso) {
     auditoria.registrarToolCall('agentmap_workflows_iniciar_trabalho', projeto, { agenteId, tarefaId }, tarefaResult);
-    return toMcpResult(tarefaResult);
+    return mcpError(tarefaResult);
   }
   const contextoResult = await ctx.dados!.servicos.tarefa.montarContexto(String(tarefaId || ''));
   if (!contextoResult.sucesso) {
     auditoria.registrarToolCall('agentmap_workflows_iniciar_trabalho', projeto, { agenteId, tarefaId }, contextoResult);
-    return toMcpResult(contextoResult);
+    return mcpError(contextoResult);
   }
   const sessaoResult = await ctx.dados!.servicos.sessao.iniciar({
     agenteId: String(agenteId || ''),
@@ -36,15 +46,20 @@ mcpServer.registerTool('agentmap_workflows_iniciar_trabalho', {
   });
   const resultado = { sucesso: true, dados: { agente: agenteResult.dados, tarefa: tarefaResult.dados, contexto: contextoResult.dados, sessao: sessaoResult.dados } };
   auditoria.registrarToolCall('agentmap_workflows_iniciar_trabalho', projeto, { agenteId, tarefaId }, resultado);
-  return toMcpData(resultado.dados);
+  return toMcpStructured(resultado.dados);
 });
 
 mcpServer.registerTool('agentmap_workflows_finalizar_trabalho', {
+  title: 'Finalizar Trabalho',
   description: 'Finaliza trabalho: registra resultado, artefatos, handoff, validacao e libera reservas.',
-  inputSchema: z.object({}).passthrough()
+  inputSchema: z.object({}).passthrough(),
+  outputSchema: z.object({
+    resultado: z.unknown(),
+    handoff: z.unknown()
+  }).passthrough()
 }, async (dados: Record<string, unknown>) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const { sessaoId, tarefaId, agenteId, ...resultadoDados } = dados;
@@ -55,7 +70,7 @@ mcpServer.registerTool('agentmap_workflows_finalizar_trabalho', {
   });
   if (!resultado.sucesso) {
     auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
   const handoff = await ctx.dados!.servicos.handoff.criar({
     origem: String(agenteId || ''),
@@ -68,20 +83,30 @@ mcpServer.registerTool('agentmap_workflows_finalizar_trabalho', {
     const sessaoResult = await ctx.dados!.servicos.sessao.finalizar(String(sessaoId), { estadoFinal: String(dados.estado || 'CONCLUIDA') });
     if (!sessaoResult.sucesso) {
       auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, sessaoResult);
-      return toMcpResult(sessaoResult);
+      return mcpError(sessaoResult);
     }
   }
   const finalResult = { sucesso: true, dados: { resultado: resultado.dados, handoff: handoff.dados } };
   auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, finalResult);
-  return toMcpData(finalResult.dados);
+  return toMcpStructured(finalResult.dados);
 });
 
 mcpServer.registerTool('agentmap_workflows_consultar_pendencias', {
+  title: 'Consultar Pendencias',
   description: 'Consulta pendencias, handoffs, validacoes e bloqueios por agente.',
-  inputSchema: z.object({ agenteId: z.string() })
+  inputSchema: z.object({ agenteId: z.string() }),
+  outputSchema: z.object({
+    pendencias: z.array(z.unknown()),
+    handoffs: z.array(z.unknown()),
+    validacoes: z.array(z.unknown()),
+    bloqueios: z.array(z.unknown())
+  }).passthrough(),
+  annotations: {
+    readOnlyHint: true
+  }
 }, async ({ agenteId }: { agenteId: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const aid = String(agenteId || '');
@@ -99,15 +124,28 @@ mcpServer.registerTool('agentmap_workflows_consultar_pendencias', {
     }
   };
   auditoria.registrarToolCall('agentmap_workflows_consultar_pendencias', projeto, { agenteId }, resultado);
-  return toMcpData(resultado.dados);
+  return toMcpStructured(resultado.dados);
 });
 
 mcpServer.registerTool('agentmap_workflows_obter_mapa_projeto', {
+  title: 'Mapa do Projeto',
   description: 'Obtem o mapa completo do projeto.',
-  inputSchema: z.object({})
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    projeto: z.record(z.string(), z.unknown()),
+    agentes: z.array(z.unknown()),
+    tarefas: z.array(z.unknown()),
+    estado: z.unknown().nullable(),
+    decisoes: z.array(z.unknown()),
+    contratos: z.unknown().nullable(),
+    permissoes: z.unknown().nullable()
+  }).passthrough(),
+  annotations: {
+    readOnlyHint: true
+  }
 }, async () => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const [agentes, tarefas, estado, decisoes, contratos, permissoes] = await Promise.all([
@@ -131,5 +169,5 @@ mcpServer.registerTool('agentmap_workflows_obter_mapa_projeto', {
     }
   };
   auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, resultado);
-  return toMcpData(resultado.dados);
+  return toMcpStructured(resultado.dados);
 });
