@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 import { asyncHandler, responder } from './middleware';
-import { normalizePath, matchesPattern } from '../seguranca/paths';
+import { normalizePath, matchesPattern, PathTraversalError } from '../seguranca/paths';
 
 export function criarArquivoRouter(): Router {
   const router = Router();
@@ -88,20 +88,33 @@ export function criarArquivoRouter(): Router {
 
   router.get('/explorer', asyncHandler(async (req: Request, res: Response) => {
     const caminho = req.query.path as string;
-    console.log('[GET /api/arquivos/explorer] recebido path=' + caminho);
     if (!caminho) {
       return responder(res, { sucesso: false, erro: 'parâmetro path é obrigatório', codigoErro: 'MISSING_PATH' }, 400);
     }
     const fileService = req.servicos!.projeto.fileService;
-    const absPath = fileService.getCaminhoAbsoluto(caminho);
-    console.log('[GET /api/arquivos/explorer] path relativo=' + caminho + ' | path absoluto=' + absPath);
-    if (!fs.existsSync(absPath)) {
-      console.error('[GET /api/arquivos/explorer] CAMINHO NAO EXISTE:', absPath);
-      return responder(res, { sucesso: false, erro: 'Caminho não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+    let absPath: string;
+    try {
+      absPath = fileService.getCaminhoAbsoluto(caminho);
+    } catch (e) {
+      if (e instanceof PathTraversalError) {
+        return responder(res, { sucesso: false, erro: e.message, codigoErro: 'PATH_TRAVERSAL' }, 403);
+      }
+      throw e;
     }
-    exec(`explorer "${absPath}"`);
-    console.log('[GET /api/arquivos/explorer] COMANDO EXECUTADO: explorer "' + absPath + '"');
-    return responder(res, { sucesso: true, dados: { caminho: caminho, absoluto: absPath } });
+    let realPath: string;
+    try {
+      realPath = fs.realpathSync(absPath);
+    } catch (e: any) {
+      if (e?.code === 'ENOENT') {
+        return responder(res, { sucesso: false, erro: 'Caminho não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+      }
+      return responder(res, { sucesso: false, erro: 'Erro ao resolver caminho', codigoErro: 'PATH_ERROR' }, 400);
+    }
+    const child = spawn('explorer', [realPath], { detached: true, stdio: 'ignore' });
+    child.on('error', (err: Error) => {
+      console.error('[GET /api/arquivos/explorer] erro ao abrir explorer:', err.message);
+    });
+    return responder(res, { sucesso: true, dados: { caminho: caminho, absoluto: realPath } });
   }));
 
   return router;
