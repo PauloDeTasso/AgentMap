@@ -728,6 +728,25 @@ O campo `data_collection_enabled` controla se dados de uso são coletados pelos 
 
 Variáveis de ambiente e configurações locais devem ser definidas em `kilo.local.jsonc`, que é ignorado pelo Git.
 
+## Padrões MCP 2026
+
+O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
+
+- **124 tools MCP** registradas com `registerTool` do SDK `@modelcontextprotocol/sdk` v1.30.0
+- **Transporte STDIO** local (sem exposição de rede)
+- **`outputSchema` + `structuredContent`** para resultados estruturados
+- **Validação de entrada** via Zod em todas as tools
+- **Anotações** (`readOnly`, `destructive`, `idempotent`) para orientar o cliente
+- **Erros via `isError: true`** com mensagens acionáveis para auto-correção do modelo
+
+## Ecossistema Kilo Code / VS Code 2026
+
+- **Kilo Code** é a camada de IDE/CLI que consome o MCP do AgentMap
+- **Agent Manager** é o painel de paralelismo real: worktrees isolados por agente
+- **VS Code 1.115+** inclui preview de **Agents app** com sessões paralelas em worktrees
+- **Worktree isolation** é o padrão do mercado para agentes paralelos (Cursor, Windsurf, Claude Code, Copilot)
+- O AgentMap **não depende de CLI `kilo` standalone**; o paralelismo é via Agent Manager
+
 ---
 
 # Segurança

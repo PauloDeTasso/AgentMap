@@ -45,6 +45,36 @@ Cada projeto gerenciado tem uma pasta `.ia/` com:
 - `kilo.local.jsonc` — overrides locais (NÃO versionar)
 - `SECURITY.md` — política de segurança
 
+### 2.5 Integração com Kilo Code (2026)
+
+O AgentMap é consumido pelo **Kilo Code** via MCP. A configuração segue o padrão oficial:
+
+**Níveis de configuração:**
+- **Global:** `~/.config/kilo/kilo.jsonc` — aplica a todos os projetos
+- **Projeto:** `kilo.jsonc` na raiz — aplica apenas a este projeto
+- **Local:** `kilo.local.jsonc` — overrides locais, não versionado
+
+**Formato MCP (local STDIO):**
+```json
+{
+  "mcp": {
+    "agentmap": {
+      "type": "local",
+      "command": ["cmd", "/c", "cd", "backend", "&&", "npx", "tsx", "src/mcp-server/index.ts"],
+      "environment": {
+        "NODE_ENV": "production"
+      },
+      "enabled": true,
+      "timeout": 30000
+    }
+  }
+}
+```
+
+**Agent Manager:** painel do Kilo Code para paralelismo real via worktrees isolados. Suporta modos `worktree` (isolamento git) e `local` (mesmo workspace).
+
+**VS Code 1.115+:** inclui preview de **Agents app** com sessões paralelas em worktrees, diffs inline e revisão integrada.
+
 ---
 
 ## 3. FLUXO DE TRABALHO REAL (COMO AS COISAS FUNCIONAM HOJE)

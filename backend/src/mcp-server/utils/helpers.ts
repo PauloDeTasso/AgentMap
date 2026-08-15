@@ -17,7 +17,13 @@ export function safeStringify(obj: unknown): string {
   );
 }
 
-export function toMcpResult<T>(result: ResultadoOperacao<T>): { content: Array<{ type: 'text'; text: string }> } {
+export type McpContent = {
+  content: Array<{ type: 'text'; text: string }>;
+  structuredContent?: unknown;
+  isError?: boolean;
+};
+
+export function toMcpResult<T>(result: ResultadoOperacao<T>, structuredContent?: T): McpContent {
   if (!result.sucesso) {
     return {
       content: [
@@ -30,7 +36,8 @@ export function toMcpResult<T>(result: ResultadoOperacao<T>): { content: Array<{
             detalhes: {}
           })
         }
-      ]
+      ],
+      isError: true
     };
   }
   return {
@@ -42,18 +49,20 @@ export function toMcpResult<T>(result: ResultadoOperacao<T>): { content: Array<{
           dados: result.dados
         })
       }
-    ]
+    ],
+    structuredContent: structuredContent ?? result.dados
   };
 }
 
-export function toMcpData(dados: unknown): { content: Array<{ type: 'text'; text: string }> } {
+export function toMcpData(dados: unknown, structuredContent?: unknown): McpContent {
   return {
     content: [
       {
         type: 'text',
         text: safeStringify(dados)
       }
-    ]
+    ],
+    structuredContent: structuredContent ?? dados
   };
 }
 

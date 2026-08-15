@@ -36,10 +36,16 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
         "type": "text",
         "text": "{\"sucesso\":true,\"dados\":[...]}"
       }
-    ]
+    ],
+    "structuredContent": {
+      "sucesso": true,
+      "dados": [...]
+    }
   }
 }
 ```
+
+> **Nota (MCP 2026):** Tools que declaram `outputSchema` retornam `structuredContent` para validação client-side e parsing estruturado. O bloco `content` continua sendo retornado para backwards compatibility.
 
 ## Formato de Resposta (Erro)
 
@@ -53,10 +59,13 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
         "type": "text",
         "text": "{\"sucesso\":false,\"codigo\":\"NO_PROJECT_OPEN\",\"mensagem\":\"Nenhum projeto aberto.\",\"detalhes\":{}}"
       }
-    ]
+    ],
+    "isError": true
   }
 }
 ```
+
+> **Nota (MCP 2026):** Erros de execução de tool usam `isError: true` para permitir auto-correção pelo modelo.
 
 ## Tools Disponíveis
 
