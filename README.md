@@ -684,11 +684,13 @@ O AgentMap está organizado em:
 - `frontend/` — Interface web HTML/CSS/JS vanilla
 - `.ia/` — Dados do projeto (tarefas, contratos, agentes, handoffs, etc.)
 - `esquemas/` — JSON Schemas de validação
-- `banco/` — PostgreSQL opcional (metadados)
+- `banco/` — PostgreSQL opcional (não implementado no momento; pasta apenas para futura expansão)
 - `PLANO GERAL/` — Documentação de planejamento e especificações
 - `docs/` — Guias e documentação adicional
 - `A FAZER/` — Lista de tarefas pendentes
 - `erros/` — Documentação de erros e inconsistências encontradas
+
+**Armazenamento operacional:** predominantemente **filesystem + JSON**. Os dados reais do projeto vivem em arquivos dentro de `.ia/`. PostgreSQL, se usado no futuro, será apenas para metadados/índice.
 
 A estrutura real do repositório deve ser considerada a autoridade.
 

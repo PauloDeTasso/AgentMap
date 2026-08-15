@@ -7,7 +7,7 @@
 
 O AgentMap é um **Gerenciador Local de Agentes de IA** para Windows 11. Ele organiza projetos, agentes, contratos, tarefas, contexto, conhecimento e governança através de arquivos reais no sistema de arquivos.
 
-**Premissa fundamental:** O arquivo é a informação principal. PostgreSQL é opcional (metadados/índice apenas).
+**Premissa fundamental:** O arquivo é a informação principal. PostgreSQL é opcional (não implementado no momento; apenas pasta para futura expansão).
 
 **O AgentMap NÃO executa agentes, NÃO escolhe modelos, NÃO distribui tarefas.**
 Ele entrega contexto correto e registra o que acontece.

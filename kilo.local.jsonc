@@ -15,3 +15,13 @@
     }
   }
 }
+
+/*
+ * COTA DE COLETA DE DADOS (LOCAL OVERRIDE)
+ *
+ * Este arquivo sobrescreve kilo.jsonc apenas para este ambiente.
+ * data_collection_enabled: false desativa coleta de dados de uso.
+ *
+ * Esta configuração NÃO afeta o armazenamento local do AgentMap (.ia/).
+ * O AgentMap armazena tudo localmente em arquivos JSON, independentemente desta flag.
+ */

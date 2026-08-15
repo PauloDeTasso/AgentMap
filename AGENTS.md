@@ -5,7 +5,7 @@
 Gerenciador local para Windows 11 que organiza projetos, agentes, contratos, tarefas,
 contexto, conhecimento e governança através de arquivos reais no sistema de arquivos.
 
-O arquivo é a informação principal. PostgreSQL é opcional (metadados/índice apenas).
+O arquivo é a informação principal. PostgreSQL é opcional (não implementado no momento; apenas pasta para futura expansão).
 
 ## Princípios
 
@@ -19,9 +19,11 @@ O arquivo é a informação principal. PostgreSQL é opcional (metadados/índice
 ```
 backend/    → Node.js + TypeScript + Express
 frontend/   → HTML5 + CSS3 + JavaScript (vanilla ES modules)
-banco/      → PostgreSQL (opcional, metadados)
+banco/      → PostgreSQL opcional (não implementado)
 esquemas/   → JSON Schemas de validação
 ```
+
+**Armazenamento operacional:** predominantemente **filesystem + JSON**. Os dados reais do projeto vivem em arquivos dentro de `.ia/`. PostgreSQL, se usado no futuro, será apenas para metadados/índice.
 
 ## Desenvolvimento
 

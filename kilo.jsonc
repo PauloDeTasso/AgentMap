@@ -25,3 +25,14 @@
     "mcp_timeout": 30000
   }
 }
+
+/*
+ * COTA DE COLETA DE DADOS
+ *
+ * data_collection_enabled:
+ *   - true  -> permite que o provedor colete dados de uso para melhorar modelos.
+ *   - false -> desativa coleta; apenas dados operacionais essenciais são mantidos.
+ *
+ * Esta configuração NÃO afeta o armazenamento local do AgentMap (.ia/).
+ * O AgentMap armazena tudo localmente em arquivos JSON, independentemente desta flag.
+ */
