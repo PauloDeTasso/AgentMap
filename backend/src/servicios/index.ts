@@ -29,7 +29,6 @@ export * from './ContatoService';
 export * from './CorsService';
 export * from './ContractValidatorService';
 export * from './BackupService';
-export * from './KiloDispatcherService';
 export * from './MonitoramentoService';
 export * from './KiloAgentGeneratorService';
 export * from './FluxoService';

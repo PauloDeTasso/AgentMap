@@ -149,35 +149,5 @@ export function criarAdminRouter(): Router {
     }
   }));
 
-  router.get('/outbox', asyncHandler(async (req: Request, res: Response) => {
-    const dispatcher = (req as any).servicos?.kiloDispatcher;
-    if (!dispatcher) {
-      return responder(res, { sucesso: false, erro: 'KiloDispatcherService não disponível', codigoErro: 'SERVICE_UNAVAILABLE' }, 500);
-    }
-    const agenteId = req.query.agenteId as string | undefined;
-    const pendentes = dispatcher.listarPendentes(agenteId);
-    return responder(res, { sucesso: true, dados: pendentes });
-  }));
-
-  router.post('/dispatch/:agenteId', asyncHandler(async (req: Request, res: Response) => {
-    const dispatcher = (req as any).servicos?.kiloDispatcher;
-    if (!dispatcher) {
-      return responder(res, { sucesso: false, erro: 'KiloDispatcherService não disponível', codigoErro: 'SERVICE_UNAVAILABLE' }, 500);
-    }
-    const { agenteId } = req.params;
-    const result = await dispatcher.executarPendente(agenteId);
-    return responder(res, result, result.sucesso ? 200 : 400);
-  }));
-
-  router.get('/dispatch-log', asyncHandler(async (req: Request, res: Response) => {
-    const dispatcher = (req as any).servicos?.kiloDispatcher;
-    if (!dispatcher) {
-      return responder(res, { sucesso: false, erro: 'KiloDispatcherService não disponível', codigoErro: 'SERVICE_UNAVAILABLE' }, 500);
-    }
-    const limite = req.query.limite ? Number(req.query.limite) : 100;
-    const logs = dispatcher.listarLogs(limite);
-    return responder(res, { sucesso: true, dados: logs });
-  }));
-
   return router;
 }
