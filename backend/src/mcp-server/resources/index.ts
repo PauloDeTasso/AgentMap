@@ -360,8 +360,10 @@ mcpServer.server.setRequestHandler(
 );
 
 globalEventBus.subscribe((event) => {
+  console.error('[E2E-DEBUG] EventBus handler fired', JSON.stringify(event));
   const subscribers = subscriptionManager.getSubscribers(event.uri);
   if (subscribers.length > 0) {
+    console.error('[E2E-DEBUG] sendResourceUpdated called');
     mcpServer.server.sendResourceUpdated({ uri: event.uri }).catch((err) => {
       console.error(`[MCP] Falha ao enviar notificação para ${event.uri}:`, err);
       for (const sessionId of subscribers) {

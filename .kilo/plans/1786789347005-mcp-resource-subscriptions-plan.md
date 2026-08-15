@@ -149,9 +149,66 @@ Fora do escopo inicial:
 5. Validação (testes automatizados + Inspector)
 6. Preparação MCP 2026 (avaliação SDK v2)
 
-## 9. Próximos passos após este plano
+## 10. Validação real via stdio (pré-commit obrigatória)
 
-- Revisar e aprovar plano
-- Executar Fase 1 → Fase 2 → Fase 3 → Fase 4 → Fase 5
-- Validar com MCP Inspector
-- Documentar no README os recursos assináveis
+Os testes automatizados existentes (`mcp-subscriptions.test.ts`) validam apenas unidades isoladas. Para comprovar que o MCP Resource Subscriptions funciona end-to-end, é necessário um teste real via stdio.
+
+### 10.1 Cliente MCP mínimo (`backend/testes/mcp-client-stdio.ts`)
+
+Criar um script TypeScript que:
+1. Abra `spawn` do `npx tsx src/mcp-server/index.ts`
+2. Envie `initialize` e espere resposta
+3. Envie `notifications/initialized`
+4. Envie `resources/subscribe` para `agentmap://solicitacoes/backend`
+5. Envie `resources/read` para o mesmo URI e valide JSON retornado
+6. Envie `resources/unsubscribe`
+7. Envie `shutdown` e feche o processo
+
+Critérios:
+- `initialize` retorna `capabilities.resources.subscribe === true`
+- `resources/subscribe` retorna `{ sucesso: true }`
+- `resources/read` retorna JSON válido com `sucesso` e `dados`
+- `resources/unsubscribe` retorna `{ sucesso: true }`
+- Processo fecha sem erro (`exit code 0`)
+
+### 10.2 Teste de notificação end-to-end (`backend/testes/mcp-notification-e2e.test.ts`)
+
+Criar teste Jest que:
+1. Inicie o MCP server via stdio em um processo filho
+2. Conecte cliente MCP e subscreva em `agentmap://handoffs/frontend`
+3. Via API REST, crie um handoff com destino `frontend`
+4. Aguarde até 500ms e verifique se o cliente recebeu `notifications/resources/updated`
+5. Faça `resources/read` e valide que o handoff aparece no JSON
+6. Limpeza: unsubscribe + shutdown
+
+Critérios:
+- Notificação chega em até 500ms após criação do handoff
+- Payload da notificação contém `uri: agentmap://handoffs/frontend`
+- `resources/read` retorna o handoff criado
+
+### 10.3 Como executar
+
+```bash
+# Teste unitário existente
+cd backend && npx jest testes/mcp-subscriptions.test.ts --verbose
+
+# Novo cliente stdio (manual)
+cd backend && npx tsx testes/mcp-client-stdio.ts
+
+# Novo teste e2e (automático)
+cd backend && npx jest testes/mcp-notification-e2e.test.ts --verbose
+```
+
+### 10.4 Aceite antes de commit
+
+- [ ] `mcp-client-stdio.ts` conecta, subscreve, lê, cancela e fecha sem erro
+- [ ] `mcp-notification-e2e.test.ts` passa
+- [ ] Nenhum timer pendente após shutdown (`detectOpenHandles` limpo)
+- [ ] `tsc --noEmit` sem erros
+
+## 11. Próximos passos após este plano
+
+- Implementar Fase 1 → Fase 2 → Fase 3 → Fase 4
+- Executar Fase 5 (testes automatizados)
+- Executar Fase 10 (validação stdio real)
+- Commit + push apenas após Fase 10 aprovada
