@@ -41,7 +41,7 @@ mcpServer.registerTool('agentmap_bloqueios_criar', {
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.bloqueio.criar(dados);
+  const resultado = await ctx.dados!.servicos.bloqueio.criar(dados, projeto.id);
   auditoria.registrarToolCall('agentmap_bloqueios_criar', projeto, { dados }, resultado);
   if (!resultado.sucesso) return toMcpResult(resultado);
   return toMcpData(resultado.dados);
@@ -55,7 +55,7 @@ mcpServer.registerTool('agentmap_bloqueios_resolver', {
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.bloqueio.resolver(String(id || ''), String(resolucao || ''));
+  const resultado = await ctx.dados!.servicos.bloqueio.resolver(String(id || ''), String(resolucao || ''), projeto.id);
   auditoria.registrarToolCall('agentmap_bloqueios_resolver', projeto, { id, resolucao }, resultado);
   if (!resultado.sucesso) return toMcpResult(resultado);
   return toMcpData(resultado.dados);

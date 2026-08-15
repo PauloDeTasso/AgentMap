@@ -15,10 +15,18 @@ O MCP (Model Context Protocol) do AgentMap é uma camada de acesso que expõe os
 ```
 backend/src/mcp-server/
 ├── index.ts                      # Entry point stdio
-├── server.ts                     # McpServer instance, registro de tools/resources/prompts
+├── server.ts                     # McpServer instance, capabilities, resources, subscriptions
 ├── contexto.ts                   # ProjetoContext: carrega projeto atual + serviços
 ├── erros/
 │   └── mcp-erros.ts              # Códigos de erro estáveis + mapeamento para MCP
+├── events/
+│   └── event-bus.ts              # EventBus local: publish/subscribe + coalescência por URI
+├── resources/
+│   ├── index.ts                  # Resources estáticos + templates + handlers subscribe/unsubscribe
+│   ├── uri-factory.ts            # URIs canônicas agentmap://... com encodeURIComponent
+│   └── authorization.ts          # authorizeResourceAccess(): valida acesso antes de subscribe/read
+├── subscriptions/
+│   └── subscription-manager.ts   # Gerenciamento de subscriptions por session/URI
 ├── tools/
 │   ├── base.ts                   # Helper: executarServico<T>(servico, metodo, args)
 │   ├── projeto.ts                # status, projetos_listar, projetos_criar, projetos_abrir, projetos_fechar, projetos_atual
@@ -43,8 +51,6 @@ backend/src/mcp-server/
 │   ├── arquivos.ts               # listar, ler, escrever, excluir (COM isPathSafe)
 │   ├── auditoria.ts              # listar (ultimos N eventos)
 │   └── workflows.ts              # iniciar_trabalho, finalizar_trabalho, consultar_pendencias, obter_mapa_projeto
-├── resources/
-│   └── index.ts                  # agentmap://status, agentmap://manifest, agentmap://projeto
 ├── prompts/
 │   └── index.ts                  # agentmap-iniciar-trabalho, agentmap-finalizar-trabalho, etc.
 ├── schemas/
@@ -126,6 +132,7 @@ npm run mcp    # Inicia o servidor MCP via stdio
 - [x] Resources (status, manifest, projeto)
 - [x] Prompts (4 prompts operacionais)
 - [x] Manifesto JSON
+- [x] MCP Resource Subscriptions (EventBus, SubscriptionManager, URI Factory, Authorization, templates dinâmicos)
 - [x] Documentação
 
 ## Riscos e Mitigações
@@ -138,6 +145,9 @@ npm run mcp    # Inicia o servidor MCP via stdio
 | Stack trace exposto | Captura erros, retorna só `codigo` + `mensagem`. |
 | Secret em log | AuditoriaService já sanitiza. MCP replica. |
 | Versão do SDK MCP | Fixar v1.30.0 no package.json, documentado aqui. |
+| Múltiplos processos sem estado compartilhado | EventBus local por processo; subscriptions são connection-scoped. |
+| Vazamento de memória por sessão morta | `unsubscribeAll(sessionId)` no disconnect + shutdown do EventBus. |
+| Flood de notificações em burst | Coalescência por URI com janela de 100ms. |
 
 ## Padrões MCP 2026
 
@@ -146,3 +156,6 @@ npm run mcp    # Inicia o servidor MCP via stdio
 - **Retorno sucesso:** `content` + `structuredContent` (validado contra `outputSchema`)
 - **Retorno erro:** `content` + `isError: true`
 - **Backwards compatibility:** `content` sempre retornado para clients legados
+- **Resources:** registradas com `registerResource(name, uri/template, metadata, callback)`
+- **Subscriptions:** handlers `resources/subscribe` + `resources/unsubscribe` via `setRequestHandler`
+- **Notificações:** `server.sendResourceUpdated({ uri })` para clientes inscritos

@@ -40,6 +40,7 @@
 - [Interface Web](#-interface-web)
 - [Autenticação e acesso](#-autenticação-e-acesso)
 - [Eventos](#-eventos)
+- [MCP Resource Subscriptions](#-mcp-resource-subscriptions)
 - [Como usar](#-como-usar)
 - [Estrutura de projetos gerenciados](#-estrutura-de-projetos-gerenciados)
 - [Organização do repositório](#-organização-do-repositório)
@@ -501,6 +502,92 @@ O AgentMap registra eventos assíncronos para coordenação entre agentes. Além
 ```
 
 </details>
+
+## 📡 MCP Resource Subscriptions
+
+O AgentMap suporta **subscrições de recursos MCP** para notificações em tempo real entre agentes. Isso elimina a necessidade de polling manual por mudanças em solicitações, handoffs e bloqueios.
+
+### Recursos assináveis
+
+| URI | Descrição |
+|---|---|
+| `agentmap://solicitacoes/{agenteId}` | Solicitações de alteração destinadas a um agente |
+| `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
+| `agentmap://bloqueios/{projetoId}` | Bloqueios ativos do projeto |
+
+### Fluxo de subscrição
+
+```mermaid
+sequenceDiagram
+    participant A as Agente A
+    participant M as MCP Server
+    participant E as Event Bus
+    participant S as Serviço de Domínio
+
+    A->>M: resources/subscribe (uri)
+    M-->>A: { sucesso: true }
+    S->>E: publish(uri, reason)
+    E->>E: coalesce por URI (100ms)
+    E->>M: notificar subscribers
+    M->>A: notifications/resources/updated
+    A->>M: resources/read (uri)
+    M-->>A: JSON com dados atualizados
+```
+
+### Características
+
+- **Capabilities anunciadas:** `resources.subscribe: true` e `resources.listChanged: true`
+- **Subscrições por session:** cada processo stdio MCP mantém suas próprias subscrições isoladas
+- **Autorização centralizada:** `authorizeResourceAccess()` valida acesso antes de inscrever ou ler
+- **Coalescência:** bursts de mudanças são agrupados em 1 notificação por URI (janela de 100ms)
+- **Limpeza automática:** subscrições são removidas no disconnect da sessão
+
+### Exemplo de uso
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "resources/subscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "resources/read",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "resources/unsubscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+> **Nota:** URIs usam `encodeURIComponent` para IDs com caracteres especiais. Ex: `agentmap://solicitacoes/AGT%2FBACKEND`.
 
 ---
 

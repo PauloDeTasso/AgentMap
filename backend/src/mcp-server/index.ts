@@ -1,6 +1,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import { mcpServer } from './server';
+import { subscriptionManager } from './subscriptions/subscription-manager';
+import { globalEventBus } from './events/event-bus';
+import './resources';
 import './tools';
 
 async function main() {
@@ -15,6 +18,13 @@ async function main() {
   clearTimeout(timeout);
   console.error('MCP server connected');
 
+  mcpServer.server.onclose = () => {
+    console.error('MCP server connection closed, cleaning up subscriptions');
+    subscriptionManager.unsubscribeAll('');
+    globalEventBus.shutdown();
+    mcpServer.server.onclose = undefined;
+  };
+
   const shutdown = async (signal: string) => {
     console.error(`Received ${signal}, shutting down...`);
     try {
@@ -28,7 +38,7 @@ async function main() {
   process.on('SIGINT', () => shutdown('SIGINT'));
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-  await new Promise(() => {});
+  await new Promise((resolve) => { process.on('SIGINT', resolve); process.on('SIGTERM', resolve); });
 }
 
 main().catch((error) => {
@@ -40,3 +50,4 @@ process.on('uncaughtException', (error) => {
   console.error('Uncaught exception:', error);
   process.exit(1);
 });
+

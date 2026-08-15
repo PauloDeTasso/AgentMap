@@ -6,6 +6,8 @@ import { Bloqueio, ResultadoOperacao } from '../tipos';
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { TRANSICOES_ESTADO_BLOQUEIO, validarTransicao } from '../tipos';
 import { EventoService } from './EventoService';
+import { bloqueiosUri } from '../mcp-server/resources/uri-factory';
+import { EventBus } from '../mcp-server/events/event-bus';
 
 export class BloqueioService {
   private idGenerator: IdGenerator;
@@ -14,7 +16,8 @@ export class BloqueioService {
     private fs: FileService,
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
-    private eventoService?: EventoService
+    private eventoService?: EventoService,
+    private eventBus?: EventBus
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -45,7 +48,7 @@ export class BloqueioService {
     return { sucesso: true, dados: bloqueio };
   }
 
-  async criar(dados: Partial<Bloqueio>): Promise<ResultadoOperacao<Bloqueio>> {
+  async criar(dados: Partial<Bloqueio>, projetoId?: string): Promise<ResultadoOperacao<Bloqueio>> {
     const bloqueio: Bloqueio = { ...dados } as Bloqueio;
 
     if (!bloqueio.id) {
@@ -62,10 +65,13 @@ export class BloqueioService {
     registryResult.dados.bloqueios.push(bloqueio);
     this.salvarRegistry(registryResult.dados);
     this.auditoria.registrar('BLOQUEIO_CRIADO', `Bloqueio '${bloqueio.id}' para tarefa '${bloqueio.tarefaId}'.`, { bloqueioId: bloqueio.id, tarefaId: bloqueio.tarefaId });
+    if (this.eventBus && projetoId) {
+      this.eventBus.publish({ uri: bloqueiosUri(projetoId), timestamp: Date.now(), reason: 'bloqueio_criado' });
+    }
     return { sucesso: true, dados: bloqueio };
   }
 
-  async resolver(id: string, resolucao: string): Promise<ResultadoOperacao<Bloqueio>> {
+  async resolver(id: string, resolucao: string, projetoId?: string): Promise<ResultadoOperacao<Bloqueio>> {
     const registryResult = this.carregarRegistry();
     if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
     const idx = registryResult.dados.bloqueios.findIndex((b) => b.id === id);
@@ -80,6 +86,9 @@ export class BloqueioService {
     registryResult.dados.bloqueios[idx].resolvidoEm = resolucao;
     this.salvarRegistry(registryResult.dados);
     this.auditoria.registrar('BLOQUEIO_RESOLVIDO', `Bloqueio '${id}' resolvido.`, { bloqueioId: id });
+    if (this.eventBus && projetoId) {
+      this.eventBus.publish({ uri: bloqueiosUri(projetoId), timestamp: Date.now(), reason: 'bloqueio_resolvido' });
+    }
     return { sucesso: true, dados: registryResult.dados.bloqueios[idx] };
   }
 

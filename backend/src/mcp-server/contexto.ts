@@ -33,6 +33,7 @@ import { MonitoramentoService } from 'servicios/MonitoramentoService';
 import { FluxoService } from 'servicios/FluxoService';
 import { InstanciaService } from 'servicios/InstanciaService';
 import { OrquestradorService } from 'servicios/OrquestradorService';
+import { globalEventBus } from './events/event-bus';
 
 export interface ProjetoContext {
   projetoId: string;
@@ -48,11 +49,11 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
     projeto,
     agente: new AgenteService(projeto.fileService, projeto.auditoria, validator),
     tarefa: new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
-    solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, validator),
+    solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, validator, undefined, globalEventBus),
     criterio: new CriterioService(projeto.fileService, projeto.auditoria, validator),
     resultado: new ResultadoService(projeto.fileService, projeto.auditoria, validator),
     artefato: new ArtefatoService(projeto.fileService, projeto.auditoria, validator),
-    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
+    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService, globalEventBus),
     pendencia: new PendenciaService(projeto.fileService, projeto.auditoria, validator),
     validacao: new ValidacaoService(projeto.fileService, projeto.auditoria, validator),
     conflito: new ConflitoService(projeto.fileService, projeto.auditoria, validator),
@@ -65,7 +66,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
       integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator, projeto.fluxo),
       decisao: new DecisaoService(projeto.fileService, projeto.auditoria, validator),
       risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
-      bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),
+      bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator, undefined, globalEventBus),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
       evento: eventoService,
       auditoria: projeto.auditoria,
@@ -88,7 +89,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
         new DependenciaService(projeto.fileService, projeto.auditoria, validator)
       )
     };
-}
+  }
 
 export function carregarContexto(projetoService: ProjetoService): ResultadoOperacao<ProjetoContext> {
   const resultado = projetoService.getProjetoAtual();

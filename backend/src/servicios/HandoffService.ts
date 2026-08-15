@@ -6,6 +6,8 @@ import { Evento, Handoff, HandoffsRegistry, ResultadoOperacao } from '../tipos';
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { TRANSICOES_ESTADO_HANDOFF, validarTransicao } from '../tipos';
 import { EventoService } from './EventoService';
+import { handoffsUri } from '../mcp-server/resources/uri-factory';
+import { EventBus } from '../mcp-server/events/event-bus';
 
 export class HandoffService {
   private idGenerator: IdGenerator;
@@ -14,7 +16,8 @@ export class HandoffService {
     private fs: FileService,
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
-    private eventoService?: EventoService
+    private eventoService?: EventoService,
+    private eventBus?: EventBus
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -114,6 +117,9 @@ export class HandoffService {
     if (this.eventoService) {
       this.eventoService.registrar({ tipo: 'HANDOFF_CRIADO', origem: handoff.origem, destino: handoff.destino, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Novo handoff de ${handoff.origem} para ${handoff.destino}` });
     }
+    if (this.eventBus) {
+      this.eventBus.publish({ uri: handoffsUri(handoff.destino), timestamp: Date.now(), reason: 'handoff_criado' });
+    }
     return { sucesso: true, dados: handoff };
   }
 
@@ -164,6 +170,9 @@ export class HandoffService {
       if (dados.estado === 'CONCLUIDO') {
         this.eventoService.registrar({ tipo: 'HANDOFF_CONCLUIDO', origem: atualizado.destino, destino: atualizado.origem, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Handoff '${id}' concluido.` });
       }
+    }
+    if (this.eventBus && dados.estado && dados.estado !== existente.dados.estado) {
+      this.eventBus.publish({ uri: handoffsUri(atualizado.destino), timestamp: Date.now(), reason: `handoff_${dados.estado.toLowerCase()}` });
     }
 
     return { sucesso: true, dados: atualizado };

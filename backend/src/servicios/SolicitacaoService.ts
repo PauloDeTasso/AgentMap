@@ -20,6 +20,8 @@ import { v4 as uuid } from 'uuid';
 
 import { IdGenerator } from '../arquivos/IdGenerator';
 import { EventoService } from './EventoService';
+import { solicitacoesUri } from '../mcp-server/resources/uri-factory';
+import { EventBus } from '../mcp-server/events/event-bus';
 
 export class SolicitacaoService {
   private idGenerator: IdGenerator;
@@ -28,7 +30,8 @@ export class SolicitacaoService {
     private fs: FileService,
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
-    private eventoService?: EventoService
+    private eventoService?: EventoService,
+    private eventBus?: EventBus
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -188,6 +191,9 @@ export class SolicitacaoService {
     if (this.eventoService && solicitacao.agenteResponsavel.id) {
       this.eventoService.registrar({ tipo: 'SOLICITACAO_CRIADA', origem: solicitacao.agenteSolicitante.id, destino: solicitacao.agenteResponsavel.id, referenciaTipo: 'solicitacao', referenciaId: id, mensagem: `Nova solicitação de ${solicitacao.agenteSolicitante.id} para ${solicitacao.agenteResponsavel.id}: ${solicitacao.titulo}` });
     }
+    if (this.eventBus && solicitacao.agenteResponsavel.id) {
+      this.eventBus.publish({ uri: solicitacoesUri(solicitacao.agenteResponsavel.id), timestamp: Date.now(), reason: 'solicitacao_criada' });
+    }
     console.log('[SolicitacaoService.criar] SUCESSO - id=' + id);
     return { sucesso: true, dados: solicitacao };
   }
@@ -233,6 +239,9 @@ export class SolicitacaoService {
       `Solicitação '${id}' atualizada. Status: ${atualizada.status}`,
       { solicitacaoId: id }
     );
+    if (this.eventBus && atualizada.agenteResponsavel.id) {
+      this.eventBus.publish({ uri: solicitacoesUri(atualizada.agenteResponsavel.id), timestamp: Date.now(), reason: 'solicitacao_alterada' });
+    }
     console.log('[SolicitacaoService.atualizar] SUCESSO');
     return { sucesso: true, dados: atualizada };
   }

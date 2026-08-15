@@ -106,11 +106,65 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 
 ## Resources
 
+### Estáticos
 | URI | Descrição |
 |---|---|
 | `agentmap://status` | Status do servidor MCP |
 | `agentmap://manifest` | Manifesto do AgentMap |
 | `agentmap://projeto` | Config do projeto atual |
+
+### Dinâmicos (Resource Templates)
+| URI Template | Descrição |
+|---|---|
+| `agentmap://solicitacoes/{agenteId}` | Solicitações de alteração de um agente |
+| `agentmap://handoffs/{agenteId}` | Handoffs de um agente |
+| `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto |
+
+### Subscriptions (MCP 2025)
+O servidor suporta `resources/subscribe` e `resources/unsubscribe` para notificações em tempo real:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "resources/subscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "resources/unsubscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+Quando um recurso assinado muda, o servidor envia:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+O cliente deve então chamar `resources/read` para obter o conteúdo atualizado.
+
+### Autorização
+Subscrições e leituras de recursos passam por `authorizeResourceAccess()`:
+- `solicitacoes/{agenteId}` e `handoffs/{agenteId}` exigem projeto aberto
+- `bloqueios/{projetoId}` exigem que o `projetoId` na URI corresponda ao projeto aberto
+
+### Coalescência
+Eventos de mudança são agrupados por URI em janela de 100ms. Um burst de múltiplas alterações resulta em apenas 1 notificação `resources/updated` por URI.
 
 ## Prompts
 

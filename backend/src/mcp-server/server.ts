@@ -77,7 +77,10 @@ export const mcpServer = new McpServer(
   {
     capabilities: {
       tools: {},
-      resources: {},
+      resources: {
+        subscribe: true,
+        listChanged: true
+      },
       prompts: {}
     },
     instructions: 'AgentMap MCP Server — Gerenciador Local de Agentes de IA. Use as tools para gerenciar projetos, tarefas, agentes, solicitações, handoffs, sessões e demais entidades do AgentMap.'

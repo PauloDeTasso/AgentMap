@@ -84,6 +84,7 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 3. **Handoff quando necessário**: se o trabalho crossing de domínio, gere handoff
 4. **Validação separada da conclusão**: não conclua tarefa sem validação quando aplicável
 5. **Coordenação entre agentes**: antes de iniciar trabalho, consulte `agentmap_eventos_pendentes({ agenteId: "<seu-id>" })` para verificar eventos pendentes destinados a você. Após processar um evento, marque-o como consumido com `agentmap_eventos_confirmar({ id: "<evento-id>" })`.
+6. **Subscrições MCP**: use `resources/subscribe` para receber notificações automáticas de mudanças em `agentmap://solicitacoes/{seu-id}`, `agentmap://handoffs/{seu-id}` e `agentmap://bloqueios/{projeto-id}`. Após receber `notifications/resources/updated`, chame `resources/read` para obter os dados atualizados.
 
 ## Formato de Resposta MCP 2026
 
@@ -95,6 +96,82 @@ As tools do AgentMap seguem o padrão MCP 2026 (`@modelcontextprotocol/sdk` v1.3
 - **Anotações:** tools read-only usam `readOnlyHint: true`
 
 O agente pode consumir apenas o `structuredContent` quando precisar de dados estruturados, ou o `content` para legibilidade humana.
+
+## MCP Resource Subscriptions
+
+O AgentMap suporta subscrições de recursos para notificações em tempo real. Isso permite que agentes sejam notificados automaticamente quando há mudanças em solicitações, handoffs ou bloqueios, sem necessidade de polling.
+
+### Recursos assináveis
+
+| URI | Descrição |
+|---|---|
+| `agentmap://solicitacoes/{agenteId}` | Solicitações destinadas a um agente específico |
+| `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
+| `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto atual |
+
+### Como se inscrever
+
+```json
+{
+  "name": "agentmap_recursos_inscrever",
+  "arguments": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+> **Nota:** A tool `resources/subscribe` é um método MCP direto. Consulte a documentação do seu cliente MCP para verificar a sintaxe exata de chamada.
+
+### Como receber notificações
+
+Quando um recurso assinado muda, o servidor envia uma notificação:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/resources/updated",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+Após receber a notificação, leia o recurso atualizado:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "resources/read",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+### Como cancelar subscrição
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "resources/unsubscribe",
+  "params": {
+    "uri": "agentmap://solicitacoes/AGT-BACKEND"
+  }
+}
+```
+
+### Regras de autorização
+
+- Subscrições e leituras são validadas por `authorizeResourceAccess()`
+- `solicitacoes/{agenteId}` e `handoffs/{agenteId}` exigem projeto aberto
+- `bloqueios/{projetoId}` exigem que o ID do projeto na URI corresponda ao projeto aberto
+- Tentativas não autorizadas retornam erro `UNAUTHORIZED`
+
+### Coalescência
+
+O EventBus agrupa notificações do mesmo URI em janela de 100ms. Se múltiplas alterações ocorrerem rapidamente, você receberá apenas 1 notificação.
 
 ## Códigos de Erro
 
