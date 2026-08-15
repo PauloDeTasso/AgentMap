@@ -52,6 +52,8 @@ backend/src/mcp-server/
 │   ├── arquivos.ts               # listar, ler, escrever, excluir (COM isPathSafe)
 │   ├── auditoria.ts              # listar (ultimos N eventos)
 │   ├── contatos.ts               # listar, obter, criar, atualizar, excluir
+│   ├── descobrir.ts              # agentmap_descobrir: lista capabilities, agents, docs, CLI, worktree
+│   ├── sugerirFluxo.ts           # agentmap_sugerir_fluxo: recomenda sequência de tools por objetivo
 │   └── workflows.ts              # iniciar_trabalho, finalizar_trabalho, consultar_pendencias, obter_mapa_projeto
 ├── prompts/
 │   └── index.ts                  # agentmap-iniciar-trabalho, agentmap-finalizar-trabalho, etc.

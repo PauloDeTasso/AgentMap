@@ -10,6 +10,13 @@ Este guia descreve como um agente de IA deve interagir com o AgentMap através d
 2. Agente registrado no projeto (`agentmap_agentes_listar`)
 3. Sessão iniciada (`agentmap_sessoes_criar`)
 
+## Primeiros passos (onboarding)
+
+1. Use `agentmap_descobrir` para listar todas as capabilities, agents, docs, CLI, worktree e mais.
+2. Leia o resource `agentmap://onboarding` para entender o sistema.
+3. Consulte o resource `agentmap://playbook` para ver padrões de uso recomendados.
+4. Use `agentmap_sugerir_fluxo` se precisar de orientação sobre qual tool usar primeiro.
+
 ## Ciclo de Trabalho
 
 ### 1. Iniciar Trabalho

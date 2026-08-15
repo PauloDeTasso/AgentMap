@@ -179,6 +179,159 @@ ${(agentsList ?? []).length > 0 ? (agentsList as any[]).map((a: any) => `- **${a
   }
 );
 
+mcpServer.registerResource(
+  'agentmap-onboarding',
+  'agentmap://onboarding',
+  {
+    description: 'Guia de descoberta do AgentMap: capabilities, tools, agents, CLI, docs e worktree.',
+    mimeType: 'text/markdown'
+  },
+  async () => {
+    const ctx = carregarContexto(projetoService);
+    const projetoAberto = ctx.sucesso && ctx.dados;
+    const agents = projetoAberto ? ctx.dados!.servicos.agente.listar() : { sucesso: false, dados: [] };
+    const agentsList = agents.sucesso ? agents.dados : [];
+
+    const markdown = `# 🗺️ AgentMap — Onboarding
+
+Bem-vindo ao **AgentMap**. Este é um sistema local de coordenação, memória operacional e rastreabilidade para projetos desenvolvidos por múltiplos agentes de IA.
+
+## 🚀 Comece aqui
+
+1. **Descubra o sistema:** use a tool \`agentmap_descobrir\` para listar capabilities, agents, docs, CLI, worktree e mais.
+2. **Abra um projeto:** use \`agentmap_projetos_abrir\` com o caminho ou ID do projeto.
+3. **Consulte agentes:** use \`agentmap_agentes_listar\` para ver quem está ativo.
+4. **Obtenha contexto:** use \`agentmap_obter_contexto_projeto\` para entender o estado atual.
+5. **Use workflows:** \`agentmap_workflows_iniciar_trabalho\` para começar uma tarefa com contexto completo.
+
+## 📚 Playbook (padrões de uso)
+
+Use o resource \`agentmap://playbook\` para ver fluxos prontos:
+- Ciclo de trabalho completo
+- Handoff entre agentes
+- Processamento de solicitação
+- Diagnóstico de bloqueios
+- Auditoria e compliance
+
+## 📡 Subscriptions (notificações em tempo real)
+
+- **2025:** \`resources/subscribe\` + \`resources/unsubscribe\`
+- **2026:** \`subscriptions/listen\` + \`notifications/cancelled\`
+
+Recursos assináveis:
+- \`agentmap://solicitacoes/{agenteId}\`
+- \`agentmap://handoffs/{agenteId}\`
+- \`agentmap://bloqueios/{projetoId}\`
+
+## 🛠️ CLI
+
+- \`npm run dev\` — Backend + frontend na porta 3150
+- \`npm run mcp\` — MCP Server via stdio
+- \`npm test\` — Testes
+- \`npm run lint\` — Typecheck
+
+## 📚 Documentação
+
+- \`README.md\` — Visão geral
+- \`docs/protocolo-mcp.md\` — Protocolo MCP
+- \`docs/arquitetura-mcp.md\` — Arquitetura
+- \`docs/guia-agente-mcp.md\` — Guia do agente
+
+## 🤖 Agentes ativos
+
+${(agentsList ?? []).length > 0 ? (agentsList as any[]).map((a: any) => `- **${a.nome}** (\`${a.id}\`) — ${a.funcao}`).join('\n') : '- Nenhum projeto aberto. Abra um projeto primeiro.'}
+
+## 💡 Dicas
+
+- Use \`agentmap_obter_contexto_projeto\` para ver contratos, decisões e estado.
+- Use \`agentmap_eventos_pendentes\` antes de iniciar trabalho.
+- Use \`agentmap_handoffs_criar\` para transferir contexto entre agentes.
+- Use \`resources/subscribe\` para receber notificações automáticas.
+- Consulte \`agentmap://playbook\` para padrões de uso recomendados.
+
+> **Nota:** este resource é somente leitura e não requer projeto aberto.
+`;
+    return {
+      contents: [{
+        uri: 'agentmap://onboarding',
+        mimeType: 'text/markdown',
+        text: markdown
+      }]
+    };
+  }
+);
+
+mcpServer.registerResource(
+  'agentmap-playbook',
+  'agentmap://playbook',
+  {
+    description: 'Playbook do AgentMap: padrões de uso recomendados para cada operação.',
+    mimeType: 'text/markdown'
+  },
+  async () => {
+    const markdown = `# 📚 AgentMap — Playbook
+
+Este playbook contém os padrões de uso recomendados para operar o AgentMap de forma eficaz.
+
+## Ciclo 1: Primeiro contato (onboarding)
+
+1. \`agentmap_descobrir\` — Descubra capabilities, agents, docs e CLI
+2. \`agentmap_projetos_abrir\` — Abra um projeto existente
+3. \`agentmap_agentes_listar\` — Veja os agentes ativos
+4. \`agentmap_obter_contexto_projeto\` — Entenda o estado atual
+
+## Ciclo 2: Iniciar trabalho
+
+1. \`agentmap_eventos_pendentes\` — Verifique eventos pendentes
+2. \`agentmap_verificar_dependencias_pendentes\` — Confira dependências da tarefa
+3. \`agentmap_workflows_iniciar_trabalho\` — Inicie com contexto completo
+4. \`agentmap_obter_contexto_tarefa\` — Leia contratos e critérios
+5. Execute o trabalho respeitando diretórios permitidos
+6. \`agentmap_workflows_finalizar_trabalho\` — Registre resultado e handoff
+
+## Ciclo 3: Processar handoff
+
+1. \`agentmap_handoffs_listar\` — Liste handoffs pendentes
+2. \`agentmap_handoffs_obter\` — Obtenha contexto completo
+3. Execute as ações pendentes
+4. \`agentmap_handoffs_atualizar\` — Atualize estado para ACEITO/CONCLUIDO
+5. \`agentmap_resultados_criar\` — Registre resultado
+
+## Ciclo 4: Processar solicitação
+
+1. \`agentmap_solicitacoes_listar\` — Liste solicitações pendentes
+2. \`agentmap_solicitacoes_obter\` — Obtenha detalhes
+3. \`agentmap_verificar_dependencias_pendentes\` — Verifique dependências
+4. Execute a alteração solicitada
+5. \`agentmap_solicitacoes_aprov ar\` ou \`rejeitar\` conforme resultado
+
+## Ciclo 5: Monitoramento contínuo
+
+1. \`resources/subscribe\` ou \`subscriptions/listen\` — Inscreva-se em recursos
+2. \`notifications/resources/updated\` — Receba notificações
+3. \`resources/read\` — Leia o recurso atualizado
+4. \`agentmap_obter_mapa_projeto\` — Visão completa do projeto
+
+## Regras obrigatórias
+
+1. **Leitura obrigatória antes do trabalho:** sempre consulte o contexto da tarefa antes de executar
+2. **Resultado obrigatório:** toda tarefa deve ter resultado registrado
+3. **Handoff quando necessário:** se o trabalho crossing de domínio, gere handoff
+4. **Validação separada da conclusão:** não conclua tarefa sem validação quando aplicável
+5. **Coordenação entre agentes:** consulte eventos pendentes antes de iniciar trabalho
+
+> **Nota:** este resource é somente leitura e não requer projeto aberto.
+`;
+    return {
+      contents: [{
+        uri: 'agentmap://playbook',
+        mimeType: 'text/markdown',
+        text: markdown
+      }]
+    };
+  }
+);
+
 const solicitacoesTemplate = new ResourceTemplate('agentmap://solicitacoes/{agenteId}', {
   list: undefined,
   complete: {

@@ -33,3 +33,4 @@ import './buscarConhecimento';
 import './obterContextoTarefa';
 import './worktree';
 import './descobrir';
+import './sugerirFluxo';

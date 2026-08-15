@@ -2,7 +2,7 @@
   "nome": "AgentMap",
   "versao": "1.0.0",
   "protocolo": "1.0",
-  "capacidades": ["projetos", "agentes", "tarefas", "solicitacoes", "handoffs", "sessoes", "checkpoints", "riscos", "bloqueios", "pendencias", "reservas", "decisoes", "dependencias", "responsabilidades", "artefatos", "resultados", "criterios", "aprendizados", "validacoes", "arquivos", "auditoria", "workflows", "descobrir"],
+  "capacidades": ["projetos", "agentes", "tarefas", "solicitacoes", "handoffs", "sessoes", "checkpoints", "riscos", "bloqueios", "pendencias", "reservas", "decisoes", "dependencias", "responsabilidades", "artefatos", "resultados", "criterios", "aprendizados", "validacoes", "arquivos", "auditoria", "workflows", "descobrir", "sugerirFluxo"],
   "regras": {
     "leituraObrigatoriaAntesDoTrabalho": true,
     "resultadoObrigatorio": true,
@@ -15,5 +15,9 @@
     "resource": "agentmap://onboarding",
     "prompt": "agentmap-onboarding",
     "tool": "agentmap_descobrir"
+  },
+  "playbook": {
+    "resource": "agentmap://playbook",
+    "tool": "agentmap_sugerir_fluxo"
   }
 }

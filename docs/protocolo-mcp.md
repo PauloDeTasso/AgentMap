@@ -114,6 +114,10 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 - `agentmap_buscar_referencias` — Busca referências a símbolos
 - `agentmap_buscar_simbolo` — Busca definições de símbolos
 
+### Onboarding & Descoberta
+- `agentmap_descobrir` — Lista capabilities, agents, docs, CLI, worktree e onboarding
+- `agentmap_sugerir_fluxo` — Recomenda sequência de tools baseada no objetivo
+
 ### Arquivos & Auditoria
 - `agentmap_arquivos_listar` — Lista arquivos do projeto
 - `agentmap_arquivos_ler` — Lê arquivo

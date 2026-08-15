@@ -515,6 +515,15 @@ O AgentMap suporta **subscrições de recursos MCP** para notificações em temp
 | `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
 | `agentmap://bloqueios/{projetoId}` | Bloqueios ativos do projeto |
 
+### Onboarding e descoberta
+
+| Recurso / Tool | Descrição |
+|---|---|
+| `agentmap://onboarding` | Guia de descoberta do sistema |
+| `agentmap://playbook` | Padrões de uso recomendados |
+| `agentmap_descobrir` | Lista capabilities, agents, docs, CLI, worktree |
+| `agentmap_sugerir_fluxo` | Recomenda sequência de tools por objetivo |
+
 ### Modos de subscrição
 
 #### 2025 — `resources/subscribe`
