@@ -1,4 +1,4 @@
-export type EstadoTarefa =
+﻿export type EstadoTarefa =
   | 'RASCUNHO'
   | 'PENDENTE'
   | 'PLANEJADA'

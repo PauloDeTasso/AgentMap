@@ -1,0 +1,27 @@
+﻿{
+  "$id": "pendencia",
+  "type": "object",
+  "required": ["id", "titulo", "descricao", "tipo", "prioridade", "estado", "origem", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^PEN-[A-Z0-9-]+$", "minLength": 1 },
+    "titulo": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string", "minLength": 1 },
+    "tarefaId": { "type": ["string", "null"] },
+    "agenteId": { "type": ["string", "null"] },
+    "tipo": { "type": "string", "enum": ["IMPLEMENTACAO", "VALIDACAO", "CORRECAO", "COMPLETUDE"] },
+    "prioridade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
+    "estado": { "type": "string", "enum": ["PENDENTE", "ATIVO", "RESOLVIDO", "CANCELADO"] },
+    "origem": { "type": "string", "enum": ["TAREFA", "SOLICITACAO", "VALIDACAO", "MANUAL"] },
+    "referenciaId": { "type": ["string", "null"] },
+    "resolucao": { "type": ["string", "null"] },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "resolvidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "resolvidaEm": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

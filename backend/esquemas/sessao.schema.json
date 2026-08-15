@@ -1,0 +1,22 @@
+﻿{
+  "$id": "sessao",
+  "type": "object",
+  "required": ["id", "agenteId", "projetoId", "contextoConsultado", "registrosProduzidos", "estadoFinal", "datas"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^SES-[A-Z0-9-]+$", "minLength": 1 },
+    "agenteId": { "type": "string", "minLength": 1 },
+    "tarefaId": { "type": ["string", "null"] },
+    "projetoId": { "type": "string", "minLength": 1 },
+    "contextoConsultado": { "type": "object" },
+    "registrosProduzidos": { "type": "array", "items": { "type": "string" } },
+    "estadoFinal": { "type": "string" },
+    "datas": {
+      "type": "object",
+      "required": ["inicio", "fim"],
+      "properties": {
+        "inicio": { "type": ["string", "null"] },
+        "fim": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

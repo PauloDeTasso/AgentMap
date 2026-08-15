@@ -1,0 +1,119 @@
+﻿{
+  "$id": "solicitacao-alteracao",
+  "type": "object",
+  "required": [
+    "id",
+    "titulo",
+    "descricao",
+    "agenteSolicitante",
+    "alvo",
+    "alteracao",
+    "impactos",
+    "prioridade",
+    "status",
+    "requerAprovacao",
+    "aprovacao",
+    "datas"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^ALT-[0-9]{4}-[0-9]{5}$",
+      "description": "Identificador no formato ALT-AAAA-NNNNN"
+    },
+    "titulo": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Título da solicitação"
+    },
+    "descricao": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Descrição detalhada da necessidade"
+    },
+    "agenteSolicitante": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "agenteResponsavel": {
+      "type": "object",
+      "properties": {
+        "id": { "type": ["string", "null"] }
+      }
+    },
+    "alvo": {
+      "type": "object",
+      "required": ["tipo", "nome"],
+      "properties": {
+        "tipo": { "type": "string", "minLength": 1 },
+        "nome": { "type": "string", "minLength": 1 },
+        "identificador": { "type": ["string", "null"] },
+        "localizacao": { "type": ["string", "null"] }
+      }
+    },
+    "alteracao": {
+      "type": "object",
+      "required": ["tipo", "descricao", "motivo", "arquivosAfetados"],
+      "properties": {
+        "tipo": { "type": "string", "minLength": 1 },
+        "descricao": { "type": "string", "minLength": 1 },
+        "motivo": { "type": "string", "minLength": 1 },
+        "arquivosAfetados": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "impactos": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "dependencias": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "prioridade": {
+      "type": "string",
+      "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["PENDENTE", "EM_ANALISE", "AGUARDANDO_APROVACAO", "APROVADA", "REJEITADA", "EM_EXECUCAO", "AGUARDANDO_VALIDACAO", "CONCLUIDA", "CANCELADA", "BLOQUEADA"]
+    },
+    "requerAprovacao": {
+      "type": "boolean"
+    },
+    "aprovacao": {
+      "type": "object",
+      "required": ["status", "agenteId", "data", "observacao"],
+      "properties": {
+        "status": { "type": "string", "enum": ["PENDENTE", "APROVADA", "REJEITADA"] },
+        "agenteId": { "type": ["string", "null"] },
+        "data": { "type": ["string", "null"] },
+        "observacao": { "type": ["string", "null"] }
+      }
+    },
+    "tarefaOrigem": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": { "type": "string" }
+      }
+    },
+    "datas": {
+      "type": "object",
+      "required": ["criadaEm", "atualizadaEm", "concluidaEm"],
+      "properties": {
+        "criadaEm": { "type": ["string", "null"] },
+        "atualizadaEm": { "type": ["string", "null"] },
+        "concluidaEm": { "type": ["string", "null"] }
+      }
+    },
+    "observacoes": {
+      "type": ["string", "null"]
+    }
+  }
+}

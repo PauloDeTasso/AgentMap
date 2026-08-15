@@ -1,4 +1,4 @@
-export * from './AgenteService';
+﻿export * from './AgenteService';
 export * from './AprendizadoService';
 export * from './ArtefatoService';
 export * from './AuditoriaService';

@@ -1,0 +1,14 @@
+﻿{
+  "$id": "criterio-aceitacao",
+  "type": "object",
+  "required": ["id", "tarefaId", "descricao", "tipo", "obrigatorio", "estado"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "tarefaId": { "type": "string", "minLength": 1 },
+    "descricao": { "type": "string", "minLength": 1 },
+    "tipo": { "type": "string", "enum": ["FUNCIONAL", "NEFUNCIONAL", "REGRA_NEGOCIO", "DESIGUALDADE"] },
+    "obrigatorio": { "type": "boolean" },
+    "estado": { "type": "string", "enum": ["PENDENTE", "SATISFEITO", "INSATISFEITO"] },
+    "dados": { "type": ["string", "null"] }
+  }
+}

@@ -1,0 +1,38 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "contato",
+  "title": "Contato",
+  "type": "object",
+  "required": ["nome", "email", "telefone"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Identificador único do contato"
+    },
+    "nome": {
+      "type": "string",
+      "minLength": 2,
+      "description": "Nome completo do contato"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "E-mail válido do contato"
+    },
+    "telefone": {
+      "type": "string",
+      "minLength": 8,
+      "description": "Telefone com pelo menos 8 dígitos"
+    },
+    "criadoEm": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data de criação"
+    },
+    "atualizadoEm": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data da última atualização"
+    }
+  }
+}

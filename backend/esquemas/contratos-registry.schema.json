@@ -1,0 +1,23 @@
+﻿{
+  "$id": "contratos-registry",
+  "title": "Registro Central de Contratos",
+  "type": "object",
+  "required": ["contratos"],
+  "properties": {
+    "contratos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nome", "arquivo", "versao", "estado", "obrigatorio"],
+        "properties": {
+          "id": { "type": "string" },
+          "nome": { "type": "string" },
+          "arquivo": { "type": "string" },
+          "versao": { "type": "string" },
+          "estado": { "type": "string" },
+          "obrigatorio": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

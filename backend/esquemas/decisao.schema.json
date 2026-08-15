@@ -1,0 +1,30 @@
+﻿{
+  "$id": "decisao",
+  "type": "object",
+  "required": ["id", "titulo", "estado", "data", "problema", "contexto", "decisao", "justificativa", "impactos"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "titulo": { "type": "string", "minLength": 1 },
+    "estado": { "type": "string", "enum": ["ATIVA", "ARQUIVADA", "RESPALDADA", "CANCELADA"] },
+    "data": { "type": "string" },
+    "problema": { "type": "string" },
+    "contexto": { "type": "string" },
+    "alternativas": { "type": "array", "items": { "type": "string" } },
+    "decisao": { "type": "string", "minLength": 1 },
+    "justificativa": { "type": "string" },
+    "impactos": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "consequencias": { "type": "array", "items": { "type": "string" } },
+    "tarefasRelacionadas": { "type": "array", "items": { "type": "string" } },
+    "contratosAfetados": { "type": "array", "items": { "type": "string" } },
+    "aprovacao": {
+      "type": "object",
+      "properties": {
+        "necessaria": { "type": "boolean" },
+        "estado": { "type": "string" },
+        "aprovador": { "type": "string" },
+        "data": { "type": ["string", "null"] },
+        "observacao": { "type": "string" }
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ export class AuditoriaService {
   constructor(private fs: FileService) {}
 
   registrar(
-    tipo: TipoEvento,
+    tipo: string,
     descricao: string,
     dados: Record<string, unknown> = {},
     origem = 'gerenciador',
