@@ -85,6 +85,17 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 4. **Validação separada da conclusão**: não conclua tarefa sem validação quando aplicável
 5. **Coordenação entre agentes**: antes de iniciar trabalho, consulte `agentmap_eventos_pendentes({ agenteId: "<seu-id>" })` para verificar eventos pendentes destinados a você. Após processar um evento, marque-o como consumido com `agentmap_eventos_confirmar({ id: "<evento-id>" })`.
 
+## Formato de Resposta MCP 2026
+
+As tools do AgentMap seguem o padrão MCP 2026 (`@modelcontextprotocol/sdk` v1.30.0):
+
+- **Sucesso:** retorna `content` (texto JSON) + `structuredContent` (dados validados por `outputSchema`)
+- **Erro:** retorna `content` + `isError: true` com mensagem acionável para auto-correção
+- **Validação:** `inputSchema` Zod valida argumentos antes da execução
+- **Anotações:** tools read-only usam `readOnlyHint: true`
+
+O agente pode consumir apenas o `structuredContent` quando precisar de dados estruturados, ou o `content` para legibilidade humana.
+
 ## Códigos de Erro
 
 | Código | Significado |

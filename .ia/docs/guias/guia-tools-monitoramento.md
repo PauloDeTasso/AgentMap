@@ -12,61 +12,61 @@
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_integridade_verificar` | Verifica consistência do projeto | Detecção de inconsistências |
-| `agentmap_agentmap_health_check` | Verifica saúde do sistema | Status geral |
-| `agentmap_agentmap_projetos_listar` | Lista projetos existentes | Descobrir projetos |
-| `agentmap_agentmap_metricas` | Exibe métricas do backend | Monitoring |
+| `agentmap_integridade_verificar` | Verifica consistência do projeto | Detecção de inconsistências |
+| `agentmap_health_check` | Verifica saúde do sistema | Status geral |
+| `agentmap_projetos_listar` | Lista projetos existentes | Descobrir projetos |
+| `agentmap_metricas` | Exibe métricas do backend | Monitoring |
 
 ### Tools de Agentes
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_agentes_listar` | Lista todos os agentes | Ver agentes disponíveis |
-| `agentmap_agentmap_agentes_obter` | Obtém detalhes de um agente | Ver config de um agente |
-| `agentmap_agentmap_agentes_criar` | Cria um novo agente | Onboarding |
-| `agentmap_agentmap_agentes_atualizar` | Atualiza configuração de agente | Alterar modo |
-| `agentmap_agentmap_agentes_excluir` | Remove um agente | Limpeza |
+| `agentmap_agentes_listar` | Lista todos os agentes | Ver agentes disponíveis |
+| `agentmap_agentes_obter` | Obtém detalhes de um agente | Ver config de um agente |
+| `agentmap_agentes_criar` | Cria um novo agente | Onboarding |
+| `agentmap_agentes_atualizar` | Atualiza configuração de agente | Alterar modo |
+| `agentmap_agentes_excluir` | Remove um agente | Limpeza |
 
 ### Tools de Tarefas
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_tarefas_listar` | Lista todas as tarefas | Ver tarefas pendentes |
-| `agentmap_agentmap_tarefas_obter` | Obtém detalhes de uma tarefa | Ver especificação |
-| `agentmap_agentmap_tarefas_atualizar` | Atualiza tarefa | Mudar estado |
-| `agentmap_agentmap_tarefas_alterar_estado` | Altera estado de tarefa | Avançar fluxo |
+| `agentmap_tarefas_listar` | Lista todas as tarefas | Ver tarefas pendentes |
+| `agentmap_tarefas_obter` | Obtém detalhes de uma tarefa | Ver especificação |
+| `agentmap_tarefas_atualizar` | Atualiza tarefa | Mudar estado |
+| `agentmap_tarefas_alterar_estado` | Altera estado de tarefa | Avançar fluxo |
 
 ### Tools de Handoffs
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_handoffs_criar` | Cria um handoff entre agentes | Transferir contexto |
-| `agentmap_agentmap_handoffs_atualizar` | Atualiza estado de handoff | Confirmar/Aceitar/Concluir |
-| `agentmap_agentmap_handoffs_obter` | Obtém detalhes de handoff | Ler mais |
-| `agentmap_agentmap_handoffs_listar` | Lista handoffs | Ver pendentes |
+| `agentmap_handoffs_criar` | Cria um handoff entre agentes | Transferir contexto |
+| `agentmap_handoffs_atualizar` | Atualiza estado de handoff | Confirmar/Aceitar/Concluir |
+| `agentmap_handoffs_obter` | Obtém detalhes de handoff | Ler mais |
+| `agentmap_handoffs_listar` | Lista handoffs | Ver pendentes |
 
 ### Tools de Eventos
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_eventos_pendentes` | Lista eventos não processados pelo agente | Consultar no início do ciclo |
-| `agentmap_agentmap_eventos_confirmar` | Confirma processamento de evento | Após processar |
+| `agentmap_eventos_pendentes` | Lista eventos não processados pelo agente | Consultar no início do ciclo |
+| `agentmap_eventos_confirmar` | Confirma processamento de evento | Após processar |
 
 ### Tools de Arquivos
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_arquivos_ler` | Lê um arquivo | Ler especificações |
-| `agentmap_agentmap_arquivos_escrever` | Escreve arquivo | Criar artefatos |
-| `agentmap_agentmap_arquivos_atualizar` | Atualiza arquivo existente | Modificar conteúdo |
-| `agentmap_agentmap_arquivos_listar` | Lista arquivos em diretório | Navegar estrutura |
+| `agentmap_arquivos_ler` | Lê um arquivo | Ler especificações |
+| `agentmap_arquivos_escrever` | Escreve arquivo | Criar artefatos |
+| `agentmap_arquivos_atualizar` | Atualiza arquivo existente | Modificar conteúdo |
+| `agentmap_arquivos_listar` | Lista arquivos em diretório | Navegar estrutura |
 
 ### Tools de Monitoramento (Nova)
 
 | Tool | Descrição | Uso |
 |------|-----------|-----|
-| `agentmap_agentmap_eventos_pendentes` | Eventos HANDOFF_CRIADO para agente | Consultar pendentes |
-| `agentmap_agentmap_integridade_verificar` | Verifica consistência do projeto | Validar estado |
+| `agentmap_eventos_pendentes` | Eventos HANDOFF_CRIADO para agente | Consultar pendentes |
+| `agentmap_integridade_verificar` | Verifica consistência do projeto | Validar estado |
 
 ---
 
@@ -75,7 +75,7 @@
 ### Listar Agentes
 
 ```
-agentmap_agentmap_agentes_listar
+agentmap_agentes_listar
 ```
 
 Retorna: `[{ id, nome, funcao, estado, ... }]`
@@ -83,19 +83,19 @@ Retorna: `[{ id, nome, funcao, estado, ... }]`
 ### Ver Estado do Projeto
 
 ```
-agentmap_agentmap_integridade_verificar
+agentmap_integridade_verificar
 ```
 
 ### Health Check
 
 ```
-agentmap_agentmap_health_check
+agentmap_health_check
 ```
 
 ### Métricas
 
 ```
-agentmap_agentmap_metricas
+agentmap_metricas
 ```
 
 ---
@@ -103,7 +103,7 @@ agentmap_agentmap_metricas
 ## 3. Como Criar Handoffs
 
 ```
-agentmap_agentmap_handoffs_criar
+agentmap_handoffs_criar
 ```
 
 **Arguments:**
@@ -124,7 +124,7 @@ agentmap_agentmap_handoffs_criar
 Sempre que receber um handoff, confirme com:
 
 ```
-agentmap_agentmap_handoffs_atualizar
+agentmap_handoffs_atualizar
 ```
 
 **Arguments:**
@@ -150,14 +150,14 @@ Depois de concluir:
 ### No início de cada ciclo:
 
 ```
-agentmap_agentmap_eventos_pendentes
+agentmap_eventos_pendentes
  Arguments: { "agenteId": "seu-agente-id" }
 ```
 
 ### Após processar:
 
 ```
-agentmap_agentmap_eventos_confirmar
+agentmap_eventos_confirmar
  Arguments: { "id": "EVT-2026-00091" }
 ```
 
@@ -199,32 +199,32 @@ curl -X POST http://localhost:3150/api/monitoramento/modo \
 
 ## 6. Exemplos de Uso de Cada Tool
 
-### agentmap_agentmap_agentes_listar
+### agentmap_agentes_listar
 
 Listar todos os agentes:
 ```
-agentmap_agentmap_agentes_listar
+agentmap_agentes_listar
 ```
 
-### agentmap_agentmap_tarefas_listar
+### agentmap_tarefas_listar
 
 Listar todas as tarefas:
 ```
-agentmap_agentmap_tarefas_listar
+agentmap_tarefas_listar
 ```
 
-### agentmap_agentmap_arquivos_ler
+### agentmap_arquivos_ler
 
 Ler um arquivo:
 ```
-agentmap_agentmap_arquivos_ler { caminho: ".ia/handoffs/HOF-2026-00091.json" }
+agentmap_arquivos_ler { caminho: ".ia/handoffs/HOF-2026-00091.json" }
 ```
 
-### agentmap_agentmap_handoffs_criar
+### agentmap_handoffs_criar
 
 Criar um handoff:
 ```
-agentmap_agentmap_handoffs_criar {
+agentmap_handoffs_criar {
   origem: "arquiteto",
   destino: "frontend",
   tarefaId: "TAR-2026-00015",
@@ -233,9 +233,9 @@ agentmap_agentmap_handoffs_criar {
 }
 ```
 
-### agentmap_agentmap_eventos_pendentes
+### agentmap_eventos_pendentes
 
 Consultar eventos pendentes:
 ```
-agentmap_agentmap_eventos_pendentes { agenteId: "agentmap-admin" }
+agentmap_eventos_pendentes { agenteId: "agentmap-admin" }
 ```

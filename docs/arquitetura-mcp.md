@@ -50,7 +50,7 @@ backend/src/mcp-server/
 ├── schemas/
 │   └── manifest.json             # Manifesto do AgentMap para MCP
 └── utils/
-    └── helpers.ts                # toMcpResult, schema helper
+    └── helpers.ts                # toMcpResult, toMcpData, toMcpStructured, mcpError, schema helper
 ```
 
 ## Contexto do Projeto
@@ -138,3 +138,11 @@ npm run mcp    # Inicia o servidor MCP via stdio
 | Stack trace exposto | Captura erros, retorna só `codigo` + `mensagem`. |
 | Secret em log | AuditoriaService já sanitiza. MCP replica. |
 | Versão do SDK MCP | Fixar v1.30.0 no package.json, documentado aqui. |
+
+## Padrões MCP 2026
+
+- **Tools:** registradas com `registerTool(name, config, handler)`
+- **Config:** `title`, `description`, `inputSchema` (Zod), `outputSchema` (Zod), `annotations`
+- **Retorno sucesso:** `content` + `structuredContent` (validado contra `outputSchema`)
+- **Retorno erro:** `content` + `isError: true`
+- **Backwards compatibility:** `content` sempre retornado para clients legados

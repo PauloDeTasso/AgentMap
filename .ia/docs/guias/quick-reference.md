@@ -121,7 +121,6 @@ AgentMap/
 │   │   │   └── ...               # demais rotas
 │   │   ├── servicos/
 │   │   │   ├── MonitoramentoService.ts
-│   │   │   ├── KiloDispatcherService.ts
 │   │   │   └── ...
 │   │   ├── websocket/
 │   │   │   └── monitoramento.ts  # WebSocket server
