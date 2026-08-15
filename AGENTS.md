@@ -113,6 +113,8 @@ Eventos são gerados automaticamente como efeito colateral de:
 - `agentmap_handoffs_atualizar` (estado → CONCLUIDO) → `HANDOFF_CONCLUIDO`
 - `agentmap_solicitacoes_criar` (quando há agente responsável) → `SOLICITACAO_CRIADA`
 
+Além dos eventos automáticos, o sistema permite criar eventos customizados via `POST /api/eventos/custom` para casos específicos, debugging ou integrações futuras.
+
 ## Integração com Kilo Code / VS Code (2026)
 
 O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
@@ -129,6 +131,15 @@ O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 - **VS Code 1.115+:** inclui preview de **Agents app** com sessões paralelas em worktrees
 
 O AgentMap **não executa agentes** e **não depende de CLI `kilo` standalone**. Ele fornece contexto, ferramentas e governança; o paralelismo é responsabilidade do Agent Manager.
+
+## Segurança e autenticação
+
+- **API Key:** gerada automaticamente em `backend/.local/.api-key`
+- **Endpoints de auth:** `GET /api/auth/key`, `POST /api/auth/verify`, `POST /api/auth/login`, `POST /api/auth/logout`
+- **CSRF:** middleware ativo para métodos não-GET
+- **CORS:** origins configuradas para desenvolvimento local
+- **Rate Limit:** proteção contra abuso por IP
+- **Validação:** schemas Zod em todas as escritas
 
 ## Especificação
 

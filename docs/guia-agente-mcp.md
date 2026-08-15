@@ -107,3 +107,34 @@ O agente pode consumir apenas o `structuredContent` quando precisar de dados est
 | `PATH_TRAVERSAL` | Tentativa de path traversal bloqueada |
 | `VALIDATION_ERROR` | Erro de validação de schema |
 | `NOT_FOUND` | Entidade não encontrada |
+
+## Eventos flexíveis
+
+Além dos eventos automáticos do sistema, o AgentMap oferece o endpoint `POST /api/eventos/custom` para registrar eventos genéricos sem validação de enum.
+
+Isso é útil para:
+- debugging
+- integrações futuras
+- casos específicos que não se encaixam nos eventos padrão
+
+Exemplo:
+
+```json
+{
+  "tipo": "MEU_EVENTO_CUSTOM",
+  "origem": "backend",
+  "destino": "frontend",
+  "mensagem": "Integração pronta para teste",
+  "campoExtra": "valor"
+}
+```
+
+O evento criado aparece em `GET /api/eventos` e pode ser consumido com `PUT /api/eventos/:id/consumir`.
+
+## Autenticação
+
+Todas as chamadas à API devem incluir o header `x-api-key` com a chave gerada automaticamente em `backend/.local/.api-key`.
+
+O agente pode obter a chave via `GET /api/auth/key` e verificar validade via `POST /api/auth/verify`.
+
+O middleware CSRF está ativo para métodos não-GET, e o CORS está configurado para permitir origens de desenvolvimento local.

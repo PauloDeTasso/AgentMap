@@ -638,6 +638,88 @@ O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador loc
 
 ---
 
+# Autenticação e acesso
+
+Todas as requisições à API devem incluir a chave de API no header `x-api-key`.
+
+A chave é gerada automaticamente na primeira execução e armazenada em `backend/.local/.api-key`.
+
+Para obter a chave atual, use:
+
+```bash
+curl http://localhost:3150/api/auth/key
+```
+
+Para verificar se uma chave é válida:
+
+```bash
+curl -X POST http://localhost:3150/api/auth/verify \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey":"sua-chave-aqui"}'
+```
+
+O middleware CSRF está ativo para métodos não-GET, validando `Origin` e `Referer`.
+
+CORS está configurado para permitir origens locais de desenvolvimento, incluindo `http://localhost:3150`.
+
+---
+
+# Eventos
+
+O AgentMap registra eventos assíncronos para coordenação entre agentes.
+
+Além dos eventos automáticos gerados por ações como handoffs e solicitações, o sistema oferece:
+
+- `POST /api/eventos` — cria eventos do sistema com validação rigorosa de schema
+- `POST /api/eventos/custom` — cria eventos genéricos/flexíveis para casos específicos, debugging ou integrações futuras
+
+Exemplo de evento custom:
+
+```json
+{
+  "tipo": "MEU_EVENTO_CUSTOM",
+  "origem": "backend",
+  "destino": "frontend",
+  "mensagem": "Integração pronta para teste",
+  "campoExtra": "valor"
+}
+```
+
+---
+
+# Como usar
+
+## Desenvolvimento
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Acesse:
+- Frontend: http://localhost:3150
+- API: http://localhost:3150/api
+- MCP: `npx tsx src/mcp-server/index.ts`
+
+## Criar um projeto novo
+
+1. Acesse o frontend em `http://localhost:3150`
+2. Clique em "Novo Projeto"
+3. Preencha nome e pasta destino
+4. O scaffold gera automaticamente a estrutura `.ia/` completa
+
+## Fluxo recomendado para agentes
+
+1. **Consultar eventos pendentes** no início do ciclo
+2. **Verificar dependências** da tarefa atual
+3. **Ler contratos obrigatórios** antes de executar
+4. **Executar o trabalho** respeitando diretórios permitidos
+5. **Registrar resultado**, artefatos e handoff quando necessário
+6. **Confirmar eventos** processados
+
+---
+
 ---
 
 # Estrutura de projetos gerenciados

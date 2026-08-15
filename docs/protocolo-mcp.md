@@ -120,3 +120,24 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 | `agentmap-finalizar-trabalho` | Ciclo: resultado → artefatos → handoff → validação |
 | `agentmap-processar-handoff` | Receber handoff, executar, registrar resultado |
 | `agentmap-processar-solicitacao` | Consultar solicitação, verificar dependências, executar |
+
+## Autenticação e endpoints de serviço
+
+O MCP server roda via STDIO e não exige header HTTP, mas a API REST do AgentMap exige:
+
+- `x-api-key` em todas as requisições não-públicas
+- CSRF ativo para métodos não-GET
+- CORS configurado para origins de desenvolvimento local
+
+Endpoints de apoio:
+- `GET /api/auth/key` — obtém a API key
+- `POST /api/auth/verify` — verifica chave
+- `POST /api/auth/login` / `logout` — fluxo stateless
+
+## Eventos flexíveis
+
+Além das tools MCP, o AgentMap oferece endpoints REST para eventos:
+
+- `POST /api/eventos` — eventos do sistema (validação rigorosa)
+- `POST /api/eventos/custom` — eventos genéricos para debugging e integrações
+- `PUT /api/eventos/:id/consumir` — marca evento como processado
