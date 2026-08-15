@@ -21,3 +21,4 @@ export * from './SolicitacaoService';
 export * from './TarefaService';
 export * from './ValidacaoService';
 export * from './ContatoService';
+export * from './OrquestradorService';
