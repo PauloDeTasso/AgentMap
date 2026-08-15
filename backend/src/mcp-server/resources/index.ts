@@ -107,6 +107,78 @@ mcpServer.registerResource(
   }
 );
 
+mcpServer.registerResource(
+  'agentmap-onboarding',
+  'agentmap://onboarding',
+  {
+    description: 'Guia de descoberta do AgentMap: capabilities, tools, agents, CLI, docs e worktree.',
+    mimeType: 'text/markdown'
+  },
+  async () => {
+    const ctx = carregarContexto(projetoService);
+    const projetoAberto = ctx.sucesso && ctx.dados;
+    const agents = projetoAberto ? ctx.dados!.servicos.agente.listar() : { sucesso: false, dados: [] };
+    const agentsList = agents.sucesso ? agents.dados : [];
+
+    const markdown = `# 🗺️ AgentMap — Onboarding
+
+Bem-vindo ao **AgentMap**. Este é um sistema local de coordenação, memória operacional e rastreabilidade para projetos desenvolvidos por múltiplos agentes de IA.
+
+## 🚀 Comece aqui
+
+1. **Descubra o sistema:** use a tool \`agentmap_descobrir\` para listar capabilities, agents, docs, CLI, worktree e mais.
+2. **Abra um projeto:** use \`agentmap_projetos_abrir\` com o caminho ou ID do projeto.
+3. **Consulte agentes:** use \`agentmap_agentes_listar\` para ver quem está ativo.
+4. **Obtenha contexto:** use \`agentmap_obter_contexto_projeto\` para entender o estado atual.
+5. **Use workflows:** \`agentmap_workflows_iniciar_trabalho\` para começar uma tarefa com contexto completo.
+
+## 📡 Subscriptions (notificações em tempo real)
+
+- **2025:** \`resources/subscribe\` + \`resources/unsubscribe\`
+- **2026:** \`subscriptions/listen\` + \`notifications/cancelled\`
+
+Recursos assináveis:
+- \`agentmap://solicitacoes/{agenteId}\`
+- \`agentmap://handoffs/{agenteId}\`
+- \`agentmap://bloqueios/{projetoId}\`
+
+## 🛠️ CLI
+
+- \`npm run dev\` — Backend + frontend na porta 3150
+- \`npm run mcp\` — MCP Server via stdio
+- \`npm test\` — Testes
+- \`npm run lint\` — Typecheck
+
+## 📚 Documentação
+
+- \`README.md\` — Visão geral
+- \`docs/protocolo-mcp.md\` — Protocolo MCP
+- \`docs/arquitetura-mcp.md\` — Arquitetura
+- \`docs/guia-agente-mcp.md\` — Guia do agente
+
+## 🤖 Agentes ativos
+
+${(agentsList ?? []).length > 0 ? (agentsList as any[]).map((a: any) => `- **${a.nome}** (\`${a.id}\`) — ${a.funcao}`).join('\n') : '- Nenhum projeto aberto. Abra um projeto primeiro.'}
+
+## 💡 Dicas
+
+- Use \`agentmap_obter_contexto_projeto\` para ver contratos, decisões e estado.
+- Use \`agentmap_eventos_pendentes\` antes de iniciar trabalho.
+- Use \`agentmap_handoffs_criar\` para transferir contexto entre agentes.
+- Use \`resources/subscribe\` para receber notificações automáticas.
+
+> **Nota:** este resource é somente leitura e não requer projeto aberto.
+`;
+    return {
+      contents: [{
+        uri: 'agentmap://onboarding',
+        mimeType: 'text/markdown',
+        text: markdown
+      }]
+    };
+  }
+);
+
 const solicitacoesTemplate = new ResourceTemplate('agentmap://solicitacoes/{agenteId}', {
   list: undefined,
   complete: {

@@ -95,3 +95,26 @@ mcpServer.registerPrompt(
     };
   }
 );
+
+mcpServer.registerPrompt(
+  'agentmap-onboarding',
+  {
+    description: 'Onboarding inicial: descobrir capabilities, abrir projeto, listar agents e começar.',
+    argsSchema: {
+      projetoId: { type: 'string', description: 'ID ou caminho do projeto para abrir (opcional)' }
+    }
+  } as any,
+  async ({ projetoId }: Record<string, string>) => {
+    return {
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `Bem-vindo ao AgentMap. Siga este fluxo de onboarding: 1) leia o resource agentmap://onboarding para entender o sistema; 2) use agentmap_descobrir para listar capabilities, agents, docs, CLI e worktree; 3) se houver projetoId, abra com agentmap_projetos_abrir({ caminhoOuId: '${projetoId || ''}' }); 4) consulte agentmap_agentes_listar e agentmap_obter_contexto_projeto; 5) para iniciar trabalho real, use agentmap_workflows_iniciar_trabalho.`
+          }
+        }
+      ]
+    };
+  }
+);

@@ -83,7 +83,7 @@ export const mcpServer = new McpServer(
       },
       prompts: {}
     },
-    instructions: 'AgentMap MCP Server — Gerenciador Local de Agentes de IA. Use as tools para gerenciar projetos, tarefas, agentes, solicitações, handoffs, sessões e demais entidades do AgentMap.'
+    instructions: 'AgentMap MCP Server. Onboarding: 1) leia agentmap://onboarding, 2) use agentmap_descobrir para listar capabilities, 3) abra um projeto com agentmap_projetos_abrir, 4) consulte agentmap_agentes_listar e agentmap_obter_contexto_projeto. Você tem acesso a tools, resources, prompts e subscriptions (2025/2026).'
   }
 );
 

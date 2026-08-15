@@ -32,3 +32,4 @@ import './buscarReferencias';
 import './buscarConhecimento';
 import './obterContextoTarefa';
 import './worktree';
+import './descobrir';
