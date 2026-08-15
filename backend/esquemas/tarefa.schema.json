@@ -13,7 +13,7 @@
       "type": "string",
       "enum": ["RASCUNHO", "PENDENTE", "PLANEJADA", "PRONTA", "PREPARANDO", "EM_EXECUCAO", "PAUSANDO", "CANCELANDO", "EM_TESTE", "EM_REVISAO", "AGUARDANDO_APROVACAO", "CONCLUIDA", "BLOQUEADA", "TIMEOUT", "ORFA", "RECUPERANDO", "CANCELADA", "REJEITADA"]
     },
-    "prioridade": { "type": "string", "enum": ["baixa", "media", "alta", "critica"] },
+    "prioridade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
     "agenteResponsavel": { "type": "string" },
     "dominio": { "type": "string" },
     "ambiente": { "type": "string" },

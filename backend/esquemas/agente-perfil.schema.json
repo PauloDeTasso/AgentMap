@@ -8,7 +8,7 @@
     "nome": { "type": "string" },
     "funcao": { "type": "string" },
     "descricao": { "type": "string" },
-    "estado": { "type": "string" },
+    "estado": { "type": "string", "enum": ["ativo", "inativo", "arquivado", "disponivel", "rascunho"] },
     "responsabilidades": { "type": "array", "items": { "type": "string" } },
     "objetivos": { "type": "array", "items": { "type": "string" } },
     "conhecimentos": { "type": "array", "items": { "type": "string" } },
