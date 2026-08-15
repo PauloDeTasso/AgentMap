@@ -793,9 +793,28 @@ export interface CriteriosRegistry {
   criterios: CriterioAceitacao[];
 }
 
+export type EstadoExecucao = 'PENDENTE' | 'EM_EXECUCAO' | 'SUCESSO' | 'FALHA' | 'CANCELADA';
+
+export interface Execucao {
+  execucaoId: number;
+  tarefaId: string;
+  estado: EstadoExecucao;
+  agenteId: string;
+  inicio: string | null;
+  fim: string | null;
+  resultadoId: string | null;
+  observacoes: string;
+  datas: { criadaEm: string | null; atualizadaEm: string | null };
+}
+
+export interface ExecucoesRegistry {
+  execucoes: Execucao[];
+}
+
 export interface ResultadoEntity {
   id: string;
   tarefaId: string;
+  execucaoId: number;
   agenteId: string;
   resumo: string;
   estado: 'COMPLETO' | 'PARCIAL' | 'INCOMPLETO';
@@ -1074,6 +1093,7 @@ export const SEVERIDADES_RISCO: SeveridadeRisco[] = ['BAIXA', 'MEDIA', 'ALTA', '
 export const ESTADOS_CRITICOS: EstadoCritico[] = ['PENDENTE', 'ATIVO', 'RESOLVIDO', 'CANCELADO'];
 export const ESTADOS_VALIDACAO: EstadoValidacao[] = ['PENDENTE', 'APROVADO', 'REPROVADO', 'APROVADO_COM_RESSALVAS'];
 export const ESTADOS_RESERVA: EstadoReserva[] = ['ATIVA', 'CANCELADA', 'CONCLUIDA'];
+export const ESTADOS_EXECUCAO: EstadoExecucao[] = ['PENDENTE', 'EM_EXECUCAO', 'SUCESSO', 'FALHA', 'CANCELADA'];
 export const TIPOS_CONFLITO: TipoConflito[] = ['RECURSO_DUPLICADO', 'DECISAO_INCOMPATIVEL', 'VERSAO_INCOMPATIVEL', 'CONTRATO_INCOMPATIVEL', 'TAREFA_INCOMPATIVEL'];
 export const TIPOS_ARTEFATO: TipoArtefato[] = ['ARQUIVO', 'CLASSE', 'METODO', 'MODULO', 'CONTRATO', 'MIGRACAO', 'TESTE', 'DOCUMENTACAO', 'CONFIGURACAO', 'SCRIPT', 'DIAGRAMA'];
 export const TIPOS_PENDENCIA: TipoPendencia[] = ['IMPLEMENTACAO', 'VALIDACAO', 'CORRECAO', 'COMPLETUDE'];

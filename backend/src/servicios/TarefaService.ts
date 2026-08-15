@@ -272,6 +272,140 @@ export class TarefaService {
     return { sucesso: true, dados: tarefa };
   }
 
+  private getExecucaoRegistryPath(): string {
+    return path.win32.join('.ia', 'execucoes', 'execucoes.json');
+  }
+
+  private getProximoExecucaoId(tarefaId: string): number {
+    const result = this.fs.lerJson<ExecucoesRegistry>(this.getExecucaoRegistryPath());
+    if (!result.sucesso || !result.dados) {
+      return 1;
+    }
+    const execucoesTarefa = result.dados.execucoes.filter((e) => e.tarefaId === tarefaId);
+    if (execucoesTarefa.length === 0) {
+      return 1;
+    }
+    const maxId = execucoesTarefa.reduce((max, e) => Math.max(max, e.execucaoId), 0);
+    return maxId + 1;
+  }
+
+  private salvarExecucao(execucao: Execucao): ResultadoOperacao<Execucao> {
+    const registryResult = this.fs.lerJson<ExecucoesRegistry>(this.getExecucaoRegistryPath());
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    }
+    const registry = registryResult.dados;
+    const existing = registry.execucoes.findIndex((e) => e.execucaoId === execucao.execucaoId && e.tarefaId === execucao.tarefaId);
+    if (existing >= 0) {
+      registry.execucoes[existing] = execucao;
+    } else {
+      registry.execucoes.push(execucao);
+    }
+    const regResult = this.fs.escreverJson(this.getExecucaoRegistryPath(), registry);
+    if (!regResult.sucesso) {
+      return { sucesso: false, erro: regResult.erro, codigoErro: regResult.codigoErro };
+    }
+    return { sucesso: true, dados: execucao };
+  }
+
+  criarExecucao(tarefaId: string, agenteId: string): ResultadoOperacao<Execucao> {
+    const tarefaResult = this.obter(tarefaId);
+    if (!tarefaResult.sucesso || !tarefaResult.dados) {
+      return { sucesso: false, erro: tarefaResult.erro, codigoErro: tarefaResult.codigoErro };
+    }
+    const execucaoId = this.getProximoExecucaoId(tarefaId);
+    const hoje = new Date().toISOString();
+    const execucao: Execucao = {
+      execucaoId,
+      tarefaId,
+      estado: 'PENDENTE',
+      agenteId,
+      inicio: null,
+      fim: null,
+      resultadoId: null,
+      observacoes: '',
+      datas: { criadaEm: hoje, atualizadaEm: hoje }
+    };
+    const result = this.salvarExecucao(execucao);
+    if (!result.sucesso) {
+      return result;
+    }
+    this.auditoria.registrar('EXECUCAO_CRIADA', `Execução ${execucaoId} criada para tarefa ${tarefaId}.`, { tarefaId, execucaoId, agenteId });
+    return { sucesso: true, dados: execucao };
+  }
+
+  listarExecucoes(tarefaId: string): ResultadoOperacao<Execucao[]> {
+    const result = this.fs.lerJson<ExecucoesRegistry>(this.getExecucaoRegistryPath());
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: true, dados: [] };
+    }
+    const execucoes = result.dados.execucoes.filter((e) => e.tarefaId === tarefaId).sort((a, b) => a.execucaoId - b.execucaoId);
+    return { sucesso: true, dados: execucoes };
+  }
+
+  obterExecucao(tarefaId: string, execucaoId: number): ResultadoOperacao<Execucao> {
+    const result = this.fs.lerJson<ExecucoesRegistry>(this.getExecucaoRegistryPath());
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: false, erro: 'Execução não encontrada', codigoErro: 'EXECUCAO_NOT_FOUND' };
+    }
+    const execucao = result.dados.execucoes.find((e) => e.tarefaId === tarefaId && e.execucaoId === execucaoId);
+    if (!execucao) {
+      return { sucesso: false, erro: 'Execução não encontrada', codigoErro: 'EXECUCAO_NOT_FOUND' };
+    }
+    return { sucesso: true, dados: execucao };
+  }
+
+  atualizarEstadoExecucao(tarefaId: string, execucaoId: number, novoEstado: EstadoExecucao, resultadoId?: string | null): ResultadoOperacao<Execucao> {
+    const result = this.obterExecucao(tarefaId, execucaoId);
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    const execucao = result.dados;
+    const transicoesValidas: Record<EstadoExecucao, EstadoExecucao[]> = {
+      PENDENTE: ['EM_EXECUCAO', 'CANCELADA'],
+      EM_EXECUCAO: ['SUCESSO', 'FALHA', 'CANCELADA'],
+      SUCESSO: [],
+      FALHA: ['PENDENTE'],
+      CANCELADA: []
+    };
+    const permitidas = transicoesValidas[execucao.estado] || [];
+    if (!permitidas.includes(novoEstado)) {
+      return { sucesso: false, erro: `Transição inválida de execução: ${execucao.estado} → ${novoEstado}`, codigoErro: 'INVALID_TRANSITION' };
+    }
+    execucao.estado = novoEstado;
+    execucao.datas.atualizadaEm = new Date().toISOString();
+    if (novoEstado === 'EM_EXECUCAO' && !execucao.inicio) {
+      execucao.inicio = new Date().toISOString();
+    }
+    if (novoEstado === 'SUCESSO' || novoEstado === 'FALHA' || novoEstado === 'CANCELADA') {
+      execucao.fim = new Date().toISOString();
+    }
+    if (resultadoId !== undefined) {
+      execucao.resultadoId = resultadoId;
+    }
+    const saveResult = this.salvarExecucao(execucao);
+    if (!saveResult.sucesso) {
+      return saveResult;
+    }
+    this.auditoria.registrar('EXECUCAO_ESTADO_ALTERADO', `Execução ${execucaoId} da tarefa ${tarefaId} alterada para ${novoEstado}.`, { tarefaId, execucaoId });
+    return { sucesso: true, dados: execucao };
+  }
+
+  atualizarExecucaoObs(tarefaId: string, execucaoId: number, observacoes: string): ResultadoOperacao<Execucao> {
+    const result = this.obterExecucao(tarefaId, execucaoId);
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    const execucao = result.dados;
+    execucao.observacoes = observacoes;
+    execucao.datas.atualizadaEm = new Date().toISOString();
+    const saveResult = this.salvarExecucao(execucao);
+    if (!saveResult.sucesso) {
+      return saveResult;
+    }
+    return { sucesso: true, dados: execucao };
+  }
+
   async montarContexto(id: string): Promise<ResultadoOperacao<PacoteContexto>> {
     const tarefaResult = this.obter(id);
     if (!tarefaResult.sucesso || !tarefaResult.dados) {

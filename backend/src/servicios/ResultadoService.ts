@@ -81,6 +81,7 @@ export class ResultadoService {
     const resultado: ResultadoEntity = {
       id,
       tarefaId: dados.tarefaId || '',
+      execucaoId: dados.execucaoId || 0,
       agenteId: dados.agenteId || '',
       resumo: dados.resumo || '',
       estado: dados.estado || 'COMPLETO',
