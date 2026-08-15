@@ -1,8 +1,60 @@
-# AgentMap
+<div align="center">
 
-> Sistema local de coordenação, memória operacional e rastreabilidade para projetos desenvolvidos por múltiplos agentes de IA.
+# 🗺️ AgentMap
 
-## Visão geral
+**Sistema local de coordenação, memória operacional e rastreabilidade para projetos desenvolvidos por múltiplos agentes de IA.**
+
+[![Licença: MIT](https://img.shields.io/badge/licença-MIT-blue.svg)](./LICENSE)
+[![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow.svg)]()
+[![Node.js](https://img.shields.io/badge/node-18%2B-339933.svg?logo=node.js&logoColor=white)]()
+[![MCP](https://img.shields.io/badge/protocolo-MCP-8A2BE2.svg)]()
+[![Plataformas](https://img.shields.io/badge/plataformas-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
+
+</div>
+
+---
+
+## 📚 Sumário
+
+- [Visão geral](#-visão-geral)
+- [Objetivo](#-objetivo)
+- [Conceito central](#-conceito-central)
+- [Arquitetura](#-arquitetura)
+- [MCP](#-mcp)
+- [Agentes](#-agentes)
+- [Ciclo operacional do agente](#-ciclo-operacional-do-agente)
+- [Tarefas](#-tarefas)
+- [Solicitações de alteração](#-solicitações-de-alteração)
+- [Contratos](#-contratos)
+- [Decisões](#-decisões)
+- [Dependências](#-dependências)
+- [Reservas](#-reservas)
+- [Bloqueios](#-bloqueios)
+- [Conflitos](#-conflitos)
+- [Handoffs](#-handoffs)
+- [Resultados](#-resultados)
+- [Validação](#-validação)
+- [Checkpoints](#-checkpoints)
+- [Riscos](#-riscos)
+- [Histórico e rastreabilidade](#-histórico-e-rastreabilidade)
+- [Interface Web](#-interface-web)
+- [Autenticação e acesso](#-autenticação-e-acesso)
+- [Eventos](#-eventos)
+- [Como usar](#-como-usar)
+- [Estrutura de projetos gerenciados](#-estrutura-de-projetos-gerenciados)
+- [Organização do repositório](#-organização-do-repositório)
+- [Integração com Kilo Code](#-integração-com-kilo-code)
+- [Segurança](#-segurança)
+- [Git](#-git)
+- [Princípios arquiteturais](#-princípios-arquiteturais)
+- [Estado do projeto](#-estado-do-projeto)
+- [Evolução futura](#-evolução-futura)
+- [Filosofia](#-filosofia)
+- [Licença](#-licença)
+
+---
+
+## 🔎 Visão geral
 
 O **AgentMap** é um sistema local criado para permitir que múltiplos agentes de Inteligência Artificial trabalhem de forma coordenada sobre o mesmo projeto.
 
@@ -10,672 +62,433 @@ Compatível com **Windows**, **Linux** e **macOS**.
 
 O AgentMap funciona como uma **memória operacional compartilhada e uma camada de coordenação do projeto**, permitindo que os agentes consultem, registrem e atualizem informações estruturadas sobre o trabalho em andamento.
 
-A comunicação operacional não depende de conversas diretas entre agentes.
+> A comunicação operacional não depende de conversas diretas entre agentes. Cada agente pode consultar o estado do projeto, executar sua tarefa, registrar resultados e deixar informações estruturadas para os próximos agentes.
 
-Cada agente pode consultar o estado do projeto, executar sua tarefa, registrar resultados e deixar informações estruturadas para os próximos agentes.
+```mermaid
+flowchart TD
+    subgraph AM["🗺️ AgentMap"]
+        direction LR
+        P[Projetos] ~~~ AG[Agentes] ~~~ T[Tarefas] ~~~ C[Contratos]
+        D[Decisões] ~~~ S[Solicitações] ~~~ DEP[Dependências] ~~~ R[Reservas]
+        B[Bloqueios] ~~~ CF[Conflitos] ~~~ H[Handoffs] ~~~ RES[Resultados]
+        V[Validações] ~~~ CK[Checkpoints] ~~~ RI[Riscos] ~~~ HI[Histórico]
+    end
 
-```text
-                    ┌──────────────────────┐
-                    │       AGENTMAP       │
-                    │                      │
-                    │ Projetos             │
-                    │ Agentes              │
-                    │ Tarefas              │
-                    │ Contratos            │
-                    │ Decisões             │
-                    │ Solicitações         │
-                    │ Dependências         │
-                    │ Reservas             │
-                    │ Bloqueios            │
-                    │ Conflitos            │
-                    │ Handoffs             │
-                    │ Resultados           │
-                    │ Validações           │
-                    │ Checkpoints          │
-                    │ Riscos               │
-                    │ Histórico             │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                         ┌───────────┐
-                         │    MCP    │
-                         └─────┬─────┘
-                               │
-              ┌────────────────┼────────────────┐
-              │                │                │
-              ▼                ▼                ▼
-          AGENTE A         AGENTE B         AGENTE C
-              │                │                │
-              └────────────────┼────────────────┘
-                               │
-                         PROJETO REAL
+    AM --> MCP((MCP))
+    MCP --> A1[Agente A]
+    MCP --> A2[Agente B]
+    MCP --> A3[Agente C]
+    A1 & A2 & A3 --> PJ[Projeto real]
 ```
 
 ---
 
-# Objetivo
+## 🎯 Objetivo
 
 O AgentMap foi desenvolvido para resolver um problema comum em ambientes multiagente:
 
-> Como fazer agentes diferentes trabalharem sobre o mesmo projeto sem perder contexto, decisões, responsabilidades, dependências e histórico?
+> **Como fazer agentes diferentes trabalharem sobre o mesmo projeto sem perder contexto, decisões, responsabilidades, dependências e histórico?**
 
-Para isso, o sistema centraliza as informações operacionais do projeto.
+Para isso, o sistema centraliza as informações operacionais do projeto. Os agentes podem descobrir:
 
-Os agentes podem descobrir:
-
-* quais tarefas possuem;
-* quais tarefas estão pendentes;
-* quais tarefas foram concluídas;
-* quais alterações foram solicitadas;
-* quais contratos existem;
-* quais decisões foram tomadas;
-* quais recursos estão sendo utilizados;
-* quais dependências existem;
-* quais agentes são responsáveis;
-* quais bloqueios existem;
-* quais conflitos foram identificados;
-* quais resultados foram produzidos;
-* quais trabalhos precisam ser validados;
-* quais informações foram deixadas por agentes anteriores.
+| | | |
+|---|---|---|
+| ✅ Tarefas existentes | ✅ Tarefas pendentes | ✅ Tarefas concluídas |
+| ✅ Alterações solicitadas | ✅ Contratos existentes | ✅ Decisões tomadas |
+| ✅ Recursos em uso | ✅ Dependências existentes | ✅ Agentes responsáveis |
+| ✅ Bloqueios existentes | ✅ Conflitos identificados | ✅ Resultados produzidos |
+| ✅ Trabalhos a validar | ✅ Informações de agentes anteriores | |
 
 ---
 
-# Conceito central
+## 🧠 Conceito central
 
-O AgentMap não foi projetado como um simples sistema de mensagens entre agentes.
+O AgentMap não foi projetado como um simples sistema de mensagens entre agentes. A comunicação acontece através do **estado estruturado do projeto**.
 
-A comunicação acontece através do **estado estruturado do projeto**.
+<table>
+<tr>
+<th align="center">❌ Modelo tradicional</th>
+<th align="center">✅ Modelo AgentMap</th>
+</tr>
+<tr>
+<td>
 
-Em vez de:
-
-```text
-Agente A
-   │
-   │ conversa diretamente
-   ▼
-Agente B
+```mermaid
+flowchart LR
+    A[Agente A] -- conversa direta --> B[Agente B]
 ```
 
-o fluxo é:
+</td>
+<td>
 
-```text
-Agente A
-   │
-   ▼
-AgentMap
-   │
-   ▼
-Registro estruturado
-   │
-   ▼
-AgentMap
-   │
-   ▼
-Agente B
+```mermaid
+flowchart LR
+    A[Agente A] --> AM1[AgentMap]
+    AM1 --> R[Registro estruturado]
+    R --> AM2[AgentMap]
+    AM2 --> B[Agente B]
 ```
 
-Isso permite que os agentes trabalhem de forma desacoplada.
+</td>
+</tr>
+</table>
 
-Um agente pode terminar seu trabalho e outro agente pode continuar posteriormente sem depender da memória da conversa anterior.
+Isso permite que os agentes trabalhem de forma **desacoplada**: um agente pode terminar seu trabalho e outro pode continuar posteriormente, sem depender da memória da conversa anterior.
 
 ---
 
-# Arquitetura
+## 🏗️ Arquitetura
 
 O AgentMap é dividido conceitualmente em três camadas principais:
 
-```text
-┌───────────────────────────────────────────────┐
-│                  INTERFACE WEB                │
-│                                               │
-│ Visualização • Monitoramento • Administração  │
-└──────────────────────┬────────────────────────┘
-                       │
-                       ▼
-┌───────────────────────────────────────────────┐
-│                   AGENTMAP                    │
-│                                               │
-│ Núcleo de coordenação e memória operacional   │
-└──────────────────────┬────────────────────────┘
-                       │
-                       ▼
-┌───────────────────────────────────────────────┐
-│                     MCP                       │
-│                                               │
-│ Tools • Resources • Prompts • Integração      │
-└──────────────────────┬────────────────────────┘
-                       │
-             ┌─────────┼─────────┐
-             ▼         ▼         ▼
-          AGENTE     AGENTE     AGENTE
+```mermaid
+flowchart TD
+    UI["🖥️ Interface Web<br/><sub>Visualização • Monitoramento • Administração</sub>"]
+    CORE["🗺️ AgentMap<br/><sub>Núcleo de coordenação e memória operacional</sub>"]
+    MCP["🔌 MCP<br/><sub>Tools • Resources • Prompts • Integração</sub>"]
+    A1["Agente"]
+    A2["Agente"]
+    A3["Agente"]
+
+    UI --> CORE --> MCP
+    MCP --> A1
+    MCP --> A2
+    MCP --> A3
 ```
 
-O AgentMap permanece como autoridade sobre o estado operacional do projeto.
-
-O MCP funciona como camada de integração entre os agentes e o AgentMap.
-
-A interface Web funciona como camada de visualização, monitoramento e administração.
+- O **AgentMap** permanece como autoridade sobre o estado operacional do projeto.
+- O **MCP** funciona como camada de integração entre os agentes e o AgentMap.
+- A **interface Web** funciona como camada de visualização, monitoramento e administração.
 
 ---
 
-# MCP
+## 🔌 MCP
 
-O **Model Context Protocol (MCP)** fornece a camada padronizada de comunicação entre os agentes e o AgentMap.
+O **Model Context Protocol (MCP)** fornece a camada padronizada de comunicação entre os agentes e o AgentMap. O MCP **não** funciona como uma segunda fonte de verdade.
 
-O MCP não funciona como uma segunda fonte de verdade.
-
-O fluxo é:
-
-```text
-Agente
-   ↓
-MCP
-   ↓
-AgentMap
-   ↓
-Regras do sistema
-   ↓
-Dados do projeto
+```mermaid
+flowchart LR
+    Agente --> MCP --> AgentMap --> Regras["Regras do sistema"] --> Dados["Dados do projeto"]
 ```
 
-Isso permite que diferentes clientes e agentes utilizem o mesmo núcleo operacional.
-
-A arquitetura também permite que novos clientes sejam adicionados futuramente sem alterar a estrutura conceitual do AgentMap.
+Isso permite que diferentes clientes e agentes utilizem o mesmo núcleo operacional. A arquitetura também permite que novos clientes sejam adicionados futuramente sem alterar a estrutura conceitual do AgentMap.
 
 ---
 
-# Agentes
+## 🤖 Agentes
 
 Cada agente possui uma identidade própria dentro do projeto.
 
-Exemplo:
+<details>
+<summary><strong>Exemplo de identidade de agente (JSON)</strong></summary>
 
 ```json
 {
-	"id": "AGT-BACKEND",
-	"nome": "Agente Backend",
-	"responsabilidades": [
-		"API",
-		"Java",
-		"Spring",
-		"Banco de dados"
-	]
+  "id": "AGT-BACKEND",
+  "nome": "Agente Backend",
+  "responsabilidades": [
+    "API",
+    "Java",
+    "Spring",
+    "Banco de dados"
+  ]
 }
 ```
 
+</details>
+
 A identidade do agente permite determinar:
 
-* quem executa uma tarefa;
-* quem solicitou uma alteração;
-* quem é responsável por uma pendência;
-* quem produziu determinado resultado;
-* quem realizou determinada ação;
-* quem deve validar determinado trabalho.
+- quem executa uma tarefa;
+- quem solicitou uma alteração;
+- quem é responsável por uma pendência;
+- quem produziu determinado resultado;
+- quem realizou determinada ação;
+- quem deve validar determinado trabalho.
 
 ---
 
-# Ciclo operacional do agente
+## 🔁 Ciclo operacional do agente
 
-O AgentMap estabelece um fluxo operacional para os agentes.
+O AgentMap estabelece um fluxo operacional para os agentes:
 
-```text
-INICIAR
-   ↓
-IDENTIFICAR AGENTE
-   ↓
-CONSULTAR CONTEXTO
-   ↓
-CONSULTAR TAREFAS
-   ↓
-CONSULTAR SOLICITAÇÕES
-   ↓
-CONSULTAR CONTRATOS
-   ↓
-CONSULTAR DECISÕES
-   ↓
-VERIFICAR DEPENDÊNCIAS
-   ↓
-VERIFICAR BLOQUEIOS
-   ↓
-VERIFICAR CONFLITOS
-   ↓
-VERIFICAR RESERVAS
-   ↓
-EXECUTAR TRABALHO
-   ↓
-REGISTRAR RESULTADOS
-   ↓
-REGISTRAR ARTEFATOS
-   ↓
-CRIAR HANDOFF
-   ↓
-SOLICITAR VALIDAÇÃO
-   ↓
-FINALIZAR
+```mermaid
+flowchart TD
+    A([Iniciar]) --> B[Identificar agente]
+    B --> C[Consultar contexto]
+    C --> D[Consultar tarefas]
+    D --> E[Consultar solicitações]
+    E --> F[Consultar contratos]
+    F --> G[Consultar decisões]
+    G --> H[Verificar dependências]
+    H --> I[Verificar bloqueios]
+    I --> J[Verificar conflitos]
+    J --> K[Verificar reservas]
+    K --> L[Executar trabalho]
+    L --> M[Registrar resultados]
+    M --> N[Registrar artefatos]
+    N --> O[Criar handoff]
+    O --> P[Solicitar validação]
+    P --> Q([Finalizar])
 ```
 
 Esse processo permite que cada agente tenha acesso ao contexto necessário antes de modificar o projeto.
 
 ---
 
-# Tarefas
+## ✅ Tarefas
 
-As tarefas representam unidades de trabalho do projeto.
+As tarefas representam unidades de trabalho do projeto. Cada tarefa pode possuir:
 
-Cada tarefa pode possuir:
-
-* identificação;
-* título;
-* descrição;
-* agente responsável;
-* prioridade;
-* status;
-* dependências;
-* artefatos;
-* critérios de conclusão;
-* resultados;
-* validação;
-* histórico.
+| Campo | Campo | Campo |
+|---|---|---|
+| Identificação | Título | Descrição |
+| Agente responsável | Prioridade | Status |
+| Dependências | Artefatos | Critérios de conclusão |
+| Resultados | Validação | Histórico |
 
 As tarefas formam uma das principais estruturas de coordenação entre os agentes.
 
 ---
 
-# Solicitações de alteração
+## 🔄 Solicitações de alteração
 
-O AgentMap possui um sistema estruturado de **Solicitações de Alteração**.
+O AgentMap possui um sistema estruturado de **Solicitações de Alteração**, que permite que um agente registre uma alteração necessária que afete outro agente, domínio ou recurso compartilhado.
 
-Esse mecanismo permite que um agente registre uma alteração necessária que afete outro agente, domínio ou recurso compartilhado.
-
-Exemplo:
+<details>
+<summary><strong>Exemplo de solicitação de alteração (JSON)</strong></summary>
 
 ```json
 {
-	"id": "ALT-2026-00001",
-	"titulo": "Adicionar campo status ao contrato",
-	"descricao": "O contrato da API precisa disponibilizar o estado atual do contrato.",
+  "id": "ALT-2026-00001",
+  "titulo": "Adicionar campo status ao contrato",
+  "descricao": "O contrato da API precisa disponibilizar o estado atual do contrato.",
 
-	"agenteSolicitante": {
-		"id": "AGT-FRONTEND"
-	},
+  "agenteSolicitante": {
+    "id": "AGT-FRONTEND"
+  },
 
-	"agenteResponsavel": {
-		"id": "AGT-BACKEND"
-	},
+  "agenteResponsavel": {
+    "id": "AGT-BACKEND"
+  },
 
-	"alvo": {
-		"tipo": "CONTRATO_API",
-		"nome": "Contrato de cliente",
-		"identificador": "cliente-resposta"
-	},
+  "alvo": {
+    "tipo": "CONTRATO_API",
+    "nome": "Contrato de cliente",
+    "identificador": "cliente-resposta"
+  },
 
-	"alteracao": {
-		"tipo": "ADICAO",
-		"descricao": "Adicionar o campo status ao contrato de resposta.",
-		"motivo": "O frontend precisa receber o estado atual do contrato.",
-		"arquivosAfetados": [
-			"ContratoRespostaDTO.java",
-			"cliente-resposta.json"
-		]
-	},
+  "alteracao": {
+    "tipo": "ADICAO",
+    "descricao": "Adicionar o campo status ao contrato de resposta.",
+    "motivo": "O frontend precisa receber o estado atual do contrato.",
+    "arquivosAfetados": [
+      "ContratoRespostaDTO.java",
+      "cliente-resposta.json"
+    ]
+  },
 
-	"impactos": [
-		"BACKEND",
-		"FRONTEND",
-		"API"
-	],
+  "impactos": [
+    "BACKEND",
+    "FRONTEND",
+    "API"
+  ],
 
-	"prioridade": "MEDIA",
-	"status": "PENDENTE",
-	"requerAprovacao": true,
+  "prioridade": "MEDIA",
+  "status": "PENDENTE",
+  "requerAprovacao": true,
 
-	"aprovacao": {
-		"status": "PENDENTE",
-		"agenteId": null,
-		"data": null,
-		"observacao": null
-	}
+  "aprovacao": {
+    "status": "PENDENTE",
+    "agenteId": null,
+    "data": null,
+    "observacao": null
+  }
 }
 ```
 
-O agente responsável consulta as solicitações destinadas a ele durante seu ciclo de trabalho.
+</details>
 
-Isso evita alterações silenciosas em recursos compartilhados.
+O agente responsável consulta as solicitações destinadas a ele durante seu ciclo de trabalho, evitando alterações silenciosas em recursos compartilhados.
 
 ---
 
-# Contratos
+## 📄 Contratos
 
-Contratos representam estruturas compartilhadas entre diferentes partes do sistema.
+Contratos representam estruturas compartilhadas entre diferentes partes do sistema, como:
 
-Exemplos:
-
-* contratos de API;
-* DTOs;
-* estruturas JSON;
-* interfaces;
-* eventos;
-* modelos compartilhados;
-* estruturas de banco;
-* integrações.
+`Contratos de API` · `DTOs` · `Estruturas JSON` · `Interfaces` · `Eventos` · `Modelos compartilhados` · `Estruturas de banco` · `Integrações`
 
 Antes de alterar um recurso compartilhado, o agente deve verificar o contrato vigente e suas dependências.
 
 ---
 
-# Decisões
+## 🧭 Decisões
 
-Decisões importantes do projeto são registradas para evitar que agentes diferentes adotem soluções incompatíveis.
+Decisões importantes do projeto são registradas para evitar que agentes diferentes adotem soluções incompatíveis. Uma decisão pode registrar:
 
-Uma decisão pode registrar:
-
-* identificação;
-* contexto;
-* problema;
-* decisão tomada;
-* justificativa;
-* impactos;
-* agentes envolvidos;
-* data;
-* status.
+`Identificação` · `Contexto` · `Problema` · `Decisão tomada` · `Justificativa` · `Impactos` · `Agentes envolvidos` · `Data` · `Status`
 
 Dessa forma, uma decisão importante deixa de depender da memória de uma única sessão de IA.
 
 ---
 
-# Dependências
+## 🔗 Dependências
 
-O AgentMap permite registrar dependências entre:
+O AgentMap permite registrar dependências entre tarefas, agentes, módulos, contratos, recursos e etapas de desenvolvimento.
 
-* tarefas;
-* agentes;
-* módulos;
-* contratos;
-* recursos;
-* etapas de desenvolvimento.
-
-Exemplo:
-
-```text
-Tarefa B
-   │
-   └── depende de ──► Tarefa A
+```mermaid
+flowchart LR
+    B[Tarefa B] -- depende de --> A[Tarefa A]
 ```
 
 Um agente pode verificar suas dependências antes de iniciar uma tarefa.
 
 ---
 
-# Reservas
+## 🔒 Reservas
 
 As reservas representam a intenção de um agente trabalhar sobre determinado recurso.
 
-Exemplo:
-
-```text
-AGT-BACKEND
-     │
-     ▼
-Reserva
-     │
-     ▼
-Contrato cliente-resposta
+```mermaid
+flowchart LR
+    AG[AGT-BACKEND] --> RES[Reserva] --> C[Contrato cliente-resposta]
 ```
 
-Outro agente pode consultar a reserva antes de modificar o mesmo recurso.
-
-As reservas são mecanismos de coordenação lógica.
-
-Elas não substituem o Git e não representam bloqueio físico do arquivo.
+Outro agente pode consultar a reserva antes de modificar o mesmo recurso. As reservas são mecanismos de **coordenação lógica** — elas não substituem o Git e não representam bloqueio físico do arquivo.
 
 ---
 
-# Bloqueios
+## 🚧 Bloqueios
 
 Quando um agente não consegue continuar, pode registrar um bloqueio.
 
-Exemplo:
-
-```text
-Tarefa:
-Implementar integração com API
-
-Bloqueio:
-Contrato da API ainda não foi aprovado.
-
-Responsável:
-AGT-BACKEND
-
-Impacto:
-Implementação não pode ser finalizada.
-```
+> **Tarefa:** Implementar integração com API
+> **Bloqueio:** Contrato da API ainda não foi aprovado.
+> **Responsável:** `AGT-BACKEND`
+> **Impacto:** Implementação não pode ser finalizada.
 
 Isso permite que outros agentes descubram por que determinada tarefa não está avançando.
 
 ---
 
-# Conflitos
+## ⚠️ Conflitos
 
-Conflitos podem ocorrer entre:
+Conflitos podem ocorrer entre agentes, tarefas, contratos, decisões, alterações, dependências e recursos.
 
-* agentes;
-* tarefas;
-* contratos;
-* decisões;
-* alterações;
-* dependências;
-* recursos.
-
-O AgentMap registra esses conflitos para torná-los explícitos e rastreáveis.
-
-O sistema não depende de conversas informais para comunicar problemas entre agentes.
+O AgentMap registra esses conflitos para torná-los explícitos e rastreáveis. O sistema não depende de conversas informais para comunicar problemas entre agentes.
 
 ---
 
-# Handoffs
+## 🤝 Handoffs
 
-O **Handoff** permite transferir contexto operacional de um agente para outro.
+O **Handoff** permite transferir contexto operacional de um agente para outro. Um agente pode registrar:
 
-Um agente pode registrar:
-
-* trabalho realizado;
-* trabalho pendente;
-* arquivos modificados;
-* decisões tomadas;
-* problemas encontrados;
-* riscos;
-* próximos passos;
-* agente recomendado para continuidade.
+`Trabalho realizado` · `Trabalho pendente` · `Arquivos modificados` · `Decisões tomadas` · `Problemas encontrados` · `Riscos` · `Próximos passos` · `Agente recomendado para continuidade`
 
 Assim, outro agente pode assumir o trabalho sem depender da memória do agente anterior.
 
 ---
 
-# Resultados
+## 📦 Resultados
 
-Ao concluir uma tarefa, o agente registra o resultado produzido.
+Ao concluir uma tarefa, o agente registra o resultado produzido, contendo:
 
-O resultado pode conter:
-
-* descrição;
-* arquivos modificados;
-* recursos criados;
-* decisões tomadas;
-* testes realizados;
-* limitações;
-* pendências;
-* observações.
+`Descrição` · `Arquivos modificados` · `Recursos criados` · `Decisões tomadas` · `Testes realizados` · `Limitações` · `Pendências` · `Observações`
 
 Isso cria rastreabilidade entre tarefa e resultado.
 
 ---
 
-# Validação
+## 🔍 Validação
 
 Uma tarefa concluída não é automaticamente considerada validada.
 
-O fluxo é:
-
-```text
-TAREFA
-   ↓
-CONCLUÍDA
-   ↓
-VALIDAÇÃO
-   ↓
-APROVADA
+```mermaid
+flowchart LR
+    T1[Tarefa] --> C1[Concluída] --> V1[Validação] --> AP[✅ Aprovada]
+    T2[Tarefa] --> C2[Concluída] --> V2[Validação] --> RP[❌ Reprovada] --> COR[Correção]
 ```
 
-ou:
-
-```text
-TAREFA
-   ↓
-CONCLUÍDA
-   ↓
-VALIDAÇÃO
-   ↓
-REPROVADA
-   ↓
-CORREÇÃO
-```
-
-Isso permite separar:
-
-* quem implementou;
-* quem revisou;
-* quem aprovou.
+Isso permite separar claramente **quem implementou**, **quem revisou** e **quem aprovou**.
 
 ---
 
-# Checkpoints
+## 💾 Checkpoints
 
-Checkpoints permitem registrar o estado intermediário de um trabalho.
+Checkpoints permitem registrar o estado intermediário de um trabalho, especialmente importantes para trabalhos longos ou interrompidos. Um checkpoint pode registrar:
 
-Eles são especialmente importantes para trabalhos longos ou interrompidos.
-
-Um checkpoint pode registrar:
-
-```text
-estado atual
-progresso
-arquivos alterados
-decisões
-problemas
-próximos passos
-```
+`Estado atual` · `Progresso` · `Arquivos alterados` · `Decisões` · `Problemas` · `Próximos passos`
 
 Isso facilita a recuperação do trabalho.
 
 ---
 
-# Riscos
+## ⚡ Riscos
 
-Riscos identificados durante o desenvolvimento podem ser registrados no AgentMap.
+Riscos identificados durante o desenvolvimento podem ser registrados no AgentMap, como:
 
-Exemplos:
-
-* alteração incompatível;
-* dependência externa;
-* risco de regressão;
-* contrato indefinido;
-* conflito arquitetural;
-* recurso compartilhado;
-* problema de segurança.
+`Alteração incompatível` · `Dependência externa` · `Risco de regressão` · `Contrato indefinido` · `Conflito arquitetural` · `Recurso compartilhado` · `Problema de segurança`
 
 O registro permite acompanhar o risco até sua resolução.
 
 ---
 
-# Histórico e rastreabilidade
+## 🕓 Histórico e rastreabilidade
 
-O AgentMap mantém informações necessárias para reconstruir o histórico operacional do projeto.
-
-Quando aplicável, registros podem estar associados a:
+O AgentMap mantém informações necessárias para reconstruir o histórico operacional do projeto. Quando aplicável, registros podem estar associados a:
 
 ```text
-projetoId
-agenteId
-sessaoId
-tarefaId
-correlationId
-requestId
-timestamp
+projetoId · agenteId · sessaoId · tarefaId · correlationId · requestId · timestamp
 ```
 
-Isso permite identificar:
-
-* quem realizou uma ação;
-* quando realizou;
-* em qual contexto;
-* sobre qual tarefa;
-* qual resultado foi produzido.
+Isso permite identificar quem realizou uma ação, quando, em qual contexto, sobre qual tarefa e qual resultado foi produzido.
 
 ---
 
-# Interface Web
+## 🖥️ Interface Web
 
-O AgentMap possui uma interface Web local para visualizar e administrar o estado do projeto.
+O AgentMap possui uma interface Web local para visualizar e administrar o estado do projeto, permitindo acompanhar:
 
-A interface permite acompanhar informações como:
+`Projetos` · `Agentes` · `Tarefas` · `Solicitações` · `Contratos` · `Decisões` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico`
 
-* projetos;
-* agentes;
-* tarefas;
-* solicitações;
-* contratos;
-* decisões;
-* dependências;
-* reservas;
-* bloqueios;
-* conflitos;
-* handoffs;
-* resultados;
-* validações;
-* checkpoints;
-* riscos;
-* histórico.
-
-O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador local sem depender da interface do próprio agente.
+O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador local, sem depender da interface do próprio agente.
 
 ---
 
-# Autenticação e acesso
+## 🔐 Autenticação e acesso
 
 Todas as requisições à API devem incluir a chave de API no header `x-api-key`.
 
 A chave é gerada automaticamente na primeira execução e armazenada em `backend/.local/.api-key`.
 
-Para obter a chave atual, use:
-
+**Obter a chave atual:**
 ```bash
 curl http://localhost:3150/api/auth/key
 ```
 
-Para verificar se uma chave é válida:
-
+**Verificar se uma chave é válida:**
 ```bash
 curl -X POST http://localhost:3150/api/auth/verify \
   -H "Content-Type: application/json" \
   -d '{"apiKey":"sua-chave-aqui"}'
 ```
 
-O middleware CSRF está ativo para métodos não-GET, validando `Origin` e `Referer`.
-
-CORS está configurado para permitir origens locais de desenvolvimento, incluindo `http://localhost:3150`.
+> O middleware **CSRF** está ativo para métodos não-GET, validando `Origin` e `Referer`. O **CORS** está configurado para permitir origens locais de desenvolvimento, incluindo `http://localhost:3150`.
 
 ---
 
-# Eventos
+## 📡 Eventos
 
-O AgentMap registra eventos assíncronos para coordenação entre agentes.
+O AgentMap registra eventos assíncronos para coordenação entre agentes. Além dos eventos automáticos gerados por ações como handoffs e solicitações, o sistema oferece:
 
-Além dos eventos automáticos gerados por ações como handoffs e solicitações, o sistema oferece:
+| Endpoint | Descrição |
+|---|---|
+| `POST /api/eventos` | Cria eventos do sistema com validação rigorosa de schema |
+| `POST /api/eventos/custom` | Cria eventos genéricos/flexíveis para casos específicos, debugging ou integrações futuras |
 
-- `POST /api/eventos` — cria eventos do sistema com validação rigorosa de schema
-- `POST /api/eventos/custom` — cria eventos genéricos/flexíveis para casos específicos, debugging ou integrações futuras
-
-Exemplo de evento custom:
+<details>
+<summary><strong>Exemplo de evento custom (JSON)</strong></summary>
 
 ```json
 {
@@ -687,18 +500,20 @@ Exemplo de evento custom:
 }
 ```
 
+</details>
+
 ---
 
-# Como usar
+## 🚀 Como usar
 
-## Pré-requisitos
+### Pré-requisitos
 
 - Node.js 18+
 - npm
 - Git
-- VS Code (opcional, para integração com Kilo Code / Agent Manager)
+- VS Code *(opcional, para integração com Kilo Code / Agent Manager)*
 
-## Instalação
+### Instalação
 
 ```bash
 git clone <url-do-repositorio>
@@ -707,7 +522,7 @@ cd backend
 npm install
 ```
 
-## Iniciar o sistema
+### Iniciar o sistema
 
 ```bash
 cd backend
@@ -719,91 +534,73 @@ Isso inicia:
 - Frontend (interface web) servido automaticamente
 - MCP Server via STDIO (para integração com Kilo Code)
 
-## Acessar
+### Acessar
 
-- **Frontend / Dashboard:** http://localhost:3150
-- **API REST:** http://localhost:3150/api
-- **Status:** http://localhost:3150/api/status
-- **Health:** http://localhost:3150/api/health
-- **MCP Server (Kilo Code):** `npx tsx src/mcp-server/index.ts`
+| Recurso | URL |
+|---|---|
+| 🖥️ Frontend / Dashboard | http://localhost:3150 |
+| 🔌 API REST | http://localhost:3150/api |
+| 📊 Status | http://localhost:3150/api/status |
+| 💓 Health | http://localhost:3150/api/health |
+| 🔧 MCP Server (Kilo Code) | `npx tsx src/mcp-server/index.ts` |
 
-## Criar um projeto novo
+### Criar um projeto novo
 
 1. Acesse o frontend em `http://localhost:3150`
 2. Clique em **"Novo Projeto"**
 3. Preencha nome e pasta destino
 4. O scaffold gera automaticamente a estrutura `.ia/` completa
 
-> **Nota:** A pasta base de projetos é configurável. No Windows, o padrão é `G:\PROJETOS\AgenteMap_Projetos\`. Em Linux/macOS, use qualquer caminho como `~/projetos/agentmap/`. Você pode alterar o padrão nas configurações do projeto.
+> **Nota:** a pasta base de projetos é configurável. No Windows, o padrão é `G:\PROJETOS\AgenteMap_Projetos\`. Em Linux/macOS, use qualquer caminho como `~/projetos/agentmap/`. Você pode alterar o padrão nas configurações do projeto.
 
-## Autenticação
-
-Todas as requisições à API devem incluir a chave de API no header `x-api-key`.
-
-A chave é gerada automaticamente na primeira execução e armazenada em `backend/.local/.api-key`.
-
-Para obter a chave atual:
-```bash
-curl http://localhost:3150/api/auth/key
-```
-
-Para verificar se uma chave é válida:
-```bash
-curl -X POST http://localhost:3150/api/auth/verify \
-  -H "Content-Type: application/json" \
-  -d '{"apiKey":"sua-chave-aqui"}'
-```
-
-## Integração com Kilo Code / VS Code
+### Integração com Kilo Code / VS Code
 
 1. Abra o projeto no VS Code
 2. Verifique se o arquivo `kilo.jsonc` existe na raiz
 3. Na extensão Kilo Code, o MCP do AgentMap deve aparecer automaticamente
 4. Se não aparecer, recarregue a janela: `Ctrl+Shift+P` → `Developer: Reload Window`
 
-O AgentMap **não executa agentes**. Ele fornece contexto, ferramentas e governança via MCP. O paralelismo é responsabilidade do Agent Manager (extensão VS Code).
+> O AgentMap **não executa agentes**. Ele fornece contexto, ferramentas e governança via MCP. O paralelismo é responsabilidade do Agent Manager (extensão VS Code).
 
-## Fluxo recomendado para agentes
+### Fluxo recomendado para agentes
 
-1. **Consultar eventos pendentes** no início do ciclo
-2. **Verificar dependências** da tarefa atual
-3. **Ler contratos obrigatórios** antes de executar
-4. **Executar o trabalho** respeitando diretórios permitidos
-5. **Registrar resultado**, artefatos e handoff quando necessário
-6. **Confirmar eventos** processados
-
----
+1. Consultar eventos pendentes no início do ciclo
+2. Verificar dependências da tarefa atual
+3. Ler contratos obrigatórios antes de executar
+4. Executar o trabalho respeitando diretórios permitidos
+5. Registrar resultado, artefatos e handoff quando necessário
+6. Confirmar eventos processados
 
 ---
 
-# Estrutura de projetos gerenciados
+## 📁 Estrutura de projetos gerenciados
 
 - Pasta base de projetos: configurável por projeto (caminho absoluto ou relativo)
 - Cada projeto recebe sua própria pasta com o **mesmo nome do projeto**
+- Cada projeto gerencia uma pasta `.ia/` com contratos, tarefas, decisões, handoffs e demais entidades do AgentMap
 
-Cada projeto gerencia uma pasta `.ia/` com contratos, tarefas, decisões, handoffs e demais entidades do AgentMap.
+### Regra obrigatória: fluxo e dependências
 
-## Regra obrigatória: fluxo e dependências
+Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-trabalho.md`. O planejador deve criar tarefas e dependências explicitamente antes de iniciar implementações. Agentes devem consultar dependências no início de cada ciclo e só prosseguir quando elas estiverem concluídas.
 
-Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-trabalho.md`.
-O planejador deve criar tarefas e dependências explicitamente antes de iniciar implementações.
-Agentes devem consultar dependências no início de cada ciclo e só prosseguir quando elas estiverem concluídas.
-Sem dependências, tarefas podem executar em paralelo; com dependências, a execução é sequencial.
+> Sem dependências, tarefas podem executar em paralelo; com dependências, a execução é sequencial.
 
-## Checklist automático de novos projetos
+### Checklist automático de novos projetos
 
 O AgentMap valida automaticamente a estrutura mínima de fluxo ao criar ou abrir um projeto:
-- `.ia/fluxo-trabalho.md` obrigatório
-- Pastas `.ia/contratos`, `.ia/tarefas`, `.ia/dependencias` obrigatórias
-- Pelo menos 1 contrato e 1 tarefa registrados
-- Sem dependências circulares
+
+- [x] `.ia/fluxo-trabalho.md` obrigatório
+- [x] Pastas `.ia/contratos`, `.ia/tarefas`, `.ia/dependencias` obrigatórias
+- [x] Pelo menos 1 contrato e 1 tarefa registrados
+- [x] Sem dependências circulares
 
 Se o checklist não estiver completo, a criação/abertura do projeto é bloqueada.
-Endpoint: `GET /api/projetos/:id/fluxo/checklist`
+**Endpoint:** `GET /api/projetos/:id/fluxo/checklist`
 
-## Coordenação entre Agentes
+### Coordenação entre agentes
 
 Em projetos com múltiplos agentes:
+
 - O planejador define a ordem e as dependências.
 - Cada agente só inicia quando seus pré-requisitos estão prontos.
 - O monitoramento é a fonte de verdade para o estado do projeto.
@@ -813,50 +610,39 @@ Em projetos com múltiplos agentes:
 
 ---
 
-# Organização do repositório
+## 🗂️ Organização do repositório
 
-O AgentMap está organizado em:
-- `backend/` — API Node.js + TypeScript + Express + MCP Server
-- `frontend/` — Interface web HTML/CSS/JS vanilla
-- `.ia/` — Dados do projeto (tarefas, contratos, agentes, handoffs, etc.)
-- `esquemas/` — JSON Schemas de validação
-- `banco/` — PostgreSQL opcional (não implementado no momento; pasta apenas para futura expansão)
-- `PLANO GERAL/` — Documentação de planejamento e especificações
-- `docs/` — Guias e documentação adicional
-- `A FAZER/` — Lista de tarefas pendentes
-- `erros/` — Documentação de erros e inconsistências encontradas
+```text
+AgentMap/
+├── backend/          # API Node.js + TypeScript + Express + MCP Server
+├── frontend/          # Interface web HTML/CSS/JS vanilla
+├── .ia/               # Dados do projeto (tarefas, contratos, agentes, handoffs...)
+├── esquemas/          # JSON Schemas de validação
+├── banco/             # PostgreSQL opcional (não implementado; apenas expansão futura)
+├── PLANO GERAL/       # Documentação de planejamento e especificações
+├── docs/              # Guias e documentação adicional
+├── A FAZER/           # Lista de tarefas pendentes
+└── erros/             # Documentação de erros e inconsistências encontradas
+```
 
-**Armazenamento operacional:** predominantemente **filesystem + JSON**. Os dados reais do projeto vivem em arquivos dentro de `.ia/`. PostgreSQL, se usado no futuro, será apenas para metadados/índice.
-
-A estrutura real do repositório deve ser considerada a autoridade.
+> **Armazenamento operacional:** predominantemente **filesystem + JSON**. Os dados reais do projeto vivem em arquivos dentro de `.ia/`. PostgreSQL, se usado no futuro, será apenas para metadados/índice.
+>
+> A estrutura real do repositório deve ser considerada a autoridade.
 
 ---
 
-# Integração com Kilo Code
+## 🧩 Integração com Kilo Code
 
 O AgentMap foi projetado para funcionar com agentes utilizados através do Kilo Code e de outros clientes compatíveis com MCP.
 
-O fluxo é:
-
-```text
-Kilo Code
-    ↓
-Agente IA
-    ↓
-MCP
-    ↓
-AgentMap
-    ↓
-Estado do projeto
+```mermaid
+flowchart LR
+    KC[Kilo Code] --> AI[Agente IA] --> MCP --> AM[AgentMap] --> EP[Estado do projeto]
 ```
 
-O agente utiliza as ferramentas disponibilizadas pelo MCP para consultar e atualizar o estado operacional.
+O agente utiliza as ferramentas disponibilizadas pelo MCP para consultar e atualizar o estado operacional. O AgentMap não depende exclusivamente do Kilo Code — outros clientes podem ser integrados posteriormente.
 
-O AgentMap não depende exclusivamente do Kilo Code.
-
-Outros clientes podem ser integrados posteriormente.
-
-## Configuração do Kilo
+### Configuração do Kilo
 
 O arquivo `kilo.jsonc` define a integração com o MCP do AgentMap.
 
@@ -864,7 +650,7 @@ O campo `data_collection_enabled` controla se dados de uso são coletados pelos 
 
 Variáveis de ambiente e configurações locais devem ser definidas em `kilo.local.jsonc`, que é ignorado pelo Git.
 
-## Padrões MCP 2026
+### Padrões MCP 2026
 
 O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 
@@ -875,7 +661,7 @@ O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 - **Anotações** (`readOnly`, `destructive`, `idempotent`) para orientar o cliente
 - **Erros via `isError: true`** com mensagens acionáveis para auto-correção do modelo
 
-## Ecossistema Kilo Code / VS Code 2026
+### Ecossistema Kilo Code / VS Code 2026
 
 - **Kilo Code** é a camada de IDE/CLI que consome o MCP do AgentMap
 - **Agent Manager** é o painel de paralelismo real: worktrees isolados por agente
@@ -885,213 +671,103 @@ O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 
 ---
 
-# Segurança
+## 🛡️ Segurança
 
-O sistema foi projetado com segurança desde sua concepção.
+O sistema foi projetado com segurança desde sua concepção. Entre os princípios adotados estão:
 
-Entre os princípios adotados estão:
+| | |
+|---|---|
+| ✅ Validação de entradas | ✅ Controle de permissões |
+| ✅ Isolamento do workspace | ✅ Proteção contra path traversal |
+| ✅ Controle das operações disponíveis | ✅ Validação das operações de escrita |
+| ✅ Logs | ✅ Proteção de informações sensíveis |
+| ✅ Ausência de credenciais no código | ✅ Controle de acesso às ferramentas MCP |
+| ✅ Princípio do menor privilégio | ✅ Separação entre consulta e alteração |
+| ✅ Prevenção de execução arbitrária de comandos | |
 
-* validação de entradas;
-* controle de permissões;
-* isolamento do workspace;
-* proteção contra path traversal;
-* controle das operações disponíveis;
-* validação das operações de escrita;
-* logs;
-* proteção de informações sensíveis;
-* ausência de credenciais diretamente no código;
-* controle de acesso às ferramentas MCP;
-* princípio do menor privilégio;
-* separação entre consulta e alteração;
-* prevenção de execução arbitrária de comandos.
-
-O MCP não deve oferecer aos agentes acesso irrestrito ao sistema operacional.
+> O MCP não deve oferecer aos agentes acesso irrestrito ao sistema operacional.
 
 ---
 
-# Git
+## 🌿 Git
 
-O Git continua sendo responsável pelo controle de versão do código.
+O Git continua sendo responsável pelo controle de versão do código. **O AgentMap não substitui o Git** — eles possuem responsabilidades diferentes e complementares.
 
-O AgentMap não substitui o Git.
-
-A relação entre os dois sistemas é:
-
-```text
-Git
-│
-├── Código
-├── Commits
-├── Branches
-├── Diff
-└── Histórico de versões
-
-AgentMap
-│
-├── Tarefas
-├── Agentes
-├── Decisões
-├── Contratos
-├── Solicitações
-├── Dependências
-├── Bloqueios
-├── Handoffs
-├── Validações
-└── Estado operacional
-```
-
-Eles possuem responsabilidades diferentes e complementares.
+| Git | AgentMap |
+|---|---|
+| Código | Tarefas |
+| Commits | Agentes |
+| Branches | Decisões |
+| Diff | Contratos |
+| Histórico de versões | Solicitações · Dependências · Bloqueios · Handoffs · Validações · Estado operacional |
 
 ---
 
-# Princípios arquiteturais
+## 🧱 Princípios arquiteturais
 
-O AgentMap segue os seguintes princípios:
-
-### Uma única fonte de verdade
-
-O estado operacional do projeto pertence ao AgentMap.
-
-### Agentes desacoplados
-
-Agentes não precisam manter comunicação direta entre si.
-
-### Comunicação estruturada
-
-Informações importantes são registradas em estruturas previsíveis.
-
-### Responsabilidades explícitas
-
-Solicitante, responsável e validador podem ser agentes diferentes.
-
-### Rastreabilidade
-
-Operações importantes possuem identificação e contexto.
-
-### Recuperabilidade
-
-O trabalho pode ser retomado por outro agente.
-
-### Segurança
-
-Cada agente deve possuir somente as permissões necessárias.
-
-### Extensibilidade
-
-Novos agentes e clientes podem ser adicionados sem alterar o conceito central.
-
-### Observabilidade
-
-O desenvolvedor deve conseguir acompanhar o estado do projeto.
+| Princípio | Descrição |
+|---|---|
+| **Uma única fonte de verdade** | O estado operacional do projeto pertence ao AgentMap. |
+| **Agentes desacoplados** | Agentes não precisam manter comunicação direta entre si. |
+| **Comunicação estruturada** | Informações importantes são registradas em estruturas previsíveis. |
+| **Responsabilidades explícitas** | Solicitante, responsável e validador podem ser agentes diferentes. |
+| **Rastreabilidade** | Operações importantes possuem identificação e contexto. |
+| **Recuperabilidade** | O trabalho pode ser retomado por outro agente. |
+| **Segurança** | Cada agente deve possuir somente as permissões necessárias. |
+| **Extensibilidade** | Novos agentes e clientes podem ser adicionados sem alterar o conceito central. |
+| **Observabilidade** | O desenvolvedor deve conseguir acompanhar o estado do projeto. |
 
 ---
 
-# Estado do projeto
+## 📊 Estado do projeto
 
 O AgentMap encontra-se em desenvolvimento e possui os mecanismos centrais de coordenação e memória operacional implementados.
 
-As funcionalidades principais incluem:
+**Funcionalidades principais:**
 
-* gerenciamento de projetos;
-* gerenciamento de agentes;
-* gerenciamento de tarefas;
-* contratos;
-* decisões;
-* solicitações de alteração;
-* dependências;
-* reservas;
-* bloqueios;
-* conflitos;
-* handoffs;
-* resultados;
-* validações;
-* checkpoints;
-* riscos;
-* histórico;
-* interface Web;
-* integração MCP;
-* estrutura para integração com agentes.
+`Gerenciamento de projetos` · `Gerenciamento de agentes` · `Gerenciamento de tarefas` · `Contratos` · `Decisões` · `Solicitações de alteração` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico` · `Interface Web` · `Integração MCP` · `Estrutura para integração com agentes`
 
-A documentação deve sempre acompanhar o estado real da implementação.
+> A documentação deve sempre acompanhar o estado real da implementação.
 
 ---
 
-# Evolução futura
+## 🔮 Evolução futura
 
-O projeto foi estruturado para permitir futuras extensões sem alterar seu núcleo conceitual.
+O projeto foi estruturado para permitir futuras extensões sem alterar seu núcleo conceitual. Possíveis evoluções:
 
-Possíveis evoluções:
+`Novos tipos de agentes` · `Novos clientes MCP` · `Novas ferramentas` · `Automação de validações` · `Análises de dependências` · `Detecção automática de conflitos` · `Métricas de produtividade` · `Visualizações avançadas` · `Auditoria avançada` · `Recuperação automática de trabalhos` · `Integração com outras IDEs` · `Integração com outros orquestradores`
 
-* novos tipos de agentes;
-* novos clientes MCP;
-* novas ferramentas;
-* automação de validações;
-* análises de dependências;
-* detecção automática de conflitos;
-* métricas de produtividade;
-* visualizações avançadas;
-* auditoria avançada;
-* recuperação automática de trabalhos;
-* integração com outras IDEs;
-* integração com outros orquestradores.
-
-Essas funcionalidades devem ser adicionadas somente quando fizerem sentido para o uso real do projeto.
+> Essas funcionalidades devem ser adicionadas somente quando fizerem sentido para o uso real do projeto.
 
 ---
 
-# Filosofia
+## 💭 Filosofia
 
 O AgentMap parte de uma ideia simples:
 
-> Agentes diferentes não precisam conversar para colaborar. Eles precisam compartilhar um estado confiável, estruturado e rastreável do projeto.
+> *Agentes diferentes não precisam conversar para colaborar. Eles precisam compartilhar um estado confiável, estruturado e rastreável do projeto.*
 
-Um agente pode iniciar um trabalho.
+Um agente pode iniciar um trabalho. Outro pode continuar. Um terceiro pode validar. Um quarto pode corrigir. E todos podem utilizar o mesmo contexto operacional registrado no AgentMap.
 
-Outro pode continuar.
-
-Um terceiro pode validar.
-
-Um quarto pode corrigir.
-
-E todos podem utilizar o mesmo contexto operacional registrado no AgentMap.
-
-```text
-AGENTE
-   │
-   ▼
-CONSULTA
-   │
-   ▼
-TRABALHA
-   │
-   ▼
-REGISTRA
-   │
-   ▼
-AGENTMAP
-   │
-   ▼
-PRÓXIMO AGENTE
+```mermaid
+flowchart LR
+    A[Agente] --> C[Consulta] --> W[Trabalha] --> R[Registra] --> AM[AgentMap] --> N[Próximo agente]
 ```
 
-O resultado é um ambiente onde o conhecimento operacional deixa de pertencer à memória individual de cada agente e passa a pertencer ao projeto.
+O resultado é um ambiente onde o conhecimento operacional deixa de pertencer à memória individual de cada agente e passa a pertencer ao **projeto**.
 
 ---
 
-# Licença
+## 📜 Licença
 
-Este projeto é distribuído sob a licença **MIT**.
+Este projeto é distribuído sob a licença **MIT**. Consulte o arquivo [`LICENSE`](./LICENSE) para obter o texto completo.
 
-Consulte o arquivo `LICENSE` para obter o texto completo da licença.
+<div align="center">
 
 ---
 
-# Projeto
+**AgentMap** — Sistema local de coordenação, memória operacional e rastreabilidade para desenvolvimento multiagente.
 
-**AgentMap**
+`Licença: MIT` · `Status: Em desenvolvimento`
 
-Sistema local de coordenação, memória operacional e rastreabilidade para desenvolvimento multiagente.
-
-**Licença:** MIT
-
-**Status:** Em desenvolvimento.
+</div>
