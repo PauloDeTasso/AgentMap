@@ -2,7 +2,7 @@
 import * as fs from 'fs';
 import { RegistroProjetos, ProjetoRegistro } from '../tipos';
 
-export const GERENCIADOR_DIR = path.resolve(__dirname, '..');
+export const GERENCIADOR_DIR = path.resolve(__dirname, '..', '..');
 export const LOCAL_DIR = path.join(GERENCIADOR_DIR, '.local');
 export const REGISTRO_PROJETOS_PATH = path.join(LOCAL_DIR, 'registro-projetos.json');
 

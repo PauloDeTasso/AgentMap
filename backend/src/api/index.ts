@@ -61,8 +61,8 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/agentes', criarAgenteRouter());
   router.use('/api/tarefas', criarTarefaRouter());
   router.use('/api/arquivos', criarArquivoRouter());
-  router.use('/api/contratos', criarContratoRouter());
   router.use('/api/contratos', criarContratosValidacaoRouter());
+  router.use('/api/contratos', criarContratoRouter());
   router.use('/api/solicitacoes', criarSolicitacaoRouter());
   router.use('/api/criterios', criarCriterioRouter());
   router.use('/api/resultados', criarResultadoRouter());

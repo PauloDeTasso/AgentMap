@@ -8,9 +8,9 @@ export interface CorsConfig {
 }
 
 const DEFAULT_CORS: CorsConfig = {
-  origins: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost:4200', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8083', 'http://localhost:8084', 'http://localhost:8085'],
+  origins: ['http://localhost:3000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost:4200', 'http://localhost:8081', 'http://localhost:8082', 'http://localhost:8083', 'http://localhost:8084', 'http://localhost:8085', 'http://localhost:3150'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key'],
   credentials: true
 };
 

@@ -19,6 +19,7 @@ function shouldSkipAuth(req: express.Request): boolean {
   if (req.path === '/api/projetos' && req.method === 'GET') return true;
   if (req.path === '/api/projetos/scan' && req.method === 'GET') return true;
   if (req.path === '/api/projetos/atual' && req.method === 'GET') return true;
+  if (req.path.startsWith('/api/auth')) return true;
   return false;
 }
 
