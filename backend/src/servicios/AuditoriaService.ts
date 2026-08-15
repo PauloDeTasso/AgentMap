@@ -67,7 +67,13 @@ export type TipoEvento =
   | 'REGRAS_RESPEITADAS'
   | 'CONTATO_CRIADO'
   | 'CONTATO_ATUALIZADO'
-  | 'CONTATO_EXCLUIDO';
+  | 'CONTATO_EXCLUIDO'
+  | 'MODO_AUTONOMIA_ALTERADO'
+  | 'INSTANCIA_DESCONECTADA'
+  | 'TAREFA_RECONCILIADA'
+  | 'DISPATCH_INICIADO'
+  | 'DISPATCH_SUCESSO'
+  | 'DISPATCH_ERRO';
 
 export class AuditoriaService {
   constructor(private fs: FileService) {}
