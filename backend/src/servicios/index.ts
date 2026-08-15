@@ -10,6 +10,8 @@ export * from './DecisaoService';
 export * from './DependenciaService';
 export * from './HandoffService';
 export * from './IntegridadeService';
+export * from './MonitoramentoService';
+export * from './OrquestradorService';
 export * from './PendenciaService';
 export * from './ProjetoService';
 export * from './ReservaService';

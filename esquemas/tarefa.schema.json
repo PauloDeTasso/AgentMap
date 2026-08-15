@@ -11,7 +11,7 @@
     "tipo": { "type": "string" },
     "estado": {
       "type": "string",
-      "enum": ["RASCUNHO", "PLANEJADA", "PRONTA", "EM_EXECUCAO", "EM_TESTE", "EM_REVISAO", "AGUARDANDO_APROVACAO", "CONCLUIDA", "BLOQUEADA", "CANCELADA", "REJEITADA"]
+      "enum": ["RASCUNHO", "PLANEJADA", "PRONTA", "EM_EXECUCAO", "EM_TESTE", "EM_REVISAO", "AGUARDANDO_APROVACAO", "CONCLUIDA", "BLOQUEADA", "CANCELADA", "REJEITADA", "ORFA", "RECUPERANDO"]
     },
     "prioridade": { "type": "string", "enum": ["baixa", "media", "alta", "critica"] },
     "agenteResponsavel": { "type": "string" },

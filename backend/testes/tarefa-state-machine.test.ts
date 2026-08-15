@@ -13,7 +13,9 @@ describe('Máquina de Estados de Tarefas', () => {
     expect(ESTADOS_TAREFA).toContain('BLOQUEADA');
     expect(ESTADOS_TAREFA).toContain('CANCELADA');
     expect(ESTADOS_TAREFA).toContain('REJEITADA');
-    expect(ESTADOS_TAREFA).toHaveLength(11);
+    expect(ESTADOS_TAREFA).toContain('ORFA');
+    expect(ESTADOS_TAREFA).toContain('RECUPERANDO');
+    expect(ESTADOS_TAREFA).toHaveLength(13);
   });
 
   test('RASCUNHO → PLANEJADA é válido', () => {
@@ -82,5 +84,29 @@ describe('Máquina de Estados de Tarefas', () => {
       const para = ciclo[i + 1];
       expect(TRANSICOES_ESTADO_TAREFA[de]).toContain(para);
     }
+  });
+
+  test('EM_EXECUCAO → ORFA é válido (recuperação)', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['EM_EXECUCAO']).toContain('ORFA');
+  });
+
+  test('ORFA → RECUPERANDO é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['ORFA']).toContain('RECUPERANDO');
+  });
+
+  test('RECUPERANDO → PRONTA é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['RECUPERANDO']).toContain('PRONTA');
+  });
+
+  test('RECUPERANDO → CONCLUIDA é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['RECUPERANDO']).toContain('CONCLUIDA');
+  });
+
+  test('ORFA → EM_EXECUCAO é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['ORFA']).toContain('EM_EXECUCAO');
+  });
+
+  test('RECUPERANDO → EM_EXECUCAO é válido', () => {
+    expect(TRANSICOES_ESTADO_TAREFA['RECUPERANDO']).toContain('EM_EXECUCAO');
   });
 });
