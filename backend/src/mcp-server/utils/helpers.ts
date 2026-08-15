@@ -66,6 +66,35 @@ export function toMcpData(dados: unknown, structuredContent?: unknown): McpConte
   };
 }
 
+export function toMcpStructured(dados: unknown): { content: Array<{ type: 'text'; text: string }>; structuredContent: Record<string, unknown> } {
+  return {
+    content: [
+      {
+        type: 'text',
+        text: safeStringify(dados)
+      }
+    ],
+    structuredContent: dados as Record<string, unknown>
+  };
+}
+
+export function mcpError(resultado: ResultadoOperacao<any>): { content: Array<{ type: 'text'; text: string }>; isError: boolean } {
+  const envelope = {
+    sucesso: false,
+    codigo: resultado.codigoErro || 'UNKNOWN_ERROR',
+    mensagem: resultado.erro || 'Erro desconhecido'
+  };
+  return {
+    content: [
+      {
+        type: 'text',
+        text: safeStringify(envelope)
+      }
+    ],
+    isError: true
+  };
+}
+
 export function extrairDados<T>(content: Array<{ type: string; text: string }>): T | null {
   if (!content || content.length === 0) return null;
   const texto = content[0].text;
