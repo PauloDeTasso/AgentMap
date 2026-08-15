@@ -4,7 +4,6 @@ import { AuditoriaService } from './AuditoriaService';
 import { ResultadoOperacao } from '../tipos';
 
 export interface ChecklistFluxo {
-  fluxoJsonExiste: boolean;
   fluxoTrabalhoExiste: boolean;
   pastaContratosExiste: boolean;
   pastaTarefasExiste: boolean;
@@ -19,7 +18,6 @@ export class FluxoService {
 
   validarChecklist(): ResultadoOperacao<ChecklistFluxo> {
     const checklist: ChecklistFluxo = {
-      fluxoJsonExiste: this.existeArquivo('.ia/fluxo-desenvolvimento.json'),
       fluxoTrabalhoExiste: this.existeArquivo('.ia/fluxo-trabalho.md'),
       pastaContratosExiste: this.existeDiretorio('.ia/contratos'),
       pastaTarefasExiste: this.existeDiretorio('.ia/tarefas'),
@@ -39,7 +37,6 @@ export class FluxoService {
 
   obterPendentes(checklist: ChecklistFluxo): string[] {
     const pendentes: string[] = [];
-    if (!checklist.fluxoJsonExiste) pendentes.push('Arquivo .ia/fluxo-desenvolvimento.json não encontrado');
     if (!checklist.fluxoTrabalhoExiste) pendentes.push('Arquivo .ia/fluxo-trabalho.md não encontrado');
     if (!checklist.pastaContratosExiste) pendentes.push('Pasta .ia/contratos não encontrada');
     if (!checklist.pastaTarefasExiste) pendentes.push('Pasta .ia/tarefas não encontrada');

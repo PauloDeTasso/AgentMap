@@ -30,7 +30,7 @@ esquemas/   → JSON Schemas de validação
 ```bash
 cd backend
 npm install
-npm run dev      # inicia backend + backend na porta 3150
+npm run dev      # inicia backend + frontend na porta 3150
 ```
 
 Acesse: http://localhost:3150
@@ -48,7 +48,7 @@ Veja: `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENT
 
 ## Regra obrigatória: fluxo e dependências
 
-Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-desenvolvimento.json`.
+Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-trabalho.md`.
 O planejador deve criar tarefas e dependências explicitamente antes de iniciar implementações.
 Agentes devem consultar dependências no início de cada ciclo e só prosseguir quando elas estiverem concluídas.
 Sem dependências, tarefas podem executar em paralelo; com dependências, a execução é sequencial.
@@ -56,7 +56,6 @@ Sem dependências, tarefas podem executar em paralelo; com dependências, a exec
 ## Checklist automático de novos projetos
 
 O AgentMap valida automaticamente a estrutura mínima de fluxo ao criar ou abrir um projeto:
-- `.ia/fluxo-desenvolvimento.json` obrigatório
 - `.ia/fluxo-trabalho.md` obrigatório
 - Pastas `.ia/contratos`, `.ia/tarefas`, `.ia/dependencias` obrigatórias
 - Pelo menos 1 contrato e 1 tarefa registrados
@@ -73,38 +72,6 @@ Cada agente possui documento de preparação e entrega em `.ia/procedimentos/`:
 
 Papéis cobertos:
 planejador, backend, banco, frontend, android, infraestrutura, testes, seguranca, revisor, documentacao, observabilidade, desempenho
-
-## Agente Orquestrador
-
-O projeto pode incluir um agente orquestrador em `.ia/agentes/orquestrador/` para automatizar o fluxo de trabalho.
-
-Funções:
-- Consultar estado do projeto periodicamente
-- Identificar tarefas prontas para execução
-- Verificar dependências pendentes
-- Criar handoffs e eventos automaticamente
-- Enviar prompts para agentes responsáveis
-- Registrar bloqueios quando necessário
-- Aplicar circuit breaker contra loops infinitos
-
-Estrutura:
-- `.ia/agentes/orquestrador/orquestrador-perfil.json`
-- `.ia/agentes/orquestrador/habilidades.json`
-- `.ia/agentes/orquestrador/instrucoes.md`
-- `.ia/agentes/orquestrador/personalidade.md`
-- `.ia/agentes/orquestrador/regras.md`
-- `.ia/agentes/orquestrador/contexto.md`
-- `.ia/agentes/orquestrador/memoria.md`
-- `.ia/orquestrador/estado.json`
-- `.ia/orquestrador/polling.js`
-- `.ia/orquestrador/package.json`
-- `.ia/orquestrador/logs.md`
-
-Limites de segurança:
-- Máximo de 5 comandos por minuto por agente
-- Máximo de 3 tentativas de reenvio por tarefa
-- Timeout de 30 minutos por tarefa
-- Se loop detectado: pausar por 5 minutos
 
 ## Regra de corporação/equipe
 

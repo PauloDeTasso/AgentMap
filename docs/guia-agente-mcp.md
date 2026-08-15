@@ -41,7 +41,7 @@ Isso retorna:
 
 ### 3. Finalizar Trabalho
 
-Use `agentmap_workflows_finalizar_trabalho`:
+Use `agentmap_workflows_finalizar_trabalho`. Esta tool aceita argumentos flexíveis via `passthrough`; os campos recomendados são:
 
 ```json
 {

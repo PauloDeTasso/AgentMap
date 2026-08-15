@@ -92,14 +92,23 @@ npm run mcp    # Inicia o servidor MCP via stdio
 
 ```json
 {
-  "mcpServers": {
+  "mcp": {
     "agentmap": {
-      "command": "npx",
-      "args": ["tsx", "backend/src/mcp-server/index.ts"],
-      "cwd": ".",
-      "env": {
+      "type": "local",
+      "command": ["cmd", "/c", "cd", "backend", "&&", "npx", "tsx", "src/mcp-server/index.ts"],
+      "environment": {
         "NODE_ENV": "production"
-      }
+      },
+      "enabled": true,
+      "timeout": 30000
+    }
+  },
+  "provider": {
+    "openrouter": {
+      "data_collection_enabled": true
+    },
+    "kilo": {
+      "data_collection_enabled": true
     }
   }
 }

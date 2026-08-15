@@ -61,7 +61,6 @@ O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP),
 ## Tools Disponíveis
 
 ### Projetos
-- `agentmap_status` — Status do servidor
 - `agentmap_projetos_listar` — Lista projetos
 - `agentmap_projetos_criar` — Cria projeto
 - `agentmap_projetos_abrir` — Abre projeto

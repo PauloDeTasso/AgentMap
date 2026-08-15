@@ -106,15 +106,15 @@ Estados terminais (sem saída):
 
 ## 4. TODAS AS FERRAMENTAS DISPONÍVEIS
 
-### 4.1 MCP Tools (33 tools oficiais)
+### 4.1 MCP Tools (124 tools registradas)
 
 Estas tools são chamadas por agentes via protocolo MCP. Estão registradas em `backend/src/mcp-server/tools/index.ts`.
 
 **Gerenciamento de Projeto:**
 - `agentmap_projetos_listar` — lista projetos
 - `agentmap_projetos_criar` — cria projeto
-- `agentmap_projetos_abrir` — abre projeto
-- `agentmap_projetos_fechar` — fecha projeto
+- `agentmap_projetos_abrir` — abre projeto (`POST /api/projetos/:id/abrir`)
+- `agentmap_projetos_fechar` — fecha projeto (`POST /api/projetos/:id/fechar`)
 - `agentmap_projetos_atual` — projeto atual
 
 **Gerenciamento de Agentes:**
@@ -292,8 +292,8 @@ Base: `http://localhost:3150/api`
 - `GET /api/projetos` — lista projetos
 - `POST /api/projetos` — cria projeto
 - `GET /api/projetos/atual` — projeto atual
-- `POST /api/projetos/abrir` — abre projeto
-- `POST /api/projetos/fechar` — fecha projeto
+- `POST /api/projetos/:id/abrir` — abre projeto
+- `POST /api/projetos/:id/fechar` — fecha projeto
 
 **Tarefas:**
 - `GET /api/tarefas` — lista tarefas
