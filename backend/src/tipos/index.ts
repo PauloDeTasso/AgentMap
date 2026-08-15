@@ -16,7 +16,9 @@ export type EstadoTarefa =
   | 'ORFA'
   | 'RECUPERANDO'
   | 'CANCELADA'
-  | 'REJEITADA';
+  | 'REJEITADA'
+  | 'ORFA'
+  | 'RECUPERANDO';
 
 export type EstadoEntidade = 'ativo' | 'inativo' | 'arquivado' | 'disponivel' | 'rascunho';
 
@@ -613,7 +615,9 @@ export const ESTADOS_TAREFA: EstadoTarefa[] = [
   'ORFA',
   'RECUPERANDO',
   'CANCELADA',
-  'REJEITADA'
+  'REJEITADA',
+  'ORFA',
+  'RECUPERANDO'
 ];
 
 export const TRANSICOES_ESTADO_TAREFA: Record<EstadoTarefa, EstadoTarefa[]> = {

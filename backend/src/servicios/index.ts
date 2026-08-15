@@ -11,6 +11,8 @@ export * from './DependenciaService';
 export * from './EventoService';
 export * from './HandoffService';
 export * from './IntegridadeService';
+export * from './MonitoramentoService';
+export * from './OrquestradorService';
 export * from './PendenciaService';
 export * from './MonitoramentoService';
 export * from './ProjetoService';

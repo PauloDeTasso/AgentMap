@@ -69,7 +69,9 @@ export class TarefaService {
       EM_REVISAO: 'revisao',
       AGUARDANDO_APROVACAO: 'aprovacao',
       BLOQUEADA: 'bloqueadas',
-      CONCLUIDA: 'concluidas'
+      CONCLUIDA: 'concluidas',
+      ORFA: 'recuperacao',
+      RECUPERANDO: 'recuperacao'
     };
     return map[estado] || 'rascunho';
   }
