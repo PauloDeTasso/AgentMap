@@ -153,6 +153,19 @@ tmp/
 
 # ==========================================
 
+# DADOS OPERACIONAIS DO AGENTMAP
+
+# ==========================================
+
+.ia/.backups/
+.ia/auditoria/
+.ia/contexto/mensagens-monitoramento.json
+.ia/contexto/status/
+
+backend/testes-e2e/
+
+# ==========================================
+
 # DADOS REAIS DO AGENTMAP
 
 # ==========================================
