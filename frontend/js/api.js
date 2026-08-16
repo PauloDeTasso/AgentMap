@@ -51,7 +51,14 @@ class ApiClient {
     if (cacheKey) {
       this.cache.set(cacheKey, data);
     }
+    if (options.method && options.method !== 'GET') {
+      this.cache.clear();
+    }
     return data;
+  }
+
+  invalidateCache() {
+    this.cache.clear();
   }
 
   async getStatus() {
@@ -69,7 +76,7 @@ class ApiClient {
     return this.request('/projetos');
   }
 
-  async criarProjeto(nome, caminhoParental, descricao, dadosExtra) {
+  async criarProjeto(nome, caminhoParental, descricao, dadosExtra = {}) {
     const body = { nome, caminhoParental, descricao };
     if (dadosExtra && typeof dadosExtra === 'object') {
       Object.assign(body, dadosExtra);
