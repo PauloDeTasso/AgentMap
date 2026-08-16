@@ -273,8 +273,10 @@ export interface Tarefa {
   };
   datas: {
     criacao: string | null;
+    criadoEm: string | null;
     inicio: string | null;
     ultimaAtualizacao: string | null;
+    atualizadaEm: string | null;
     conclusao: string | null;
   };
 }
@@ -872,7 +874,7 @@ export interface Handoff {
   bloqueios: string[];
   observacoes: string | null;
   estado: EstadoHandoff;
-  datas: { criadaEm: string | null; aceitaEm: string | null; concluidaEm: string | null };
+  datas: { criadaEm: string | null; criacao: string | null; aceitaEm: string | null; concluidaEm: string | null };
 }
 
 export interface HandoffsRegistry {
@@ -957,7 +959,7 @@ export interface Sessao {
   contextoConsultado: Record<string, unknown>;
   registrosProduzidos: string[];
   estadoFinal: string;
-  datas: { inicio: string | null; fim: string | null };
+  datas: { inicio: string | null; criadoEm: string | null; fim: string | null };
 }
 
 export interface SessoesRegistry {
@@ -1039,7 +1041,7 @@ export interface Evento {
   referenciaId: string;
   mensagem: string;
   estado: EstadoEvento;
-  datas: { criadoEm: string | null; consumidoEm: string | null };
+  datas: { criadoEm: string | null; criacao: string | null; consumidoEm: string | null };
 }
 
 export interface EventosRegistry {

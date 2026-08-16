@@ -44,7 +44,7 @@ export const MODELO_TAREFA: Tarefa = {
     commit: ''
   },
   aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
-  datas: { criacao: null, inicio: null, ultimaAtualizacao: null, conclusao: null }
+  datas: { criacao: null, criadoEm: null, inicio: null, ultimaAtualizacao: null, atualizadaEm: null, conclusao: null }
 };
 
 export function criarTarefasRegistry(): TarefasRegistry {
@@ -84,7 +84,7 @@ export function criarTarefasRegistry(): TarefasRegistry {
           commit: ''
         },
         aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
-        datas: { criacao: hoje(), inicio: null, ultimaAtualizacao: hoje(), conclusao: null }
+        datas: { criacao: hoje(), criadoEm: hoje(), inicio: null, ultimaAtualizacao: hoje(), atualizadaEm: hoje(), conclusao: null }
       },
       {
         id: 'TAR-2026-00002',
@@ -120,7 +120,7 @@ export function criarTarefasRegistry(): TarefasRegistry {
           commit: ''
         },
         aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
-        datas: { criacao: hoje(), inicio: null, ultimaAtualizacao: hoje(), conclusao: null }
+        datas: { criacao: hoje(), criadoEm: hoje(), inicio: null, ultimaAtualizacao: hoje(), atualizadaEm: hoje(), conclusao: null }
       },
       {
         id: 'TAR-2026-00003',
@@ -156,7 +156,7 @@ export function criarTarefasRegistry(): TarefasRegistry {
           commit: ''
         },
         aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
-        datas: { criacao: hoje(), inicio: null, ultimaAtualizacao: hoje(), conclusao: null }
+        datas: { criacao: hoje(), criadoEm: hoje(), inicio: null, ultimaAtualizacao: hoje(), atualizadaEm: hoje(), conclusao: null }
       },
       {
         id: 'TAR-2026-00004',
@@ -192,7 +192,7 @@ export function criarTarefasRegistry(): TarefasRegistry {
           commit: ''
         },
         aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
-        datas: { criacao: hoje(), inicio: null, ultimaAtualizacao: hoje(), conclusao: null }
+        datas: { criacao: hoje(), criadoEm: hoje(), inicio: null, ultimaAtualizacao: hoje(), atualizadaEm: hoje(), conclusao: null }
       }
     ],
     estatisticas: {

@@ -84,7 +84,7 @@ export class EventoService {
       referenciaId: dados.referenciaId || '',
       mensagem: dados.mensagem || '',
       estado: dados.estado || 'PENDENTE',
-      datas: { criadoEm: hoje, consumidoEm: null }
+      datas: { criadoEm: hoje, criacao: hoje, consumidoEm: null }
     };
 
     const validation = this.validator.validar('evento', evento);
