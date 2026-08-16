@@ -2,6 +2,7 @@
 import * as path from 'path';
 import { ProjetoService } from '../servicios/ProjetoService';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
+import { TempCleanupService } from '../servicios/TempCleanupService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
 import { criarProjetoRouter } from './projetos';
 import { criarAgenteRouter } from './agentes';
@@ -35,8 +36,9 @@ import { criarMonitoramentoRouter } from './monitoramento';
 import { criarInstanciaRouter } from './instancias';
 import { criarOrquestradorRouter } from './orquestrador';
 import { criarObservabilidadeRouter } from './observabilidade';
+import { criarTempRouter } from './temp';
 
-export function setupRotas(projetoService: ProjetoService, monitoramento: MonitoramentoService): Router {
+export function setupRotas(projetoService: ProjetoService, monitoramento: MonitoramentoService, cleanupService: TempCleanupService): Router {
   const router = Router();
 
   router.get('/api/status', (_req: Request, res: Response) => {
@@ -44,6 +46,8 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
   });
 
   router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
+
+  router.use('/api/temp', criarTempRouter(cleanupService));
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 

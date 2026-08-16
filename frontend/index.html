@@ -12,6 +12,7 @@
       <h1 class="header__titulo">Gerenciador Local de Agentes de IA</h1>
       <div class="header__status" id="status-api">🔴 Desconectado</div>
       <a class="btn btn--small" href="./monitoramento.html" style="text-decoration:none;color:inherit;">Monitoramento</a>
+      <button class="btn btn--small btn--ghost" id="btn-limpar-temp" title="Limpar arquivos temporários">🧹 Limpar Temp</button>
     </div>
   </header>
 
@@ -663,6 +664,18 @@
       <div class="form__acoes">
         <button class="btn btn--primario" id="confirmacao-btn-ok">Confirmar</button>
         <button class="btn btn--ghost" type="button" onclick="hideModal('modal-confirmacao')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Resultado Limpeza -->
+  <div class="modal" id="modal-limpeza" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-limpeza')">&times;</button>
+      <h3 class="modal__titulo">Limpeza de Arquivos Temporários</h3>
+      <div id="limpeza-corpo" style="margin-bottom:12px;"></div>
+      <div class="form__acoes">
+        <button class="btn btn--primario" type="button" onclick="hideModal('modal-limpeza')">Fechar</button>
       </div>
     </div>
   </div>

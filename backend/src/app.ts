@@ -10,6 +10,7 @@ import { httpRequestMiddleware } from './observability/http-tracing';
 import { MonitoramentoService } from './servicios/MonitoramentoService';
 import { FileService } from './arquivos/FileService';
 import { AuditoriaService } from './servicios/AuditoriaService';
+import { TempCleanupService } from './servicios/TempCleanupService';
 
 function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -71,7 +72,7 @@ export function createApp(): Application {
     }
   }));
 
-  app.use('/', setupRotas(projetoService, new MonitoramentoService(new FileService(path.resolve(__dirname, '..', '..')), new AuditoriaService(new FileService(path.resolve(__dirname, '..', '..'))), validator)));
+  app.use('/', setupRotas(projetoService, new MonitoramentoService(new FileService(path.resolve(__dirname, '..', '..')), new AuditoriaService(new FileService(path.resolve(__dirname, '..', '..'))), validator), new TempCleanupService(path.resolve(__dirname, '..', '..'))));
 
   app.use('/esquemas', express.static(esquemasPath));
 

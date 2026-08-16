@@ -3016,3 +3016,35 @@ const impactoCheckboxContainer = document.getElementById('solicitacao-impactos-c
 if (impactoCheckboxContainer) {
   impactoCheckboxContainer.addEventListener('change', atualizarImpactosHidden);
 }
+
+async function limparTemp() {
+  const modal = document.getElementById('modal-limpeza');
+  const corpo = document.getElementById('limpeza-corpo');
+  if (!modal || !corpo) return;
+
+  try {
+    const res = await api.post('/temp/limpar', { olderThanDays: 7 });
+    if (res.sucesso) {
+      const dados = res.dados || {};
+      const lista = (dados.removed || []).map((item) => `• ${escapeHtml(item)}`).join('<br>');
+      const erros = (dados.errors || []).map((item) => `• ${escapeHtml(item)}`).join('<br>');
+      corpo.innerHTML = `
+        <p><strong>Arquivos removidos:</strong> ${dados.removed?.length || 0}</p>
+        <p><strong>Espaço liberado:</strong> ${escapeHtml(dados.tamanhoLiberadoFormatado || '-')}</p>
+        ${lista ? `<div style="margin-top:8px; max-height:200px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${lista}</div>` : ''}
+        ${erros ? `<p style="margin-top:8px; color:#ff9e9e;">Erros:<br>${erros}</p>` : ''}
+      `;
+    } else {
+      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(res.erro || 'Falha ao limpar temporários')}</p>`;
+    }
+  } catch (err) {
+    corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(err?.message || err)}</p>`;
+  } finally {
+    showModal('modal-limpeza');
+  }
+}
+
+const btnLimparTemp = document.getElementById('btn-limpar-temp');
+if (btnLimparTemp) {
+  btnLimparTemp.addEventListener('click', limparTemp);
+}

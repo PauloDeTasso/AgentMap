@@ -50,6 +50,13 @@ class ApiClient {
     return this.request('/status');
   }
 
+  async post(endpoint, body) {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+  }
+
   async listarProjetos() {
     return this.request('/projetos');
   }
