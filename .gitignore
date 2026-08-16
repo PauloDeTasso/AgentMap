@@ -250,6 +250,8 @@ memoria-local/
 test-results/
 test-output/
 
+.playwright-mcp/
+
 # ==========================================
 
 # ARQUIVOS DE SISTEMA
