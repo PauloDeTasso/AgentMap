@@ -62,7 +62,7 @@ export class SessaoService {
       contextoConsultado: dados.contextoConsultado || {},
       registrosProduzidos: dados.registrosProduzidos || [],
       estadoFinal: dados.estadoFinal || '',
-      datas: { inicio: hoje, fim: null }
+      datas: { inicio: hoje, criadoEm: hoje, fim: null }
     };
 
     const validation = this.validator.validar('sessao', sessao);
@@ -83,6 +83,11 @@ export class SessaoService {
       const sessao = result.dados!;
       sessao.datas.fim = new Date().toISOString();
       this.fs.escreverJson(this.getSessaoPath(id), sessao, { backup: true });
+      const registryResult = this.carregarRegistry();
+      if (registryResult.sucesso && registryResult.dados) {
+        registryResult.dados.sessoes = registryResult.dados.sessoes.map((s) => (s.id === id ? sessao : s));
+        this.salvarRegistry(registryResult.dados);
+      }
       this.auditoria.registrar('SESSAO_FINALIZADA', `Sessão '${id}' finalizada.`, { sessaoId: id });
     }
     return result;

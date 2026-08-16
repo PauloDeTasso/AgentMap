@@ -59,9 +59,9 @@ export class IntegridadeService {
     }
 
     const projetosSet = new Set<string>();
-    const projetosRes = this.fs.lerJson<{ projetos: { id: string }[] }>(path.win32.join('.ia', 'configuracao', 'projetos.json'));
+    const projetosRes = this.fs.lerJson<{ id: string }>(path.win32.join('.ia', 'configuracao', 'projeto.json'));
     if (projetosRes.sucesso && projetosRes.dados) {
-      projetosRes.dados.projetos.forEach((p) => projetosSet.add(p.id));
+      projetosSet.add(projetosRes.dados.id);
     }
 
     const alvoIdSet = new Set<string>([

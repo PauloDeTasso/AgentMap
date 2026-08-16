@@ -53,6 +53,14 @@ export class ArtefatoService {
     return { sucesso: true, dados: result.dados.artefatos };
   }
 
+  listarPorTarefa(tarefaId: string): ResultadoOperacao<Artefato[]> {
+    const todos = this.listar();
+    if (!todos.sucesso || !todos.dados) {
+      return todos;
+    }
+    return { sucesso: true, dados: todos.dados.filter((a) => a.tarefaId === tarefaId) };
+  }
+
   obter(id: string): ResultadoOperacao<Artefato> {
     const result = this.fs.lerJson<Artefato>(this.getArtefatoPath(id));
     if (!result.sucesso || !result.dados) {

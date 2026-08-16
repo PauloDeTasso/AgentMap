@@ -98,7 +98,7 @@ export class HandoffService {
       bloqueios: dados.bloqueios || [],
       observacoes: dados.observacoes || null,
       estado: dados.estado || 'PENDENTE',
-      datas: { criadaEm: hoje, aceitaEm: null, concluidaEm: null }
+      datas: { criadaEm: hoje, criacao: hoje, aceitaEm: null, concluidaEm: null }
     };
 
     const validation = this.validator.validar('handoff', handoff);
@@ -154,14 +154,24 @@ export class HandoffService {
       this.salvarRegistry(registryResult.dados);
     }
 
-    if (atualizado.estado === 'ACEITO' && !existente.dados.datas.aceitaEm) {
-      atualizado.datas.aceitaEm = hoje;
-      this.fs.escreverJson(this.getHandoffPath(id), atualizado, { backup: true });
-    }
-    if (atualizado.estado === 'CONCLUIDO' && !existente.dados.datas.concluidaEm) {
-      atualizado.datas.concluidaEm = hoje;
-      this.fs.escreverJson(this.getHandoffPath(id), atualizado, { backup: true });
-    }
+     if (atualizado.estado === 'ACEITO' && !existente.dados.datas.aceitaEm) {
+       atualizado.datas.aceitaEm = hoje;
+       this.fs.escreverJson(this.getHandoffPath(id), atualizado, { backup: true });
+       const registryResult = this.carregarRegistry();
+       if (registryResult.sucesso && registryResult.dados) {
+         registryResult.dados.handoffs = registryResult.dados.handoffs.map((h) => (h.id === id ? atualizado : h));
+         this.salvarRegistry(registryResult.dados);
+       }
+     }
+     if (atualizado.estado === 'CONCLUIDO' && !existente.dados.datas.concluidaEm) {
+       atualizado.datas.concluidaEm = hoje;
+       this.fs.escreverJson(this.getHandoffPath(id), atualizado, { backup: true });
+       const registryResult = this.carregarRegistry();
+       if (registryResult.sucesso && registryResult.dados) {
+         registryResult.dados.handoffs = registryResult.dados.handoffs.map((h) => (h.id === id ? atualizado : h));
+         this.salvarRegistry(registryResult.dados);
+       }
+     }
 
     if (this.eventoService && dados.estado && dados.estado !== existente.dados.estado) {
       if (dados.estado === 'ACEITO') {

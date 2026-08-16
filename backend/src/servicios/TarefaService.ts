@@ -152,7 +152,7 @@ export class TarefaService {
       tags: dados.tags || [],
       resultado: { resumo: '', arquivosAlterados: [], testesExecutados: [], testesAprovados: [], riscosEncontrados: [], pendencias: [], observacoes: '', commit: '' },
       aprovacao: { necessaria: false, estado: 'nao_solicitada', aprovador: '', data: null, observacao: '' },
-      datas: { criacao: hoje, inicio: null, ultimaAtualizacao: hoje, conclusao: null }
+      datas: { criacao: hoje, criadoEm: hoje, inicio: null, ultimaAtualizacao: hoje, atualizadaEm: hoje, conclusao: null }
     };
 
     const validation = this.validator.validar('tarefa', tarefa);
@@ -259,18 +259,37 @@ export class TarefaService {
    }
 
    atualizar(id: string, dados: Partial<Tarefa>): ResultadoOperacao<Tarefa> {
-     const result = this.obter(id);
-     if (!result.sucesso || !result.dados) {
-      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
-    }
-    const tarefa = { ...result.dados, ...dados, datas: { ...result.dados.datas, ultimaAtualizacao: new Date().toISOString() } };
-    const saveResult = this.saveTarefa(tarefa);
-    if (!saveResult.sucesso) {
-      return saveResult;
-    }
-    this.auditoria.registrar('ARQUIVO_ALTERADO', `Tarefa '${tarefa.id}' atualizada.`, { tarefaId: tarefa.id });
-    return { sucesso: true, dados: tarefa };
-  }
+      const result = this.obter(id);
+      if (!result.sucesso || !result.dados) {
+       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+     }
+
+     if (dados.estado && dados.estado !== result.dados.estado) {
+       const estadoResult = this.alterarEstado(id, dados.estado);
+       if (!estadoResult.sucesso) {
+         return estadoResult;
+       }
+       const tarefaAtualizada = estadoResult.dados!;
+       const restante = { ...dados };
+       delete restante.estado;
+       if (Object.keys(restante).length > 0) {
+         const mergeResult = this.atualizar(id, restante);
+         if (!mergeResult.sucesso) {
+           return mergeResult;
+         }
+         return { sucesso: true, dados: mergeResult.dados! };
+       }
+       return { sucesso: true, dados: tarefaAtualizada };
+     }
+
+     const tarefa = { ...result.dados, ...dados, datas: { ...result.dados.datas, ultimaAtualizacao: new Date().toISOString(), atualizadaEm: new Date().toISOString() } };
+     const saveResult = this.saveTarefa(tarefa);
+     if (!saveResult.sucesso) {
+       return saveResult;
+     }
+     this.auditoria.registrar('ARQUIVO_ALTERADO', `Tarefa '${tarefa.id}' atualizada.`, { tarefaId: tarefa.id });
+     return { sucesso: true, dados: tarefa };
+   }
 
   private getExecucaoRegistryPath(): string {
     return path.win32.join('.ia', 'execucoes', 'execucoes.json');
