@@ -2,7 +2,9 @@
 
 ## Visão Geral
 
-O AgentMap expõe suas funcionalidades através do Model Context Protocol (MCP), um padrão aberto para comunicação entre LLMs e ferramentas externas.
+O AgentMap disponibiliza suas funcionalidades através do Model Context Protocol (MCP), um padrão aberto para comunicação entre modelos de linguagem e ferramentas externas.
+
+Esta especificação descreve a versão estável do protocolo, atualmente em produção.
 
 ## Transporte
 
@@ -256,16 +258,16 @@ Eventos de mudança são agrupados por URI em janela de 100ms. Um burst de múlt
 
 ## Autenticação e endpoints de serviço
 
-O MCP server roda via STDIO e não exige header HTTP. A API REST do AgentMap roda localmente sem autenticação obrigatória.
+O servidor MCP opera via STDIO e não requer headers HTTP. A API REST do AgentMap está disponível localmente sem autenticação obrigatória.
 
-CORS está configurado para origins de desenvolvimento local.
+CORS está configurado para origins locais aprovadas.
 
 ## Eventos flexíveis
 
 Além das tools MCP, o AgentMap oferece endpoints REST para eventos:
 
 - `POST /api/eventos` — eventos do sistema (validação rigorosa)
-- `POST /api/eventos/custom` — eventos genéricos para debugging e integrações
+- `POST /api/eventos/custom` — eventos genéricos para integrações e monitoramento
 - `PUT /api/eventos/:id/consumir` — marca evento como processado
 
 ## Temporários

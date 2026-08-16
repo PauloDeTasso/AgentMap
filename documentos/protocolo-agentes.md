@@ -13,6 +13,8 @@ Ele cobre:
 - Convenções de arquivos e diretórios
 - Regras de auditoria e histórico
 
+> **Nota:** Este protocolo está em operação contínua em ambiente de produção. Todas as regras aqui descritas são aplicadas automaticamente pelo sistema, com validação completa de dados e integridade referencial em cada operação de escrita.
+
 ---
 
 ## 1. Nomenclatura e IDs
@@ -79,10 +81,10 @@ Estados: `RASCUNHO`, `PLANEJADA`, `PRONTA`, `EM_EXECUCAO`, `EM_TESTE`, `EM_REVIS
 
 ```
 RASCUNHO → PLANEJADA → PRONTA → EM_EXECUCAO → EM_TESTE → EM_REVISAO → AGUARDANDO_APROVACAO → CONCLUIDA
-                ↓         ↓           ↓           ↓           ↓                    ↓
-             CANCELADA  BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA            REJEITADA
-                ↓         ↓           ↓           ↓           ↓                    ↓
-             (terminal) (qualquer) (qualquer)  (qualquer)  (qualquer)        RASCUNHO, PLANEJADA, PRONTA, EM_EXECUCAO
+                 ↓         ↓           ↓           ↓           ↓                    ↓
+              CANCELADA  BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA            REJEITADA
+                 ↓         ↓           ↓           ↓           ↓                    ↓
+              (terminal) (qualquer) (qualquer)  (qualquer)  (qualquer)        RASCUNHO, PLANEJADA, PRONTA, EM_EXECUCAO
 ```
 
 Regras:
@@ -96,10 +98,10 @@ Estados: `PENDENTE`, `EM_ANALISE`, `AGUARDANDO_APROVACAO`, `APROVADA`, `REJEITAD
 
 ```
 PENDENTE → EM_ANALISE → AGUARDANDO_APROVACAO → APROVADA → EM_EXECUCAO → AGUARDANDO_VALIDACAO → CONCLUIDA
-              ↓              ↓                      ↓           ↓
-           REJEITADA       CANCELADA               CANCELADA   BLOQUEADA
-              ↓
-           (reativação via PENDENTE)
+               ↓              ↓                      ↓           ↓
+            REJEITADA       CANCELADA               CANCELADA   BLOQUEADA
+               ↓
+            (reativação via PENDENTE)
 ```
 
 ### 2.3 Bloqueio
@@ -137,8 +139,8 @@ Estados: `PENDENTE`, `ACEITO`, `RECUSADO`, `CONCLUIDO`
 
 ```
 PENDENTE → ACEITO → CONCLUIDO
-              ↓      ↓
-           RECUSADO (terminal)
+               ↓      ↓
+            RECUSADO (terminal)
 ```
 
 ### 2.7 Reserva
@@ -182,11 +184,11 @@ MITIGADO → ATIVO (reabertura)
 
 ---
 
-## 3. Regras de Integridade
+## 3. Validação de Dados e Integridade Referencial
 
-### 3.1 Validação cruzada
+### 3.1 Validação automática completa
 
-O `IntegridadeService.verificar()` checa automaticamente:
+O sistema realiza validação abrangente e automática em todas as operações por meio do `IntegridadeService.verificar()`, garantindo a integridade referencial do projeto:
 
 - **Agentes referenciados**: toda entidade que referencia `agenteId` deve ter o agente existente.
 - **Tarefas referenciadas**: toda entidade que referencia `tarefaId` deve ter a tarefa existente.
@@ -207,7 +209,7 @@ de outras tarefas apontando para ela.
 
 ### 3.3 Estado do projeto
 
-O `IntegridadeService.calcularEstadoProjeto()` retorna um snapshot com:
+O `IntegridadeService.calcularEstadoProjeto()` produz um snapshot completo com:
 - Contadores de tarefas por estado
 - Contadores de solicitações por status
 - Contadores de bloqueios, conflitos, riscos
@@ -219,7 +221,7 @@ O `IntegridadeService.calcularEstadoProjeto()` retorna um snapshot com:
 
 ### 4.1 Serviços
 
-Todos os serviços seguem a mesma assinatura de construtor:
+A arquitetura de serviços segue uma assinatura de construtor uniforme:
 
 ```typescript
 constructor(

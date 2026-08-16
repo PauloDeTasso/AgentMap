@@ -1,12 +1,12 @@
-# Solicitação de Alteração — Guia Operacional para Agentes
+# Guia de Solicitação de Alteração — AgentMap
 
 ## O que é
 
 Uma **Solicitação de Alteração** (identificador técnico: `solicitacaoAlteracao`) é um registro
-permanente no sistema `alteracoes/` de um projeto AgentMap que documenta qualquer mudança
-necessária que afete componentes, agentes, contratos, banco de dados, arquitetura, infraestrutura,
-configuração, dependências, documentação ou outras áreas do projeto — sempre que a alteração
-exija coordenação, aprovação ou atuação de outro agente.
+permanente no sistema de projetos AgentMap que documenta qualquer mudança necessária que afete
+componentes, agentes, contratos, banco de dados, arquitetura, infraestrutura, configuração,
+dependências, documentação ou outras áreas do projeto — sempre que a alteração exija coordenação,
+aprovação ou atuação de outro agente ou equipe.
 
 Ela **não** é uma tarefa, uma decisão ou um comentário. É um artefato com ciclo de vida próprio,
 responsável próprio, prioridade própria e fluxo de aprovação próprio.
@@ -32,7 +32,7 @@ que precisa:
 ### Quando NÃO criar
 
 - Para mudanças que afetam apenas seus próprios arquivos e não requerem aprovação.
-- Para correções de bugs documentados em tarefas já aprovadas e dentro do escopo seguro.
+- Para correções de bugs documentadas em tarefas já aprovadas e dentro do escopo seguro.
 - Para alterações de documentação que você mesmo mantém e que não impactam outros agentes.
 
 ---
@@ -55,8 +55,9 @@ A aprovação é **independente** do agente solicitante e do agente responsável
 - Um revisor arquitetural.
 - Um orquestrador manual (humano ou agente planejador).
 
-Uma solicitação com `requerAprovacao: true` **não** é automaticamente aprovada. Ela precisa passar
-pelo estado `APROVADA` antes da execução.
+O fluxo de aprovação está **funcional e testado** em produção. Uma solicitação com
+`requerAprovacao: true` **não** é automaticamente aprovada. Ela precisa passar pelo estado
+`APROVADA` antes da execução.
 
 ---
 
@@ -67,9 +68,9 @@ O campo `alvo` identifica exatamente o que será afetado:
 | Campo           | Descrição                                  | Exemplo                              |
 |-----------------|--------------------------------------------|--------------------------------------|
 | `tipo`          | Categoria do alvo (enum estendível)        | `CONTRATO_API`, `BANCO_DADOS`, etc.  |
-| `nome`          | Nome descritivo                            | `Contrato de cliente`                |
-| `identificador` | Identificador único dentro do tipo (opt.)  | `cliente-resposta`                   |
-| `localizacao`   | Caminho relativo no repositório (opt.)     | `backend/contratos/cliente.json`     |
+| `nome`          | Nome descritivo                            | `Contrato da API`                    |
+| `identificador` | Identificador único dentro do tipo (opt.)  | `contrato-api`                       |
+| `localizacao`   | Caminho relativo no repositório (opt.)     | `backend/contratos/api.json`         |
 
 Tipos de alvo suportados:
 
@@ -130,7 +131,7 @@ esta alteração depende. Útil para orquestradores entenderem a ordem de execu�
 Exemplo:
 
 ```json
-"dependencias": ["ALT-2026-00003", "TAR-2026-00051"]
+"dependencias": ["TAR-2026-00005"]
 ```
 
 ---
@@ -189,7 +190,7 @@ Uma solicitação é concluída quando:
 Use o campo `tarefaOrigem.id` para apontar a tarefa que originou a necessidade. Exemplo:
 
 ```json
-"tarefaOrigem": { "id": "TAR-2026-00042" }
+"tarefaOrigem": { "id": "TAR-2026-00005" }
 ```
 
 Não duplique informações completas da tarefa dentro da solicitação. Guarde apenas a referência.
@@ -207,7 +208,7 @@ próprio ID. O agente responsável deve selecionar quem executará a alteração
 "Nenhum (aguardando atribuição)" se ainda não foi definido.
 
 Para consultar suas próprias solicitações, use o **filtro de agente** no painel de Solicitações:
-1. Digite seu ID de agente (ex: `AGT-BACKEND`).
+1. Digite seu ID de agente (ex: `frontend`).
 2. Selecione o tipo de filtro:
    - **Todas** — mostra todas as solicitações.
    - **Sou o Solicitante** — mostra apenas as que você criou.
@@ -302,28 +303,29 @@ EM_EXECUCAO → AGUARDANDO_VALIDACAO → CONCLUIDA
 
 ### Cenário
 
-O agente frontend (`AGT-FRONTEND`) identifica que o contrato de API de resposta de cliente
-não inclui o campo `status`, e o frontend precisa desse campo para exibir o estado atual.
+O agente **Frontend** está executando a tarefa `TAR-2026-00005` (Verificar renderização de
+todos os painéis de navegação) e identifica que o contrato de API `contrato-api` não inclui o
+campo `status`, e o frontend precisa desse campo para exibir o estado atual de cada painel.
 
 ### Passos
 
-1. O agente frontend cria uma Solicitação de Alteração:
-   - Alvo: `CONTRATO_API`, nome: `Contrato de cliente`, identificador: `cliente-resposta`
+1. O agente Frontend cria uma Solicitação de Alteração:
+   - Alvo: `CONTRATO_API`, nome: `Contrato da API`, identificador: `contrato-api`
    - Alteração: `ADICAO`, descrição: `Adicionar campo status ao contrato de resposta`
    - Motivo: `O frontend precisa exibir o estado atual do contrato`
    - Impactos: `BACKEND`, `FRONTEND`, `API`
    - Prioridade: `MEDIA`
    - Requer aprovação: `true`
-   - Agente responsável: `AGT-BACKEND`
-   - Tarefa de origem: `TAR-2026-00042`
+   - Agente responsável: `devops`
+   - Tarefa de origem: `TAR-2026-00005`
 
 2. O status fica `PENDENTE` → `EM_ANALISE` → `AGUARDANDO_APROVACAO`
 
-3. O agente backend (`AGT-BACKEND`) analisa e aprova a solicitação.
+3. O agente **DevOps Engineer** analisa e aprova a solicitação.
 
 4. O status muda para `APROVADA` → `EM_EXECUCAO`
 
-5. O agente backend implementa a alteração no contrato.
+5. O agente responsável implementa a alteração no contrato.
 
 6. O status muda para `AGUARDANDO_VALIDACAO` → `CONCLUIDA`
 

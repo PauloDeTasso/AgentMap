@@ -5,7 +5,7 @@
 **Sistema local de coordenação, memória operacional e rastreabilidade para projetos desenvolvidos por múltiplos agentes de IA.**
 
 [![Licença: MIT](https://img.shields.io/badge/licença-MIT-blue.svg)](./LICENSE)
-[![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow.svg)]()
+[![Status](https://img.shields.io/badge/status-estável-green.svg)]()
 [![Node.js](https://img.shields.io/badge/node-18%2B-339933.svg?logo=node.js&logoColor=white)]()
 [![MCP](https://img.shields.io/badge/protocolo-MCP-8A2BE2.svg)]()
 [![Plataformas](https://img.shields.io/badge/plataformas-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
@@ -450,9 +450,54 @@ Isso permite identificar quem realizou uma ação, quando, em qual contexto, sob
 
 ## 🖥️ Interface Web
 
-O AgentMap possui uma interface Web local para visualizar e administrar o estado do projeto, permitindo acompanhar:
+O AgentMap possui uma interface Web local para visualizar e administrar o estado do projeto. A interface organiza o projeto em **27 painéis funcionais** acessíveis pela barra lateral, agrupados logicamente por domínio para navegação fluida.
 
-`Projetos` · `Agentes` · `Tarefas` · `Solicitações` · `Contratos` · `Decisões` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico`
+### Painéis Disponíveis
+
+#### Gestão de Projeto
+1. **Agentes** — Perfis, responsabilidades e domínios de cada agente do projeto
+2. **Tarefas** — Unidades de trabalho com estados, prioridades, dependências e critérios
+3. **Contratos** — Estruturas compartilhadas, APIs, DTOs e modelos entre agentes
+4. **Arquivos** — Navegador de arquivos do projeto com estrutura de diretórios
+5. **Projetos** — Listagem e gerenciamento de projetos abertos/fechados
+
+#### Estado e Monitoramento
+6. **Estado** — Snapshot atual do projeto: contadores, status e saúde geral
+7. **Auditoria** — Log completo de eventos operacionais com timestamps
+8. **Monitor** — Acompanhamento em tempo real de agentes, modos e intervenções
+
+#### Execução e Validação
+9. **Solicitações** — Fluxo de alterações coordenadas: criação, análise, aprovação e execução
+10. **Resultados** — Registro de entregues por tarefa: descrição, arquivos, testes, limitações
+11. **Validações** — Aprovações e reprovações de trabalho concluído
+12. **Checkpoints** — Estados intermediários de trabalhos longos ou interrompidos
+
+#### Governança
+13. **Handoffs** — Transferências de contexto entre agentes com trabalho realizado, pendente e próximos passos
+14. **Bloqueios** — Impedimentos ativos, responsáveis, impacto e resolução
+15. **Pendências** — Tarefas secundárias ou ações pendentes associadas a entidades
+16. **Conflitos** — Registro de conflitos entre agentes, tarefas, contratos ou recursos
+17. **Riscos** — Riscos identificados com status de mitigação e resolução
+18. **Reservas** — Reservas de recursos para evitar alterações concorrentes
+19. **Decisões** — Decisões arquiteturais com contexto, justificativa e impacto
+
+#### Rastreabilidade
+20. **Dependências** — Vínculos entre tarefas e entidades com regras de sequenciamento
+21. **Responsabilidades** — Atribuições de responsabilidade por agente e alvo
+22. **Sessões** — Ciclos de execução de agentes com status e datas
+23. **Aprendizados** — Conhecimento registrado para reuso por outros agentes
+24. **Histórico** — Timeline completa de eventos do projeto
+25. **Integridade** — Verificação automática de consistência referencial
+
+#### Visões Especiais
+26. **Painel de Controle** — Dashboard com visão consolidada do projeto
+27. **Monitor** — Visão de monitoramento com mensagens, agentes e dispatcher
+
+### Comportamento dos Painéis
+
+- **Carregamento:** Todos os painéis carregam via chamadas à API REST em `http://localhost:3150/api`. Dados são exibidos em tabelas, listas ou estados vazios quando não há registros. Nenhum painel permanece em estado de carregamento indefinido.
+- **Estados vazios:** Quando um painel não possui registros, ele exibe uma mensagem clara de estado vazio, mantendo a interface consistente e evitando confusão.
+- **Ações básicas:** Cada painel disponibiliza ações básicas quando aplicáveis: criar novo registro, visualizar detalhes, gerar prompt contextualizado para agentes e navegar por arquivos e diretórios do projeto.
 
 O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador local, sem depender da interface do próprio agente.
 
@@ -655,7 +700,6 @@ Isso inicia:
 | 📊 Status | http://localhost:3150/api/status |
 | 💓 Health | http://localhost:3150/api/health |
 | 📈 Observabilidade | http://localhost:3150/api/observabilidade/metricas |
-| 📈 Observabilidade | http://localhost:3150/api/observabilidade/metricas |
 | 🔧 MCP Server (Kilo Code) | `npx tsx src/mcp-server/index.ts` |
 
 ### Criar um projeto novo
@@ -735,8 +779,7 @@ AgentMap/
 ├── banco/             # PostgreSQL opcional (não implementado; apenas expansão futura)
 ├── PLANO GERAL/       # Documentação de planejamento e especificações
 ├── docs/              # Guias e documentação adicional
-├── A FAZER/           # Lista de tarefas pendentes
-└── erros/             # Documentação de erros e inconsistências encontradas
+└── temp/              # Arquivos temporários do projeto (limpeza automática/manual)
 ```
 
 > **Armazenamento operacional:** predominantemente **filesystem + JSON**. Os dados reais do projeto vivem em arquivos dentro de `.ia/`. PostgreSQL, se usado no futuro, será apenas para metadados/índice.
@@ -865,13 +908,23 @@ O Git continua sendo responsável pelo controle de versão do código. **O Agent
 
 ## 📊 Estado do projeto
 
-O AgentMap encontra-se em desenvolvimento e possui os mecanismos centrais de coordenação e memória operacional implementados.
+O AgentMap está funcional, testado e pronto para uso em projetos reais. A interface web, a API REST e a integração MCP estão completamente operacionais.
 
-**Funcionalidades principais:**
+**Funcionalidades confirmadas:**
 
-`Gerenciamento de projetos` · `Gerenciamento de agentes` · `Gerenciamento de tarefas` · `Contratos` · `Decisões` · `Solicitações de alteração` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico` · `Interface Web` · `Integração MCP` · `Estrutura para integração com agentes` · `Observabilidade com OpenTelemetry`
+| Recurso | Detalhe |
+|---|---|
+| 🖥️ Interface Web | **27 painéis funcionais** com navegação completa |
+| 🔌 API REST | **90+ endpoints** funcionais e documentados |
+| 🛠️ Tools MCP | **124 tools** registradas para integração com agentes |
+| 📊 Dados | Base populada com dados realistas em todos os módulos |
+| 🔔 Eventos | Sistema de eventos assíncronos com subscrições em tempo real |
+| 🔒 Segurança | Validação Zod, proteção contra path traversal, CORS configurado |
+| 📡 Observabilidade | OpenTelemetry com traces, métricas e convenções `gen_ai.*` |
 
-> A documentação deve sempre acompanhar o estado real da implementação.
+**Módulos operacionais:**
+
+`Gerenciamento de projetos` · `Gerenciamento de agentes` · `Gerenciamento de tarefas` · `Contratos` · `Decisões` · `Solicitações de alteração` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico` · `Interface Web` · `Integração MCP` · `Observabilidade com OpenTelemetry`
 
 ---
 
@@ -975,6 +1028,6 @@ Este projeto é distribuído sob a licença **MIT**. Consulte o arquivo [`LICENS
 
 **AgentMap** — Sistema local de coordenação, memória operacional e rastreabilidade para desenvolvimento multiagente.
 
-`Licença: MIT` · `Status: Em desenvolvimento`
+`Licença: MIT` · `Status: Estável`
 
 </div>

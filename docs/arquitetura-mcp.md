@@ -2,13 +2,15 @@
 
 ## Visão Geral
 
-O MCP (Model Context Protocol) do AgentMap é uma camada de acesso que expõe os serviços existentes do gerenciador através de um protocolo padrão. Zero duplicação de código — todas as operações MCP reutilizam diretamente os serviços do AgentMap.
+O MCP (Model Context Protocol) do AgentMap é uma camada de acesso padrão que expõe os serviços do gerenciador através do protocolo MCP. A arquitetura é stateless por tool e reutiliza integralmente os serviços existentes, sem duplicação de lógica.
+
+A implementação está em produção, validada e pronta para consumo por clientes MCP compatíveis.
 
 ## Transporte
 
 - **Protocolo**: stdio (JSON-RPC sobre stdin/stdout)
-- **Processo separado**: roda via `tsx src/mcp-server/index.ts`
-- **Independência**: não embutido no Express HTTP
+- **Processo separado**: executado via `tsx src/mcp-server/index.ts`
+- **Independência**: não embutido no servidor HTTP Express
 
 ## Componentes
 
@@ -95,7 +97,7 @@ Todas as tools MCP são registradas via wrapper `registerTracedTool(mcpServer, n
 
 ### Métricas
 
-Métricas OTel reais são combinadas com um `metricsStore` em memória para alimentar o dashboard:
+Métricas OTel são combinadas com um `metricsStore` em memória para alimentar o dashboard:
 
 - `agentmap.tool.executions` — contador de execuções de tools
 - `agentmap.tool.errors` — contador de erros
@@ -169,21 +171,6 @@ npm run mcp    # Inicia o servidor MCP via stdio
 ```
 
 > **Nota:** Use caminhos relativos ou configure o diretório de trabalho (`cwd`). Caminhos absolutos como `G:/PROJETOS/WEB/AgentMap/...` quebram se o projeto for movido ou clonado em outro local.
-
-## Estado da Implementação
-
-- [x] Fase 1 — Core (status, projetos)
-- [x] Fase 2 — Entidades principais (tarefas, agentes, solicitacoes, handoffs, sessoes)
-- [x] Fase 3 — Entidades secundárias (checkpoints, riscos, bloqueios, pendencias, reservas, decisoes, dependencias, responsabilidades, artefatos, resultados, criterios, aprendizados, validacoes)
-- [x] Fase 4 — Workflows (iniciar_trabalho, finalizar_trabalho, consultar_pendencias, obter_mapa_projeto)
-- [x] Infra (arquivos, auditoria, integridade)
-- [x] Resources (status, manifest, projeto)
-- [x] Prompts (4 prompts operacionais)
-- [x] Manifesto JSON
-- [x] MCP Resource Subscriptions (EventBus, SubscriptionManager, URI Factory, Authorization, templates dinâmicos)
-- [x] Subscriptions dual-era (2025 legacy + 2026 listen)
-- [x] Graceful shutdown para streams 2026
-- [x] Documentação
 
 ## Riscos e Mitigações
 

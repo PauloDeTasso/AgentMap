@@ -1,6 +1,8 @@
 # Referência de Tools MCP
 
-Este documento lista todas as tools MCP disponíveis no AgentMap, com seus parâmetros de entrada esperados. Use-o como guia de autoconhecimento para evitar erros de chamada.
+Este documento lista as 124 tools MCP disponíveis para integração com agentes externos via Model Context Protocol.
+
+> **Nota:** O AgentMap disponibiliza um conjunto completo de tools padronizadas para que agentes de IA possam interagir com projetos, tarefas, agentes, workflows, handoffs e demais entidades do gerenciador. Todas as operações seguem convenções consistentes de entrada, saída e validação.
 
 ## Convenções
 
@@ -271,16 +273,8 @@ Este documento lista todas as tools MCP disponíveis no AgentMap, com seus parâ
 
 | Tool | Descrição | Parâmetros |
 |---|---|---|
-| `agentmap_descobrir` | Lista capabilities, agents, docs, CLI, worktree e onboarding | `{}` |
+| `agentmap_descobrir` | Lista capabilities, agents, docs, CLI e onboarding | `{}` |
 | `agentmap_sugerir_fluxo` | Recomenda sequência de tools por objetivo | `{ "objetivo": string, "contexto"?: string }` |
-
-### Worktree / Paralelismo
-
-| Tool | Descrição | Parâmetros |
-|---|---|---|
-| `agentmap_tarefas_prontas_para_worktree` | Retorna tarefas sem dependência pendente | `{}` |
-| `agentmap_verificar_dependencias_pendentes` | Verifica se uma tarefa tem dependências pendentes | `{ "tarefaId": string }` |
-| `agentmap_abrir_worktree` | Integra com Agent Manager para criar worktree | `{ "tarefaId": string }` |
 
 ## Formato de chamada MCP
 

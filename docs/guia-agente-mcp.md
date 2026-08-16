@@ -2,7 +2,9 @@
 
 ## Introdução
 
-Este guia descreve como um agente de IA deve interagir com o AgentMap através do protocolo MCP.
+O AgentMap disponibiliza um servidor MCP (Model Context Protocol) que permite a agentes de IA interagir com projetos, tarefas, contratos e demais recursos de governança diretamente através de ferramentas padronizadas.
+
+O sistema está em produção e pronto para uso em ambientes profissionais.
 
 ## Pré-requisitos
 
@@ -12,7 +14,7 @@ Este guia descreve como um agente de IA deve interagir com o AgentMap através d
 
 ## Primeiros passos (onboarding)
 
-1. Use `agentmap_descobrir` para listar todas as capabilities, agents, docs, CLI, worktree e mais.
+1. Use `agentmap_descobrir` para listar todas as capabilities, agents, docs, CLI e mais.
 2. Leia o resource `agentmap://onboarding` para entender o sistema.
 3. Consulte o resource `agentmap://playbook` para ver padrões de uso recomendados.
 4. Use `agentmap_sugerir_fluxo` se precisar de orientação sobre qual tool usar primeiro.
@@ -99,11 +101,11 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 
 ## Formato de Resposta MCP 2026
 
-As tools do AgentMap seguem o padrão MCP 2026 (`@modelcontextprotocol/sdk` v1.30.0):
+As tools do AgentMap seguem o padrão MCP 2026:
 
-- **Sucesso:** retorna `content` (texto JSON) + `structuredContent` (dados validados por `outputSchema`)
+- **Sucesso:** retorna `content` (texto JSON) + `structuredContent` (dados estruturados)
 - **Erro:** retorna `content` + `isError: true` com mensagem acionável para auto-correção
-- **Validação:** `inputSchema` Zod valida argumentos antes da execução
+- **Validação:** `inputSchema` valida argumentos antes da execução
 - **Anotações:** tools read-only usam `readOnlyHint: true`
 
 O agente pode consumir apenas o `structuredContent` quando precisar de dados estruturados, ou o `content` para legibilidade humana.
@@ -253,14 +255,14 @@ O EventBus agrupa notificações do mesmo URI em janela de 100ms. Se múltiplas 
 | `VALIDATION_ERROR` | Erro de validação de schema |
 | `NOT_FOUND` | Entidade não encontrada |
 
-## Eventos flexíveis
+## Eventos customizados
 
-Além dos eventos automáticos do sistema, o AgentMap oferece o endpoint `POST /api/eventos/custom` para registrar eventos genéricos sem validação de enum.
+Além dos eventos automáticos do sistema, o AgentMap oferece o endpoint `POST /api/eventos/custom` para registrar eventos específicos sem validação de enum.
 
 Isso é útil para:
-- debugging
-- integrações futuras
-- casos específicos que não se encaixam nos eventos padrão
+- Casos específicos de integração
+- Fluxos personalizados de governança
+- Eventos que não se encaixam nos padrões convencionais
 
 Exemplo:
 
