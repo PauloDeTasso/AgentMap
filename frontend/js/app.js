@@ -500,26 +500,35 @@ function setupEventListeners() {
       let res;
       if (editId) {
         res = await api.atualizarProjeto(editId, { nome, descricao });
-        if (res.sucesso) {
-          const config = {
-            ambiente: $('projeto-ambiente').value,
-            versao: $('projeto-versao').value,
-            idioma: $('projeto-idioma').value,
-            fusoHorario: $('projeto-fuso').value,
-            proprietario: {
-              tipo: $('projeto-proprietario-tipo').value,
-              nome: $('projeto-proprietario-nome').value.trim()
-            },
-            objetivos: ($('projeto-objetivos').value || '').split('\n').map(s => s.trim()).filter(Boolean),
-            escopo: {
-              incluso: ($('projeto-escopo-incluso').value || '').split('\n').map(s => s.trim()).filter(Boolean),
-              excluido: ($('projeto-escopo-excluido').value || '').split('\n').map(s => s.trim()).filter(Boolean)
-            }
-          };
-          await api.atualizarConfiguracao(editId, config);
-          showToast(`Projeto '${nome}' atualizado!`, 'sucesso');
-          delete $('form-novo-projeto').dataset.editId;
+        if (!res.sucesso) {
+          showToast(res.erro || 'Erro ao atualizar projeto', 'erro');
+          restoreButton(btn);
+          return;
         }
+        const config = {
+          ambiente: $('projeto-ambiente').value,
+          versao: $('projeto-versao').value,
+          idioma: $('projeto-idioma').value,
+          fusoHorario: $('projeto-fuso').value,
+          proprietario: {
+            tipo: $('projeto-proprietario-tipo').value,
+            nome: $('projeto-proprietario-nome').value.trim()
+          },
+          objetivos: ($('projeto-objetivos').value || '').split('\n').map(s => s.trim()).filter(Boolean),
+          escopo: {
+            incluso: ($('projeto-escopo-incluso').value || '').split('\n').map(s => s.trim()).filter(Boolean),
+            excluido: ($('projeto-escopo-excluido').value || '').split('\n').map(s => s.trim()).filter(Boolean)
+          }
+        };
+        const configRes = await api.atualizarConfiguracao(editId, config);
+        if (!configRes.sucesso) {
+          showToast(configRes.erro || 'Erro ao atualizar configuração do projeto', 'erro');
+          restoreButton(btn);
+          return;
+        }
+        res = configRes;
+        showToast(`Projeto '${nome}' atualizado!`, 'sucesso');
+        delete $('form-novo-projeto').dataset.editId;
       } else {
         const objetivos = ($('projeto-objetivos').value || '').split('\n').map(s => s.trim()).filter(Boolean);
         const escopoIncluso = ($('projeto-escopo-incluso').value || '').split('\n').map(s => s.trim()).filter(Boolean);
