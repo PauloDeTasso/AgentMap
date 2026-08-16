@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_riscos_listar', {
+registerTracedTool(mcpServer, 'agentmap_riscos_listar', {
   description: 'Lista riscos.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_riscos_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_riscos_obter', {
+registerTracedTool(mcpServer, 'agentmap_riscos_obter', {
   description: 'Obtem um risco.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_riscos_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_riscos_criar', {
+registerTracedTool(mcpServer, 'agentmap_riscos_criar', {
   description: 'Cria um risco.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_riscos_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_riscos_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_riscos_atualizar', {
   description: 'Atualiza um risco.',
   inputSchema: z.object({ id: z.string() }).passthrough()
 }, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_riscos_atualizar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_riscos_excluir', {
+registerTracedTool(mcpServer, 'agentmap_riscos_excluir', {
   description: 'Exclui um risco.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

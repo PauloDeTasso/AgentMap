@@ -2,6 +2,7 @@ import { mcpServer, projetoService } from '../server';
 import { toMcpStructured, mcpError } from '../utils/helpers';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 const fluxos = {
@@ -42,7 +43,7 @@ const fluxos = {
   ]
 };
 
-mcpServer.registerTool('agentmap_sugerir_fluxo', {
+registerTracedTool(mcpServer, 'agentmap_sugerir_fluxo', {
   title: 'Sugerir Fluxo',
   description: 'Recomenda sequência de tools baseada no objetivo do agente.',
   inputSchema: z.object({

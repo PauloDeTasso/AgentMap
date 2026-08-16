@@ -3,6 +3,7 @@ import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 const handoffSchema = z.object({
@@ -27,7 +28,7 @@ const handoffSchema = z.object({
   })
 }).passthrough();
 
-mcpServer.registerTool('agentmap_handoffs_listar', {
+registerTracedTool(mcpServer, 'agentmap_handoffs_listar', {
   title: 'Listar Handoffs',
   description: 'Lista todos os handoffs do projeto.',
   inputSchema: z.object({ destino: z.string().optional() }),
@@ -45,7 +46,7 @@ mcpServer.registerTool('agentmap_handoffs_listar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_handoffs_obter', {
+registerTracedTool(mcpServer, 'agentmap_handoffs_obter', {
   title: 'Obter Handoff',
   description: 'Obtem um handoff pelo ID.',
   inputSchema: z.object({ id: z.string() }),
@@ -64,7 +65,7 @@ mcpServer.registerTool('agentmap_handoffs_obter', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_handoffs_criar', {
+registerTracedTool(mcpServer, 'agentmap_handoffs_criar', {
   title: 'Criar Handoff',
   description: 'Cria um novo handoff.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
@@ -80,7 +81,7 @@ mcpServer.registerTool('agentmap_handoffs_criar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_handoffs_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_handoffs_atualizar', {
   title: 'Atualizar Handoff',
   description: 'Atualiza um handoff existente.',
   inputSchema: z.object({ id: z.string() }).passthrough(),
@@ -99,7 +100,7 @@ mcpServer.registerTool('agentmap_handoffs_atualizar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_handoffs_excluir', {
+registerTracedTool(mcpServer, 'agentmap_handoffs_excluir', {
   title: 'Excluir Handoff',
   description: 'Exclui um handoff.',
   inputSchema: z.object({ id: z.string() }),

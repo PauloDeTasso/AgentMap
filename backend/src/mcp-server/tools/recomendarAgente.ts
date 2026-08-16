@@ -4,6 +4,7 @@ import { SchemaRecomendarAgente } from '../schemas/validacao';
 import { mapearAgente, mapearAgenteRegistro } from '../mapper/mapeadores';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { Tarefa } from '../../tipos';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 interface AgenteRecomendacao {
@@ -18,10 +19,8 @@ interface AgenteRecomendacao {
   atual: boolean;
 }
 
-mcpServer.registerTool(
-  'agentmap_recomendar_agente',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_recomendar_agente', {
+  description:
       'Recomenda agentes para uma tarefa com base em domínio e conhecimentos. Forneça tarefaId para extrair requisitos automaticamente, ou dominio + conhecimentos manualmente.',
     inputSchema: SchemaRecomendarAgente,
   },

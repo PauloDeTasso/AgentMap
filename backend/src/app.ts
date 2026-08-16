@@ -8,6 +8,7 @@ import { loadSettings } from './config';
 import { corsService } from './servicios/CorsService';
 import { authMiddleware, API_KEY } from './seguranca/auth';
 import { csrfMiddleware } from './seguranca/csrf';
+import { httpRequestMiddleware } from './observability/http-tracing';
 
 const PUBLIC_PATHS = new Set([
   '/api/status',
@@ -57,6 +58,7 @@ export function createApp(): Application {
   const settings = loadSettings();
 
   app.use(securityHeaders);
+  app.use(httpRequestMiddleware);
   app.use(corsService.getMiddleware());
   app.use(rateLimitMiddleware);
   app.use(express.json({ limit: '1mb' }));

@@ -3,6 +3,7 @@ import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 const agenteRegistroSchema = z.object({
@@ -66,7 +67,7 @@ const agentePerfilSchema = z.object({
   })
 }).passthrough();
 
-mcpServer.registerTool('agentmap_agentes_listar', {
+registerTracedTool(mcpServer, 'agentmap_agentes_listar', {
   title: 'Listar Agentes',
   description: 'Lista todos os agentes do projeto aberto.',
   inputSchema: z.object({}),
@@ -84,7 +85,7 @@ mcpServer.registerTool('agentmap_agentes_listar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_agentes_obter', {
+registerTracedTool(mcpServer, 'agentmap_agentes_obter', {
   title: 'Obter Agente',
   description: 'Obtém um agente pelo ID, incluindo perfil e registro.',
   inputSchema: z.object({ id: z.string() }),
@@ -103,7 +104,7 @@ mcpServer.registerTool('agentmap_agentes_obter', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_agentes_criar', {
+registerTracedTool(mcpServer, 'agentmap_agentes_criar', {
   title: 'Criar Agente',
   description: 'Cria um novo agente no projeto.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
@@ -119,7 +120,7 @@ mcpServer.registerTool('agentmap_agentes_criar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_agentes_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_agentes_atualizar', {
   title: 'Atualizar Agente',
   description: 'Atualiza um agente existente.',
   inputSchema: z.object({ id: z.string() }).passthrough(),
@@ -138,7 +139,7 @@ mcpServer.registerTool('agentmap_agentes_atualizar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_agentes_excluir', {
+registerTracedTool(mcpServer, 'agentmap_agentes_excluir', {
   title: 'Excluir Agente',
   description: 'Exclui um agente do projeto.',
   inputSchema: z.object({ id: z.string() }),

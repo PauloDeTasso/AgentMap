@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_sessoes_listar', {
+registerTracedTool(mcpServer, 'agentmap_sessoes_listar', {
   description: 'Lista todas as sessoes do projeto.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_sessoes_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_sessoes_obter', {
+registerTracedTool(mcpServer, 'agentmap_sessoes_obter', {
   description: 'Obtem uma sessao pelo ID.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_sessoes_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_sessoes_criar', {
+registerTracedTool(mcpServer, 'agentmap_sessoes_criar', {
   description: 'Cria uma nova sessao de trabalho.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_sessoes_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_sessoes_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_sessoes_atualizar', {
   description: 'Atualiza uma sessao existente.',
   inputSchema: z.object({ id: z.string() }).passthrough()
 }, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_sessoes_atualizar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_sessoes_finalizar', {
+registerTracedTool(mcpServer, 'agentmap_sessoes_finalizar', {
   description: 'Finaliza uma sessao de trabalho.',
   inputSchema: z.object({ id: z.string(), estadoFinal: z.string() })
 }, async ({ id, estadoFinal }: { id: string, estadoFinal: string }) => {
@@ -75,7 +76,7 @@ mcpServer.registerTool('agentmap_sessoes_finalizar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_sessoes_excluir', {
+registerTracedTool(mcpServer, 'agentmap_sessoes_excluir', {
   description: 'Exclui uma sessao.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

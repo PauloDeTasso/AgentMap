@@ -2,12 +2,11 @@ import { mcpServer, toMcpResult, toMcpData, projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaObterContextoTarefa } from '../schemas/validacao';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool(
-  'agentmap_obter_contexto_tarefa',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_obter_contexto_tarefa', {
+  description:
       'Monta o pacote de contexto completo para uma tarefa: identidade do projeto, contratos, dependências, decisões, arquivos relevantes e perfil do agente responsável.',
     inputSchema: SchemaObterContextoTarefa,
   },

@@ -3,6 +3,7 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 import { EstadoTarefa } from '../../tipos';
 
@@ -12,7 +13,7 @@ function isTerminal(estado: EstadoTarefa): boolean {
   return ESTADOS_TERMINAIS.includes(estado);
 }
 
-mcpServer.registerTool('agentmap_tarefas_prontas_para_worktree', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_prontas_para_worktree', {
   description: 'Retorna apenas tarefas sem dependência pendente, prontas para worktree.',
   inputSchema: z.object({})
 }, async () => {
@@ -40,7 +41,7 @@ mcpServer.registerTool('agentmap_tarefas_prontas_para_worktree', {
   return toMcpData(prontas);
 });
 
-mcpServer.registerTool('agentmap_verificar_dependencias_pendentes', {
+registerTracedTool(mcpServer, 'agentmap_verificar_dependencias_pendentes', {
   description: 'Verifica se uma tarefa tem dependências pendentes. Bloqueia se houver dependência não concluída.',
   inputSchema: z.object({ tarefaId: z.string() })
 }, async ({ tarefaId }: { tarefaId: string }) => {
@@ -86,7 +87,7 @@ mcpServer.registerTool('agentmap_verificar_dependencias_pendentes', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_abrir_worktree', {
+registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
   description: 'Integra com Agent Manager para criar worktree automaticamente para uma tarefa.',
   inputSchema: z.object({ tarefaId: z.string() })
 }, async ({ tarefaId }: { tarefaId: string }) => {

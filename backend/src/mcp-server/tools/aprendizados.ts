@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_aprendizados_listar', {
+registerTracedTool(mcpServer, 'agentmap_aprendizados_listar', {
   description: 'Lista aprendizados.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_aprendizados_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_aprendizados_obter', {
+registerTracedTool(mcpServer, 'agentmap_aprendizados_obter', {
   description: 'Obtem um aprendizado.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_aprendizados_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_aprendizados_criar', {
+registerTracedTool(mcpServer, 'agentmap_aprendizados_criar', {
   description: 'Cria um aprendizado.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_aprendizados_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_aprendizados_excluir', {
+registerTracedTool(mcpServer, 'agentmap_aprendizados_excluir', {
   description: 'Exclui um aprendizado.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

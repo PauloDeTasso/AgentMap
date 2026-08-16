@@ -3,10 +3,14 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import { mcpServer } from './server';
 import { subscriptionManager } from './subscriptions/subscription-manager';
 import { globalEventBus } from './events/event-bus';
-import './resources';
-import './tools';
+import { iniciarObservabilidade } from '../observability';
 
 async function main() {
+  const shutdown = await iniciarObservabilidade();
+
+  await import('./resources');
+  await import('./tools');
+
   const transport = new StdioServerTransport();
   console.error('AgentMap MCP server running on stdio');
   const connectPromise = mcpServer.connect(transport);
@@ -25,7 +29,7 @@ async function main() {
     mcpServer.server.onclose = undefined;
   };
 
-  const shutdown = async (signal: string) => {
+  const shutdownHandler = async (signal: string) => {
     console.error(`Received ${signal}, shutting down...`);
     try {
       subscriptionManager.resolveAllListenSubscriptions({});
@@ -36,11 +40,12 @@ async function main() {
     }
     subscriptionManager.unsubscribeAll('');
     globalEventBus.shutdown();
+    await shutdown();
     process.exit(0);
   };
 
-  process.on('SIGINT', () => shutdown('SIGINT'));
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdownHandler('SIGINT'));
+  process.on('SIGTERM', () => shutdownHandler('SIGTERM'));
 
   await new Promise((resolve) => { process.on('SIGINT', resolve); process.on('SIGTERM', resolve); });
 }
@@ -54,4 +59,3 @@ process.on('uncaughtException', (error) => {
   console.error('Uncaught exception:', error);
   process.exit(1);
 });
-

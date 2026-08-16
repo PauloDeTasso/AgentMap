@@ -3,12 +3,11 @@ import { carregarContexto } from '../contexto';
 import { SchemaObterAgente } from '../schemas/validacao';
 import { mapearAgente } from '../mapper/mapeadores';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool(
-  'agentmap_obter_agente',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_obter_agente', {
+  description:
       'Obtém o perfil completo de um agente pelo ID, incluindo permissões, conhecimentos, domínios, diretrizes e datas.',
     inputSchema: SchemaObterAgente,
   },

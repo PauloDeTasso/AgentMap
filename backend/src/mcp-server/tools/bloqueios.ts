@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_bloqueios_listar', {
+registerTracedTool(mcpServer, 'agentmap_bloqueios_listar', {
   description: 'Lista bloqueios.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_bloqueios_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_bloqueios_obter', {
+registerTracedTool(mcpServer, 'agentmap_bloqueios_obter', {
   description: 'Obtem um bloqueio.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_bloqueios_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_bloqueios_criar', {
+registerTracedTool(mcpServer, 'agentmap_bloqueios_criar', {
   description: 'Cria um bloqueio.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_bloqueios_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_bloqueios_resolver', {
+registerTracedTool(mcpServer, 'agentmap_bloqueios_resolver', {
   description: 'Resolve um bloqueio.',
   inputSchema: z.object({ id: z.string(), resolucao: z.string() })
 }, async ({ id, resolucao }: { id: string, resolucao: string }) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_bloqueios_resolver', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_bloqueios_excluir', {
+registerTracedTool(mcpServer, 'agentmap_bloqueios_excluir', {
   description: 'Exclui um bloqueio.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_auditoria_listar', {
+registerTracedTool(mcpServer, 'agentmap_auditoria_listar', {
   description: 'Lista os ultimos eventos de auditoria.',
   inputSchema: z.object({ limite: z.number() })
 }, async ({ limite }: { limite: number }) => {

@@ -4,9 +4,10 @@ import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_arquivos_listar', {
+registerTracedTool(mcpServer, 'agentmap_arquivos_listar', {
   description: 'Lista arquivos em um diretorio do projeto.',
   inputSchema: z.object({ caminho: z.string() })
 }, async ({ caminho }: { caminho: string }) => {
@@ -29,7 +30,7 @@ mcpServer.registerTool('agentmap_arquivos_listar', {
   }
 });
 
-mcpServer.registerTool('agentmap_arquivos_ler', {
+registerTracedTool(mcpServer, 'agentmap_arquivos_ler', {
   description: 'Le o conteudo de um arquivo do projeto.',
   inputSchema: z.object({ caminho: z.string() })
 }, async ({ caminho }: { caminho: string }) => {
@@ -52,7 +53,7 @@ mcpServer.registerTool('agentmap_arquivos_ler', {
   }
 });
 
-mcpServer.registerTool('agentmap_arquivos_excluir', {
+registerTracedTool(mcpServer, 'agentmap_arquivos_excluir', {
   description: 'Exclui um arquivo ou diretorio do projeto.',
   inputSchema: z.object({ caminho: z.string() })
 }, async ({ caminho }: { caminho: string }) => {

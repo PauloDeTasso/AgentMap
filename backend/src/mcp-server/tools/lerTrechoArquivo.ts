@@ -4,6 +4,7 @@ import { SchemaLerTrechoArquivo } from '../schemas/validacao';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { PathTraversalError } from '../../seguranca/paths';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 interface ArquivoComLinhas {
@@ -13,10 +14,8 @@ interface ArquivoComLinhas {
   truncado: boolean;
 }
 
-mcpServer.registerTool(
-  'agentmap_ler_trecho_arquivo',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_ler_trecho_arquivo', {
+  description:
       'Lê um trecho (ou o total) de um arquivo do projeto. Valida path traversal e aplica limite de linhas.',
     inputSchema: SchemaLerTrechoArquivo,
   },

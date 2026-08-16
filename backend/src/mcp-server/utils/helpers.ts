@@ -40,17 +40,22 @@ export function toMcpResult<T>(result: ResultadoOperacao<T>): McpContent {
       isError: true
     };
   }
+  const dadosStr = safeStringify({ sucesso: true, dados: result.dados });
+  let structured: Record<string, unknown> | undefined;
+  try {
+    const parsed = JSON.parse(dadosStr);
+    structured = parsed.dados ?? undefined;
+  } catch {
+    structured = undefined;
+  }
   return {
     content: [
       {
         type: 'text',
-        text: safeStringify({
-          sucesso: true,
-          dados: result.dados
-        })
+        text: dadosStr
       }
     ],
-    structuredContent: (result.dados as Record<string, unknown>) ?? undefined
+    structuredContent: structured
   };
 }
 

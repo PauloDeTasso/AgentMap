@@ -3,9 +3,11 @@ import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerWorkflowTool } from '../../observability/agent-tracing';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_workflows_iniciar_trabalho', {
+registerWorkflowTool(mcpServer, 'agentmap_workflows_iniciar_trabalho', {
   title: 'Iniciar Trabalho',
   description: 'Inicia trabalho: valida agente + tarefa e monta contexto completo.',
   inputSchema: z.object({ agenteId: z.string(), tarefaId: z.string() }),
@@ -47,9 +49,9 @@ mcpServer.registerTool('agentmap_workflows_iniciar_trabalho', {
   const resultado = { sucesso: true, dados: { agente: agenteResult.dados, tarefa: tarefaResult.dados, contexto: contextoResult.dados, sessao: sessaoResult.dados } };
   auditoria.registrarToolCall('agentmap_workflows_iniciar_trabalho', projeto, { agenteId, tarefaId }, resultado);
   return toMcpStructured(resultado.dados);
-});
+}, { extractAgentId: (input: { agenteId?: string }) => input.agenteId });
 
-mcpServer.registerTool('agentmap_workflows_finalizar_trabalho', {
+registerWorkflowTool(mcpServer, 'agentmap_workflows_finalizar_trabalho', {
   title: 'Finalizar Trabalho',
   description: 'Finaliza trabalho: registra resultado, artefatos, handoff, validacao e libera reservas.',
   inputSchema: z.object({}).passthrough(),
@@ -89,9 +91,9 @@ mcpServer.registerTool('agentmap_workflows_finalizar_trabalho', {
   const finalResult = { sucesso: true, dados: { resultado: resultado.dados, handoff: handoff.dados } };
   auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, finalResult);
   return toMcpStructured(finalResult.dados);
-});
+}, { extractAgentId: (input: { agenteId?: string }) => input.agenteId });
 
-mcpServer.registerTool('agentmap_workflows_consultar_pendencias', {
+registerTracedTool(mcpServer, 'agentmap_workflows_consultar_pendencias', {
   title: 'Consultar Pendencias',
   description: 'Consulta pendencias, handoffs, validacoes e bloqueios por agente.',
   inputSchema: z.object({ agenteId: z.string() }),
@@ -127,7 +129,7 @@ mcpServer.registerTool('agentmap_workflows_consultar_pendencias', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_workflows_obter_mapa_projeto', {
+registerTracedTool(mcpServer, 'agentmap_workflows_obter_mapa_projeto', {
   title: 'Mapa do Projeto',
   description: 'Obtem o mapa completo do projeto.',
   inputSchema: z.object({}),

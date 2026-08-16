@@ -2,6 +2,7 @@ import { mcpServer, projetoService, getMcpConfig } from '../server';
 import { toMcpStructured, mcpError } from '../utils/helpers';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -23,7 +24,7 @@ const cliCommands = [
   { comando: 'npm run build', descricao: 'Compila TypeScript' },
 ];
 
-mcpServer.registerTool('agentmap_descobrir', {
+registerTracedTool(mcpServer, 'agentmap_descobrir', {
   title: 'Descobrir AgentMap',
   description: 'Lista capabilities, agents, docs, CLI, worktree e onboarding do AgentMap.',
   inputSchema: z.object({}),

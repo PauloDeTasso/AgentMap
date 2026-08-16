@@ -34,6 +34,7 @@ import { criarMonitoramentoRouter } from './monitoramento';
 import { criarInstanciaRouter } from './instancias';
 import { criarOrquestradorRouter } from './orquestrador';
 import { criarAuthRouter } from './auth';
+import { criarObservabilidadeRouter } from './observabilidade';
 
 export function setupRotas(projetoService: ProjetoService): Router {
   const router = Router();
@@ -45,6 +46,8 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/auth', criarAuthRouter());
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
+
+  router.use('/api/observabilidade', criarObservabilidadeRouter());
 
   router.use('/api/*', projectMiddleware(projetoService));
 

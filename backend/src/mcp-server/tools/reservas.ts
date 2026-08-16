@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_reservas_listar', {
+registerTracedTool(mcpServer, 'agentmap_reservas_listar', {
   description: 'Lista reservas.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_reservas_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_reservas_obter', {
+registerTracedTool(mcpServer, 'agentmap_reservas_obter', {
   description: 'Obtem uma reserva.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_reservas_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_reservas_criar', {
+registerTracedTool(mcpServer, 'agentmap_reservas_criar', {
   description: 'Cria uma reserva.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_reservas_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_reservas_liberar', {
+registerTracedTool(mcpServer, 'agentmap_reservas_liberar', {
   description: 'Libera uma reserva.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_reservas_liberar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_reservas_excluir', {
+registerTracedTool(mcpServer, 'agentmap_reservas_excluir', {
   description: 'Exclui uma reserva.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

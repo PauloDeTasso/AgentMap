@@ -3,6 +3,7 @@ import { carregarContexto } from '../contexto';
 import { SchemaBuscarConhecimento } from '../schemas/validacao';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as path from 'path';
 
 interface ConhecimentoHit {
@@ -13,10 +14,8 @@ interface ConhecimentoHit {
   relevancia: number;
 }
 
-mcpServer.registerTool(
-  'agentmap_buscar_conhecimento',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
+  description:
       'Busca termos na base de conhecimento do projeto (.ia/conhecimento, conhecimentos de agentes, procedimentos, decisões, documentação).',
     inputSchema: SchemaBuscarConhecimento,
   },

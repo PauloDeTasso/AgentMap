@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_artefatos_listar', {
+registerTracedTool(mcpServer, 'agentmap_artefatos_listar', {
   description: 'Lista artefatos.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_artefatos_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_artefatos_obter', {
+registerTracedTool(mcpServer, 'agentmap_artefatos_obter', {
   description: 'Obtem um artefato.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_artefatos_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_artefatos_criar', {
+registerTracedTool(mcpServer, 'agentmap_artefatos_criar', {
   description: 'Cria um artefato.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_artefatos_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_artefatos_excluir', {
+registerTracedTool(mcpServer, 'agentmap_artefatos_excluir', {
   description: 'Exclui um artefato.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_artefatos_excluir', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_artefatos_versoes', {
+registerTracedTool(mcpServer, 'agentmap_artefatos_versoes', {
   description: 'Lista versoes de um artefato.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

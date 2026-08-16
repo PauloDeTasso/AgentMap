@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_decisoes_listar', {
+registerTracedTool(mcpServer, 'agentmap_decisoes_listar', {
   description: 'Lista decisoes.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_decisoes_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_decisoes_obter', {
+registerTracedTool(mcpServer, 'agentmap_decisoes_obter', {
   description: 'Obtem uma decisao.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_decisoes_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_decisoes_criar', {
+registerTracedTool(mcpServer, 'agentmap_decisoes_criar', {
   description: 'Cria uma decisao.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_decisoes_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_decisoes_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_decisoes_atualizar', {
   description: 'Atualiza uma decisao.',
   inputSchema: z.object({ id: z.string() }).passthrough()
 }, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_decisoes_atualizar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_decisoes_excluir', {
+registerTracedTool(mcpServer, 'agentmap_decisoes_excluir', {
   description: 'Exclui uma decisao.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

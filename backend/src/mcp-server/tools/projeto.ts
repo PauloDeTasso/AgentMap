@@ -3,9 +3,10 @@ import { toMcpStructured, mcpError, safeStringify } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_projetos_listar', {
+registerTracedTool(mcpServer, 'agentmap_projetos_listar', {
   title: 'Listar Projetos',
   description: 'Lista todos os projetos registrados no AgentMap.',
   inputSchema: z.object({}),
@@ -18,7 +19,7 @@ mcpServer.registerTool('agentmap_projetos_listar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_projetos_criar', {
+registerTracedTool(mcpServer, 'agentmap_projetos_criar', {
   title: 'Criar Projeto',
   description: 'Cria um novo projeto no AgentMap.',
   inputSchema: z.object({
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_projetos_criar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_projetos_abrir', {
+registerTracedTool(mcpServer, 'agentmap_projetos_abrir', {
   title: 'Abrir Projeto',
   description: 'Abre um projeto existente pelo caminho ou ID.',
   inputSchema: z.object({
@@ -54,7 +55,7 @@ mcpServer.registerTool('agentmap_projetos_abrir', {
   return mcpError(resultado);
 });
 
-mcpServer.registerTool('agentmap_projetos_fechar', {
+registerTracedTool(mcpServer, 'agentmap_projetos_fechar', {
   title: 'Fechar Projeto',
   description: 'Fecha o projeto atualmente aberto.',
   inputSchema: z.object({
@@ -70,7 +71,7 @@ mcpServer.registerTool('agentmap_projetos_fechar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_projetos_atual', {
+registerTracedTool(mcpServer, 'agentmap_projetos_atual', {
   title: 'Projeto Atual',
   description: 'Retorna o projeto atualmente aberto.',
   inputSchema: z.object({}),
@@ -91,7 +92,7 @@ mcpServer.registerTool('agentmap_projetos_atual', {
   return mcpError(resultado);
 });
 
-mcpServer.registerTool('agentmap_integridade_verificar', {
+registerTracedTool(mcpServer, 'agentmap_integridade_verificar', {
   title: 'Verificar Integridade',
   description: 'Verifica a integridade do projeto aberto.',
   inputSchema: z.object({

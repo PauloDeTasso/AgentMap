@@ -4,11 +4,10 @@ import { SchemaBuscarReferencias } from '../schemas/validacao';
 import { buscarTermoEmArquivos, SearchHit } from '../utils/search';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 
-mcpServer.registerTool(
-  'agentmap_buscar_referencias',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_buscar_referencias', {
+  description:
       'Busca referências a um símbolo (nome) em arquivos do projeto, usando word-boundary matching.',
     inputSchema: SchemaBuscarReferencias,
   },

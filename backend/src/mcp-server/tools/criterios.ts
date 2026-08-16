@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_criterios_listar', {
+registerTracedTool(mcpServer, 'agentmap_criterios_listar', {
   description: 'Lista criterios.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_criterios_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_criterios_obter', {
+registerTracedTool(mcpServer, 'agentmap_criterios_obter', {
   description: 'Obtem um criterio.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_criterios_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_criterios_criar', {
+registerTracedTool(mcpServer, 'agentmap_criterios_criar', {
   description: 'Cria um criterio.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_criterios_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_criterios_excluir', {
+registerTracedTool(mcpServer, 'agentmap_criterios_excluir', {
   description: 'Exclui um criterio.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

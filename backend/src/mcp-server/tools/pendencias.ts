@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_pendencias_listar', {
+registerTracedTool(mcpServer, 'agentmap_pendencias_listar', {
   description: 'Lista pendencias.',
   inputSchema: z.object({ tarefaId: z.string().optional() })
 }, async ({ tarefaId }: { tarefaId?: string }) => {
@@ -22,7 +23,7 @@ mcpServer.registerTool('agentmap_pendencias_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_pendencias_obter', {
+registerTracedTool(mcpServer, 'agentmap_pendencias_obter', {
   description: 'Obtem uma pendencia.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -36,7 +37,7 @@ mcpServer.registerTool('agentmap_pendencias_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_pendencias_criar', {
+registerTracedTool(mcpServer, 'agentmap_pendencias_criar', {
   description: 'Cria uma pendencia.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -50,7 +51,7 @@ mcpServer.registerTool('agentmap_pendencias_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_pendencias_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_pendencias_atualizar', {
   description: 'Atualiza uma pendencia.',
   inputSchema: z.object({ id: z.string() }).passthrough()
 }, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
@@ -64,7 +65,7 @@ mcpServer.registerTool('agentmap_pendencias_atualizar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_pendencias_resolver', {
+registerTracedTool(mcpServer, 'agentmap_pendencias_resolver', {
   description: 'Resolve uma pendencia.',
   inputSchema: z.object({ id: z.string(), resolucao: z.string() })
 }, async ({ id, resolucao }: { id: string, resolucao: string }) => {
@@ -78,7 +79,7 @@ mcpServer.registerTool('agentmap_pendencias_resolver', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_pendencias_excluir', {
+registerTracedTool(mcpServer, 'agentmap_pendencias_excluir', {
   description: 'Exclui uma pendencia.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

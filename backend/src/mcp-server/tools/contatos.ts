@@ -2,9 +2,10 @@ import { mcpServer, toMcpResult, toMcpData, projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaContatoCriar, SchemaContatoAtualizar, SchemaContatoObter, SchemaContatoExcluir } from '../schemas/validacao';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_contatos_listar', {
+registerTracedTool(mcpServer, 'agentmap_contatos_listar', {
   description: 'Lista todos os contatos do projeto.',
   inputSchema: z.object({})
 }, async () => {
@@ -18,7 +19,7 @@ mcpServer.registerTool('agentmap_contatos_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_contatos_obter', {
+registerTracedTool(mcpServer, 'agentmap_contatos_obter', {
   description: 'Obtém um contato pelo ID.',
   inputSchema: SchemaContatoObter,
 }, async ({ id }: { id: string }) => {
@@ -32,7 +33,7 @@ mcpServer.registerTool('agentmap_contatos_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_contatos_criar', {
+registerTracedTool(mcpServer, 'agentmap_contatos_criar', {
   description: 'Cria um novo contato.',
   inputSchema: SchemaContatoCriar,
 }, async ({ nome, email, telefone }: { nome: string; email: string; telefone: string }) => {
@@ -46,7 +47,7 @@ mcpServer.registerTool('agentmap_contatos_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_contatos_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_contatos_atualizar', {
   description: 'Atualiza um contato.',
   inputSchema: SchemaContatoAtualizar.passthrough(),
 }, async (args: any) => {
@@ -61,7 +62,7 @@ mcpServer.registerTool('agentmap_contatos_atualizar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_contatos_excluir', {
+registerTracedTool(mcpServer, 'agentmap_contatos_excluir', {
   description: 'Exclui um contato.',
   inputSchema: SchemaContatoExcluir,
 }, async ({ id }: { id: string }) => {

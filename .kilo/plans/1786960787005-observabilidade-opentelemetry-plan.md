@@ -1,81 +1,67 @@
-# 📄 Plano de Implementação — Observabilidade OpenTelemetry GenAI
+# Plano de Implementação — Observabilidade OpenTelemetry GenAI
 
 > **Ordem:** 2ª de 5  
 > **Prioridade:** Alta  
 > **Esforço:** Médio/Alto (4–7 dias)  
-> **Depende de:** Documento 1 — MCP Resources/Subscriptions (já implementado)  
-> **Projeto alvo:** AgentMap (Node.js + TypeScript + Express + MCP Server)
+> **Depende de:** Documento 1 — MCP Resources/Subscriptions (implementado)  
+> **Projeto alvo:** AgentMap (Node.js + TypeScript + Express + MCP Server stdio)
 
 ---
 
-## 1. Resumo Executivo
+## 1. Problema e Objetivo
 
-Transformar a execução dos agentes em **telemetria distribuída, correlacionável e consultável** usando OpenTelemetry com convenções semânticas `gen_ai.*`.
+O AgentMap registra histórico em JSON (tarefas, resultados, handoffs), mas não possui tracing, métricas ou visão temporal das operações. O objetivo é instrumentar o backend com **OpenTelemetry + convenções `gen_ai.*`** para transformar a execução dos agentes em telemetria distribuída, correlacionável e consultável.
 
-**Problema atual:** O histórico do AgentMap é textual/estrutural (JSON em arquivos). Não há tracing, métricas ou visão temporal das operações.
-
-**Solução:** Instrumentar o backend com OpenTelemetry para gerar traces, métricas e contexto correlacionado, usando `gen_ai.*` para operações de IA/agentes e `agentmap.*` para contexto próprio do domínio.
-
----
-
-## 2. Objetivos Mensuráveis
-
-Depois da implementação, seremos capazes de responder:
-
+Depois da implementação, será possível responder:
 - Qual agente executou determinada operação?
-- Qual tarefa originou a operação?
 - Qual tool foi chamada e quanto tempo levou?
 - A tool falhou? Qual foi o erro?
 - Qual sequência de tools ocorreu em um ciclo?
-- Qual solicitação/handoff originou aquela execução?
-- Onde ocorreu a maior latência?
-- Quantas chamadas foram realizadas por agente/tool?
+- Qual solicitação/handoff originou a execução?
 - Qual agente possui maior taxa de erro?
-- Quais tools são mais utilizadas?
 - Quanto tempo cada ciclo de agente consome?
-- Qual foi a cadeia entre agentes (handoff → invoke_agent)?
 
 ---
 
-## 3. Princípios Fundamentais
+## 2. Princípios Fundamentais
 
 | Princípio | Regra |
 |---|---|
-| **Observabilidade ≠ dependência crítica** | Se o collector/OTLP falhar, o AgentMap continua funcionando |
-| **Segurança primeiro** | Nunca registrar secrets, tokens, prompts completos, arquivos inteiros |
-| **Cardinalidade controlada** | Métricas usam apenas atributos de baixa cardinalidade; IDs high-cardinality ficam em traces |
-| **Camada de adaptação** | Tools não conhecem OpenTelemetry diretamente; usam helpers próprios |
-| **Fixar versões** | `gen_ai.*` semantic-conventions fixada sem `^` ou `~` |
-| **Inicialização precoce** | SDK OpenTelemetry iniciado antes de qualquer import de biblioteca instrumentada |
+| Observabilidade ≠ dependência crítica | Se o Collector/OTLP falhar, o AgentMap continua funcionando |
+| Segurança primeiro | Nunca registrar secrets, tokens, prompts completos, arquivos inteiros |
+| Cardinalidade controlada | Métricas usam apenas atributos de baixa cardinalidade; IDs high-cardinality ficam em traces |
+| Camada de adaptação | Tools não conhecem OpenTelemetry diretamente; usam helpers próprios |
+| Fixar versões | Dependências de OTel fixadas sem `^` ou `~` |
+| Inicialização precoce | SDK OpenTelemetry iniciado antes de qualquer import de biblioteca instrumentada |
 
 ---
 
-## 4. Arquitetura
+## 3. Arquitetura
 
 ```
-                  ┌───────────────────────┐
-                  │      AgentMap          │
-                  │                        │
-                  │ Node.js / TypeScript   │
-                  └───────────┬────────────┘
-                              │
-                   OpenTelemetry API
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-           Traces          Metrics           Logs
-              │               │               │
-              └───────────────┼───────────────┘
-                              ▼
-                   OpenTelemetry Collector
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-            Tempo          Prometheus      Loki
-              │               │               │
-              └───────────────┼───────────────┘
-                              ▼
-                           Grafana
+                   ┌───────────────────────┐
+                   │      AgentMap          │
+                   │                        │
+                   │ Node.js / TypeScript   │
+                   └───────────┬────────────┘
+                               │
+                    OpenTelemetry API
+                               │
+               ┌───────────────┼───────────────┐
+               ▼               ▼               ▼
+            Traces          Metrics           Logs
+               │               │               │
+               └───────────────┼───────────────┘
+                               ▼
+                    OpenTelemetry Collector
+                               │
+               ┌───────────────┼───────────────┐
+               ▼               ▼               ▼
+             Tempo          Prometheus      Loki
+               │               │               │
+               └───────────────┼───────────────┘
+                               ▼
+                            Grafana
 ```
 
 **Camada de adaptação:**
@@ -91,20 +77,26 @@ GenAI Semantic Conventions
 
 Isso permite que mudanças futuras nas convenções `gen_ai.*` não exijam modificar as 100+ tools.
 
+### Observação importante sobre arquitetura atual
+
+O AgentMap possui **dois processos** que precisam de instrumentação:
+1. **Express HTTP server** (`backend/src/index.ts`)
+2. **MCP stdio server** (`backend/src/mcp-server/index.ts`)
+
+Ambos devem inicializar o OpenTelemetry **antes** de importar bibliotecas instrumentadas. Como o MCP server roda em processo separado, cada um terá seu próprio bootstrap.
+
 ---
 
-## 5. Estrutura de Arquivos
+## 4. Estrutura de Arquivos
 
 ```
 backend/src/observability/
-├── index.ts                    # Bootstrap do OpenTelemetry
-├── tracing.ts                  # Configuração de traces (NodeSDK, exporter)
+├── index.ts                    # Bootstrap do OpenTelemetry (chamado no entry point)
+├── tracing.ts                  # Configuração de traces (NodeSDK, Resource, exporter)
 ├── metrics.ts                  # Configuração de métricas (counters, histograms)
-├── context.ts                  # Propagação de contexto entre MCP → service → fs
 ├── gen-ai.ts                   # Constantes e helpers para convenções gen_ai.*
 ├── agent-tracing.ts            # Span invoke_agent + plan
 ├── tool-tracing.ts             # Wrapper registerTracedTool + execute_tool
-├── event-tracing.ts            # Instrumentação de eventos (ResourceChangedEvent, handoffs, etc.)
 ├── sanitization.ts             # Política de sanitização de dados sensíveis
 ├── attributes.ts               # Helpers para atributos agentmap.*
 └── exporters/
@@ -114,7 +106,7 @@ backend/src/observability/
 
 ---
 
-## 6. Dependências
+## 5. Dependências
 
 ```bash
 # Core
@@ -134,28 +126,27 @@ npm install @opentelemetry/exporter-metrics-otlp-proto
 npm install @opentelemetry/sdk-metrics
 ```
 
-**Regra:** Fixar versões sem `^` ou `~`. Registrar no `package.json`:
+**Regra:** Fixar versões exatas (sem `^` ou `~`) no `package.json`. Registrar:
 - `opentelemetry.version`
 - `gen-ai.semantic-conventions.version`
 - `agentmap.observability.schema.version = 1`
 
 ---
 
-## 7. Resource OpenTelemetry
+## 6. Resource OpenTelemetry
 
-```typescript
-service.name = "agentmap-backend"
-service.version = "0.1.0" | process.env.npm_package_version
-service.namespace = "agentmap"
-deployment.environment.name = "development" | "production"
+```text
+service.name = agentmap-backend
+service.version = 1.0.0 (do package.json)
+service.namespace = agentmap
+deployment.environment.name = development | production
 ```
 
-**NÃO usar como Resource attributes:**
-- `agentId`, `taskId`, `requestId`, `correlationId` → pertencem ao span/operação, não ao Resource.
+**NÃO usar como Resource attributes:** `agentId`, `taskId`, `requestId`, `correlationId` — pertencem ao span/operação, não ao Resource.
 
 ---
 
-## 8. Três Níveis de Tracing
+## 7. Três Níveis de Tracing
 
 ### Nível 1 — `invoke_agent` (ciclo completo do agente)
 
@@ -203,7 +194,7 @@ Atributos:
 
 ---
 
-## 9. Camada de Adaptação (registerTracedTool)
+## 8. Camada de Adaptação (`registerTracedTool`)
 
 Criar wrapper central para evitar duplicação nas 100+ tools:
 
@@ -227,15 +218,36 @@ export function registerTracedTool(
 
 Isso permite que novas tools já nasçam instrumentadas sem conhecimento de OpenTelemetry.
 
+### Migração incremental
+
+NÃO migrar todas as 37 tools de uma vez. Começar pelas 10–15 mais usadas:
+
+1. `agentmap_tarefas_criar`
+2. `agentmap_tarefas_listar`
+3. `agentmap_solicitacoes_criar`
+4. `agentmap_solicitacoes_listar`
+5. `agentmap_handoffs_criar`
+6. `agentmap_handoffs_listar`
+7. `agentmap_bloqueios_criar`
+8. `agentmap_bloqueios_listar`
+9. `agentmap_projetos_abrir`
+10. `agentmap_agentes_listar`
+11. `agentmap_workflows_iniciar_trabalho`
+12. `agentmap_workflows_finalizar_trabalho`
+13. `agentmap_eventos_criar`
+14. `agentmap_handoffs_criar`
+
+As demais permanecem com `mcpServer.registerTool` original e serão migradas em sprints futuros.
+
 ---
 
-## 10. Helper de Span de Tool
+## 9. Helper de Span de Tool
 
 ```typescript
 // tool-tracing.ts
 export async function executeToolWithTracing<T>(
   params: { toolName: string; agentId?: string; toolCallId?: string; toolType?: string },
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
 ): Promise<T> {
   return tracer.startActiveSpan(`execute_tool ${params.toolName}`, async (span) => {
     span.setAttribute("gen_ai.operation.name", "execute_tool");
@@ -264,7 +276,7 @@ export async function executeToolWithTracing<T>(
 
 ---
 
-## 11. Política de Sanitização
+## 10. Política de Sanitização
 
 ### Proibido por padrão (nunca registrar)
 - Senhas, tokens, API keys, authorization headers, credentials, secrets
@@ -302,7 +314,7 @@ export function sanitizeToolArguments(args: any): any {
 
 ---
 
-## 12. Métricas OpenTelemetry
+## 11. Métricas OpenTelemetry
 
 ### Counter: `agentmap.tool.executions`
 - Dimensões: `tool.name`, `tool.type`, `status`
@@ -317,7 +329,6 @@ export function sanitizeToolArguments(args: any): any {
 
 ### Counter: `agentmap.agent.executions`
 - Dimensões: `agent.id`, `status`
-- Observação: cardinalidade baixa (poucos agentes por projeto)
 
 ### Histogram: `agentmap.agent.duration`
 - Unidade: `ms`
@@ -327,7 +338,7 @@ export function sanitizeToolArguments(args: any): any {
 
 ---
 
-## 13. Endpoint REST de Dashboard
+## 12. Endpoint REST de Dashboard
 
 Criar `GET /api/observabilidade/metricas` como **visão operacional resumida**, não como armazenamento primário:
 
@@ -353,61 +364,19 @@ Criar `GET /api/observabilidade/metricas` como **visão operacional resumida**, 
 }
 ```
 
-Arquitetura:
-```
-OpenTelemetry Metrics
-       │
-       ├── Collector
-       │
-       └── Dashboard
-
-AgentMap API
-       │
-       └── visão operacional resumida
-```
-
 ---
 
-## 14. Instrumentação do Ciclo de Agente
+## 13. Instrumentação do Ciclo de Agente
 
 ### `invoke_agent`
 
-Criar span quando um agente inicia um ciclo de trabalho:
-
-```typescript
-// agent-tracing.ts
-export async function withAgentTrace<T>(
-  params: { agentId: string; agentName?: string; projectId?: string; taskId?: string; sessionId?: string; correlationId?: string },
-  fn: () => Promise<T>
-): Promise<T> {
-  return tracer.startActiveSpan(`invoke_agent ${params.agentId}`, async (span) => {
-    span.setAttribute("gen_ai.operation.name", "invoke_agent");
-    span.setAttribute("gen_ai.agent.id", params.agentId);
-    if (params.agentName) span.setAttribute("gen_ai.agent.name", params.agentName);
-    if (params.projectId) span.setAttribute("agentmap.project.id", params.projectId);
-    if (params.taskId) span.setAttribute("agentmap.task.id", params.taskId);
-    if (params.sessionId) span.setAttribute("agentmap.session.id", params.sessionId);
-    if (params.correlationId) span.setAttribute("agentmap.correlation.id", params.correlationId);
-
-    try {
-      const result = await fn();
-      span.setStatus({ code: SpanStatusCode.OK });
-      return result;
-    } catch (error) {
-      span.recordException(error as Error);
-      span.setStatus({ code: SpanStatusCode.ERROR });
-      span.setAttribute("error.type", getErrorType(error));
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
-}
-```
+Criar span quando um agente inicia um ciclo de trabalho. Integrar nos workflows:
+- `agentmap_workflows_iniciar_trabalho`
+- `agentmap_workflows_finalizar_trabalho`
 
 ### `plan`
 
-Instrumentar somente quando houver fase de planejamento identificável (ex: `agentmap_workflows_iniciar_trabalho`).
+Instrumentar somente quando houver fase de planejamento identificável (ex: `agentmap_workflows_iniciar_trabalho` já representa isso).
 
 ### Handoff entre agentes
 
@@ -415,11 +384,9 @@ Preservar correlação:
 - `agentmap.handoff.id`
 - `agentmap.correlation.id`
 
-Se propagation de contexto entre processos for possível, propagar contexto OpenTelemetry. Caso contrário, usar `correlationId` como ponte.
-
 ---
 
-## 15. Context Propagation
+## 14. Context Propagation
 
 Dentro do mesmo processo (síncrono), usar `tracer.startActiveSpan()` para que operações filhas sejam automaticamente associadas ao span ativo.
 
@@ -432,17 +399,11 @@ execute_tool criar_solicitacao_alteracao
 service → filesystem (span automático via auto-instrumentation)
 ```
 
-Isso permite que o trace completo seja reconstruído mesmo com operações internas de filesystem/HTTP.
-
 ---
 
-## 16. Integração com Documento 1 (MCP Subscriptions)
+## 15. Integração com Documento 1 (MCP Subscriptions)
 
-O Documento 1 já implementa:
-- `ResourceChangedEvent` no EventBus
-- `sendResourceUpdated` para notificações MCP
-
-O Documento 2 deve instrumentar esses eventos:
+O Documento 1 já implementa `ResourceChangedEvent` no EventBus e `sendResourceUpdated` para notificações MCP. O Documento 2 deve instrumentar esses eventos:
 
 ```text
 execute_tool criar_solicitacao_alteracao
@@ -452,14 +413,11 @@ execute_tool criar_solicitacao_alteracao
    └── resource.updated (span filho)
 ```
 
-Isso cria correlação direta entre:
-```
-MCP coordination + OpenTelemetry observability
-```
+Isso cria correlação direta entre `MCP coordination + OpenTelemetry observability`.
 
 ---
 
-## 17. Sampling
+## 16. Sampling
 
 ### Desenvolvimento
 ```text
@@ -479,7 +437,7 @@ Regras:
 
 ---
 
-## 18. Tratamento de Falha do Exporter
+## 17. Tratamento de Falha do Exporter
 
 **Regra fundamental:** falha de observabilidade não derruba o AgentMap.
 
@@ -492,11 +450,11 @@ Se o Collector estiver DOWN:
 - A falha gera `telemetry error` (log interno)
 - Não gera `tool failure` para o usuário
 
-Implementar `fail_silently` no exporter. O OpenTelemetry SDK já suporta esse comportamento por padrão.
+O OpenTelemetry SDK já suporta `fail_silently` por padrão.
 
 ---
 
-## 19. Implementação em Fases
+## 18. Implementação em Fases
 
 ### Fase 1 — Foundation (Dia 1-2)
 
@@ -506,7 +464,8 @@ Implementar `fail_silently` no exporter. O OpenTelemetry SDK já suporta esse co
 - [ ] Criar `backend/src/observability/index.ts` (bootstrap)
 - [ ] Criar `backend/src/observability/tracing.ts` (NodeSDK + Resource + ConsoleSpanExporter)
 - [ ] Criar `backend/src/observability/gen-ai.ts` (constantes e helpers)
-- [ ] Chamar bootstrap no entry point **antes** de outros imports
+- [ ] Chamar bootstrap no `backend/src/index.ts` **antes** de outros imports
+- [ ] Chamar bootstrap no `backend/src/mcp-server/index.ts` **antes** de outros imports
 - [ ] Validar: `service.name = agentmap-backend` aparece nos spans
 
 ### Fase 2 — MCP Tools Tracing (Dia 3-4)
@@ -515,21 +474,7 @@ Implementar `fail_silently` no exporter. O OpenTelemetry SDK já suporta esse co
 
 - [ ] Criar `backend/src/observability/tool-tracing.ts` (`registerTracedTool`, `executeToolWithTracing`)
 - [ ] Criar `backend/src/observability/sanitization.ts`
-- [ ] Migrar 10-15 tools prioritárias:
-  - `agentmap_tarefas_criar`
-  - `agentmap_tarefas_listar`
-  - `agentmap_solicitacoes_criar`
-  - `agentmap_solicitacoes_listar`
-  - `agentmap_handoffs_criar`
-  - `agentmap_handoffs_listar`
-  - `agentmap_bloqueios_criar`
-  - `agentmap_bloqueios_listar`
-  - `agentmap_projetos_abrir`
-  - `agentmap_agentes_listar`
-  - `agentmap_workflows_iniciar_trabalho`
-  - `agentmap_workflows_finalizar_trabalho`
-  - `agentmap_eventos_criar`
-  - `agentmap_handoffs_criar`
+- [ ] Migrar 10-15 tools prioritárias (ver lista na seção 8)
 - [ ] Validar: cada chamada imprime span com `gen_ai.*` no console
 
 ### Fase 3 — Agent Lifecycle (Dia 5)
@@ -595,7 +540,7 @@ Implementar `fail_silently` no exporter. O OpenTelemetry SDK já suporta esse co
 
 ---
 
-## 20. Testes de Validação
+## 19. Testes de Validação
 
 ### Teste 1 — Inicialização
 Backend inicia sem erro. `service.name = agentmap-backend` confirmado.
@@ -638,11 +583,11 @@ Enviar `SIGTERM` e confirmar que telemetria pendente é exportada antes do encer
 
 ---
 
-## 21. Critérios de Aceite (Checklist Final)
+## 20. Critérios de Aceite (Checklist Final)
 
 ### OpenTelemetry
 - [ ] Dependências instaladas e fixadas no `package.json`
-- [ ] SDK inicializado no bootstrap antes de outros imports
+- [ ] SDK inicializado no bootstrap antes de outros imports (HTTP + MCP)
 - [ ] `service.name`, `service.version`, `service.namespace` configurados
 - [ ] ConsoleSpanExporter funciona em desenvolvimento
 - [ ] OTLPTraceExporter + OTLPMetricExporter funcionam em produção
@@ -688,7 +633,7 @@ Enviar `SIGTERM` e confirmar que telemetria pendente é exportada antes do encer
 
 ---
 
-## 22. Riscos e Mitigações
+## 21. Riscos e Mitigações
 
 | Risco | Mitigação |
 |---|---|
@@ -697,22 +642,22 @@ Enviar `SIGTERM` e confirmar que telemetria pendente é exportada antes do encer
 | Vazamento de dados sensíveis | Sanitização obrigatória + opt-in para arguments/results |
 | Collector DOWN derruba app | `fail_silently` + observabilidade não é dependência crítica |
 | Performance impact | Auto-instrumentation seletiva + sampling configurável |
-| Instrumentação manual de 124 tools | Wrapper `registerTracedTool` — instrumentação uma vez, reuso sempre |
+| Instrumentação manual de 100+ tools | Wrapper `registerTracedTool` — instrumentação uma vez, reuso sempre |
 
 ---
 
-## 23. Referências
+## 22. Decisões Técnicas Fixas
 
-- OpenTelemetry GenAI Semantic Conventions: https://github.com/open-telemetry/semantic-conventions-genai
-- OpenTelemetry Node.js SDK: https://opentelemetry.io/docs/languages/js/
-- OpenTelemetry Instrumentation: https://opentelemetry.io/docs/languages/js/instrumentation/
-- OpenTelemetry Exporters: https://opentelemetry.io/docs/languages/js/exporters/
-- OpenTelemetry Resources: https://opentelemetry.io/docs/concepts/resources/
-- OpenTelemetry Metrics: https://opentelemetry.io/docs/concepts/metrics/
+1. **ConsoleSpanExporter em desenvolvimento, OTLP em produção.** Nenhum outro exporter será suportado na Fase 1.
+2. **Fixar versões exatas** de todas as dependências OpenTelemetry. Sem `^` ou `~`.
+3. **`registerTracedTool` é a forma padrão** de registrar tools instrumentadas. Tools existentes serão migradas incrementalmente.
+4. **MCP tools não recebem `agentId` automaticamente.** O `agentId` será extraído do contexto do projeto via `carregarContexto` quando disponível, ou passado explicitamente via `options.agentId` no wrapper.
+5. **Logs via OpenTelemetry não são escopo desta implementação.** Apenas traces e métricas. Logs continuam com `console.log/warn/error` existente.
+6. **Endpoint `/api/observabilidade/metricas` é apenas leitura.** Não armazena telemetria, apenas agrega visão para o dashboard.
 
 ---
 
-## 24. Próximos Passos
+## 23. Próximos Passos
 
 1. Aprovar este plano
 2. Criar branch `feat/observability-opentelemetry`

@@ -4,12 +4,11 @@ import { SchemaBuscarSimbolo } from '../schemas/validacao';
 import { buscarSimboloDefinicoes, SearchHit } from '../utils/search';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool(
-  'agentmap_buscar_simbolo',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_buscar_simbolo', {
+  description:
       'Busca definições de símbolos (funções, classes, variáveis, constantes, interfaces) em arquivos do projeto.',
     inputSchema: SchemaBuscarSimbolo,
   },

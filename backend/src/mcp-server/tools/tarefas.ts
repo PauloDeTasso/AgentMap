@@ -3,6 +3,7 @@ import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 const tarefaSchema = z.object({
@@ -49,7 +50,7 @@ const tarefaSchema = z.object({
   })
 }).passthrough();
 
-mcpServer.registerTool('agentmap_tarefas_listar', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_listar', {
   title: 'Listar Tarefas',
   description: 'Lista todas as tarefas do projeto aberto.',
   inputSchema: z.object({}),
@@ -67,7 +68,7 @@ mcpServer.registerTool('agentmap_tarefas_listar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_tarefas_obter', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_obter', {
   title: 'Obter Tarefa',
   description: 'Obtém uma tarefa pelo ID.',
   inputSchema: z.object({ id: z.string() }),
@@ -86,7 +87,7 @@ mcpServer.registerTool('agentmap_tarefas_obter', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_tarefas_criar', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_criar', {
   title: 'Criar Tarefa',
   description: 'Cria uma nova tarefa no projeto.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
@@ -102,7 +103,7 @@ mcpServer.registerTool('agentmap_tarefas_criar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_tarefas_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_atualizar', {
   title: 'Atualizar Tarefa',
   description: 'Atualiza uma tarefa existente.',
   inputSchema: z.object({ id: z.string() }).passthrough(),
@@ -121,7 +122,7 @@ mcpServer.registerTool('agentmap_tarefas_atualizar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_tarefas_alterar_estado', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_alterar_estado', {
   title: 'Alterar Estado da Tarefa',
   description: 'Altera o estado de uma tarefa (respeitando transições válidas).',
   inputSchema: z.object({ id: z.string(), novoEstado: z.string() }),
@@ -140,7 +141,7 @@ mcpServer.registerTool('agentmap_tarefas_alterar_estado', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_tarefas_excluir', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_excluir', {
   title: 'Excluir Tarefa',
   description: 'Exclui uma tarefa do projeto.',
   inputSchema: z.object({ id: z.string() }),
@@ -159,7 +160,7 @@ mcpServer.registerTool('agentmap_tarefas_excluir', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_tarefas_contexto', {
+registerTracedTool(mcpServer, 'agentmap_tarefas_contexto', {
   title: 'Contexto da Tarefa',
   description: 'Monta o pacote de contexto completo para uma tarefa.',
   inputSchema: z.object({ id: z.string() }),

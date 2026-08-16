@@ -3,6 +3,7 @@ import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
 const solicitacaoSchema = z.object({
@@ -23,7 +24,7 @@ const solicitacaoSchema = z.object({
     motivo: z.string(),
     arquivosAfetados: z.array(z.string())
   }),
-  impactos: z.array(z.object({ tipo: z.string() }).passthrough()),
+  impactos: z.array(z.string()),
   dependencias: z.array(z.string()),
   prioridade: z.string(),
   status: z.string(),
@@ -52,7 +53,7 @@ const eventoHistoricoSchema = z.object({
   observacao: z.string().nullable()
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_listar', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_listar', {
   title: 'Listar Solicitacoes',
   description: 'Lista todas as solicitações de alteracao do projeto.',
   inputSchema: z.object({}),
@@ -70,7 +71,7 @@ mcpServer.registerTool('agentmap_solicitacoes_listar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_obter', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_obter', {
   title: 'Obter Solicitacao',
   description: 'Obtem uma solicitacao de alteracao pelo ID.',
   inputSchema: z.object({ id: z.string() }),
@@ -89,7 +90,7 @@ mcpServer.registerTool('agentmap_solicitacoes_obter', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_criar', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_criar', {
   title: 'Criar Solicitacao',
   description: 'Cria uma nova solicitacao de alteracao.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
@@ -105,7 +106,7 @@ mcpServer.registerTool('agentmap_solicitacoes_criar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_atualizar', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_atualizar', {
   title: 'Atualizar Solicitacao',
   description: 'Atualiza uma solicitacao de alteracao.',
   inputSchema: z.object({ id: z.string() }).passthrough(),
@@ -124,7 +125,7 @@ mcpServer.registerTool('agentmap_solicitacoes_atualizar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_aprovar', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_aprovar', {
   title: 'Aprovar Solicitacao',
   description: 'Aprova uma solicitacao de alteracao.',
   inputSchema: z.object({ id: z.string(), agenteId: z.string(), observacao: z.string() }),
@@ -140,7 +141,7 @@ mcpServer.registerTool('agentmap_solicitacoes_aprovar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_rejeitar', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_rejeitar', {
   title: 'Rejeitar Solicitacao',
   description: 'Rejeita uma solicitacao de alteracao.',
   inputSchema: z.object({ id: z.string(), agenteId: z.string(), motivo: z.string() }),
@@ -156,7 +157,7 @@ mcpServer.registerTool('agentmap_solicitacoes_rejeitar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_cancelar', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_cancelar', {
   title: 'Cancelar Solicitacao',
   description: 'Cancela uma solicitacao de alteracao.',
   inputSchema: z.object({ id: z.string() }),
@@ -172,7 +173,7 @@ mcpServer.registerTool('agentmap_solicitacoes_cancelar', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_excluir', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_excluir', {
   title: 'Excluir Solicitacao',
   description: 'Exclui uma solicitacao de alteracao.',
   inputSchema: z.object({ id: z.string() }),
@@ -191,7 +192,7 @@ mcpServer.registerTool('agentmap_solicitacoes_excluir', {
   return toMcpStructured(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_solicitacoes_historico', {
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_historico', {
   title: 'Historico da Solicitacao',
   description: 'Lista o historico de eventos de uma solicitacao.',
   inputSchema: z.object({ id: z.string() }),

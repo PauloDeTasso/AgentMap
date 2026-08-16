@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_dependencias_listar', {
+registerTracedTool(mcpServer, 'agentmap_dependencias_listar', {
   description: 'Lista dependencias.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_dependencias_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_dependencias_obter', {
+registerTracedTool(mcpServer, 'agentmap_dependencias_obter', {
   description: 'Obtem uma dependencia.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_dependencias_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_dependencias_criar', {
+registerTracedTool(mcpServer, 'agentmap_dependencias_criar', {
   description: 'Cria uma dependencia.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_dependencias_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_dependencias_excluir', {
+registerTracedTool(mcpServer, 'agentmap_dependencias_excluir', {
   description: 'Exclui uma dependencia.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

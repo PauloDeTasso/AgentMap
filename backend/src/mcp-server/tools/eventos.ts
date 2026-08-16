@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_eventos_pendentes', {
+registerTracedTool(mcpServer, 'agentmap_eventos_pendentes', {
   description: 'Lista eventos pendentes para um agente.',
   inputSchema: z.object({ agenteId: z.string() })
 }, async ({ agenteId }: { agenteId: string }) => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_eventos_pendentes', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_eventos_listar', {
+registerTracedTool(mcpServer, 'agentmap_eventos_listar', {
   description: 'Lista eventos do projeto com filtros opcionais.',
   inputSchema: z.object({ filtros: z.object({ destino: z.string().optional(), estado: z.string().optional() }).optional() })
 }, async ({ filtros }: { filtros?: { destino?: string; estado?: string } }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_eventos_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_eventos_confirmar', {
+registerTracedTool(mcpServer, 'agentmap_eventos_confirmar', {
   description: 'Marca um evento como consumido.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

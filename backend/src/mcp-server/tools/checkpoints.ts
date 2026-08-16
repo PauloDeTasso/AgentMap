@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_checkpoints_listar', {
+registerTracedTool(mcpServer, 'agentmap_checkpoints_listar', {
   description: 'Lista checkpoints.',
   inputSchema: z.object({ tarefaId: z.string().optional() })
 }, async ({ tarefaId }: { tarefaId?: string }) => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_checkpoints_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_checkpoints_obter', {
+registerTracedTool(mcpServer, 'agentmap_checkpoints_obter', {
   description: 'Obtem um checkpoint.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_checkpoints_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_checkpoints_criar', {
+registerTracedTool(mcpServer, 'agentmap_checkpoints_criar', {
   description: 'Cria um checkpoint.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_checkpoints_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_checkpoints_excluir', {
+registerTracedTool(mcpServer, 'agentmap_checkpoints_excluir', {
   description: 'Exclui um checkpoint.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {

@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_resultados_listar', {
+registerTracedTool(mcpServer, 'agentmap_resultados_listar', {
   description: 'Lista resultados.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_resultados_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_resultados_obter', {
+registerTracedTool(mcpServer, 'agentmap_resultados_obter', {
   description: 'Obtem um resultado.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_resultados_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_resultados_criar', {
+registerTracedTool(mcpServer, 'agentmap_resultados_criar', {
   description: 'Cria um resultado.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {

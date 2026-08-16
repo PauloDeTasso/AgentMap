@@ -3,13 +3,12 @@ import { carregarContexto } from '../contexto';
 import { SchemaObterContextoProjeto } from '../schemas/validacao';
 import { mapearProjeto, mapearAgenteRegistro } from '../mapper/mapeadores';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 import * as path from 'path';
 
-mcpServer.registerTool(
-  'agentmap_obter_contexto_projeto',
-  {
-    description:
+registerTracedTool(mcpServer, 'agentmap_obter_contexto_projeto', {
+  description:
       'Retorna o contexto completo do projeto aberto: configuração, tecnologias, agentes, contratos, decisões, estado atual e resumo de tarefas.',
     inputSchema: SchemaObterContextoProjeto,
   },

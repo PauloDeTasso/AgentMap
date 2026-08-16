@@ -3,9 +3,10 @@ import { toMcpResult, toMcpData } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-mcpServer.registerTool('agentmap_validacoes_listar', {
+registerTracedTool(mcpServer, 'agentmap_validacoes_listar', {
   description: 'Lista validacoes.',
   inputSchema: z.object({})
 }, async () => {
@@ -19,7 +20,7 @@ mcpServer.registerTool('agentmap_validacoes_listar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_validacoes_obter', {
+registerTracedTool(mcpServer, 'agentmap_validacoes_obter', {
   description: 'Obtem uma validacao.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
@@ -33,7 +34,7 @@ mcpServer.registerTool('agentmap_validacoes_obter', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_validacoes_criar', {
+registerTracedTool(mcpServer, 'agentmap_validacoes_criar', {
   description: 'Cria uma validacao.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
@@ -47,7 +48,7 @@ mcpServer.registerTool('agentmap_validacoes_criar', {
   return toMcpData(resultado.dados);
 });
 
-mcpServer.registerTool('agentmap_validacoes_excluir', {
+registerTracedTool(mcpServer, 'agentmap_validacoes_excluir', {
   description: 'Exclui uma validacao.',
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
