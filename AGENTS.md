@@ -122,11 +122,12 @@ O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 
 - **Transporte:** STDIO local (`npx tsx src/mcp-server/index.ts`)
 - **SDK:** `@modelcontextprotocol/sdk` v1.30.0
-- **Tools:** 124 tools registradas com `registerTool`, seguindo o padrão MCP 2026:
+- **Tools:** 124 tools registradas com `registerTool` / `registerTracedTool`, seguindo o padrão MCP 2026:
   - `outputSchema` + `structuredContent` para dados estruturados
   - `isError: true` para erros de execução
   - Annotations (`readOnlyHint`, `destructiveHint`, etc)
   - Validação de entrada via Zod
+  - Tracing e métricas OpenTelemetry via wrapper `registerTracedTool`
 - **Configuração:** `kilo.jsonc` na raiz ou `~/.config/kilo/kilo.jsonc` (global)
 - **Paralelismo real:** **Agent Manager** (extensão VS Code) cria worktrees isolados por agente
 - **VS Code 1.115+:** inclui preview de **Agents app** com sessões paralelas em worktrees
@@ -141,6 +142,7 @@ O AgentMap **não executa agentes** e **não depende de CLI `kilo` standalone**.
 - **CORS:** origins configuradas para desenvolvimento local
 - **Rate Limit:** proteção contra abuso por IP
 - **Validação:** schemas Zod em todas as escritas
+- **Observabilidade:** traces e métricas são gerados localmente; em desenvolvimento usa `ConsoleSpanExporter`. Em produção, configure exportação OTLP via `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`.
 
 ## Especificação
 

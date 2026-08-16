@@ -39,6 +39,7 @@
 - [Histórico e rastreabilidade](#-histórico-e-rastreabilidade)
 - [Interface Web](#-interface-web)
 - [Autenticação e acesso](#-autenticação-e-acesso)
+- [Observabilidade](#-observabilidade)
 - [Eventos](#-eventos)
 - [MCP Resource Subscriptions](#-mcp-resource-subscriptions)
 - [Como usar](#-como-usar)
@@ -675,6 +676,8 @@ Isso inicia:
 | 🔌 API REST | http://localhost:3150/api |
 | 📊 Status | http://localhost:3150/api/status |
 | 💓 Health | http://localhost:3150/api/health |
+| 📈 Observabilidade | http://localhost:3150/api/observabilidade/metricas |
+| 📈 Observabilidade | http://localhost:3150/api/observabilidade/metricas |
 | 🔧 MCP Server (Kilo Code) | `npx tsx src/mcp-server/index.ts` |
 
 ### Criar um projeto novo
@@ -860,7 +863,7 @@ O AgentMap encontra-se em desenvolvimento e possui os mecanismos centrais de coo
 
 **Funcionalidades principais:**
 
-`Gerenciamento de projetos` · `Gerenciamento de agentes` · `Gerenciamento de tarefas` · `Contratos` · `Decisões` · `Solicitações de alteração` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico` · `Interface Web` · `Integração MCP` · `Estrutura para integração com agentes`
+`Gerenciamento de projetos` · `Gerenciamento de agentes` · `Gerenciamento de tarefas` · `Contratos` · `Decisões` · `Solicitações de alteração` · `Dependências` · `Reservas` · `Bloqueios` · `Conflitos` · `Handoffs` · `Resultados` · `Validações` · `Checkpoints` · `Riscos` · `Histórico` · `Interface Web` · `Integração MCP` · `Estrutura para integração com agentes` · `Observabilidade com OpenTelemetry`
 
 > A documentação deve sempre acompanhar o estado real da implementação.
 
@@ -870,9 +873,72 @@ O AgentMap encontra-se em desenvolvimento e possui os mecanismos centrais de coo
 
 O projeto foi estruturado para permitir futuras extensões sem alterar seu núcleo conceitual. Possíveis evoluções:
 
-`Novos tipos de agentes` · `Novos clientes MCP` · `Novas ferramentas` · `Automação de validações` · `Análises de dependências` · `Detecção automática de conflitos` · `Métricas de produtividade` · `Visualizações avançadas` · `Auditoria avançada` · `Recuperação automática de trabalhos` · `Integração com outras IDEs` · `Integração com outros orquestradores`
+`Novos tipos de agentes` · `Novos clientes MCP` · `Novas ferramentas` · `Automação de validações` · `Análises de dependências` · `Detecção automática de conflitos` · `Visualizações avançadas` · `Auditoria avançada` · `Recuperação automática de trabalhos` · `Integração com outras IDEs` · `Integração com outros orquestradores`
 
 > Essas funcionalidades devem ser adicionadas somente quando fizerem sentido para o uso real do projeto.
+
+---
+
+## 🔭 Observabilidade
+
+O AgentMap implementa **OpenTelemetry** como camada de observabilidade nativa, permitindo rastreamento distribuído, métricas e inspeção do fluxo de execução entre HTTP, MCP stdio e agentes.
+
+```mermaid
+flowchart TD
+    subgraph Backend["Backend Node.js"]
+        HTTP["HTTP / Express"]
+        MCP["MCP Stdio"]
+        OTL["OTel SDK"]
+    end
+
+    subgraph Telemetry["Observabilidade"]
+        TRACES["Traces"]
+        METRICS["Métricas"]
+        CONV["Convenções gen_ai.*"]
+    end
+
+    HTTP --> OTL
+    MCP --> OTL
+    OTL --> TRACES
+    OTL --> METRICS
+    CONV --> OTL
+
+    TRACES --> DASH["Dashboard / API"]
+    METRICS --> DASH
+```
+
+### O que é instrumentado
+
+- **HTTP requests**: middleware `httpRequestMiddleware` cria spans para cada requisição HTTP com atributos `http.request.method`, `url.path` e `http.response.status_code`.
+- **Tools MCP**: wrapper `registerTracedTool` instrumenta todas as tools registradas no MCP, gerando spans `execute_tool <toolName>` e métricas por tool.
+- **Ciclos de agente**: `executeAgentWithTracing` gera spans de lifecycle para execução de agentes, incluindo status e duração.
+
+### Métricas e dashboard
+
+Endpoint REST para consulta de métricas:
+
+- `GET /api/observabilidade/metricas` — retorna período, métricas por agente e por tool.
+
+As métricas seguem domínios próprios combinados com convenções `gen_ai.*`:
+
+- `agentmap.tool.executions`
+- `agentmap.tool.errors`
+- `agentmap.tool.duration`
+- `agentmap.agent.executions`
+- `agentmap.agent.duration`
+
+### Convenções semânticas
+
+Além dos domínios `agentmap.*`, o AgentMap adota atributos padronizados:
+
+- `gen_ai.operation.name` — operação executada (`execute_tool`)
+- `gen_ai.tool.name` — nome da tool MCP
+- `gen_ai.tool.call.id` — identificador da chamada
+- `gen_ai.agent.id` — agente responsável pela execução
+
+### Exportação
+
+Em desenvolvimento, os spans são exportados para o console via `ConsoleSpanExporter`. Em produção, o backend pode enviar traces para um coletor OTLP configurável por variável de ambiente (`OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`).
 
 ---
 

@@ -63,6 +63,50 @@ backend/src/mcp-server/
     └── helpers.ts                # toMcpResult, toMcpData, toMcpStructured, mcpError, schema helper
 ```
 
+## Observabilidade (OpenTelemetry)
+
+O backend do AgentMap instrumenta traces e métricas usando **OpenTelemetry** com convenções `gen_ai.*` e domínios próprios `agentmap.*`.
+
+```
+backend/src/observability/
+├── index.ts                      # Inicialização do módulo de observabilidade
+├── tracing.ts                    # NodeSDK setup + getTracer()
+├── http-tracing.ts               # Middleware Express para spans HTTP
+├── tool-tracing.ts               # Wrapper registerTracedTool para tools MCP
+├── agent-tracing.ts              # Tracing do ciclo de vida de agentes
+├── metrics.ts                    # Instruments OTel (counters, histograms)
+├── metrics-store.ts              # Store em memória para dashboard
+├── gen-ai.ts                     # Constantes gen_ai.* semantic conventions
+├── attributes.ts                 # Constantes específicas agentmap.*
+├── sanitization.ts               # Política de sanitização de argumentos
+└── index.ts                      # Barrel export
+```
+
+### Instrumentação HTTP
+
+O middleware `httpRequestMiddleware` é registrado no Express antes das rotas (`backend/src/app.ts`) e gera spans nomeados `METHOD /url` com atributos `http.request.method`, `url.path` e `http.response.status_code`.
+
+### Instrumentação de Tools MCP
+
+Todas as tools MCP são registradas via wrapper `registerTracedTool(mcpServer, name, schema, handler)`. Esse wrapper:
+- Cria spans `execute_tool <toolName>`
+- Propaga atributos `gen_ai.tool.name`, `gen_ai.tool.call.id`, `gen_ai.agent.id`
+- Registra métricas de execução, duração e erro
+
+### Métricas
+
+Métricas OTel reais são combinadas com um `metricsStore` em memória para alimentar o dashboard:
+
+- `agentmap.tool.executions` — contador de execuções de tools
+- `agentmap.tool.errors` — contador de erros
+- `agentmap.tool.duration` — histograma de duração
+- `agentmap.agent.executions` — contador de execuções de agentes
+- `agentmap.agent.duration` — histograma de duração de agentes
+
+### Dashboard
+
+Endpoint `GET /api/observabilidade/metricas` retorna agregados por agente e por tool para o frontend de observabilidade.
+
 ## Contexto do Projeto
 
 A função `carregarContexto()` em `contexto.ts` replica o `projectMiddleware` do HTTP:
