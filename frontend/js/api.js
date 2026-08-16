@@ -43,7 +43,14 @@ class ApiClient {
     if (cacheKey) {
       this.cache.set(cacheKey, data);
     }
+    if (options.method && options.method !== 'GET') {
+      this.cache.clear();
+    }
     return data;
+  }
+
+  invalidateCache() {
+    this.cache.clear();
   }
 
   async getStatus() {
@@ -54,10 +61,10 @@ class ApiClient {
     return this.request('/projetos');
   }
 
-  async criarProjeto(nome, caminhoParental, descricao) {
+  async criarProjeto(nome, caminhoParental, descricao, dadosExtra = {}) {
     return this.request('/projetos', {
       method: 'POST',
-      body: JSON.stringify({ nome, caminhoParental, descricao })
+      body: JSON.stringify({ nome, caminhoParental, descricao, ...dadosExtra })
     });
   }
 

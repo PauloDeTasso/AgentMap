@@ -43,7 +43,7 @@ function formatDate(isoString) {
   if (!isoString) return '-';
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return isoString;
-  const tz = estado.projetoAtual?.config?.fusoHorario || 'UTC';
+  const tz = estado.projetoAtual?.config?.fusoHorario || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   try {
     return date.toLocaleString('pt-BR', { timeZone: tz, hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
   } catch {
@@ -68,6 +68,12 @@ function $(id) { return document.getElementById(id); }
 
 function showModal(id) { $(id).style.display = 'flex'; }
 function hideModal(id) { $(id).style.display = 'none'; }
+
+function agenteNomePorId(id) {
+  if (!id) return '-';
+  const a = estado.agentes.find(a => a.id === id);
+  return a ? a.nome : id;
+}
 
 function setButtonLoading(btn, loading) {
   if (!btn) return;
@@ -582,8 +588,12 @@ function setupEventListeners() {
     }
   });
 
-  $('btn-cancelar-novo').addEventListener('click', () => hideModal('modal-novo-projeto'));
-  $('btn-cancelar-abrir').addEventListener('click', () => hideModal('modal-abrir-projeto'));
+  $('btn-cancelar-novo').addEventListener('click', () => {
+    delete $('form-novo-projeto').dataset.editId;
+    $('form-novo-projeto').reset();
+    hideModal('modal-novo-projeto');
+  });
+  $('btn-cancelar-abrir').addEventListener('click', () => { $('form-abrir-projeto').reset(); hideModal('modal-abrir-projeto'); });
   $('btn-cancelar-editor').addEventListener('click', () => hideModal('modal-editor'));
 
   // Folder browser for Abrir Projeto
@@ -696,7 +706,7 @@ async function carregarPainel(painel) {
     case 'estado': await renderizarEstado(el); break;
     case 'auditoria': await renderizarAuditoria(el); break;
     case 'solicitacoes': await renderizarSolicitacoes(el); break;
-    case 'dashboard': await renderizarDashboardCoordenacao(el); break;
+    case 'tarefas-view': await renderizarTarefas(el); break;
     case 'resultados': await renderizarResultados(el); break;
     case 'artefatos': await renderizarArtefatos(el); break;
     case 'handoffs': await renderizarHandoffs(el); break;
@@ -948,7 +958,7 @@ async function renderizarTarefas(el) {
     const tbody = table.querySelector('tbody');
     for (const t of tarefas) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(t.id)}</td><td>${escapeHtml(t.titulo)}</td><td><span class="badge badge--${t.estado}">${escapeHtml(t.estado)}</span></td><td>${escapeHtml(t.prioridade)}</td><td>${escapeHtml(t.agenteResponsavel)}</td>
+      tr.innerHTML = `<td>${escapeHtml(t.id)}</td><td>${escapeHtml(t.titulo)}</td><td><span class="badge badge--${t.estado}">${escapeHtml(t.estado)}</span></td><td>${escapeHtml(t.prioridade)}</td><td>${escapeHtml(agenteNomePorId(t.agenteResponsavel))}</td>
         <td>
           <button class="btn btn--small" onclick="verTarefa('${escapeAttr(t.id)}')">Ver</button>
           <button class="btn btn--small" onclick="editarTarefa('${escapeAttr(t.id)}')">Editar</button>
@@ -1037,7 +1047,7 @@ async function renderizarSolicitacoes(el) {
     for (const s of solicitacoes) {
       const tr = document.createElement('tr');
       const badgeClass = s.prioridade === 'CRITICA' ? 'critico' : s.prioridade === 'ALTA' ? 'alerta' : s.prioridade === 'BAIXA' ? 'inativo' : 'ativo';
-      tr.innerHTML = `<td>${escapeHtml(s.id)}</td><td>${escapeHtml(s.titulo)}</td><td>${escapeHtml(s.agenteSolicitante.id)}</td><td>${escapeHtml(s.agenteResponsavel.id || '-')}</td><td><span class="badge badge--${badgeClass}">${escapeHtml(s.prioridade)}</span></td><td><span class="badge badge--${badgeStatus(s.status)}">${escapeHtml(s.status)}</span></td><td>${escapeHtml(s.aprovacao.status)}</td>
+             tr.innerHTML = `<td>${escapeHtml(s.id)}</td><td>${escapeHtml(s.titulo)}</td><td>${escapeHtml(agenteNomePorId(s.agenteSolicitante?.id))}</td><td>${escapeHtml(agenteNomePorId(s.agenteResponsavel?.id || '-'))}</td><td><span class="badge badge--${badgeClass}">${escapeHtml(s.prioridade)}</span></td><td><span class="badge badge--${badgeStatus(s.status)}">${escapeHtml(s.status)}</span></td><td>${escapeHtml(s.aprovacao.status)}</td>
         <td>
           <button class="btn btn--small" onclick="verSolicitacao('${escapeAttr(s.id)}')">Ver</button>
           <button class="btn btn--small" onclick="editarSolicitacao('${escapeAttr(s.id)}')">Editar</button>
@@ -1065,7 +1075,7 @@ async function renderizarArquivos(el) {
         <button class="btn btn--small" onclick="navegarPasta()">Navegar</button>
         <button class="btn btn--small btn--ghost" onclick="navegarPasta('.')">Raiz</button>
         <button class="btn btn--small btn--success" onclick="showModal('modal-novo-arquivo')"> Novo Arquivo</button>
-        <button class="btn btn--small btn--ghost" onclick="abrirPastaExplorer(pastaAtual)">📂 Explorar</button>
+        <button class="btn btn--small btn--ghost" data-path="${escapeAttr(pastaAtual)}" onclick="abrirPastaExplorer(this.getAttribute('data-path'))">📂 Explorar</button>
       </div>
     </div><ul class="file-list">`;
     for (const f of res.dados) {
@@ -1997,7 +2007,7 @@ window.verTarefa = async function(id) {
       <p><strong>Estado:</strong> <span class="badge badge--${t.estado}">${escapeHtml(t.estado)}</span> | <strong>Prioridade:</strong> ${escapeHtml(t.prioridade)}</p>
       <p><strong>Objetivo:</strong> ${escapeHtml(t.objetivo || '')}</p>
       <p><strong>Tipo:</strong> ${escapeHtml(t.tipo)} | <strong>Domínio:</strong> ${escapeHtml(t.dominio)} | <strong>Ambiente:</strong> ${escapeHtml(t.ambiente)}</p>
-      <p><strong>Agente Responsável:</strong> ${escapeHtml(t.agenteResponsavel || '')}</p>
+      <p><strong>Agente Responsável:</strong> ${escapeHtml(agenteNomePorId(t.agenteResponsavel))}</p>
       <p><strong>Contratos Obrigatórios:</strong> ${escapeHtml((t.contratosObrigatorios || []).join(', ') || 'Nenhum')}</p>
       <p><strong>Critérios de Aceitação:</strong> ${escapeHtml((t.criteriosAceitacao || []).join(', ') || 'Nenhum')}</p>
       <p><strong>Dependências:</strong> ${escapeHtml((t.dependencias || []).join(', ') || 'Nenhuma')}</p>
@@ -2162,7 +2172,7 @@ window.excluirContrato = async function(id) {
       dependencias: ($('tarefa-dependencias').value || '').split('\n').map(s => s.trim()).filter(s => s),
       criteriosAceitacao: $('tarefa-criterios').value.split('\n').map(s => s.trim()).filter(s => s),
       arquivosPermitidos: ($('tarefa-arquivos-esperados').value || '').split('\n').map(s => s.trim()).filter(s => s),
-      contextoNecessario: [$('tarefa-contexto').value.trim()].filter(Boolean),
+      contextoNecessario: ($('tarefa-contexto').value || '').split('\n').map(s => s.trim()).filter(s => s),
       contratosObrigatorios: $('tarefa-contratos').value.split(',').map(s => s.trim()).filter(s => s),
       tags: ($('tarefa-tags').value || '').split(',').map(s => s.trim()).filter(s => s)
     };
@@ -2466,7 +2476,7 @@ window.verSolicitacao = async function(id) {
     let html = `<div style="padding:8px;">
       <h3>${escapeHtml(s.id)} — ${escapeHtml(s.titulo)}</h3>
       <p><strong>Status:</strong> <span class="badge badge--ativo">${escapeHtml(s.status)}</span> | <strong>Prioridade:</strong> ${escapeHtml(s.prioridade)}</p>
-      <p><strong>Solicitante:</strong> ${escapeHtml(s.agenteSolicitante.id)} | <strong>Responsável:</strong> ${escapeHtml(s.agenteResponsavel.id || 'Nenhum')}</p>
+      <p><strong>Solicitante:</strong> ${escapeHtml(agenteNomePorId(s.agenteSolicitante?.id))} | <strong>Responsável:</strong> ${escapeHtml(agenteNomePorId(s.agenteResponsavel?.id) || 'Nenhum')}</p>
       <p><strong>Alvo:</strong> ${escapeHtml(s.alvo.tipo)} — ${escapeHtml(s.alvo.nome)}</p>
       ${s.alvo.identificador ? `<p><strong>Identificador:</strong> ${escapeHtml(s.alvo.identificador)}</p>` : ''}
       ${s.alvo.localizacao ? `<p><strong>Localização:</strong> <code>${escapeHtml(s.alvo.localizacao)}</code></p>` : ''}
@@ -2621,9 +2631,11 @@ window.gerarPromptTarefa = async function(tarefaId) {
     }
     const tarefa = tarefaRes.dados;
     const agentesRes = await api.getAgentes();
-    const agente = agentesRes.sucesso ? agentesRes.dados.find(a => a.id === tarefa.agenteResponsavel) : null;
+    const agentesLista = agentesRes.sucesso ? (Array.isArray(agentesRes.dados) ? agentesRes.dados : agentesRes.dados.agentes || []) : [];
+    const agente = agentesLista.find(a => a.id === tarefa.agenteResponsavel);
     const contratosRes = await api.getContratos();
-    const contratos = contratosRes.sucesso ? contratosRes.dados.filter(c => (tarefa.contratosObrigatorios || []).includes(c.id)) : [];
+    const contratosLista = contratosRes.sucesso ? (contratosRes.dados.contratos || []) : [];
+    const contratos = contratosLista.filter(c => (tarefa.contratosObrigatorios || []).includes(c.id));
     const projeto = estado.projetoAtual;
     const caminhoProjeto = projeto?.caminhoRaiz || '';
     const dominio = tarefa.dominio || 'geral';
@@ -2808,13 +2820,15 @@ window.gerarPromptAgente = async function(agenteId) {
       showToast('Agentes não encontrados', 'erro');
       return;
     }
-    const agente = agentesRes.dados.find(a => a.id === agenteId);
+    const agentesLista = agentesRes.sucesso ? (Array.isArray(agentesRes.dados) ? agentesRes.dados : agentesRes.dados.agentes || []) : [];
+    const agente = agentesLista.find(a => a.id === agenteId);
     if (!agente) {
       showToast('Agente não encontrado', 'erro');
       return;
     }
     const contratosRes = await api.getContratos();
-    const contratos = contratosRes.sucesso ? contratosRes.dados.filter(c => (agente.contratosObrigatorios || []).includes(c.id)) : [];
+    const contratosLista = contratosRes.sucesso ? (contratosRes.dados.contratos || []) : [];
+    const contratos = contratosLista.filter(c => (agente.contratosObrigatorios || []).includes(c.id));
     const projeto = estado.projetoAtual;
     const caminhoProjeto = projeto?.caminhoRaiz || '';
     const dominio = agente.dominio || 'geral';

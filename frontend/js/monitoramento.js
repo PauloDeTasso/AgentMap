@@ -2,11 +2,25 @@ const API_BASE = '/api/monitoramento';
 
 let ws = null;
 let autoScroll = true;
+let msgCounter = 0;
 let mensagensCache = [];
 let agentesCache = [];
 let filtroAgente = 'todos';
 let filtroTipo = 'todos';
 let modoAtual = null;
+let apiKey = null;
+
+async function carregarApiKey() {
+  try {
+    const res = await fetch('/api/auth/key');
+    if (res.ok) {
+      const data = await res.json();
+      apiKey = data.dados?.apiKey || null;
+    }
+  } catch {
+    apiKey = null;
+  }
+}
 function generateMsgId() {
   msgCounter += 1;
   return `MSG-${Date.now()}-${msgCounter}`;
@@ -37,6 +51,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}/ws/monitoramento`;
+
+  function authHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey) headers['X-API-Key'] = apiKey;
+    return headers;
+  }
 
   function conectarWebSocket() {
     ws = new WebSocket(wsUrl);
@@ -104,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function carregarModoAtual() {
     try {
-      const res = await fetch(`${API_BASE}/modo`);
+      const res = await fetch(`${API_BASE}/modo`, { headers: authHeaders() });
       const json = await res.json();
       if (json.sucesso) {
         modoAtual = json.dados.modoGlobal;
@@ -129,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(`${API_BASE}/modo`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ modo, escopo: 'GLOBAL' })
       });
       const json = await res.json();
@@ -273,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetch(`${API_BASE}/intervir`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify({ comando, payload })
     }).then(() => {
       adicionarMensagem({
@@ -366,8 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         await fetch(`${API_BASE}/mensagens`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tipo: 'COMANDO_USUARIO', emissor: 'usuario', conteudo: texto })
+         headers: authHeaders(),
+         body: JSON.stringify({ tipo: 'COMANDO_USUARIO', emissor: 'usuario', conteudo: texto })
         });
       } catch (err) {
         console.error('Erro ao enviar mensagem:', err);
@@ -399,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     aplicarFiltros();
   });
 
+  await carregarApiKey();
   carregarModoAtual();
   carregarMensagens();
   conectarWebSocket();
@@ -406,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function carregarMensagens() {
   try {
-    const res = await fetch(`${API_BASE}/mensagens?limite=100`);
+    const res = await fetch(`${API_BASE}/mensagens?limite=100`, { headers: authHeaders() });
     const json = await res.json();
     if (json.sucesso) {
       mensagensCache = json.dados;
