@@ -8,11 +8,7 @@ export function criarPendenciaRouter(): Router {
   router.get('/', asyncHandler(async (req: Request, res: Response) => {
     const tarefaId = req.query.tarefaId as string | undefined;
     if (tarefaId) {
-      const all = req.servicos!.pendencia.listar();
-      if (all.sucesso && all.dados) {
-        return responder(res, { sucesso: true, dados: all.dados.filter((p) => p.tarefaId === tarefaId) });
-      }
-      return responder(res, all);
+      return responder(res, req.servicos!.pendencia.listarPorTarefa(tarefaId));
     }
     return responder(res, req.servicos!.pendencia.listar());
   }));

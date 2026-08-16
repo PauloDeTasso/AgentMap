@@ -40,6 +40,14 @@ export class PendenciaService {
     return { sucesso: true, dados: result.dados.pendencias };
   }
 
+  listarPorTarefa(tarefaId: string): ResultadoOperacao<Pendencia[]> {
+    const todos = this.listar();
+    if (!todos.sucesso || !todos.dados) {
+      return todos;
+    }
+    return { sucesso: true, dados: todos.dados.filter((p) => p.tarefaId === tarefaId) };
+  }
+
   obter(id: string): ResultadoOperacao<Pendencia> {
     const result = this.fs.lerJson<Pendencia>(this.getPendenciaPath(id));
     if (!result.sucesso || !result.dados) return { sucesso: false, erro: 'Pendência não encontrada', codigoErro: 'NOT_FOUND' };

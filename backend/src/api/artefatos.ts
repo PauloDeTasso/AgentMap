@@ -8,11 +8,7 @@ export function criarArtefatoRouter(): Router {
   router.get('/', asyncHandler(async (req: Request, res: Response) => {
     const tarefaId = req.query.tarefaId as string | undefined;
     if (tarefaId) {
-      const all = req.servicos!.artefato.listar();
-      if (all.sucesso && all.dados) {
-        return responder(res, { sucesso: true, dados: all.dados.filter((a) => a.tarefaId === tarefaId) });
-      }
-      return responder(res, all);
+      return responder(res, req.servicos!.artefato.listarPorTarefa(tarefaId));
     }
     return responder(res, req.servicos!.artefato.listar());
   }));
