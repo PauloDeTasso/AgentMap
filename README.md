@@ -45,6 +45,7 @@
 - [Como usar](#-como-usar)
 - [Estrutura de projetos gerenciados](#-estrutura-de-projetos-gerenciados)
 - [Organização do repositório](#-organização-do-repositório)
+- [Documentação](#-documentação)
 - [Integração com Kilo Code](#-integração-com-kilo-code)
 - [Segurança](#-segurança)
 - [Git](#-git)
@@ -766,6 +767,15 @@ AgentMap/
 > A estrutura real do repositório deve ser considerada a autoridade.
 
 ---
+
+## 📚 Documentação
+
+| Arquivo | Descrição |
+|---|---|
+| `docs/guia-agente-mcp.md` | Guia do agente MCP |
+| `docs/referencia-tools-mcp.md` | Referência completa de tools com parâmetros |
+| `docs/arquitetura-mcp.md` | Arquitetura MCP |
+| `PLANO GERAL/...` | Especificação autoritativa do projeto |
 
 ## 🧩 Integração com Kilo Code
 

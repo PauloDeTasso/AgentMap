@@ -16,6 +16,7 @@ Este guia descreve como um agente de IA deve interagir com o AgentMap através d
 2. Leia o resource `agentmap://onboarding` para entender o sistema.
 3. Consulte o resource `agentmap://playbook` para ver padrões de uso recomendados.
 4. Use `agentmap_sugerir_fluxo` se precisar de orientação sobre qual tool usar primeiro.
+5. Consulte `docs/referencia-tools-mcp.md` para ver **todos os parâmetros esperados** por cada tool MCP antes de executar.
 
 ## Ciclo de Trabalho
 
