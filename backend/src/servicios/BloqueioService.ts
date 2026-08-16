@@ -49,11 +49,37 @@ export class BloqueioService {
   }
 
   async criar(dados: Partial<Bloqueio>, projetoId?: string): Promise<ResultadoOperacao<Bloqueio>> {
-    const bloqueio: Bloqueio = { ...dados } as Bloqueio;
-
-    if (!bloqueio.id) {
-      bloqueio.id = this.idGenerator.gerarId('BLOQ', this.getRegistryPath(), 'bloqueios');
+    if (!dados.tarefaId) {
+      return { sucesso: false, erro: 'tarefaId é obrigatório', codigoErro: 'VALIDATION_ERROR' };
     }
+    if (!dados.tipo) {
+      return { sucesso: false, erro: 'tipo é obrigatório', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!dados.gravidade) {
+      return { sucesso: false, erro: 'gravidade é obrigatória', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!dados.descricao) {
+      return { sucesso: false, erro: 'descricao é obrigatória', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!dados.origem) {
+      return { sucesso: false, erro: 'origem é obrigatória', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!dados.responsavelResolucao) {
+      return { sucesso: false, erro: 'responsavelResolucao é obrigatório', codigoErro: 'VALIDATION_ERROR' };
+    }
+
+    const bloqueio: Bloqueio = {
+      id: dados.id || this.idGenerator.gerarId('BLOQ', this.getRegistryPath(), 'bloqueios'),
+      tarefaId: dados.tarefaId,
+      tipo: dados.tipo,
+      gravidade: dados.gravidade,
+      descricao: dados.descricao,
+      origem: dados.origem,
+      responsavelResolucao: dados.responsavelResolucao,
+      estado: dados.estado || 'ATIVO',
+      criadoEm: dados.criadoEm || new Date().toISOString(),
+      resolvidoEm: dados.resolvidoEm || null
+    };
 
     const validation = this.validator.validar('bloqueio', bloqueio);
     if (!validation.valido) return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
@@ -83,9 +109,9 @@ export class BloqueioService {
     }
 
     registryResult.dados.bloqueios[idx].estado = 'RESOLVIDO';
-    registryResult.dados.bloqueios[idx].resolvidoEm = resolucao;
+    registryResult.dados.bloqueios[idx].resolvidoEm = new Date().toISOString();
     this.salvarRegistry(registryResult.dados);
-    this.auditoria.registrar('BLOQUEIO_RESOLVIDO', `Bloqueio '${id}' resolvido.`, { bloqueioId: id });
+    this.auditoria.registrar('BLOQUEIO_RESOLVIDO', `Bloqueio '${id}' resolvido. ${resolucao}`, { bloqueioId: id, resolucao });
     if (this.eventBus && projetoId) {
       this.eventBus.publish({ uri: bloqueiosUri(projetoId), timestamp: Date.now(), reason: 'bloqueio_resolvido' });
     }

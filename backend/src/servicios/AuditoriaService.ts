@@ -31,15 +31,45 @@ export class AuditoriaService {
   }
 
   private appendEvento(evento: EventoAuditoria): void {
-    const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(
-      path.win32.join('.ia', 'auditoria', 'eventos.json')
-    );
-    if (result.sucesso && result.dados) {
-      result.dados.eventos.push(evento);
-      this.fs.escreverJson(
-        path.win32.join('.ia', 'auditoria', 'eventos.json'),
-        result.dados
-      );
+    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const lockPath = auditoriaPath + '.lock';
+
+    let retries = 5;
+    while (retries > 0) {
+      try {
+        if (!fs.existsSync(lockPath)) {
+          fs.writeFileSync(lockPath, String(process.pid), { flag: 'wx' });
+        }
+      } catch (e: any) {
+        if (e.code === 'EEXIST') {
+          retries--;
+          if (retries === 0) {
+            console.error('[AuditoriaService] lock timeout');
+            return;
+          }
+          const wait = 50;
+          for (let i = 0; i < wait; i++) {
+            try {
+              if (!fs.existsSync(lockPath)) break;
+            } catch {}
+          }
+          continue;
+        }
+        throw e;
+      }
+
+      try {
+        const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(auditoriaPath);
+        const eventos = (result.sucesso && result.dados?.eventos) ? result.dados.eventos : [];
+        eventos.push(evento);
+
+        const tmpPath = auditoriaPath + '.tmp-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+        fs.writeFileSync(tmpPath, JSON.stringify({ eventos }, null, 2), 'utf-8');
+        fs.renameSync(tmpPath, auditoriaPath);
+        return;
+      } finally {
+        try { fs.unlinkSync(lockPath); } catch {}
+      }
     }
   }
 

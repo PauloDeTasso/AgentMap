@@ -27,11 +27,16 @@ export class PendenciaService {
   }
   private carregarRegistry(): ResultadoOperacao<PendenciasRegistry> {
     const result = this.fs.lerJson<PendenciasRegistry>(this.getRegistryPath());
-    if (!result.sucesso || !result.dados) return { sucesso: true, dados: { pendencias: [] } };
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: false, erro: result.erro || 'Erro ao carregar registro', codigoErro: result.codigoErro || 'REGISTRY_ERROR' };
+    }
     return result;
   }
   private salvarRegistry(registry: PendenciasRegistry): void {
-    this.fs.escreverJson(this.getRegistryPath(), registry);
+    const result = this.fs.escreverJson(this.getRegistryPath(), registry);
+    if (!result.sucesso) {
+      throw new Error(result.erro || 'Erro ao salvar registro');
+    }
   }
 
   listar(): ResultadoOperacao<Pendencia[]> {
