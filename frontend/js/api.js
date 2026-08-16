@@ -7,6 +7,10 @@ class ApiClient {
     this.initPromise = this.loadApiKey();
   }
 
+  clearCache() {
+    this.cache.clear();
+  }
+
   async loadApiKey() {
     try {
       const res = await fetch('/api/auth/key');
@@ -38,7 +42,11 @@ class ApiClient {
     const res = await fetch(url, opts);
     const data = await res.json().catch(() => null);
     if (!res.ok) {
+      this.clearCache();
       throw { status: res.status, ...(data || {}) };
+    }
+    if (options.method && options.method !== 'GET') {
+      this.clearCache();
     }
     if (cacheKey) {
       this.cache.set(cacheKey, data);
@@ -54,10 +62,14 @@ class ApiClient {
     return this.request('/projetos');
   }
 
-  async criarProjeto(nome, caminhoParental, descricao) {
+  async criarProjeto(nome, caminhoParental, descricao, dadosExtra) {
+    const body = { nome, caminhoParental, descricao };
+    if (dadosExtra && typeof dadosExtra === 'object') {
+      Object.assign(body, dadosExtra);
+    }
     return this.request('/projetos', {
       method: 'POST',
-      body: JSON.stringify({ nome, caminhoParental, descricao })
+      body: JSON.stringify(body)
     });
   }
 
