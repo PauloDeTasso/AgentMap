@@ -464,7 +464,7 @@ O AgentMap possui uma interface Web local para visualizar e administrar o estado
 #### Estado e Monitoramento
 6. **Estado** — Snapshot atual do projeto: contadores, status e saúde geral
 7. **Auditoria** — Log completo de eventos operacionais com timestamps
-8. **Monitor** — Acompanhamento em tempo real de agentes, modos e intervenções
+8. **Monitor** — Visão de monitoramento em tempo real com mensagens, agentes ativos, alertas e dispatcher
 
 #### Execução e Validação
 9. **Solicitações** — Fluxo de alterações coordenadas: criação, análise, aprovação e execução
@@ -500,6 +500,93 @@ O AgentMap possui uma interface Web local para visualizar e administrar o estado
 - **Ações básicas:** Cada painel disponibiliza ações básicas quando aplicáveis: criar novo registro, visualizar detalhes, gerar prompt contextualizado para agentes e navegar por arquivos e diretórios do projeto.
 
 O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador local, sem depender da interface do próprio agente.
+
+---
+
+## 📡 Monitoramento
+
+O painel **Monitor** é a visão central de acompanhamento em tempo real do projeto. Ele consolida informações de múltiplas fontes do AgentMap em uma única tela, permitindo identificar rapidamente o estado dos agentes, alertas ativos, mensagens de comunicação e eventos recentes.
+
+### Funcionalidades do Painel Monitor
+
+O painel **Monitor** exibe:
+
+- **Agentes ativos** — Sessões em andamento com identificação do agente, tarefa associada, horário de início e contexto consultado
+- **Resumo do estado do projeto** — Cards com contadores de tarefas (concluídas, em execução, bloqueadas), solicitações, riscos e sessões
+- **Alertas** — Handoffs pendentes, bloqueios ativos e riscos críticos, com detalhes expandidos em tabelas
+- **Mensagens de monitoramento** — Comunicações enviadas via API entre agentes e sistemas, com tipo, emissor, timestamp e conteúdo
+- **Eventos recentes** — Log de eventos operacionais com resultado (sucesso/falha) e descrição
+
+### API de Monitoramento
+
+O backend expõe endpoints dedicados para integração com o painel Monitor:
+
+| Endpoint | Descrição |
+|---|---|
+| `GET /api/monitor` | Visão consolidada do monitoramento: projeto, estado, sessões ativas, alertas, mensagens recentes e eventos |
+| `GET /api/monitoramento/mensagens` | Lista mensagens de monitoramento com filtros opcionais |
+| `POST /api/monitoramento/mensagens` | Cria uma nova mensagem de monitoramento |
+| `PUT /api/monitoramento/agente/:id/status` | Atualiza o status de um agente monitorado |
+| `GET /api/monitoramento/agentes` | Lista agentes e seus status de monitoramento |
+| `GET /api/monitoramento/modo` | Retorna o modo global de operação (MANUAL/AUTO) |
+| `POST /api/monitoramento/modo` | Altera o modo global de operação |
+| `POST /api/monitoramento/intervir` | Executa intervenção manual no sistema |
+| `GET /api/monitoramento/dispatcher/pendentes` | Lista itens pendentes do dispatcher |
+| `POST /api/monitoramento/dispatcher/executar` | Executa item pendente do dispatcher |
+| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
+
+### Modos de Operação
+
+O AgentMap suporta dois modos de operação no monitoramento:
+
+- **MANUAL** — Agentes e operações seguem fluxo controlado pelo usuário ou planejador
+- **AUTO** — Sistema pode executar operações automaticamente dentro de regras predefinidas
+
+O modo pode ser alterado via `POST /api/monitoramento/modo` e é refletido em tempo real no painel Monitor.
+
+### Mensagens de Monitoramento
+
+Mensagens são registros estruturados de comunicação entre agentes e sistemas. Campos disponíveis:
+
+| Campo | Descrição |
+|---|---|
+| `id` | Identificador único (ex: `MSG-<timestamp>`) |
+| `timestamp` | Data/hora da mensagem |
+| `tipo` | Tipo da mensagem (INFO, AVISO, ERRO, SUCESSO) |
+| `emissor` | Origem da mensagem |
+| `agenteId` | Agente relacionado |
+| `tarefaId` | Tarefa relacionada |
+| `conteudo` | Conteúdo da mensagem |
+| `dados` | Dados estruturados adicionais |
+| `acoes` | Ações associadas |
+
+Exemplo de envio:
+
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "INFO",
+    "emissor": "backend",
+    "agenteId": "backend",
+    "tarefaId": "TAR-2026-00013",
+    "conteudo": "Integração pronta para teste",
+    "dados": { "modo": "MANUAL" },
+    "acoes": []
+  }'
+```
+
+### Intervenções
+
+O painel Monitor permite intervenções manuais através do endpoint `POST /api/monitoramento/intervenir`. Comandos suportados são executados pelo serviço de monitoramento e registrados no histórico.
+
+### Dispatcher
+
+O dispatcher gerencia itens pendentes de execução. Através dos endpoints `GET /api/monitoramento/dispatcher/pendentes` e `POST /api/monitoramento/dispatcher/executar`, o sistema pode listar e executar trabalhos pendentes de forma controlada.
+
+### WebSocket
+
+Além da API REST, o AgentMap expõe um WebSocket em `ws://localhost:3150/ws/monitoramento` para notificações em tempo real. O serviço `MonitoramentoWebSocket` broadcast mensagens para sessões conectadas, permitindo atualizações instantâneas no painel Monitor sem polling.
 
 ---
 

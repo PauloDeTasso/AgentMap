@@ -270,9 +270,9 @@ async function init() {
   console.log('[init] iniciando...');
   await atualizarStatus();
   await carregarSettings();
-  renderizarProjetoAtual();
   console.log('[init] carregando projeto atual...');
   await carregarProjetoAtual();
+  renderizarProjetoAtual();
   if (!estado.projetoAtual) {
     console.log('[init] nenhum projeto atual, renderizando tela inicial...');
     await renderizarTelaInicial();
@@ -1198,6 +1198,7 @@ async function renderizarMonitor(el) {
     let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
       <h3 style="margin:0;">📡 Monitor em Tempo Real</h3>
       <span style="color:var(--text-muted);font-size:0.8rem;">Atualizado: ${dataAtualizacao}</span>
+      <button class="btn btn--small" onclick="carregarPainel('monitor')">🔄 Atualizar</button>
     </div>`;
 
     if (m.sessoesAtivas && m.sessoesAtivas.length > 0) {
@@ -1260,6 +1261,19 @@ async function renderizarMonitor(el) {
       }
 
       html += `</div>`;
+    }
+
+    if (m.mensagensRecentes && m.mensagensRecentes.length > 0) {
+      html += `<div class="card">
+        <h4>💬 Mensagens de Monitoramento</h4>
+        <table class="table">
+          <thead><tr><th>Data</th><th>Tipo</th><th>Emissor</th><th>Conteúdo</th></tr></thead>
+          <tbody>`;
+      for (const msg of m.mensagensRecentes) {
+        const data = formatDate(msg.timestamp);
+        html += `<tr><td>${escapeHtml(data)}</td><td>${escapeHtml(msg.tipo)}</td><td>${escapeHtml(msg.emissor)}</td><td>${escapeHtml(msg.conteudo || '')}</td></tr>`;
+      }
+      html += `</tbody></table></div>`;
     }
 
     if (m.eventosRecentes && m.eventosRecentes.length > 0) {

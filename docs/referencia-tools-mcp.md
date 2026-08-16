@@ -13,6 +13,24 @@ Este documento lista as 124 tools MCP disponíveis para integração com agentes
 
 ## Catálogo completo
 
+### Monitoramento
+
+| Tool / Endpoint | Descrição | Parâmetros |
+|---|---|---|
+| `agentmap_monitoramento_obter` | Obtém visão consolidada do monitoramento | `{}` |
+| `agentmap_monitoramento_mensagens_listar` | Lista mensagens de monitoramento | `{ "limite"?: number, "agenteId"?: string, "tipo"?: string }` |
+| `agentmap_monitoramento_mensagens_criar` | Cria mensagem de monitoramento | `{ "tipo": string, "emissor": string, "agenteId"?: string, "tarefaId"?: string, "conteudo": string, "dados"?: Record<string, unknown>, "acoes"?: unknown[] }` |
+| `agentmap_monitoramento_agente_status` | Atualiza status de agente monitorado | `{ "agenteId": string, "status": string, ...dados }` |
+| `agentmap_monitoramento_agentes_listar` | Lista agentes monitorados | `{}` |
+| `agentmap_monitoramento_modo_obter` | Obtém modo global de operação | `{}` |
+| `agentmap_monitoramento_modo_alterar` | Altera modo global de operação | `{ "modo": "MANUAL" | "AUTO", "escopo": string, "agenteId"?: string }` |
+| `agentmap_monitoramento_intervir` | Executa intervenção manual | `{ "comando": string, "payload"?: Record<string, unknown> }` |
+| `agentmap_monitoramento_dispatcher_pendentes` | Lista itens pendentes do dispatcher | `{ "agenteId"?: string }` |
+| `agentmap_monitoramento_dispatcher_executar` | Executa item pendente do dispatcher | `{ "agenteId": string }` |
+| `agentmap_monitoramento_dispatcher_logs` | Lista logs do dispatcher | `{ "limite"?: number }` |
+
+**Endpoint REST equivalente:** `GET /api/monitor` retorna visão consolidada com projeto, estado, sessões ativas, alertas, mensagens recentes e eventos.
+
 ### Projetos
 
 | Tool | Descrição | Parâmetros |

@@ -54,7 +54,47 @@ Os painéis são agrupados logicamente por domínio, permitindo navegação flui
 
 ### Visões Especiais
 26. **Painel de Controle** — Dashboard com visão consolidada do projeto
-27. **Monitor** — Visão de monitoramento com mensagens, agentes e dispatcher
+27. **Monitor** — Visão de monitoramento em tempo real com mensagens, agentes ativos, alertas e dispatcher
+
+### Painel Monitor
+
+O painel **Monitor** é a visão central de acompanhamento em tempo real do projeto. Ele consolida informações de múltiplas fontes do AgentMap em uma única tela.
+
+#### Funcionalidades
+
+- **Agentes ativos** — Sessões em andamento com identificação do agente, tarefa associada, horário de início e contexto consultado
+- **Resumo do estado** — Cards com contadores de tarefas (concluídas, em execução, bloqueadas), solicitações, riscos e sessões
+- **Alertas** — Handoffs pendentes, bloqueios ativos e riscos críticos, com detalhes expandidos em tabelas
+- **Mensagens de monitoramento** — Comunicações enviadas via API entre agentes e sistemas, com tipo, emissor, timestamp e conteúdo
+- **Eventos recentes** — Log de eventos operacionais com resultado (sucesso/falha) e descrição
+- **Botão de atualização** — Atualização manual dos dados do painel
+
+#### API de Suporte
+
+| Endpoint | Descrição |
+|---|---|
+| `GET /api/monitor` | Visão consolidada do monitoramento |
+| `GET /api/monitoramento/mensagens` | Lista mensagens de monitoramento |
+| `POST /api/monitoramento/mensagens` | Cria mensagem de monitoramento |
+| `PUT /api/monitoramento/agente/:id/status` | Atualiza status de agente |
+| `GET /api/monitoramento/agentes` | Lista agentes monitorados |
+| `GET /api/monitoramento/modo` | Modo global (MANUAL/AUTO) |
+| `POST /api/monitoramento/modo` | Altera modo global |
+| `POST /api/monitoramento/intervir` | Executa intervenção manual |
+| `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher |
+| `POST /api/monitoramento/dispatcher/executar` | Executa item pendente |
+| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
+
+#### Modos de Operação
+
+- **MANUAL** — Agentes e operações seguem fluxo controlado pelo usuário ou planejador
+- **AUTO** — Sistema pode executar operações automaticamente dentro de regras predefinidas
+
+O modo pode ser alterado via API e é refletido em tempo real no painel.
+
+#### WebSocket
+
+Além da API REST, o AgentMap expõe um WebSocket em `ws://localhost:3150/ws/monitoramento` para notificações em tempo real. O serviço `MonitoramentoWebSocket` faz broadcast de mensagens para sessões conectadas, permitindo atualizações instantâneas no painel Monitor sem polling.
 
 ---
 

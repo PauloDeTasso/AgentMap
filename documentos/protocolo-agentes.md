@@ -359,3 +359,60 @@ Ao trabalhar em uma tarefa:
 6. **Atualize o estado** ao final de cada fase (não pule etapas).
 7. **Registre aprendizados** após conclusão.
 8. **Valide** antes de marcar como `CONCLUIDA`.
+
+## 8. Monitoramento
+
+O AgentMap oferece um painel de monitoramento em tempo real consolidado no painel **Monitor**, acessível pela interface web. Esse painel reúne informações de múltiplas fontes do sistema para permitir acompanhamento completo do projeto.
+
+### 8.1 O que o painel Monitor exibe
+
+- **Sessões ativas** — Agentes em execução com tarefa associada, horário de início e contexto consultado
+- **Resumo do estado** — Cards com contadores de tarefas (concluídas, em execução, bloqueadas), solicitações, riscos e sessões
+- **Alertas** — Handoffs pendentes, bloqueios ativos e riscos críticos, com detalhes expandidos
+- **Mensagens de monitoramento** — Comunicações enviadas via API entre agentes e sistemas
+- **Eventos recentes** — Log de eventos operacionais com resultado e descrição
+
+### 8.2 API de Monitoramento
+
+| Endpoint | Descrição |
+|---|---|
+| `GET /api/monitor` | Visão consolidada do monitoramento |
+| `GET /api/monitoramento/mensagens` | Lista mensagens com filtros |
+| `POST /api/monitoramento/mensagens` | Cria mensagem de monitoramento |
+| `PUT /api/monitoramento/agente/:id/status` | Atualiza status de agente |
+| `GET /api/monitoramento/agentes` | Lista agentes monitorados |
+| `GET /api/monitoramento/modo` | Modo global (MANUAL/AUTO) |
+| `POST /api/monitoramento/modo` | Altera modo global |
+| `POST /api/monitoramento/intervir` | Executa intervenção manual |
+| `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher |
+| `POST /api/monitoramento/dispatcher/executar` | Executa item pendente |
+| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
+
+### 8.3 Mensagens de Monitoramento
+
+Mensagens são registros estruturados de comunicação. Campos:
+
+| Campo | Descrição |
+|---|---|
+| `id` | Identificador único |
+| `timestamp` | Data/hora da mensagem |
+| `tipo` | Tipo (INFO, AVISO, ERRO, SUCESSO) |
+| `emissor` | Origem da mensagem |
+| `agenteId` | Agente relacionado |
+| `tarefaId` | Tarefa relacionada |
+| `conteudo` | Conteúdo da mensagem |
+| `dados` | Dados estruturados adicionais |
+| `acoes` | Ações associadas |
+
+### 8.4 Modos de Operação
+
+- **MANUAL** — Fluxo controlado pelo usuário ou planejador
+- **AUTO** — Sistema executa operações automaticamente dentro de regras predefinidas
+
+O modo pode ser alterado via `POST /api/monitoramento/modo` e é refletido em tempo real no painel Monitor.
+
+### 8.5 WebSocket
+
+O WebSocket `ws://localhost:3150/ws/monitoramento` oferece atualizações em tempo real. O serviço `MonitoramentoWebSocket` faz broadcast de mensagens para sessões conectadas, permitindo atualizações instantâneas sem polling.
+
+---

@@ -243,6 +243,51 @@ Para cancelar:
 
 O EventBus agrupa notificações do mesmo URI em janela de 100ms. Se múltiplas alterações ocorrerem rapidamente, você receberá apenas 1 notificação.
 
+## Monitoramento
+
+O AgentMap oferece um painel de monitoramento em tempo real acessível pela interface web e por API REST. O painel **Monitor** consolida:
+
+- **Sessões ativas** de agentes com tarefa associada e horário de início
+- **Alertas** de handoffs pendentes, bloqueios ativos e riscos críticos
+- **Mensagens de monitoramento** enviadas entre agentes e sistemas
+- **Eventos recentes** do projeto com resultado (sucesso/falha)
+
+### API de Monitoramento
+
+| Endpoint | Descrição |
+|---|---|
+| `GET /api/monitor` | Visão consolidada do monitoramento |
+| `GET /api/monitoramento/mensagens` | Lista mensagens com filtros |
+| `POST /api/monitoramento/mensagens` | Cria mensagem de monitoramento |
+| `PUT /api/monitoramento/agente/:id/status` | Atualiza status de agente |
+| `GET /api/monitoramento/agentes` | Lista agentes monitorados |
+| `GET /api/monitoramento/modo` | Modo global (MANUAL/AUTO) |
+| `POST /api/monitoramento/modo` | Altera modo global |
+| `POST /api/monitoramento/intervir` | Executa intervenção manual |
+| `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher |
+| `POST /api/monitoramento/dispatcher/executar` | Executa item pendente |
+| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
+
+### Enviar Mensagem de Monitoramento
+
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "INFO",
+    "emissor": "backend",
+    "agenteId": "backend",
+    "tarefaId": "TAR-2026-00013",
+    "conteudo": "Integração pronta para teste",
+    "dados": { "modo": "MANUAL" },
+    "acoes": []
+  }'
+```
+
+### WebSocket
+
+O WebSocket `ws://localhost:3150/ws/monitoramento` oferece atualizações em tempo real. O serviço `MonitoramentoWebSocket` faz broadcast de mensagens para sessões conectadas.
+
 ## Códigos de Erro
 
 | Código | Significado |

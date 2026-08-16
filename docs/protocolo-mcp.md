@@ -95,6 +95,19 @@ Esta especificação descreve a versão estável do protocolo, atualmente em pro
 - `agentmap_aprendizados_*`, `agentmap_validacoes_*`
 - `agentmap_contatos_*` — CRUD de contatos do projeto
 
+### Monitoramento
+- `agentmap_monitoramento_obter` — Visão consolidada do monitoramento
+- `agentmap_monitoramento_mensagens_listar` — Lista mensagens de monitoramento
+- `agentmap_monitoramento_mensagens_criar` — Cria mensagem de monitoramento
+- `agentmap_monitoramento_agente_status` — Atualiza status de agente
+- `agentmap_monitoramento_agentes_listar` — Lista agentes monitorados
+- `agentmap_monitoramento_modo_obter` — Obtém modo global (MANUAL/AUTO)
+- `agentmap_monitoramento_modo_alterar` — Altera modo global
+- `agentmap_monitoramento_intervir` — Executa intervenção manual
+- `agentmap_monitoramento_dispatcher_pendentes` — Lista itens pendentes
+- `agentmap_monitoramento_dispatcher_executar` — Executa item pendente
+- `agentmap_monitoramento_dispatcher_logs` — Logs do dispatcher
+
 ### Workflows
 - `agentmap_workflows_iniciar_trabalho` — Inicia trabalho com contexto completo
 - `agentmap_workflows_finalizar_trabalho` — Finaliza trabalho (resultado + handoff)

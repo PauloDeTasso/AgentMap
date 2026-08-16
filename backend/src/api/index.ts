@@ -102,7 +102,7 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
 
   router.get('/api/monitor', asyncHandler(async (req: Request, res: Response) => {
     const servicos = req.servicos!;
-    const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes, tarefasRes] = await Promise.all([
+    const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes, tarefasRes, mensagensRes] = await Promise.all([
       servicos.integridade.calcularEstadoProjeto(servicos.projeto.id),
       servicos.sessao.listar(),
       servicos.auditoria.listar(20),
@@ -110,7 +110,8 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
       servicos.bloqueio.listar(),
       servicos.risco.listar(),
       servicos.agente.listar(),
-      servicos.tarefa.listar()
+      servicos.tarefa.listar(),
+      Promise.resolve({ sucesso: true, dados: monitoramento.listarMensagens(20) })
     ]);
 
     const sessoesAtivas = sessoesRes.sucesso && sessoesRes.dados ? sessoesRes.dados.filter((s: any) => !s.datas?.fim) : [];
@@ -133,6 +134,7 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
         contextoConsultado: s.contextoConsultado
       })),
       eventosRecentes: Array.isArray(auditoriaRes) ? auditoriaRes.slice(0, 20) : [],
+      mensagensRecentes: mensagensRes.sucesso && Array.isArray(mensagensRes.dados) ? mensagensRes.dados.slice(0, 20) : [],
       alertas: {
         handoffsPendentes: handoffsPendentes.length,
         bloqueiosAtivos: bloqueiosAtivos.length,
