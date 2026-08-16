@@ -41,6 +41,8 @@ function criarAmbienteTeste() {
   fs.writeFileSync(path.join(iaDir, 'agentes', 'agentes.json'), JSON.stringify({ agentes: [{ id: 'AGT-BACKEND', nome: 'Backend' }] }));
   fs.writeFileSync(path.join(iaDir, 'tarefas', 'tarefas.json'), JSON.stringify({ tarefas: [{ id: 'TAR-001', agenteResponsavel: 'AGT-BACKEND' }], estatisticas: {} }));
   fs.writeFileSync(path.join(iaDir, 'solicitacoes', 'solicitacoes.json'), JSON.stringify({ solicitacoes: [] }));
+  fs.writeFileSync(path.join(iaDir, 'pendencias', 'pendencias.json'), JSON.stringify({ pendencias: [] }));
+  fs.writeFileSync(path.join(iaDir, 'dependencias', 'dependencias.json'), JSON.stringify({ dependencias: [] }));
   fs.writeFileSync(path.join(iaDir, 'auditoria', 'eventos.json'), JSON.stringify({ eventos: [] }));
   fs.writeFileSync(path.join(iaDir, 'decisoes', 'decisoes.json'), JSON.stringify({ decisoes: [] }));
   fs.writeFileSync(path.join(iaDir, 'riscos', 'riscos.json'), JSON.stringify({ riscos: [] }));
