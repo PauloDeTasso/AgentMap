@@ -3,14 +3,12 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import { ProjetoService } from '../servicios/ProjetoService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { loadSettings, GERENCIADOR_DIR } from '../config';
-import { ProjectAuthService, createProjectAuthService, DEFAULT_PROJECT_OPTIONS } from './security/projectAuth';
 import { ResultadoOperacao } from '../tipos';
 import * as path from 'path';
 
 const esquemasPath = path.resolve(__dirname, '..', '..', '..', 'esquemas');
 const validator = new SchemaValidator(esquemasPath);
 const projetoService = new ProjetoService(validator);
-const projectAuth = createProjectAuthService(projetoService, DEFAULT_PROJECT_OPTIONS);
 
 const settings = loadSettings();
 
@@ -129,5 +127,5 @@ export function toMcpData(dados: unknown): McpContent {
   };
 }
 
-export { projetoService, validator, settings, projectAuth, esquemasPath };
+export { projetoService, validator, settings, esquemasPath };
 

@@ -38,7 +38,6 @@
 - [Riscos](#-riscos)
 - [Histórico e rastreabilidade](#-histórico-e-rastreabilidade)
 - [Interface Web](#-interface-web)
-- [Autenticação e acesso](#-autenticação-e-acesso)
 - [Observabilidade](#-observabilidade)
 - [Eventos](#-eventos)
 - [MCP Resource Subscriptions](#-mcp-resource-subscriptions)
@@ -459,28 +458,6 @@ O desenvolvedor pode acompanhar o trabalho dos agentes através do navegador loc
 
 ---
 
-## 🔐 Autenticação e acesso
-
-Todas as requisições à API devem incluir a chave de API no header `x-api-key`.
-
-A chave é gerada automaticamente na primeira execução e armazenada em `backend/.local/.api-key`.
-
-**Obter a chave atual:**
-```bash
-curl http://localhost:3150/api/auth/key
-```
-
-**Verificar se uma chave é válida:**
-```bash
-curl -X POST http://localhost:3150/api/auth/verify \
-  -H "Content-Type: application/json" \
-  -d '{"apiKey":"sua-chave-aqui"}'
-```
-
-> O middleware **CSRF** está ativo para métodos não-GET, validando `Origin` e `Referer`. O **CORS** está configurado para permitir origens locais de desenvolvimento, incluindo `http://localhost:3150`.
-
----
-
 ## 📡 Eventos
 
 O AgentMap registra eventos assíncronos para coordenação entre agentes. Além dos eventos automáticos gerados por ações como handoffs e solicitações, o sistema oferece:
@@ -585,7 +562,7 @@ No modo 2026, o servidor envia `notifications/subscriptions/acknowledged` e usa 
 
 - **Capabilities anunciadas:** `resources.subscribe: true` e `resources.listChanged: true`
 - **Subscrições por session:** cada processo stdio MCP mantém suas próprias subscrições isoladas
-- **Autorização centralizada:** `authorizeResourceAccess()` valida acesso antes de inscrever ou ler
+- **Proteção limitada a path traversal:** acesso restrito à raiz do projeto aberto
 - **Coalescência:** bursts de mudanças são agrupados em 1 notificação por URI (janela de 100ms)
 - **Limpeza automática:** subscrições são removidas no disconnect da sessão
 - **Graceful shutdown:** streams 2026 recebem resultado vazio antes do fechamento

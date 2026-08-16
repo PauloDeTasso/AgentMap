@@ -130,11 +130,8 @@ registerTracedTool(mcpServer, 'agentmap_descobrir', {
       integracao: 'Usa git worktrees para isolamento real'
     },
     seguranca: {
-      apiKey: 'Header x-api-key obrigatorio para API REST',
-      csrf: 'Middleware CSRF ativo para metodos nao-GET',
-      cors: 'CORS configurado para origins locais de desenvolvimento',
       pathTraversal: 'Protecao contra path traversal em todos os caminhos de arquivo',
-      autorizacao: 'authorizeResourceAccess() valida acesso a recursos por projeto'
+      cors: 'CORS configurado para origins locais de desenvolvimento'
     },
     estrutura: {
       projetos: 'Pasta base de projetos (configuravel por projeto)',
@@ -151,10 +148,6 @@ registerTracedTool(mcpServer, 'agentmap_descobrir', {
     api: {
       base: 'http://localhost:3150/api',
       endpoints: [
-        'GET /api/auth/key',
-        'POST /api/auth/verify',
-        'POST /api/auth/login',
-        'POST /api/auth/logout',
         'GET /api/status',
         'GET /api/health',
         'GET /api/projetos',

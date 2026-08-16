@@ -30,14 +30,12 @@
 
 | # | Tarefa | Worktree | Responsável | Status |
 |---|--------|----------|-------------|--------|
-| 3 | Remover serviços deprecated (DaemonManager, ExecutorKiloDaemon, KiloDispatcherService) | `refactor/remover-deprecated` | Agente backend | 🔄 Em andamento |
 | 4 | Corrigir schemas inconsistentes (prioridade, agente-perfil, evento, contrato) | `fix/schemas-inconsistentes` | Agente backend | 🔄 Em andamento |
 
 ### P2 — Médio (melhorias)
 
 | # | Tarefa | Worktree | Responsável | Status |
 |---|--------|----------|-------------|--------|
-| 5 | Implementar rate limit persistente (não apenas em memória) | — | — | ⏳ Pendente |
 | 6 | Corrigir `aprovacao.estado` fantasma e `getDirPorEstado` fallback | — | — | ⏳ Pendente |
 | 7 | Remover testes de código deprecated | — | — | ⏳ Pendente |
 
@@ -48,9 +46,8 @@
 ### Se você é um agente novo:
 
 1. **Leia primeiro:** `.ia/docs/GUIA_INICIAL_AGENTES.md`
-2. **Confira o status:** `erros/erros-atuais.md`
-3. **Verifique pendências:** este arquivo (`ROADMAP.md`)
-4. **Consulte o contexto:** `.ia/contexto/analise-realidade-orquestracao.md`
+2. **Verifique pendências:** este arquivo (`ROADMAP.md`)
+3. **Consulte o contexto:** `.ia/contexto/fluxo-trabalho.md`
 
 ### Se você é um agente executor:
 
@@ -93,7 +90,6 @@ main (produção)
        └── v0007 (desenvolvimento atual)
             ├── fix/command-injection-explorer
             ├── fix/websocket-verify-client
-            ├── refactor/remover-deprecated
             └── fix/schemas-inconsistentes
 ```
 

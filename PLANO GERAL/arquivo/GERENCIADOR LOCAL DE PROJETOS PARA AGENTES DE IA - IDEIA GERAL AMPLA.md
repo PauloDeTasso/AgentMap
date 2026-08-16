@@ -253,12 +253,9 @@ Kilo Code
 - experiência do usuário;
 - validação;
 - tratamento de erros;
-- autenticação;
-- autorização;
 - integração com API;
 - segurança no navegador;
 - prevenção contra XSS;
-- prevenção contra CSRF;
 - armazenamento seguro;
 - desempenho.
 
@@ -314,13 +311,9 @@ Kilo Code
 - validação;
 - PostgreSQL;
 - migrações;
-- JWT;
-- controle de acesso;
-- BCrypt;
 - tratamento de exceções;
 - registros;
 - testes;
-- limitação de requisições;
 - CORS;
 - segurança;
 - observabilidade.
@@ -417,7 +410,6 @@ Kilo Code
 - comunicação HTTP;
 - JSON;
 - API REST;
-- autenticação;
 - armazenamento seguro;
 - permissões;
 - câmera;
@@ -524,18 +516,8 @@ A segurança será transversal a todos os agentes.
 
 ## Deve verificar
 
-- autenticação;
-- autorização;
-- controle de acesso;
-- JWT;
-- renovação de sessão;
-- BCrypt;
 - XSS;
-- CSRF;
 - SQL Injection;
-- falsificação de requisições;
-- limitação de requisições;
-- força bruta;
 - exposição de informações;
 - CORS;
 - validação;
@@ -744,8 +726,6 @@ O contrato deverá definir:
 - métodos;
 - parâmetros;
 - cabeçalhos;
-- autenticação;
-- autorização;
 - requisições;
 - respostas;
 - códigos HTTP;
@@ -765,13 +745,6 @@ A definição da API deve existir antes de consumidores implementarem comportame
 
 Define obrigatoriamente:
 
-- autenticação;
-- autorização;
-- funções;
-- permissões;
-- senhas;
-- sessões;
-- tokens;
 - criptografia;
 - chaves;
 - segredos;
@@ -1232,8 +1205,6 @@ O gerenciador também precisa ser seguro.
 
 Deve considerar:
 
-- autenticação local;
-- autorização;
 - proteção de arquivos;
 - validação de caminhos;
 - prevenção contra travessia de diretórios;

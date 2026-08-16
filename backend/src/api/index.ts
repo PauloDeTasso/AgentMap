@@ -1,6 +1,7 @@
 ﻿import { Router, Request, Response } from 'express';
 import * as path from 'path';
 import { ProjetoService } from '../servicios/ProjetoService';
+import { MonitoramentoService } from '../servicios/MonitoramentoService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
 import { criarProjetoRouter } from './projetos';
 import { criarAgenteRouter } from './agentes';
@@ -33,17 +34,16 @@ import { criarHandoffsCentraisRouter } from './handoffs-centrais';
 import { criarMonitoramentoRouter } from './monitoramento';
 import { criarInstanciaRouter } from './instancias';
 import { criarOrquestradorRouter } from './orquestrador';
-import { criarAuthRouter } from './auth';
 import { criarObservabilidadeRouter } from './observabilidade';
 
-export function setupRotas(projetoService: ProjetoService): Router {
+export function setupRotas(projetoService: ProjetoService, monitoramento: MonitoramentoService): Router {
   const router = Router();
 
   router.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0' } });
   });
 
-  router.use('/api/auth', criarAuthRouter());
+  router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
@@ -88,7 +88,6 @@ export function setupRotas(projetoService: ProjetoService): Router {
   router.use('/api/admin', criarAdminRouter());
   router.use('/api/health', criarHealthRouter());
   router.use('/api/handoffs-centrais', criarHandoffsCentraisRouter());
-  router.use('/api/monitoramento', criarMonitoramentoRouter());
   router.use('/api/instancias', criarInstanciaRouter());
   router.use('/api/orquestrador', criarOrquestradorRouter());
 

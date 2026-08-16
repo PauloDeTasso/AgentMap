@@ -230,12 +230,12 @@ Para cancelar:
 
 > **Importante:** no modo 2026, o cliente deve re-listar após reconexão stdio. O servidor não mantém estado de subscrição entre reconexões.
 
-### Regras de autorização
+### Regras de acesso
 
-- Subscrições e leituras são validadas por `authorizeResourceAccess()`
-- `solicitacoes/{agenteId}` e `handoffs/{agenteId}` exigem projeto aberto
-- `bloqueios/{projetoId}` exigem que o ID do projeto na URI corresponda ao projeto aberto
-- Tentativas não autorizadas retornam erro `UNAUTHORIZED`
+- Subscrições e leituras são permitidas localmente sem token.
+- `solicitacoes/{agenteId}` e `handoffs/{agenteId}` exigem projeto aberto.
+- `bloqueios/{projetoId}` exigem que o ID do projeto na URI corresponda ao projeto aberto.
+- Tentativas de acesso fora da raiz do projeto retornam erro `PATH_TRAVERSAL`.
 
 ### Coalescência
 
@@ -278,8 +278,11 @@ O evento criado aparece em `GET /api/eventos` e pode ser consumido com `PUT /api
 
 ## Autenticação
 
-Todas as chamadas à API devem incluir o header `x-api-key` com a chave gerada automaticamente em `backend/.local/.api-key`.
+O AgentMap roda localmente e não exige autenticação. As rotas públicas incluem:
+- `GET /api/status`
+- `GET /api/projetos`
+- `POST /api/projetos/abrir`
+- `GET /api/monitoramento/*`
+- `GET /api/monitoramento/*`
 
-O agente pode obter a chave via `GET /api/auth/key` e verificar validade via `POST /api/auth/verify`.
-
-O middleware CSRF está ativo para métodos não-GET, e o CORS está configurado para permitir origens de desenvolvimento local.
+CORS está configurado para permitir origens de desenvolvimento local.

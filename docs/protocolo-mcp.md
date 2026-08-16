@@ -240,9 +240,7 @@ Para cancelar, o cliente envia:
 > **Nota:** no modo 2026, o cliente deve re-listar após reconexão stdio. O servidor não mantém estado de subscrição entre reconexões.
 
 ### Autorização
-Subscrições e leituras de recursos passam por `authorizeResourceAccess()`:
-- `solicitacoes/{agenteId}` e `handoffs/{agenteId}` exigem projeto aberto
-- `bloqueios/{projetoId}` exigem que o `projetoId` na URI corresponda ao projeto aberto
+Subscrições e leituras de recursos são permitidas localmente sem token. O acesso é restrito à raiz do projeto aberto.
 
 ### Coalescência
 Eventos de mudança são agrupados por URI em janela de 100ms. Um burst de múltiplas alterações resulta em apenas 1 notificação `resources/updated` por URI.
@@ -258,16 +256,9 @@ Eventos de mudança são agrupados por URI em janela de 100ms. Um burst de múlt
 
 ## Autenticação e endpoints de serviço
 
-O MCP server roda via STDIO e não exige header HTTP, mas a API REST do AgentMap exige:
+O MCP server roda via STDIO e não exige header HTTP. A API REST do AgentMap roda localmente sem autenticação obrigatória.
 
-- `x-api-key` em todas as requisições não-públicas
-- CSRF ativo para métodos não-GET
-- CORS configurado para origins de desenvolvimento local
-
-Endpoints de apoio:
-- `GET /api/auth/key` — obtém a API key
-- `POST /api/auth/verify` — verifica chave
-- `POST /api/auth/login` / `logout` — fluxo stateless
+CORS está configurado para origins de desenvolvimento local.
 
 ## Eventos flexíveis
 

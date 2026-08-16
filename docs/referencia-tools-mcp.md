@@ -7,7 +7,7 @@ Este documento lista todas as tools MCP disponíveis no AgentMap, com seus parâ
 - **Tool names:** `agentmap_<entidade>_<acao>`
 - **Argumentos:** objeto JSON único `arguments` no método MCP `tools/call`
 - **Projeto:** quase todas as tools exigem um projeto aberto no AgentMap
-- **Auth:** inclua `x-api-key` nas requisições HTTP; no MCP stdio a autenticação é por contexto de projeto aberto
+- **Ambiente:** local, sem autenticação obrigatória
 
 ## Catálogo completo
 

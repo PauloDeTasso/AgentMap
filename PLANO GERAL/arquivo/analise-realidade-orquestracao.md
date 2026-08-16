@@ -34,7 +34,7 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 
 ### 3.1 Backend (Node.js + TypeScript + Express)
 - **Estrutura:** `backend/src/` com serviços, API REST, MCP server
-- **Rotas API:** `/health`, `/api/auth/*`, `/api/admin/*`, `/api/tarefas`, `/api/handoffs`, etc.
+- **Rotas API:** `/health`, `/api/admin/*`, `/api/tarefas`, `/api/handoffs`, etc.
 - **MCP Server:** Implementado em `backend/src/mcp-server/` usando `@modelcontextprotocol/sdk`
 - **State Machine:** `StateMachineService.ts` + `.ia/configuracao/transicoes.json` — **FUNCIONAL**
 - **Transições carregadas dinamicamente** do JSON (não hardcoded)

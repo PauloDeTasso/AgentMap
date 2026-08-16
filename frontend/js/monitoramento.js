@@ -72,12 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
     switch (type) {
       case 'mensagem_nova':
         if (data?.conteudo) {
-          data = { ...data, conteudo: sanitizarConteudo(data.conteudo) };
+          const sanitized = { ...data, conteudo: sanitizarConteudo(data.conteudo) };
+          adicionarMensagem(sanitized);
+        } else {
+          adicionarMensagem(data);
         }
-        adicionarMensagem(data);
         break;
       case 'agente_status_alterado':
-        atualizarListaAgentes(data);
+        renderizarAgentes(data || []);
         break;
       case 'mensagens':
         mensagensCache = (data || []).map(msg => ({
@@ -399,20 +401,20 @@ document.addEventListener('DOMContentLoaded', () => {
     aplicarFiltros();
   });
 
+  async function carregarMensagens() {
+    try {
+      const res = await fetch(`${API_BASE}/mensagens?limite=100`);
+      const json = await res.json();
+      if (json.sucesso) {
+        mensagensCache = json.dados;
+        aplicarFiltros();
+      }
+    } catch (err) {
+      console.error('Erro ao carregar mensagens:', err);
+    }
+  }
+
   carregarModoAtual();
   carregarMensagens();
   conectarWebSocket();
 });
-
-async function carregarMensagens() {
-  try {
-    const res = await fetch(`${API_BASE}/mensagens?limite=100`);
-    const json = await res.json();
-    if (json.sucesso) {
-      mensagensCache = json.dados;
-      aplicarFiltros();
-    }
-  } catch (err) {
-    console.error('Erro ao carregar mensagens:', err);
-  }
-}

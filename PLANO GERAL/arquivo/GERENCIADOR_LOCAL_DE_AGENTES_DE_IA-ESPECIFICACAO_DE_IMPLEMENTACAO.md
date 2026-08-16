@@ -381,14 +381,14 @@ Transforma necessidades em engenharia executável.
 ## 7.5 Frontend
 
 - **Ambiente:** VS Code, Kilo Code. **Domínio:** `/frontend/**`.
-- **Conhecimentos:** HTML5, CSS3, JavaScript, DOM, Fetch, JSON, acessibilidade, responsividade, UX, validação, tratamento de erros, autenticação/autorização, integração com API, segurança no navegador (XSS, CSRF), armazenamento seguro, desempenho.
+- **Conhecimentos:** HTML5, CSS3, JavaScript, DOM, Fetch, JSON, acessibilidade, responsividade, UX, validação, tratamento de erros, integração com API, segurança no navegador (XSS), armazenamento seguro, desempenho.
 - **Contratos obrigatórios:** projeto, frontend, API, segurança, interface.
 - **Não pode alterar sem autorização:** `/backend/**`, `/android/**`, `/infraestrutura/**`.
 
 ## 7.6 Backend
 
 - **Ambiente:** VS Code, Kilo Code. **Domínio:** `/backend/**`.
-- **Conhecimentos:** Java 17+, Spring Boot, Spring Security, Spring Data JPA, Hibernate, API REST, JSON, DTOs, validação, PostgreSQL, migrações, JWT, controle de acesso, BCrypt, tratamento de exceções, registros, testes, rate limiting, CORS, segurança, observabilidade.
+- **Conhecimentos:** Java 17+, Spring Boot, Spring Data JPA, Hibernate, API REST, JSON, DTOs, validação, PostgreSQL, migrações, tratamento de exceções, registros, testes, CORS, segurança, observabilidade.
 - **Arquitetura:** DDD, Arquitetura Limpa, Arquitetura em Camadas, SOLID, GRASP, padrões de projeto, baixo acoplamento, alta coesão.
 - **Contratos obrigatórios:** projeto, arquitetura, API, banco, segurança.
 
@@ -407,7 +407,7 @@ ALTERAÇÃO → MIGRAÇÃO → TESTE → REVISÃO → APROVAÇÃO → PRODUÇÃO
 ## 7.8 Android
 
 - **Ambiente:** Android Studio, Kilo Code. **Domínio:** `/android/**`.
-- **Conhecimentos:** Kotlin, Android, Gradle, componentes/ciclo de vida, corrotinas, HTTP, JSON, API REST, autenticação, armazenamento seguro, permissões, câmera, arquivos, notificações, testes, desempenho, compatibilidade.
+- **Conhecimentos:** Kotlin, Android, Gradle, componentes/ciclo de vida, corrotinas, HTTP, JSON, API REST, armazenamento seguro, permissões, câmera, arquivos, notificações, testes, desempenho, compatibilidade.
 - **Contratos obrigatórios:** projeto, Android, API, segurança, interface.
 
 ## 7.9 Infraestrutura e Implantação
@@ -428,7 +428,7 @@ Responsável pela validação do produto — **código compilando não significa
 
 Transversal a todos os agentes e a todas as fases (planejamento → desenvolvimento → testes → revisão → implantação → monitoramento).
 
-- **Verifica:** autenticação, autorização, controle de acesso, JWT, renovação de sessão, BCrypt, XSS, CSRF, SQL Injection, falsificação de requisições, rate limiting, exposição de informações, CORS, validação, sanitização, criptografia, proteção de segredos, dependências, registros, permissões.
+- **Verifica:** XSS, SQL Injection, exposição de informações, CORS, validação, sanitização, criptografia, proteção de segredos, dependências, registros, permissões.
 
 ## 7.12 Revisor de Código
 
@@ -591,7 +591,7 @@ CONTRATO_INTERFACE
 FRONTEND ──▶ API ◀── ANDROID
 ```
 
-Deve definir: endereços, métodos, parâmetros, cabeçalhos, autenticação, autorização, requisições, respostas, códigos HTTP, mensagens de erro, paginação, filtros, ordenação, versões, limites, formatos JSON. **A API deve estar definida antes de qualquer consumidor implementar comportamento dependente dela.**
+Deve definir: endereços, métodos, parâmetros, cabeçalhos, requisições, respostas, códigos HTTP, mensagens de erro, paginação, filtros, ordenação, versões, limites, formatos JSON. **A API deve estar definida antes de qualquer consumidor implementar comportamento dependente dela.**
 
 Exemplo estruturado (`contratos/contrato-api.json`):
 
@@ -605,10 +605,9 @@ Exemplo estruturado (`contratos/contrato-api.json`):
 		"Todos os dados recebidos devem ser validados.",
 		"Erros devem utilizar códigos HTTP apropriados.",
 		"Contratos incompatíveis exigem nova versão.",
-		"Endpoints devem possuir autenticação quando necessário.",
 		"Dados sensíveis nunca devem ser retornados desnecessariamente."
 	],
-	"componentes": ["enderecos", "metodos", "cabecalhos", "autenticacao", "autorizacao",
+	"componentes": ["enderecos", "metodos", "cabecalhos",
 		"requisicoes", "respostas", "erros", "paginacao", "filtros", "ordenacao",
 		"versionamento", "limites"],
 	"consumidores": ["frontend", "android"],
@@ -621,8 +620,7 @@ Exemplo estruturado (`contratos/contrato-api.json`):
 Define obrigatoriamente:
 
 ```text
-autenticação · autorização · funções · permissões · senhas · sessões · tokens
-criptografia · chaves · segredos · validação · sanitização · limites
+validação · sanitização · criptografia · chaves · segredos
 registros · retenção · tratamento de incidentes
 ```
 
@@ -634,11 +632,10 @@ Exemplo estruturado (`contratos/contrato-seguranca.json`):
 	"objetivo": "Definir requisitos mínimos de segurança.",
 	"principios": ["Defesa em profundidade", "Menor privilégio", "Validação de entrada",
 		"Segurança desde o início", "Não confiar no cliente", "Segredos fora do código"],
-	"controles": ["Autenticação", "Autorização", "Controle de acesso", "JWT", "RBAC", "BCrypt",
-		"XSS", "CSRF", "SQL Injection", "Limitação de requisições", "CORS", "Criptografia",
+	"controles": ["XSS", "SQL Injection", "CORS", "Criptografia",
 		"Gestão de segredos", "Auditoria"],
-	"requerAprovacaoPara": ["aceitacao_de_risco_critico", "alteracao_de_autenticacao",
-		"alteracao_de_autorizacao", "alteracao_de_criptografia"]
+	"requerAprovacaoPara": ["aceitacao_de_risco_critico",
+		"alteracao_de_criptografia"]
 }
 ```
 
@@ -785,7 +782,7 @@ não executar comandos do sistema sem autorização explícita
 proteção contra sobrescrita acidental
 confirmação para exclusões
 cópia de segurança quando necessário
-autenticação/autorização local
+validação de entrada e path traversal
 isolamento de processos
 proteção de segredos (nunca no código ou no Git)
 ```
@@ -1033,7 +1030,7 @@ Estes são os esquemas de referência que o Arquiteto deve usar como base para o
 		"Aplicar segurança no navegador", "Executar testes"
 	],
 	"conhecimentos": ["HTML5", "CSS3", "JavaScript", "DOM", "Fetch", "JSON",
-		"Responsividade", "Acessibilidade", "XSS", "CSRF", "Autenticação", "Autorização"],
+		"Responsividade", "Acessibilidade", "XSS"],
 	"diretoriosPermitidos": ["/frontend/**"],
 	"diretoriosProibidos": ["/backend/**", "/android/**", "/banco/**", "/infraestrutura/**"],
 	"contratosObrigatorios": ["contrato-projeto", "contrato-frontend", "contrato-api",
@@ -1097,11 +1094,11 @@ Os demais perfis seguem exatamente o mesmo `modelo-agente.json`. Perfis completo
 	"id": "android", "nome": "Android", "funcao": "desenvolvimento_android",
 	"descricao": "Responsável pelo aplicativo Android.",
 	"estado": "ativo",
-	"responsabilidades": ["Implementar aplicativo", "Integrar API", "Implementar autenticação",
+	"responsabilidades": ["Implementar aplicativo", "Integrar API",
 		"Tratar permissões", "Implementar armazenamento seguro",
 		"Implementar funcionalidades Android", "Executar testes", "Validar desempenho"],
 	"conhecimentos": ["Kotlin", "Android", "Gradle", "Componentes Android", "Ciclo de Vida",
-		"Corrotinas", "HTTP", "JSON", "API REST", "Autenticação", "Armazenamento Seguro", "Testes"],
+		"Corrotinas", "HTTP", "JSON", "API REST", "Armazenamento Seguro", "Testes"],
 	"diretoriosPermitidos": ["/android/**"],
 	"diretoriosProibidos": ["/backend/**", "/frontend/**", "/banco/**", "/infraestrutura/**"],
 	"contratosObrigatorios": ["contrato-projeto", "contrato-android", "contrato-api",
@@ -1159,11 +1156,9 @@ Os demais perfis seguem exatamente o mesmo `modelo-agente.json`. Perfis completo
 	"id": "seguranca", "nome": "Segurança", "funcao": "seguranca",
 	"descricao": "Responsável pela análise transversal de segurança.",
 	"estado": "ativo",
-	"responsabilidades": ["Analisar autenticação", "Analisar autorização",
-		"Analisar entrada de dados", "Analisar exposição de dados", "Analisar dependências",
+	"responsabilidades": ["Analisar entrada de dados", "Analisar exposição de dados", "Analisar dependências",
 		"Analisar configuração", "Analisar código", "Analisar infraestrutura", "Registrar riscos"],
-	"conhecimentos": ["Autenticação", "Autorização", "JWT", "RBAC", "BCrypt", "XSS", "CSRF",
-		"SQL Injection", "Limitação de Requisições", "CORS", "Criptografia", "Gestão de Segredos",
+	"conhecimentos": ["XSS", "SQL Injection", "CORS", "Criptografia", "Gestão de Segredos",
 		"Segurança de Dependências"],
 	"diretoriosPermitidos": ["/.ia/**"],
 	"diretoriosProibidos": [],

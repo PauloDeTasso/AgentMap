@@ -134,13 +134,10 @@ O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 
 O AgentMap **não executa agentes** e **não depende de CLI `kilo` standalone**. Ele fornece contexto, ferramentas e governança; o paralelismo é responsabilidade do Agent Manager.
 
-## Segurança e autenticação
+## Segurança
 
-- **API Key:** gerada automaticamente em `backend/.local/.api-key`
-- **Endpoints de auth:** `GET /api/auth/key`, `POST /api/auth/verify`, `POST /api/auth/login`, `POST /api/auth/logout`
-- **CSRF:** middleware ativo para métodos não-GET
 - **CORS:** origins configuradas para desenvolvimento local
-- **Rate Limit:** proteção contra abuso por IP
+- **Path Traversal:** proteção contra path traversal em todos os caminhos de arquivo
 - **Validação:** schemas Zod em todas as escritas
 - **Observabilidade:** traces e métricas são gerados localmente; em desenvolvimento usa `ConsoleSpanExporter`. Em produção, configure exportação OTLP via `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`.
 

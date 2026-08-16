@@ -127,11 +127,6 @@ Estados terminais (sem saída):
 - `HandoffService` — handoffs entre agentes
 - `DependenciaService` — dependências de tarefas
 
-**DEPRECATED (não usar):**
-- `DaemonManager.ts` — dependia de CLI `kilo` inexistente
-- `ExecutorKiloDaemon.ts` — dependia de CLI `kilo` inexistente
-- `KiloDispatcherService.ts` — rotas retornam 501
-
 ---
 
 ## 4. TODAS AS FERRAMENTAS DISPONÍVEIS
@@ -352,10 +347,6 @@ Base: `http://localhost:3150/api`
 - `GET /api/estado` — estado atual
 - `WebSocket /ws/monitoramento` — monitoramento em tempo real
 
-**Autenticação:**
-- `POST /api/auth/login` — login
-- `POST /api/auth/logout` — logout
-
 **Outros:**
 - `GET /api/health` — health check
 - `GET /api/integridade` — verificação de integridade
@@ -363,7 +354,6 @@ Base: `http://localhost:3150/api`
 
 ### 4.3 WebSocket
 - **URL:** `ws://localhost:3150/ws/monitoramento`
-- **Autenticação:** Header `Authorization: Bearer <token>` ou `x-api-key`
 - **Eventos:** heartbeats, status de agentes, intervenções
 
 ### 4.4 Agent Manager (extensão VS Code)
@@ -506,14 +496,11 @@ git branch --show-current
 - **`docs/protocolo-mcp.md`** — protocolo MCP
 - **`docs/guia-agente-mcp.md`** — ciclo de trabalho via MCP
 - **`docs/arquitetura-mcp.md`** — arquitetura e tools MCP
-- **`.ia/contexto/analise-realidade-orquestracao.md`** — arquitetura real (ATUALIZADO)
 - **`.ia/contexto/fluxo-trabalho.md`** — fluxo de trabalho real
 
 ### 8.3 Documentos Históricos
-- **`.ia/contexto/historico/`** — versões antigas arquivadas
-- **`erros/`** — relatórios de erros encontrados
-- **`A FAZER/`** — tarefas pendentes
-- **`PLANO GERAL/`** — planejamento original
+- **`PLANO GERAL/arquivo/`** — especificações e diagnósticos arquivados
+- **`PLANO GERAL/`** — planejamento original consolidado
 
 ---
 

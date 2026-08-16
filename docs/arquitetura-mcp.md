@@ -24,7 +24,7 @@ backend/src/mcp-server/
 ├── resources/
 │   ├── index.ts                  # Resources estáticos + templates + handlers subscribe/unsubscribe + listen 2026
 │   ├── uri-factory.ts            # URIs canônicas agentmap://... com encodeURIComponent
-│   └── authorization.ts          # authorizeResourceAccess(): valida acesso antes de subscribe/read
+│   └── paths.ts                  # Proteção contra path traversal em todos os acessos
 ├── subscriptions/
 │   ├── subscription-manager.ts   # Gerenciamento de subscriptions por session/URI (2025 + 2026)
 │   └── protocol-adapter.ts       # Adaptador de protocolo para dual-era routing

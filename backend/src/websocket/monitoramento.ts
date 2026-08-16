@@ -1,7 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server, IncomingMessage } from 'http';
 import { MonitoramentoService, MensagemMonitoramento } from '../servicios/MonitoramentoService';
-import { API_KEY } from '../seguranca/auth';
 
 export class MonitoramentoWebSocket {
   private wss: WebSocketServer | null = null;
@@ -30,10 +29,11 @@ export class MonitoramentoWebSocket {
     });
 
     this.wss.on('connection', (ws: WebSocket, req: any) => {
-      const token = req.headers['authorization']?.replace('Bearer ', '') || req.headers['x-api-key'];
-      if (!token || token !== API_KEY) {
-        ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Não autorizado' } }));
-        ws.close(1008, 'Unauthorized');
+      const origin = req.headers?.origin || req.headers?.referer || '';
+      const isLocal = origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:') || !origin;
+      if (!isLocal) {
+        ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Origem não permitida' } }));
+        ws.close(1008, 'Forbidden');
         return;
       }
 

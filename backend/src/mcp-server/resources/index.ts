@@ -3,8 +3,7 @@ import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp';
 import { RequestHandlerExtra } from '@modelcontextprotocol/sdk/shared/protocol';
 import { Variables } from '@modelcontextprotocol/sdk/shared/uriTemplate';
 import { ServerRequest, ServerNotification } from '@modelcontextprotocol/sdk/types';
-import { solicitacoesUri, handoffsUri, bloqueiosUri, parseSolicitacoesUri, parseHandoffsUri, parseBloqueiosUri, getResourceType } from './uri-factory';
-import { authorizeResourceAccess } from './authorization';
+import { solicitacoesUri, handoffsUri, bloqueiosUri, parseSolicitacoesUri, parseHandoffsUri, parseBloqueiosUri } from './uri-factory';
 import { globalEventBus } from '../events/event-bus';
 import { subscriptionManager, ListenSubscription } from '../subscriptions/subscription-manager';
 import { carregarContexto } from '../contexto';
@@ -388,16 +387,6 @@ mcpServer.registerResource(
       };
     }
 
-    if (!authorizeResourceAccess(projetoResult.dados, uri.toString())) {
-      return {
-        contents: [{
-          uri: uri.toString(),
-          mimeType: 'application/json',
-          text: JSON.stringify({ sucesso: false, erro: 'Acesso não autorizado', codigoErro: 'UNAUTHORIZED' })
-        }]
-      };
-    }
-
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso) {
       return {
@@ -471,16 +460,6 @@ mcpServer.registerResource(
       };
     }
 
-    if (!authorizeResourceAccess(projetoResult.dados, uri.toString())) {
-      return {
-        contents: [{
-          uri: uri.toString(),
-          mimeType: 'application/json',
-          text: JSON.stringify({ sucesso: false, erro: 'Acesso não autorizado', codigoErro: 'UNAUTHORIZED' })
-        }]
-      };
-    }
-
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso) {
       return {
@@ -536,16 +515,6 @@ mcpServer.registerResource(
           uri: uri.toString(),
           mimeType: 'application/json',
           text: JSON.stringify({ sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' })
-        }]
-      };
-    }
-
-    if (!authorizeResourceAccess(projetoResult.dados, uri.toString())) {
-      return {
-        contents: [{
-          uri: uri.toString(),
-          mimeType: 'application/json',
-          text: JSON.stringify({ sucesso: false, erro: 'Acesso não autorizado', codigoErro: 'UNAUTHORIZED' })
         }]
       };
     }
@@ -630,10 +599,6 @@ mcpServer.server.setRequestHandler(
       return { content: [{ type: 'text', text: JSON.stringify({ sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }) }] };
     }
 
-    if (!authorizeResourceAccess(projetoResult.dados, uri)) {
-      return { content: [{ type: 'text', text: JSON.stringify({ sucesso: false, erro: 'Acesso não autorizado', codigoErro: 'UNAUTHORIZED' }) }] };
-    }
-
     subscriptionManager.subscribe(sessionId, uri);
     console.error(`[MCP] Subscribe: session=${sessionId} uri=${uri}`);
     return { content: [{ type: 'text', text: JSON.stringify({ sucesso: true }) }] };
@@ -663,12 +628,6 @@ mcpServer.server.setRequestHandler(
     const projetoResult = projetoService.getProjetoAtual();
     if (!projetoResult.sucesso || !projetoResult.dados) {
       return { content: [{ type: 'text', text: JSON.stringify({ sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }) }] };
-    }
-
-    for (const uri of urisToAuthorize) {
-      if (!authorizeResourceAccess(projetoResult.dados, uri)) {
-        return { content: [{ type: 'text', text: JSON.stringify({ sucesso: false, erro: `Acesso não autorizado para ${uri}`, codigoErro: 'UNAUTHORIZED' }) }] };
-      }
     }
 
     const subscription: ListenSubscription = {

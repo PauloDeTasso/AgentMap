@@ -155,10 +155,10 @@ POST /api/handoffs
   "origem": "backend",
   "destino": "frontend",
   "tarefaId": "TAR-2026-00001",
-  "resumo": "API de login pronta para consumo",
-  "concluido": ["Implementado endpoint /api/auth/login"],
+  "resumo": "API de monitoramento pronta para consumo",
+  "concluido": ["Implementado endpoint de monitoramento"],
   "pendente": [],
-  "observacoes": "Consuma http://localhost:3150/api/auth/login"
+  "observacoes": "Consuma http://localhost:3150/api/monitoramento"
 }
 ```
 

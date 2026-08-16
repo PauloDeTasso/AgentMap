@@ -785,7 +785,7 @@ Não registrar raciocínio interno detalhado do modelo.
 O objetivo final é que o usuário possa dizer:
 
 ```text
-"Implemente autenticação JWT."
+"Implemente validação de schema."
 ```
 
 sem precisar informar:
@@ -1153,7 +1153,7 @@ Exemplo:
 
 ```text
 Objetivo:
-Implementar autenticação JWT.
+Implementar validação de schema.
 
 Critérios:
 

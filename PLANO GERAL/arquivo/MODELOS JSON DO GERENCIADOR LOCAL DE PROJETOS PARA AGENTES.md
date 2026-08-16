@@ -514,7 +514,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 		"Responsividade",
 		"Acessibilidade",
 		"XSS",
-		"CSRF",
 		"Autenticação",
 		"Autorização"
 	],
@@ -576,8 +575,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 	"responsabilidades": [
 		"Implementar regras de negócio",
 		"Implementar API REST",
-		"Implementar autenticação",
-		"Implementar autorização",
 		"Validar dados",
 		"Tratar exceções",
 		"Integrar banco",
@@ -588,7 +585,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 	"conhecimentos": [
 		"Java",
 		"Spring Boot",
-		"Spring Security",
 		"Spring Data JPA",
 		"Hibernate",
 		"PostgreSQL",
@@ -596,9 +592,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 		"JSON",
 		"DTO",
 		"Validação",
-		"JWT",
-		"RBAC",
-		"BCrypt",
 		"Testes",
 		"DDD",
 		"Arquitetura Limpa",
@@ -722,7 +715,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 	"responsabilidades": [
 		"Implementar aplicativo",
 		"Integrar API",
-		"Implementar autenticação",
 		"Tratar permissões",
 		"Implementar armazenamento seguro",
 		"Implementar funcionalidades Android",
@@ -913,8 +905,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 	"descricao": "Responsável pela análise transversal de segurança.",
 	"estado": "ativo",
 	"responsabilidades": [
-		"Analisar autenticação",
-		"Analisar autorização",
 		"Analisar entrada de dados",
 		"Analisar exposição de dados",
 		"Analisar dependências",
@@ -924,15 +914,8 @@ Este é o modelo-base que todos os agentes deverão seguir.
 		"Registrar riscos"
 	],
 	"conhecimentos": [
-		"Autenticação",
-		"Autorização",
-		"JWT",
-		"RBAC",
-		"BCrypt",
 		"XSS",
-		"CSRF",
 		"SQL Injection",
-		"Limitação de Requisições",
 		"CORS",
 		"Criptografia",
 		"Gestão de Segredos",
@@ -1356,15 +1339,12 @@ Este é o modelo-base que todos os agentes deverão seguir.
 		"Todos os dados recebidos devem ser validados.",
 		"Erros devem utilizar códigos HTTP apropriados.",
 		"Contratos incompatíveis exigem nova versão.",
-		"Endpoints devem possuir autenticação quando necessário.",
 		"Dados sensíveis nunca devem ser retornados desnecessariamente."
 	],
 	"componentes": [
 		"enderecos",
 		"metodos",
 		"cabecalhos",
-		"autenticacao",
-		"autorizacao",
 		"requisicoes",
 		"respostas",
 		"erros",
@@ -1404,16 +1384,8 @@ Este é o modelo-base que todos os agentes deverão seguir.
 		"Segredos fora do código"
 	],
 	"controles": [
-		"Autenticação",
-		"Autorização",
-		"Controle de acesso",
-		"JWT",
-		"RBAC",
-		"BCrypt",
 		"XSS",
-		"CSRF",
 		"SQL Injection",
-		"Limitação de requisições",
 		"CORS",
 		"Criptografia",
 		"Gestão de segredos",
@@ -1421,8 +1393,6 @@ Este é o modelo-base que todos os agentes deverão seguir.
 	],
 	"requerAprovacaoPara": [
 		"aceitacao_de_risco_critico",
-		"alteracao_de_autenticacao",
-		"alteracao_de_autorizacao",
 		"alteracao_de_criptografia"
 	]
 }

@@ -9,7 +9,6 @@ import {
   parseBloqueiosUri,
   getResourceType
 } from '../src/mcp-server/resources/uri-factory';
-import { authorizeResourceAccess } from '../src/mcp-server/resources/authorization';
 
 describe('EventBus', () => {
   let bus: EventBus;
@@ -239,36 +238,5 @@ describe('UriFactory', () => {
   test('encodeURIComponent em IDs com caracteres especiais', () => {
     expect(solicitacoesUri('AGT/BACKEND')).toBe('agentmap://solicitacoes/AGT%2FBACKEND');
     expect(parseSolicitacoesUri('agentmap://solicitacoes/AGT%2FBACKEND')).toBe('AGT/BACKEND');
-  });
-});
-
-describe('authorizeResourceAccess', () => {
-  const projeto = {
-    id: 'proj-1',
-    nome: 'Test',
-    caminhoRaiz: '/tmp',
-    fileService: null as any,
-    auditoria: null as any,
-    validator: null as any,
-    config: {} as any,
-    dependencia: null as any,
-    fluxo: null as any
-  };
-
-  test('autoriza bloqueios para projeto correto', () => {
-    expect(authorizeResourceAccess(projeto, 'agentmap://bloqueios/proj-1')).toBe(true);
-  });
-
-  test('rejeita bloqueios para projeto diferente', () => {
-    expect(authorizeResourceAccess(projeto, 'agentmap://bloqueios/proj-2')).toBe(false);
-  });
-
-  test('autoriza solicitacoes e handoffs quando projeto existe', () => {
-    expect(authorizeResourceAccess(projeto, 'agentmap://solicitacoes/AGT-BACKEND')).toBe(true);
-    expect(authorizeResourceAccess(projeto, 'agentmap://handoffs/AGT-FRONTEND')).toBe(true);
-  });
-
-  test('rejeita URIs desconhecidas', () => {
-    expect(authorizeResourceAccess(projeto, 'agentmap://unknown')).toBe(false);
   });
 });

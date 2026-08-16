@@ -28,14 +28,20 @@ async function bootstrap() {
   const validator = new SchemaValidator(esquemasPath);
   const projetoService = new ProjetoService(validator);
   const projetoResult = projetoService.getProjetoAtual();
+
+  let monitoramento;
   if (projetoResult.sucesso && projetoResult.dados) {
     const projeto = projetoResult.dados;
-    const monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator);
-    const wsServer = new MonitoramentoWebSocket(monitoramento);
-    wsServer.iniciar(server);
+    monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator);
   } else {
-    console.log('[WebSocket] Nenhum projeto aberto — WebSocket iniciado sem monitoramento');
+    const repoRoot = path.resolve(__dirname, '..', '..', '..');
+    const fileService = new (await import('./arquivos/FileService')).FileService(repoRoot);
+    const { AuditoriaService } = await import('./servicios/AuditoriaService');
+    monitoramento = new MonitoramentoService(fileService, new AuditoriaService(fileService), validator);
   }
+
+  const wsServer = new MonitoramentoWebSocket(monitoramento);
+  wsServer.iniciar(server);
 }
 
 bootstrap().catch((error) => {

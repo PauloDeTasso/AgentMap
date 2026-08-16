@@ -6,23 +6,10 @@ import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
 import { corsService } from './servicios/CorsService';
-import { authMiddleware, API_KEY } from './seguranca/auth';
-import { csrfMiddleware } from './seguranca/csrf';
 import { httpRequestMiddleware } from './observability/http-tracing';
-
-const PUBLIC_PATHS = new Set([
-  '/api/status',
-  '/api/projetos/settings',
-]);
-
-function shouldSkipAuth(req: express.Request): boolean {
-  if (req.method === 'GET' && PUBLIC_PATHS.has(req.path)) return true;
-  if (req.path === '/api/projetos' && req.method === 'GET') return true;
-  if (req.path === '/api/projetos/scan' && req.method === 'GET') return true;
-  if (req.path === '/api/projetos/atual' && req.method === 'GET') return true;
-  if (req.path.startsWith('/api/auth')) return true;
-  return false;
-}
+import { MonitoramentoService } from './servicios/MonitoramentoService';
+import { FileService } from './arquivos/FileService';
+import { AuditoriaService } from './servicios/AuditoriaService';
 
 function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -33,26 +20,6 @@ function securityHeaders(req: express.Request, res: express.Response, next: expr
   next();
 }
 
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW = 60000;
-const RATE_LIMIT_MAX = 120;
-
-function rateLimitMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const key = req.ip || 'unknown';
-  const now = Date.now();
-  const entry = rateLimitMap.get(key);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return next();
-  }
-  entry.count++;
-  if (entry.count > RATE_LIMIT_MAX) {
-    res.setHeader('Retry-After', String(Math.ceil((entry.resetAt - now) / 1000)));
-    return res.status(429).json({ sucesso: false, erro: 'Muitas requisições', codigoErro: 'RATE_LIMIT' });
-  }
-  next();
-}
-
 export function createApp(): Application {
   const app: Application = express();
   const settings = loadSettings();
@@ -60,7 +27,6 @@ export function createApp(): Application {
   app.use(securityHeaders);
   app.use(httpRequestMiddleware);
   app.use(corsService.getMiddleware());
-  app.use(rateLimitMiddleware);
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
@@ -105,17 +71,7 @@ export function createApp(): Application {
     }
   }));
 
-  app.use((req, res, next) => {
-    if (shouldSkipAuth(req)) return next();
-    return authMiddleware(req, res, next);
-  });
-
-  app.use((req, res, next) => {
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
-    return csrfMiddleware(req, res, next);
-  });
-
-  app.use('/', setupRotas(projetoService));
+  app.use('/', setupRotas(projetoService, new MonitoramentoService(new FileService(path.resolve(__dirname, '..', '..')), new AuditoriaService(new FileService(path.resolve(__dirname, '..', '..'))), validator)));
 
   app.use('/esquemas', express.static(esquemasPath));
 
