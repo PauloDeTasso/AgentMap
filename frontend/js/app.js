@@ -692,8 +692,13 @@ function renderizarDashboard() {
   principal.id = 'painel-atividade';
   principal.innerHTML = '<p style="color:var(--text-muted);">Selecione uma opção ao lado.</p>';
 
+  function closeModals() {
+    document.querySelectorAll('[id^="modal-"]').forEach((m) => { m.style.display = 'none'; });
+  }
+
   lateral.querySelectorAll('[data-painel]').forEach((item) => {
     item.addEventListener('click', () => {
+      closeModals();
       lateral.querySelectorAll('[data-painel]').forEach((i) => i.classList.remove('painel-lateral__item--ativo'));
       item.classList.add('painel-lateral__item--ativo');
       carregarPainel(item.dataset.painel);
@@ -723,8 +728,10 @@ async function carregarPainel(painel) {
     case 'artefatos': await renderizarArtefatos(el); break;
     case 'handoffs': await renderizarHandoffs(el); break;
     case 'validacoes': await renderizarValidacoes(el); break;
+    case 'bloqueios': await renderizarBloqueios(el); break;
     case 'pendencias': await renderizarPendencias(el); break;
     case 'conflitos': await renderizarConflitos(el); break;
+    case 'riscos': await renderizarRiscos(el); break;
     case 'reservas': await renderizarReservas(el); break;
     case 'decisoes': await renderizarDecisoes(el); break;
     case 'dependencias': await renderizarDependencias(el); break;
@@ -734,6 +741,7 @@ async function carregarPainel(painel) {
     case 'aprendizados': await renderizarAprendizados(el); break;
     case 'historico': await renderizarHistorico(el); break;
     case 'integridade': await renderizarIntegridade(el); break;
+    case 'dashboard': await renderizarDashboardCoordenacao(el); break;
     case 'monitor': await renderizarMonitor(el); break;
   }
 }
