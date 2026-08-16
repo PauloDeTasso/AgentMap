@@ -284,5 +284,8 @@ O AgentMap roda localmente e não exige autenticação. As rotas públicas inclu
 - `POST /api/projetos/abrir`
 - `GET /api/monitoramento/*`
 - `GET /api/monitoramento/*`
+- `GET /api/temp/arquivos`
+- `POST /api/temp/limpar`
+- `GET /api/temp/caminho`
 
 CORS está configurado para permitir origens de desenvolvimento local.

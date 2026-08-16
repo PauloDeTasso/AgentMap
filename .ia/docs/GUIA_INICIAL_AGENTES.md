@@ -40,6 +40,13 @@ Cada projeto gerenciado tem uma pasta `.ia/` com:
 - `configuracao/transicoes.json` — máquina de estados
 - `contexto/` — contexto do projeto
 
+### 2.4 Temporários (`temp/` por projeto)
+A pasta `temp/` na raiz do repositório armazena arquivos transitórios gerados durante o desenvolvimento:
+- Limpeza automática por TTL (padrão: 7 dias) via `TempCleanupService`
+- Limpeza manual via botão "🧹 Limpar Temp" no header do frontend
+- Endpoints de API: `GET /api/temp/arquivos`, `POST /api/temp/limpar`, `GET /api/temp/caminho`
+- `.gitignore` já ignora `temp/`
+
 ### 2.4 Configuração Global
 - `kilo.jsonc` — configuração principal (NÃO edite diretamente)
 - `kilo.local.jsonc` — overrides locais (NÃO versionar)

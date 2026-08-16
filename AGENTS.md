@@ -21,9 +21,12 @@ backend/    → Node.js + TypeScript + Express
 frontend/   → HTML5 + CSS3 + JavaScript (vanilla ES modules)
 banco/      → PostgreSQL opcional (não implementado)
 esquemas/   → JSON Schemas de validação
+temp/       → Arquivos temporários do projeto (limpeza automática/manual)
 ```
 
 **Armazenamento operacional:** predominantemente **filesystem + JSON**. Os dados reais do projeto vivem em arquivos dentro de `.ia/`. PostgreSQL, se usado no futuro, será apenas para metadados/índice.
+
+Arquivos temporários são gerenciados pela pasta `temp/`, com limpeza automática por TTL (padrão 7 dias) e botão "🧹 Limpar Temp" na interface web.
 
 ## Desenvolvimento
 

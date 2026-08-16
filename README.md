@@ -808,7 +808,26 @@ O sistema foi projetado com segurança desde sua concepção. Entre os princípi
 | ✅ Logs | ✅ Proteção de informações sensíveis |
 | ✅ Ausência de credenciais no código | ✅ Controle de acesso às ferramentas MCP |
 | ✅ Princípio do menor privilégio | ✅ Separação entre consulta e alteração |
-| ✅ Prevenção de execução arbitrária de comandos | |
+| ✅ Prevenção de execução arbitrária de comandos | ✅ Limpeza automática de temporários (TTL + manual) |
+
+## 🧹 Limpeza de Temporários
+
+O AgentMap gerencia arquivos temporários através da pasta `temp/` localizada na raiz do repositório. O sistema oferece limpeza automática e manual para evitar acúmulo de arquivos desnecessários.
+
+| Recurso | Descrição |
+|---|---|
+| `GET /api/temp/arquivos` | Lista arquivos temporários com idade e tamanho |
+| `POST /api/temp/limpar` | Executa limpeza manual dos temporários |
+| `GET /api/temp/caminho` | Retorna o caminho absoluto da pasta `temp/` |
+| Botão "🧹 Limpar Temp" | Interface web para limpeza manual no header |
+
+**Comportamento:**
+- Limpeza automática por TTL (padrão: 7 dias)
+- Limpeza manual via botão na UI ou chamada direta à API
+- Pasta `temp/` é ignorada pelo `.gitignore`
+- O AgentMap não é mais repositório de lixo; temporários são gerenciados
+
+> **Nota:** temporários não devem ser confundidos com dados operacionais do projeto. Apenas arquivos transitórios devem ser colocados em `temp/`.
 
 > O MCP não deve oferecer aos agentes acesso irrestrito ao sistema operacional.
 

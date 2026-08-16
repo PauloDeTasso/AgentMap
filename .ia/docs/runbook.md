@@ -37,6 +37,7 @@ O Agent Manager é o mecanismo de paralelismo real. Cada agente opera em um work
 3. Somente altere código quando necessário e documente no handoff.
 4. CORS dinâmico: `GET/PUT /api/admin/cors`
 5. Transições de estado: `GET/PUT /api/admin/transicoes`
+6. Limpeza de temporários: `POST /api/temp/limpar` ou botão "🧹 Limpar Temp" no frontend
 
 ## Incidentes comuns
 - Porta ocupada: reinicie o backend `npm run dev`

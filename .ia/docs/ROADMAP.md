@@ -38,6 +38,7 @@
 |---|--------|----------|-------------|--------|
 | 6 | Corrigir `aprovacao.estado` fantasma e `getDirPorEstado` fallback | — | — | ⏳ Pendente |
 | 7 | Remover testes de código deprecated | — | — | ⏳ Pendente |
+| 8 | Adicionar limpeza automática de temporários (TTL + botão UI) | — | — | ✅ Concluído |
 
 ---
 

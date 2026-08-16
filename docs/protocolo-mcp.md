@@ -267,3 +267,13 @@ Além das tools MCP, o AgentMap oferece endpoints REST para eventos:
 - `POST /api/eventos` — eventos do sistema (validação rigorosa)
 - `POST /api/eventos/custom` — eventos genéricos para debugging e integrações
 - `PUT /api/eventos/:id/consumir` — marca evento como processado
+
+## Temporários
+
+O AgentMap gerencia arquivos temporários através de endpoints públicos:
+
+- `GET /api/temp/arquivos` — lista arquivos temporários com metadados de idade e tamanho
+- `POST /api/temp/limpar` — executa limpeza manual dos temporários
+- `GET /api/temp/caminho` — retorna o caminho absoluto da pasta `temp/`
+
+Limpeza automática por TTL (padrão: 7 dias) é executada pelo `TempCleanupService`. O botão "🧹 Limpar Temp" no header do frontend aciona a limpeza manual via `POST /api/temp/limpar`.
