@@ -3,32 +3,16 @@ const API_BASE = '/api';
 class ApiClient {
   constructor() {
     this.cache = new Map();
-    this.apiKey = null;
-    this.initPromise = this.loadApiKey();
   }
 
   clearCache() {
     this.cache.clear();
   }
 
-  async loadApiKey() {
-    try {
-      const res = await fetch('/api/auth/key');
-      if (res.ok) {
-        const data = await res.json();
-        this.apiKey = data.dados?.apiKey || null;
-      }
-    } catch {
-      this.apiKey = null;
-    }
-  }
-
   async request(endpoint, options = {}) {
-    await this.initPromise;
     const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
-      ...(this.apiKey ? { 'X-API-Key': this.apiKey } : {}),
       ...options.headers
     };
     const opts = {

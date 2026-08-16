@@ -331,7 +331,7 @@ async function renderizarTelaInicial() {
     html += `<div style="margin-top:16px;"><h3 style="margin:0 0 8px 0;">${projetosEncontrados.length} projeto(s) encontrado(s) em ${dir}</h3><div style="display:flex;flex-direction:column;gap:8px;">`;
     for (const p of projetosEncontrados) {
       const descricaoHtml = p.descricao ? `<br><small style="color:var(--text-muted);">${escapeHtml(p.descricao)}</small>` : '';
-      const caminhoAttr = escapeAttr(p.caminho);
+      const caminhoAttr = encodeURIComponent(p.caminho);
       console.log('[renderizarTelaInicial] projeto:', p.nome, '| caminho=', p.caminho, '| attr=', caminhoAttr);
       html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);">
         <div><strong>${escapeHtml(p.nome)}</strong>${descricaoHtml}<br><small style="color:var(--text-muted);">${escapeHtml(p.caminho)}</small></div>
@@ -788,9 +788,10 @@ window.abrirProjeto = async function(id) {
 };
 
 window.abrirProjetoPasta = async function(caminho) {
-  console.log('[abrirProjetoPasta] caminho recebido:', caminho);
+  const caminhoDecodificado = decodeURIComponent(caminho);
+  console.log('[abrirProjetoPasta] caminho recebido:', caminhoDecodificado);
   try {
-    const res = await api.abrirProjeto(caminho, caminho);
+    const res = await api.abrirProjeto(caminhoDecodificado, caminhoDecodificado);
     console.log('[abrirProjetoPasta] resposta API:', { sucesso: res.sucesso, dados: res.dados, erro: res.erro });
     if (res.sucesso) {
       showToast('Projeto aberto!', 'sucesso');
