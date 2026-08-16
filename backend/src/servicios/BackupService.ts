@@ -29,6 +29,7 @@ export class BackupService {
     const copiar = (src: string, dest: string): void => {
       const entries = fs.readdirSync(src, { withFileTypes: true });
       for (const entry of entries) {
+        if (entry.name === '.ia-backups') continue;
         const srcPath = path.win32.join(src, entry.name);
         const destPath = path.win32.join(dest, entry.name);
         if (entry.isDirectory()) {

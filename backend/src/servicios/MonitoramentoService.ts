@@ -335,11 +335,37 @@ export class MonitoramentoService extends EventEmitter {
       const ultimoHb = new Date(result.dados.ultimoHeartbeat).getTime();
       if (agora - ultimoHb > timeout) {
         orfaos.push(agente.nome);
-        this.fs.escreverJson(statusPath, { ...result.dados, status: 'ORFA' as StatusAgente });
       }
     }
 
     this.auditoria.registrar('AGENTES_ORFAOS', `${orfaos.length} agentes órfãos detectados`, { orfaos });
+    return { sucesso: true, dados: orfaos };
+  }
+
+  marcarOrfaos(): ResultadoOperacao<string[]> {
+    const config = this.carregarConfig();
+    const agora = Date.now();
+    const timeout = config.timeoutHeartbeat || 300000;
+    const agentesResult = this.fs.listar('.ia/agentes');
+    const orfaos: string[] = [];
+
+    if (!agentesResult.sucesso || !agentesResult.dados) {
+      return { sucesso: true, dados: orfaos };
+    }
+
+    for (const agente of agentesResult.dados) {
+      const statusPath = path.win32.join(this.statusPath, `${agente.nome}.json`);
+      const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
+      if (!result.sucesso || !result.dados) continue;
+
+      const ultimoHb = new Date(result.dados.ultimoHeartbeat).getTime();
+      if (agora - ultimoHb > timeout) {
+        orfaos.push(agente.nome);
+        this.fs.escreverJson(statusPath, { ...result.dados, status: 'ORFA' as StatusAgente });
+      }
+    }
+
+    this.auditoria.registrar('AGENTES_ORFAOS_MARCADOS', `${orfaos.length} agentes órfãos marcados`, { orfaos });
     return { sucesso: true, dados: orfaos };
   }
 

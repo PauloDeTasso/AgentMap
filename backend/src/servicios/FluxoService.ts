@@ -32,7 +32,7 @@ export class FluxoService {
 
     this.auditoria.registrar('CHECKLIST_FLUXO_VERIFICADO', `Checklist de fluxo verificado: ${estado}`, { checklist, pendentes });
 
-    return { sucesso: true, dados: checklist };
+    return { sucesso: pendentes.length === 0, dados: checklist };
   }
 
   obterPendentes(checklist: ChecklistFluxo): string[] {

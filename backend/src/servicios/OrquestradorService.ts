@@ -30,7 +30,7 @@ export class OrquestradorService {
     const dependenciasResult = this.dependenciaService.listarPorDestino(tarefaId);
     if (!dependenciasResult.sucesso || !dependenciasResult.dados) {
       console.warn('[ORQUESTRADOR][HANDOFF] falha ao listar dependencias', JSON.stringify({ tarefaId, erro: dependenciasResult.erro, codigo: dependenciasResult.codigoErro }));
-      return { sucesso: true };
+      return { sucesso: false, erro: dependenciasResult.erro || 'Erro ao listar dependências', codigoErro: dependenciasResult.codigoErro || 'DEPENDENCY_ERROR' };
     }
 
     const dependencias = dependenciasResult.dados.filter((d) => d.estado === 'ATIVA');
@@ -41,16 +41,24 @@ export class OrquestradorService {
 
     for (const dep of dependencias) {
       try {
-        await this.dependenciaService.atualizar(dep.id, { estado: 'RESOLVIDA' });
+        const atualizarResult = await this.dependenciaService.atualizar(dep.id, { estado: 'RESOLVIDA' });
+        if (!atualizarResult.sucesso) {
+          console.error('[ORQUESTRADOR][HANDOFF] falha ao atualizar dependencia', JSON.stringify({ tarefaId, dependenciaId: dep.id, erro: atualizarResult.erro }));
+          continue;
+        }
+
         const tarefaDepResult = this.tarefaService.obter(dep.destinoId);
         if (tarefaDepResult.sucesso && tarefaDepResult.dados) {
           const tarefaDep = tarefaDepResult.dados;
           const estadosParaExecucao: EstadoTarefa[] = ['PENDENTE', 'PLANEJADA', 'PRONTA'];
           if (estadosParaExecucao.includes(tarefaDep.estado)) {
-            await this.tarefaService.alterarEstado(tarefaDep.id, 'PRONTA' as EstadoTarefa);
+            const estadoResult = await this.tarefaService.alterarEstado(tarefaDep.id, 'PRONTA' as EstadoTarefa);
+            if (!estadoResult.sucesso) {
+              console.error('[ORQUESTRADOR][HANDOFF] falha ao atualizar estado da tarefa', JSON.stringify({ tarefaId: tarefaDep.id, erro: estadoResult.erro }));
+            }
           }
 
-          await this.handoffService.criar({
+          const handoffResult = await this.handoffService.criar({
             origem: agenteOrigemId,
             destino: tarefaDep.agenteResponsavel,
             tarefaId: tarefaDep.id,
@@ -63,6 +71,12 @@ export class OrquestradorService {
             riscos: [],
             bloqueios: []
           });
+
+          if (!handoffResult.sucesso) {
+            await this.dependenciaService.atualizar(dep.id, { estado: 'ATIVA' });
+            console.error('[ORQUESTRADOR][HANDOFF] rollback: falha ao criar handoff, dependencia revertida', JSON.stringify({ tarefaId: tarefaDep.id, dependenciaId: dep.id, erro: handoffResult.erro }));
+            continue;
+          }
 
           console.log('[ORQUESTRADOR][HANDOFF] handoff criado', JSON.stringify({ tarefaId: tarefaDep.id, origem: agenteOrigemId, destino: tarefaDep.agenteResponsavel, dependenciaId: dep.id }));
           this.auditoria.registrar('HANDOFF_CRIADO', `Handoff automático criado para tarefa ${tarefaDep.id}`, { tarefaId: tarefaDep.id, origem: agenteOrigemId, destino: tarefaDep.agenteResponsavel });

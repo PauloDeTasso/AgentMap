@@ -460,17 +460,17 @@ export class TarefaService {
     for (const pattern of allowedPatterns) {
       if (pattern === '/**') continue;
       const cleanPattern = pattern.replace(/^\//, '').replace(/\*\*\/?$/, '');
-      if (cleanPattern) {
-        const contentResult = await this.fs.ler(cleanPattern);
-        if (contentResult.sucesso && contentResult.dados) {
-          arquivosRelevantes.push({ caminho: cleanPattern, conteudo: contentResult.dados });
-        }
+      if (!cleanPattern) continue;
+      if (cleanPattern.includes('..')) continue;
+      const contentResult = await this.fs.ler(cleanPattern);
+      if (contentResult.sucesso && contentResult.dados) {
+        arquivosRelevantes.push({ caminho: cleanPattern, conteudo: contentResult.dados });
       }
     }
 
     const pacote: PacoteContexto = {
       identidade: {
-        projetoId: tarefa.agenteResponsavel ? tarefa.agenteResponsavel : '',
+        projetoId: '',
         nome: '',
         versao: ''
       },

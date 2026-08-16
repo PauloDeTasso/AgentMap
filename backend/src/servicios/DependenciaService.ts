@@ -27,11 +27,16 @@ export class DependenciaService {
   }
   private carregarRegistry(): ResultadoOperacao<DependenciasRegistry> {
     const result = this.fs.lerJson<DependenciasRegistry>(this.getRegistryPath());
-    if (!result.sucesso || !result.dados) return { sucesso: true, dados: { dependencias: [] } };
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: false, erro: result.erro || 'Erro ao carregar registro', codigoErro: result.codigoErro || 'REGISTRY_ERROR' };
+    }
     return result;
   }
   private salvarRegistry(registry: DependenciasRegistry): void {
-    this.fs.escreverJson(this.getRegistryPath(), registry);
+    const result = this.fs.escreverJson(this.getRegistryPath(), registry);
+    if (!result.sucesso) {
+      throw new Error(result.erro || 'Erro ao salvar registro');
+    }
   }
 
   listar(): ResultadoOperacao<Dependencia[]> {

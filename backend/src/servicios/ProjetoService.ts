@@ -42,15 +42,20 @@ export class ProjetoService {
     return { sucesso: true, dados: this.registro.projetos };
   }
 
-  getProjetoAtual(): ResultadoOperacao<ProjetoAberto | null> {
-    console.log('[ProjetoService.getProjetoAtual] projetoAtual no registro:', this.registro.projetoAtual || '(null)');
+  obterProjetoAtual(): ResultadoOperacao<ProjetoAberto | null> {
     if (!this.registro.projetoAtual) {
-      console.log('[ProjetoService.getProjetoAtual] nenhum projeto atual - retornando null');
       return { sucesso: true, dados: null };
     }
-    console.log('[ProjetoService.getProjetoAtual] tentando abrir projeto atual:', this.registro.projetoAtual);
-    const projeto = this.abrirProjeto(this.registro.projetoAtual);
-    return projeto;
+    const cached = this.projetosAbertos.get(this.registro.projetoAtual);
+    if (cached) {
+      return { sucesso: true, dados: cached };
+    }
+    const projetoResult = this.abrirProjeto(this.registro.projetoAtual);
+    return projetoResult;
+  }
+
+  getProjetoAtual(): ResultadoOperacao<ProjetoAberto | null> {
+    return this.obterProjetoAtual();
   }
 
   criarProjeto(nome: string, caminhoParental: string, descricao: string, dadosExtra?: Record<string, unknown>): ResultadoOperacao<string> {
@@ -116,12 +121,6 @@ export class ProjetoService {
     };
 
     const fsService = new FileService(caminhoRaiz);
-    fsService.escreverJson(
-      path.win32.join('.ia', 'configuracao', 'projeto.json'),
-      config,
-      { backup: true }
-    );
-
     const fluxo = new FluxoService(fsService, new AuditoriaService(fsService));
     const checklistResult = fluxo.validarChecklist();
     if (checklistResult.sucesso && checklistResult.dados) {
@@ -130,6 +129,12 @@ export class ProjetoService {
         return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
       }
     }
+
+    fsService.escreverJson(
+      path.win32.join('.ia', 'configuracao', 'projeto.json'),
+      config,
+      { backup: true }
+    );
 
     const registro: ProjetoRegistro = {
       id,
@@ -180,6 +185,16 @@ export class ProjetoService {
 
     const config = configResult.dados;
     console.log('[ProjetoService.abrirProjeto] Config lida:', config.id, config.nome);
+
+    const fluxo = new FluxoService(fileService, auditoria);
+    const checklistResult = fluxo.validarChecklist();
+    if (checklistResult.sucesso && checklistResult.dados) {
+      const pendentes = fluxo.obterPendentes(checklistResult.dados);
+      if (pendentes.length > 0) {
+        return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+      }
+    }
+
     const projeto: ProjetoAberto = {
       id: config.id,
       nome: config.nome,
@@ -189,17 +204,9 @@ export class ProjetoService {
       validator: this.validator,
       config,
       dependencia: new DependenciaService(fileService, auditoria, this.validator),
-      fluxo: new FluxoService(fileService, auditoria)
+      fluxo
     };
     console.log('[ProjetoService.abrirProjeto] ProjetoAberto criado - id:', projeto.id, 'nome:', projeto.nome, 'caminho:', projeto.caminhoRaiz);
-
-    const checklistResult = projeto.fluxo.validarChecklist();
-    if (checklistResult.sucesso && checklistResult.dados) {
-      const pendentes = projeto.fluxo.obterPendentes(checklistResult.dados);
-      if (pendentes.length > 0) {
-        return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
-      }
-    }
 
     this.projetosAbertos.set(config.id, projeto);
     this.registro = registrarProjeto(this.registro, { id: config.id, nome: config.nome, caminhoRaiz, ativo: true, ultimaAbertura: new Date().toISOString() });

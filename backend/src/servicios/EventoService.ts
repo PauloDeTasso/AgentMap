@@ -31,13 +31,16 @@ export class EventoService {
   private carregarRegistry(): ResultadoOperacao<EventosRegistry> {
     const result = this.fs.lerJson<EventosRegistry>(this.getRegistryPath());
     if (!result.sucesso || !result.dados) {
-      return { sucesso: true, dados: { eventos: [] } };
+      return { sucesso: false, erro: result.erro || 'Erro ao carregar registro', codigoErro: result.codigoErro || 'REGISTRY_ERROR' };
     }
     return result;
   }
 
   private salvarRegistry(registry: EventosRegistry): void {
-    this.fs.escreverJson(this.getRegistryPath(), registry);
+    const result = this.fs.escreverJson(this.getRegistryPath(), registry);
+    if (!result.sucesso) {
+      throw new Error(result.erro || 'Erro ao salvar registro');
+    }
   }
 
   listar(filtros?: { destino?: string; estado?: string }): ResultadoOperacao<Evento[]> {
