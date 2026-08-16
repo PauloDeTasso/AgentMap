@@ -271,9 +271,13 @@ async function init() {
   await atualizarStatus();
   await carregarSettings();
   renderizarProjetoAtual();
-  console.log('[init] renderizando tela inicial...');
-  await renderizarTelaInicial();
-  console.log('[init] tela inicial renderizada');
+  console.log('[init] carregando projeto atual...');
+  await carregarProjetoAtual();
+  if (!estado.projetoAtual) {
+    console.log('[init] nenhum projeto atual, renderizando tela inicial...');
+    await renderizarTelaInicial();
+  }
+  console.log('[init] inicializacao finalizada');
   setupEventListeners();
   setupModalAria();
 }
@@ -451,11 +455,11 @@ async function carregarTarefas() {
 }
 
 function setupEventListeners() {
-  $('btn-criar-projeto').addEventListener('click', () => showModal('modal-novo-projeto'));
-  $('btn-criar-projeto-inicial').addEventListener('click', () => showModal('modal-novo-projeto'));
-  $('btn-abrir-projeto').addEventListener('click', () => showModal('modal-abrir-projeto'));
-  $('btn-abrir-projeto-inicial').addEventListener('click', () => showModal('modal-abrir-projeto'));
-  $('btn-fechar-projeto').addEventListener('click', async () => {
+  $('btn-criar-projeto')?.addEventListener('click', () => showModal('modal-novo-projeto'));
+  $('btn-criar-projeto-inicial')?.addEventListener('click', () => showModal('modal-novo-projeto'));
+  $('btn-abrir-projeto')?.addEventListener('click', () => showModal('modal-abrir-projeto'));
+  $('btn-abrir-projeto-inicial')?.addEventListener('click', () => showModal('modal-abrir-projeto'));
+  $('btn-fechar-projeto')?.addEventListener('click', async () => {
     if (estado.projetoAtual?.id) {
       try { await api.fecharProjeto(estado.projetoAtual.id); } catch {}
     }
@@ -597,35 +601,36 @@ function setupEventListeners() {
     }
   });
 
-  $('btn-cancelar-novo').addEventListener('click', () => {
-    delete $('form-novo-projeto').dataset.editId;
-    $('form-novo-projeto').reset();
+  $('btn-cancelar-novo')?.addEventListener('click', () => {
+    const form = $('form-novo-projeto');
+    if (form) { delete form.dataset.editId; form.reset(); }
     hideModal('modal-novo-projeto');
   });
-  $('btn-cancelar-abrir').addEventListener('click', () => { $('form-abrir-projeto').reset(); hideModal('modal-abrir-projeto'); });
-  $('btn-cancelar-editor').addEventListener('click', () => hideModal('modal-editor'));
+  $('btn-cancelar-abrir')?.addEventListener('click', () => { const form = $('form-abrir-projeto'); if (form) form.reset(); hideModal('modal-abrir-projeto'); });
+  $('btn-cancelar-editor')?.addEventListener('click', () => hideModal('modal-editor'));
 
   // Folder browser for Abrir Projeto
-  $('btn-procurar-abrir').addEventListener('click', () => {
+  $('btn-procurar-abrir')?.addEventListener('click', () => {
     const picker = $('file-folder-picker');
-    picker.value = '';
-    picker.click();
+    if (picker) { picker.value = ''; picker.click(); }
   });
-  $('file-folder-picker').addEventListener('change', () => {
-    const files = $('file-folder-picker').files;
+  $('file-folder-picker')?.addEventListener('change', () => {
+    const files = $('file-folder-picker')?.files;
     if (!files || files.length === 0) return;
     const firstPath = files[0].webkitRelativePath || '';
     const folderName = firstPath.split(/[\\/]/)[0] || '';
     const baseDir = estado.settings?.diretorioProjetosDefault || '';
     if (baseDir && folderName) {
-      $('caminho-abrir').value = baseDir + '\\' + folderName;
+      const caminho = $('caminho-abrir');
+      if (caminho) caminho.value = baseDir + '\\' + folderName;
     } else if (folderName) {
-      $('caminho-abrir').value = folderName;
+      const caminho = $('caminho-abrir');
+      if (caminho) caminho.value = folderName;
     }
   });
 
-  $('btn-salvar-arquivo').addEventListener('click', salvarArquivo);
-  $('btn-confirmar-salvar').addEventListener('click', salvarArquivo);
+  $('btn-salvar-arquivo')?.addEventListener('click', salvarArquivo);
+  $('btn-confirmar-salvar')?.addEventListener('click', salvarArquivo);
 
   const filtroAgenteId = $('filtro-agente-id');
   const filtroAgenteTipo = $('filtro-agente-tipo');
@@ -660,7 +665,6 @@ function renderizarDashboard() {
       <li class="painel-lateral__item" data-painel="estado">📊 Estado</li>
       <li class="painel-lateral__item" data-painel="auditoria">🔍 Auditoria</li>
        <li class="painel-lateral__item" data-painel="solicitacoes">📝 Solicitações</li>
-       <li class="painel-lateral__item" data-painel="tarefas-view">📋 Tarefas (lista)</li>
        <li class="painel-lateral__item" data-painel="resultados">✅ Resultados</li>
        <li class="painel-lateral__item" data-painel="artefatos">📦 Artefatos</li>
         <li class="painel-lateral__item" data-painel="handoffs">🤝 Transferências</li>
@@ -715,7 +719,6 @@ async function carregarPainel(painel) {
     case 'estado': await renderizarEstado(el); break;
     case 'auditoria': await renderizarAuditoria(el); break;
     case 'solicitacoes': await renderizarSolicitacoes(el); break;
-    case 'tarefas-view': await renderizarTarefas(el); break;
     case 'resultados': await renderizarResultados(el); break;
     case 'artefatos': await renderizarArtefatos(el); break;
     case 'handoffs': await renderizarHandoffs(el); break;
@@ -796,8 +799,6 @@ window.abrirProjetoPasta = async function(caminho) {
     if (res.sucesso) {
       showToast('Projeto aberto!', 'sucesso');
       await carregarProjetoAtual();
-      renderizarProjetoAtual();
-      await renderizarTelaInicial();
     } else {
       console.error('[abrirProjetoPasta] FALHOU ao abrir:', res.erro, res.codigoErro);
       showToast(res.erro, 'erro');

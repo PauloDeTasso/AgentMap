@@ -119,11 +119,6 @@ export class IntegridadeService {
           inconsistencias.push(`Tarefa '${t.id}': contrato obrigatório '${cid}' não existe`);
         }
       }
-      for (const caId of (t.criteriosAceitacao || [])) {
-        if (!criterios.some((c) => c.id === caId)) {
-          inconsistencias.push(`Tarefa '${t.id}': critério de aceitação '${caId}' não encontrado`);
-        }
-      }
     }
 
     for (const r of resultados) {
