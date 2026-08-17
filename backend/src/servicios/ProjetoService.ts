@@ -57,6 +57,11 @@ export class ProjetoService {
       return { sucesso: true, dados: cached };
     }
     const projetoResult = this.abrirProjeto(this.registro.projetoAtual);
+    if (!projetoResult.sucesso) {
+      this.registro.projetoAtual = null;
+      saveRegistroProjetos(this.registro);
+      return { sucesso: true, dados: null };
+    }
     return projetoResult;
   }
 
@@ -265,6 +270,10 @@ export class ProjetoService {
       return { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' };
     }
     this.projetosAbertos.delete(id);
+    if (this.registro.projetoAtual === id) {
+      this.registro.projetoAtual = null;
+      saveRegistroProjetos(this.registro);
+    }
     return { sucesso: true, dados: true };
   }
 
