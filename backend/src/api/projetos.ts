@@ -160,8 +160,8 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     if (!result.sucesso || !result.dados) {
       return responder(res, result);
     }
-    const { fileService, auditoria, validator, dependencia, fluxo, ...limpo } = result.dados;
-    return responder(res, { sucesso: true, dados: limpo });
+    const { id, nome, caminhoRaiz, config } = result.dados;
+    return responder(res, { sucesso: true, dados: { id, nome, caminhoRaiz, config } });
   }));
 
   router.post('/:id/fechar', asyncHandler(async (req: Request, res: Response) => {

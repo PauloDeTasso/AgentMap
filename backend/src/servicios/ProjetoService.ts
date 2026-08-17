@@ -252,8 +252,10 @@ export class ProjetoService {
 
       return { sucesso: true, dados: projeto };
     } catch (error) {
-      console.error('[ProjetoService.abrirProjeto] ERRO INTERNO:', error);
-      return { sucesso: false, erro: 'Erro interno ao abrir projeto: ' + (error instanceof Error ? error.message : String(error)), codigoErro: 'INTERNAL_ERROR' };
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error('[ProjetoService.abrirProjeto] ERRO INTERNO:', err.message);
+      console.error('[ProjetoService.abrirProjeto] Stack:', err.stack);
+      return { sucesso: false, erro: 'Erro interno ao abrir projeto: ' + err.message, codigoErro: 'INTERNAL_ERROR' };
     }
   }
 
