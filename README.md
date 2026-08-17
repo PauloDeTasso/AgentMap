@@ -811,6 +811,11 @@ Isso inicia o servidor MCP via STDIO para integração com Kilo Code / VS Code.
 
 > **Nota:** a pasta base de projetos é configurável. No Windows, o padrão é `G:\PROJETOS\AgenteMap_Projetos\`. Em Linux/macOS, use qualquer caminho como `~/projetos/agentmap/`. Você pode alterar o padrão nas configurações do projeto.
 
+> **Best practice — separação de pastas:**
+> - A pasta do **AgentMap** (sistema) contém o código fonte, docs e scripts. Ex.: `G:\PROJETOS\WEB\AgentMap\`
+> - A pasta de **projetos gerenciados** contém os dados de cada projeto. Ex.: `G:\PROJETOS\AgenteMap_Projetos\`
+> - O sistema **não permite** criar projetos dentro da própria pasta do AgentMap. Essa validação evita mistura de código com dados operacionais.
+
 ### Integração com Kilo Code / VS Code
 
 1. Abra o projeto no VS Code

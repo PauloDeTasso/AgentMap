@@ -17,6 +17,7 @@ import {
 } from '../config';
 import { KiloDiscoveryService } from './KiloDiscoveryService';
 import { KiloReconciliationService } from './KiloReconciliationService';
+import { GERENCIADOR_DIR } from '../config';
 
 export interface ProjetoAberto {
   id: string;
@@ -73,6 +74,12 @@ export class ProjetoService {
     const id = uuid();
     const nomeSanitizado = nome.replace(/[^a-zA-Z0-9_-]/g, '_');
     const caminhoRaiz = path.win32.join(caminhoParental, nomeSanitizado);
+
+    const caminhoRaizResolvido = path.resolve(caminhoRaiz);
+    const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
+    if (caminhoRaizResolvido === gerenciadorResolvido || caminhoRaizResolvido.startsWith(gerenciadorResolvido + path.sep)) {
+      return { sucesso: false, erro: 'Não é permitido criar projetos dentro da pasta do AgentMap. Use outro caminho.', codigoErro: 'INVALID_PARENT_DIR' };
+    }
 
     if (fs.existsSync(path.win32.join(caminhoRaiz, '.ia'))) {
       return { sucesso: false, erro: 'Já existe um projeto com estrutura .ia/ neste local', codigoErro: 'IA_EXISTS' };
