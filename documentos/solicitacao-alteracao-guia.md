@@ -141,30 +141,38 @@ Exemplo:
 O ciclo de vida segue este fluxo:
 
 ```
-PENDENTE → EM_ANALISE → AGUARDANDO_APROVACAO → APROVADA → EM_EXECUCAO → CONCLUIDA
-            ↓              ↓                      ↓          ↓
-          REJEITADA       ↳ se aprovada         ↳ execução   ↳ validação
+PENDENTE → EM_ANALISE → AGUARDANDO_APROVACAO → APROVADA → EM_EXECUCAO → AGUARDANDO_VALIDACAO → CONCLUIDA
+
+Transições adicionais e de retorno:
+PENDENTE → CANCELADA
+EM_ANALISE → PENDENTE, CANCELADA
+AGUARDANDO_APROVACAO → EM_ANALISE, REJEITADA
+APROVADA → CANCELADA
+REJEITADA → PENDENTE (reativação), CANCELADA
+EM_EXECUCAO → CANCELADA, BLOQUEADA
+AGUARDANDO_VALIDACAO → EM_EXECUCAO, BLOQUEADA
+BLOQUEADA → EM_EXECUCAO, CANCELADA
 ```
 
 Se houver bloqueio:
 
 ```
-EM_EXECUCAO → BLOQUEADA → EM_EXECUCAO
+EM_EXECUCAO → BLOQUEADA → EM_EXECUCAO, CANCELADA
 ```
 
 Transições válidas:
 
 | De                  | Para                                              |
 |---------------------|---------------------------------------------------|
-| PENDENTE            | EM_ANALISE                                         |
-| EM_ANALISE          | AGUARDANDO_APROVACAO, REJEITADA                    |
-| AGUARDANDO_APROVACAO| APROVADA, REJEITADA                                |
-| APROVADA            | EM_EXECUCAO, BLOQUEADA                            |
-| EM_EXECUCAO          | AGUARDANDO_VALIDACAO, BLOQUEADA, CANCELADA        |
-| AGUARDANDO_VALIDACAO| CONCLUIDA, EM_EXECUCAO                            |
+| PENDENTE            | EM_ANALISE, CANCELADA                              |
+| EM_ANALISE          | AGUARDANDO_APROVACAO, PENDENTE, CANCELADA         |
+| AGUARDANDO_APROVACAO| APROVADA, REJEITADA, EM_ANALISE                   |
+| APROVADA            | EM_EXECUCAO, CANCELADA                             |
+| REJEITADA           | PENDENTE (reativação), CANCELADA                  |
+| EM_EXECUCAO          | AGUARDANDO_VALIDACAO, CANCELADA, BLOQUEADA        |
+| AGUARDANDO_VALIDACAO| CONCLUIDA, EM_EXECUCAO, BLOQUEADA                 |
 | CONCLUIDA           | (nenhuma — terminal)                              |
-| REJEITADA           | PENDENTE (reativação)                             |
-| CANCELADA           | (terminal)                                        |
+| CANCELADA           | (nenhuma — terminal)                              |
 | BLOQUEADA           | EM_EXECUCAO, CANCELADA                            |
 
 ### Aprovação
@@ -316,12 +324,12 @@ campo `status`, e o frontend precisa desse campo para exibir o estado atual de c
    - Impactos: `BACKEND`, `FRONTEND`, `API`
    - Prioridade: `MEDIA`
    - Requer aprovação: `true`
-   - Agente responsável: `devops`
+    - Agente responsável: `backend`
    - Tarefa de origem: `TAR-2026-00005`
 
 2. O status fica `PENDENTE` → `EM_ANALISE` → `AGUARDANDO_APROVACAO`
 
-3. O agente **DevOps Engineer** analisa e aprova a solicitação.
+3. O agente **Backend** analisa e aprova a solicitação.
 
 4. O status muda para `APROVADA` → `EM_EXECUCAO`
 

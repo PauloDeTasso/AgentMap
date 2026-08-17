@@ -4,27 +4,27 @@
   "descricao": "O contrato da API precisa disponibilizar o estado atual do contrato.",
 
   "agenteSolicitante": {
-    "id": "AGT-FRONTEND"
+    "id": "frontend"
   },
 
   "agenteResponsavel": {
-    "id": "AGT-BACKEND"
+    "id": "backend"
   },
 
   "alvo": {
     "tipo": "CONTRATO_API",
-    "nome": "Contrato de cliente",
-    "identificador": "cliente-resposta",
-    "localizacao": "esquemas/cliente-resposta.schema.json"
+    "nome": "Contrato da API",
+    "identificador": "contrato-api",
+    "localizacao": "backend/src/main/resources/contratos/contrato-api.json"
   },
 
   "alteracao": {
     "tipo": "ADICAO",
     "descricao": "Adicionar o campo status ao contrato de resposta.",
-    "motivo": "O frontend precisa receber o estado atual do contrato.",
+    "motivo": "O frontend precisa exibir o estado atual do contrato.",
     "arquivosAfetados": [
-      "esquemas/cliente-resposta.schema.json",
-      "docs/api-reference.md"
+      "ContratoRespostaDTO.java",
+      "contrato-api.json"
     ]
   },
 
@@ -50,7 +50,7 @@
   },
 
   "tarefaOrigem": {
-    "id": "TAR-2026-00042"
+    "id": "TAR-2026-00005"
   },
 
   "datas": {

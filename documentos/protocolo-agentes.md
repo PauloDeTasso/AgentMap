@@ -77,20 +77,47 @@ sequencial no ano corrente.
 
 ### 2.1 Tarefa
 
-Estados: `RASCUNHO`, `PENDENTE`, `PLANEJADA`, `PRONTA`, `PREPARANDO`, `EM_EXECUCAO`, `PAUSANDO`, `CANCELANDO`, `EM_TESTE`, `EM_REVISAO`, `AGUARDANDO_APROVACAO`, `CONCLUIDA`, `BLOQUEADA`, `TIMEOUT`, `ORFA`, `RECUPERANDO`, `CANCELADA`, `REJEITADA`
+Estados: `RASCUNHO`, `PENDENTE`, `PLANEJADA`, `PRONTA`, `PREPARANDO`, `EM_EXECUCAO`, `PAUSANDO`, `EM_TESTE`, `EM_REVISAO`, `AGUARDANDO_APROVACAO`, `CONCLUIDA`, `BLOQUEADA`, `CANCELADA`, `CANCELANDO`, `REJEITADA`, `TIMEOUT`, `ORFA`, `RECUPERANDO`
+
+Fluxo principal:
 
 ```
-RASCUNHO → PENDENTE → PLANEJADA → PRONTA → PREPARANDO → EM_EXECUCAO → PAUSANDO → CANCELANDO → EM_TESTE → EM_REVISAO → AGUARDANDO_APROVACAO → CONCLUIDA
-                  ↓         ↓           ↓           ↓           ↓              ↓           ↓           ↓           ↓                    ↓                    ↓
-               CANCELADA  BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA     BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA          BLOQUEADA            REJEITADA
-                  ↓         ↓           ↓           ↓           ↓              ↓           ↓           ↓           ↓                    ↓                    ↓
-               (terminal) (qualquer)  (qualquer)  (qualquer)  (qualquer)     (qualquer)  (qualquer)  (qualquer)  (qualquer)         (qualquer)         RASCUNHO, PENDENTE, PLANEJADA, PRONTA, PREPARANDO, EM_EXECUCAO
+RASCUNHO → PLANEJADA → PRONTA → EM_EXECUCAO → EM_TESTE → EM_REVISAO → AGUARDANDO_APROVACAO → CONCLUIDA
 ```
+
+Transições adicionais e de controle:
+
+```
+RASCUNHO → CANCELADA, EM_EXECUCAO, EM_REVISAO, CONCLUIDA, PREPARANDO
+PENDENTE → EM_EXECUCAO, PLANEJADA, CANCELADA, CONCLUIDA, PREPARANDO
+PLANEJADA → PRONTA, RASCUNHO, BLOQUEADA, CANCELADA, PREPARANDO
+PRONTA → EM_EXECUCAO, PLANEJADA, BLOQUEADA, PREPARANDO
+PREPARANDO → PRONTA, BLOQUEADA, CANCELANDO
+EM_EXECUCAO → EM_TESTE, EM_REVISAO, BLOQUEADA, CANCELADA, CONCLUIDA, PAUSANDO, TIMEOUT
+PAUSANDO → EM_EXECUCAO, CANCELANDO
+CANCELANDO → CANCELADA
+EM_TESTE → EM_REVISAO, EM_EXECUCAO, BLOQUEADA
+EM_REVISAO → AGUARDANDO_APROVACAO, EM_TESTE, EM_EXECUCAO, REJEITADA, CONCLUIDA
+AGUARDANDO_APROVACAO → CONCLUIDA, REJEITADA, EM_REVISAO
+BLOQUEADA → RASCUNHO, PENDENTE, PLANEJADA, PRONTA, PREPARANDO, EM_EXECUCAO, PAUSANDO, EM_TESTE, EM_REVISAO, AGUARDANDO_APROVACAO, CANCELADA, RECUPERANDO, ORFA
+TIMEOUT → PRONTA, BLOQUEADA, CANCELADA, RECUPERANDO
+ORFA → RECUPERANDO, CANCELADA
+RECUPERANDO → PRONTA, EM_EXECUCAO, BLOQUEADA
+
+Estados terminais: `CONCLUIDA`, `CANCELADA`
+```
+
+O mapa completo de transições está em `.ia/configuracao/transicoes.json`.
 
 Regras:
 - `CONCLUIDA` e `CANCELADA` são estados terminais (não permitem transições de saída).
-- `REJEITADA` permite reabertura para `RASCUNHO`, `PLANEJADA`, `PRONTA` ou `EM_EXECUCAO`.
-- `BLOQUEADA` permite retomar qualquer estado ativo anterior.
+- `REJEITADA` permite reabertura para `RASCUNHO`, `PENDENTE`, `PLANEJADA`, `PRONTA` ou `EM_EXECUCAO`.
+- `BLOQUEADA` permite retomar de qualquer estado anterior, além de `RECUPERANDO` e `ORFA`.
+- `PREPARANDO` é um estado intermediário antes de `PRONTA`.
+- `PAUSANDO` e `CANCELANDO` são estados transitórios de controle.
+- `TIMEOUT` ocorre quando uma tarefa em execução não avança no tempo limite.
+- `ORFA` ocorre quando a sessão associada é desconectada.
+- `RECUPERANDO` é o estado de recuperação após `TIMEOUT`, `ORFA` ou `BLOQUEADA`.
 
 ### 2.2 Solicitação de Alteração
 
@@ -98,10 +125,18 @@ Estados: `PENDENTE`, `EM_ANALISE`, `AGUARDANDO_APROVACAO`, `APROVADA`, `REJEITAD
 
 ```
 PENDENTE → EM_ANALISE → AGUARDANDO_APROVACAO → APROVADA → EM_EXECUCAO → AGUARDANDO_VALIDACAO → CONCLUIDA
-               ↓              ↓                      ↓           ↓
-            REJEITADA       CANCELADA               CANCELADA   BLOQUEADA
-               ↓
-            (reativação via PENDENTE)
+
+Transições adicionais e de retorno:
+PENDENTE → CANCELADA
+EM_ANALISE → PENDENTE, CANCELADA
+AGUARDANDO_APROVACAO → EM_ANALISE, REJEITADA
+APROVADA → CANCELADA
+REJEITADA → PENDENTE (reativação), CANCELADA
+EM_EXECUCAO → CANCELADA, BLOQUEADA
+AGUARDANDO_VALIDACAO → EM_EXECUCAO, BLOQUEADA
+BLOQUEADA → EM_EXECUCAO, CANCELADA
+
+Estados terminais: `CONCLUIDA`, `CANCELADA`
 ```
 
 ### 2.3 Bloqueio
