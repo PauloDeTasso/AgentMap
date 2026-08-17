@@ -1,5 +1,5 @@
 {
-  "descobertoEm": "2026-08-17T01:10:36.516Z",
+  "descobertoEm": "2026-08-17T10:39:52.268Z",
   "worktrees": [
     {
       "nome": "backend-api-test",
@@ -22,26 +22,26 @@
       "branch": "qa-e2e-navigation-test"
     },
     {
-      "nome": "task-tar-2026-00001-testar-chat-kilo",
-      "caminho": ".kilo\\worktrees\\task-tar-2026-00001-testar-chat-kilo",
-      "branch": "task-tar-2026-00001-testar-chat-kilo",
-      "tarefaId": "TAR-2026"
-    },
-    {
       "nome": "test-e2e-stdio",
       "caminho": ".kilo\\worktrees\\test-e2e-stdio",
       "branch": "test-e2e-stdio"
     }
   ],
-  "sessoes": [
+  "sessoes": [],
+  "agentes": [
     {
-      "id": "ses_ff2d3814affe7CfGqy10eOnfAC",
-      "nome": "ses_ff2d3814affe7CfGqy10eOnfAC",
-      "tipo": "local",
-      "worktreeId": "wt-1786927414085-1",
-      "estado": "ativo",
-      "criadoEm": "2026-08-17T00:43:35.011Z"
+      "id": "comunicacao-filho",
+      "nome": "comunicacao-filho",
+      "descricao": "comunicacao-filho",
+      "mode": "primary",
+      "cor": "#607D8B"
+    },
+    {
+      "id": "template-agente-kilo",
+      "nome": "template-agente-kilo",
+      "descricao": "template-agente-kilo",
+      "mode": "primary",
+      "cor": "#607D8B"
     }
-  ],
-  "agentes": []
+  ]
 }

@@ -86,7 +86,7 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     if (!result.dados) {
       return res.status(200).json({ sucesso: true, dados: null });
     }
-    const { fileService, auditoria, validator, dependencia, ...limpo } = result.dados;
+    const { fileService, auditoria, validator, dependencia, fluxo, monitoramento, kiloDiscovery, kiloReconciliation, ...limpo } = result.dados;
     return res.status(200).json({ sucesso: true, dados: limpo });
   }));
 

@@ -173,7 +173,7 @@ function renderizarProjetoAtual() {
   const nomeEl = $('nome-projeto-ativo');
   if (estado.projetoAtual) {
     nav.style.display = 'block';
-    nomeEl.textContent = estado.projetoAtual.nome || estado.projetoAtual.nome;
+    nomeEl.textContent = estado.projetoAtual.nome || estado.projetoAtual.id || '';
   } else {
     nav.style.display = 'none';
   }
@@ -335,10 +335,11 @@ async function renderizarTelaInicial() {
     html += `<div style="margin-top:16px;"><h3 style="margin:0 0 8px 0;">${projetosEncontrados.length} projeto(s) encontrado(s) em ${dir}</h3><div style="display:flex;flex-direction:column;gap:8px;">`;
     for (const p of projetosEncontrados) {
       const descricaoHtml = p.descricao ? `<br><small style="color:var(--text-muted);">${escapeHtml(p.descricao)}</small>` : '';
-      const caminhoAttr = encodeURIComponent(p.caminho);
-      console.log('[renderizarTelaInicial] projeto:', p.nome, '| caminho=', p.caminho, '| attr=', caminhoAttr);
+      const caminho = p.caminhoRaiz || p.caminho || '';
+      const caminhoAttr = encodeURIComponent(caminho);
+      console.log('[renderizarTelaInicial] projeto:', p.nome, '| caminho=', caminho, '| attr=', caminhoAttr);
       html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);">
-        <div><strong>${escapeHtml(p.nome)}</strong>${descricaoHtml}<br><small style="color:var(--text-muted);">${escapeHtml(p.caminho)}</small></div>
+        <div><strong>${escapeHtml(p.nome)}</strong>${descricaoHtml}<br><small style="color:var(--text-muted);">${escapeHtml(caminho)}</small></div>
         <button class="btn btn--primario" onclick="abrirProjetoPasta('${caminhoAttr}')">Abrir</button>
       </div>`;
     }

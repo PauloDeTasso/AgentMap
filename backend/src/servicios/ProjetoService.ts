@@ -179,65 +179,70 @@ export class ProjetoService {
       return { sucesso: false, erro: 'Diretório .ia/ não encontrado — não é um projeto gerenciado', codigoErro: 'IA_NOT_FOUND' };
     }
 
-    const fileService = new FileService(caminhoRaiz);
-    const auditoria = new AuditoriaService(fileService);
+    try {
+      const fileService = new FileService(caminhoRaiz);
+      const auditoria = new AuditoriaService(fileService);
 
-    const configResult = fileService.lerJson<ProjetoConfig>(
-      path.win32.join('.ia', 'configuracao', 'projeto.json')
-    );
-    if (!configResult.sucesso || !configResult.dados) {
-      return { sucesso: false, erro: 'Não foi possível ler a configuração do projeto', codigoErro: 'CONFIG_READ_ERROR' };
-    }
-
-    const config = configResult.dados;
-    console.log('[ProjetoService.abrirProjeto] Config lida:', config.id, config.nome);
-
-    const fluxo = new FluxoService(fileService, auditoria);
-    const checklistResult = fluxo.validarChecklist();
-    if (checklistResult.sucesso && checklistResult.dados) {
-      const pendentes = fluxo.obterPendentes(checklistResult.dados);
-      if (pendentes.length > 0) {
-        return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+      const configResult = fileService.lerJson<ProjetoConfig>(
+        path.win32.join('.ia', 'configuracao', 'projeto.json')
+      );
+      if (!configResult.sucesso || !configResult.dados) {
+        return { sucesso: false, erro: 'Não foi possível ler a configuração do projeto', codigoErro: 'CONFIG_READ_ERROR' };
       }
-    }
 
-    const projeto: ProjetoAberto = {
-      id: config.id,
-      nome: config.nome,
-      caminhoRaiz,
-      fileService,
-      auditoria,
-      validator: this.validator,
-      config,
-      dependencia: new DependenciaService(fileService, auditoria, this.validator),
-      fluxo,
-      monitoramento: new MonitoramentoService(fileService, auditoria, this.validator),
-      kiloDiscovery: new KiloDiscoveryService(fileService, auditoria, caminhoRaiz),
-      kiloReconciliation: new KiloReconciliationService(fileService, auditoria, this.validator, caminhoRaiz)
-    };
-    console.log('[ProjetoService.abrirProjeto] ProjetoAberto criado - id:', projeto.id, 'nome:', projeto.nome, 'caminho:', projeto.caminhoRaiz);
+      const config = configResult.dados;
+      console.log('[ProjetoService.abrirProjeto] Config lida:', config.id, config.nome);
 
-    this.projetosAbertos.set(config.id, projeto);
-    this.registro = registrarProjeto(this.registro, { id: config.id, nome: config.nome, caminhoRaiz, ativo: true, ultimaAbertura: new Date().toISOString() });
-    this.registro.projetoAtual = config.id;
-    saveRegistroProjetos(this.registro);
-
-    auditoria.registrar('PROJETO_ABERTO', `Projeto '${config.nome}' aberto.`, { caminhoRaiz });
-
-    projeto.kiloReconciliation.reconciliar().then(async (reconciliacao) => {
-      if (reconciliacao.sucesso && reconciliacao.dados) {
-        const kiloStateResult = await projeto.kiloDiscovery.obterEstadoKilo();
-        if (kiloStateResult.sucesso && kiloStateResult.dados) {
-          projeto.monitoramento.registrarKiloState(kiloStateResult.dados).catch((err) => {
-            console.warn('[ProjetoService][KILO] Falha ao registrar estado Kilo:', err?.message || err);
-          });
+      const fluxo = new FluxoService(fileService, auditoria);
+      const checklistResult = fluxo.validarChecklist();
+      if (checklistResult.sucesso && checklistResult.dados) {
+        const pendentes = fluxo.obterPendentes(checklistResult.dados);
+        if (pendentes.length > 0) {
+          return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
         }
       }
-    }).catch((err) => {
-      console.warn('[ProjetoService][KILO] Falha na reconciliação automática:', err?.message || err);
-    });
 
-    return { sucesso: true, dados: projeto };
+      const projeto: ProjetoAberto = {
+        id: config.id,
+        nome: config.nome,
+        caminhoRaiz,
+        fileService,
+        auditoria,
+        validator: this.validator,
+        config,
+        dependencia: new DependenciaService(fileService, auditoria, this.validator),
+        fluxo,
+        monitoramento: new MonitoramentoService(fileService, auditoria, this.validator),
+        kiloDiscovery: new KiloDiscoveryService(fileService, auditoria, caminhoRaiz),
+        kiloReconciliation: new KiloReconciliationService(fileService, auditoria, this.validator, caminhoRaiz)
+      };
+      console.log('[ProjetoService.abrirProjeto] ProjetoAberto criado - id:', projeto.id, 'nome:', projeto.nome, 'caminho:', projeto.caminhoRaiz);
+
+      this.projetosAbertos.set(config.id, projeto);
+      this.registro = registrarProjeto(this.registro, { id: config.id, nome: config.nome, caminhoRaiz, ativo: true, ultimaAbertura: new Date().toISOString() });
+      this.registro.projetoAtual = config.id;
+      saveRegistroProjetos(this.registro);
+
+      auditoria.registrar('PROJETO_ABERTO', `Projeto '${config.nome}' aberto.`, { caminhoRaiz });
+
+      projeto.kiloReconciliation.reconciliar().then(async (reconciliacao) => {
+        if (reconciliacao.sucesso && reconciliacao.dados) {
+          const kiloStateResult = await projeto.kiloDiscovery.obterEstadoKilo();
+          if (kiloStateResult.sucesso && kiloStateResult.dados) {
+            projeto.monitoramento.registrarKiloState(kiloStateResult.dados).catch((err) => {
+              console.warn('[ProjetoService][KILO] Falha ao registrar estado Kilo:', err?.message || err);
+            });
+          }
+        }
+      }).catch((err) => {
+        console.warn('[ProjetoService][KILO] Falha na reconciliação automática:', err?.message || err);
+      });
+
+      return { sucesso: true, dados: projeto };
+    } catch (error) {
+      console.error('[ProjetoService.abrirProjeto] ERRO INTERNO:', error);
+      return { sucesso: false, erro: 'Erro interno ao abrir projeto: ' + (error instanceof Error ? error.message : String(error)), codigoErro: 'INTERNAL_ERROR' };
+    }
   }
 
   fecharProjeto(id: string): ResultadoOperacao<boolean> {
