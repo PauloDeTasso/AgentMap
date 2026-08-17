@@ -16,23 +16,35 @@ Filho (Agent Manager worktree)
        |
        |--- Caminho A (preferido): Kilo Code recebe notificação MCP e reativa o agente
        |
-       |--- Caminho B (fallback): watcher-wakeup.js polla ?after=<eventSequence>,
-            filtra tipos relevantes e injeta prompt via `kilo run --attach`
+       |--- Caminho B (fallback): watcher-wakeup.js polla via HTTP,
+            filtra client-side por eventSequence e tipos relevantes,
+            e injeta prompt via `kilo run --attach`
 ```
 
 ## O que já está implementado no backend
 
-- `eventSequence` global + persistência em `.ia/contexto/monitoramento-sequence.json`
-- Polling incremental: `GET /api/monitoramento/mensagens?after=<sequence>`
-- Recurso MCP assinável: `agentmap://monitoramento/mensagens/{projetoId}`
-- EventBus publish automático em `adicionarMensagem()`
-- Auto-subscribe instruction em `agentmap_workflows_iniciar_trabalho`
-- Filtro de relevância por tipos (`KILO_CHAT_REPLY`, `AGENTE_FILHO_RESULTADO`, etc.)
+- `eventSequence` global e monotônico, gerado automaticamente em `adicionarMensagem()` no `MonitoramentoService.ts`
+- Persistência do cursor em `.ia/contexto/monitoramento-sequence.json` como `{ ultimoSequence: number }`
+- Service method `listarMensagensApos(after: number, limite = 100)` retorna `{ mensagens, ultimoEventSequence }`
+- Polling via HTTP: `GET /api/monitoramento/mensagens` suporta `limite`, `agenteId`, `tipo`. **Nota:** o parâmetro `after` não está exposto no HTTP endpoint — o watcher faz fetch e filtra client-side por `eventSequence > ultimo_processado`.
+- Polling via MCP tool: `agentmap_monitoramento_verificar_pendentes` suporta `aposEventSequence` para polling incremental com filtro de relevância embutido.
+- Recurso MCP assinável: `agentmap://monitoramento/mensagens/{projetoId?}`
+- EventBus publish automático em `adicionarMensagem()` para `agentmap://monitoramento/mensagens`
+- Tipos relevantes filtrados: `KILO_CHAT_REPLY`, `AGENTE_FILHO_RESULTADO`, `WAKEUP_PARENT`, `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`
+
+> **Nota:** o prompt de `agentmap_workflows_iniciar_trabalho` ainda não instrui o auto-subscribe no recurso de monitoramento. Isso é um passo pendente de integração, não um bloqueio do watcher.
 
 ## O que ainda falta (Caminho B — watcher)
 
-O watcher `PLANO GERAL/UPDATE/watcher-wakeup.js` está funcional, mas precisa de
-configuração manual do usuário para funcionar contra a extensão VS Code.
+O watcher `PLANO GERAL/UPDATE/watcher-wakeup.js` existe como esqueleto funcional de polling. **Estado atual após revisão:**
+
+- Filtro de relevância implementado com tipos `TASK_COMPLETED`, `HANDOFF_COMPLETED`, `BLOCKED`, `APPROVAL_REQUIRED`
+- Usa `eventSequence` como cursor incremental (client-side, pois o HTTP endpoint não expõe `after`)
+- Estado local salvo em `.agentmap/watcher-state.json` com `ultimoEventSequence`
+- Janela de debounce/coalescing implementada (`WATCHER_DEBOUNCE_MS`, default 5000ms)
+- Três níveis de autonomia implementados (`WATCHER_AUTONOMY_LEVEL`: `WAKE_ONLY`, `WAKE_AND_CONTINUE`, `FULL_AUTONOMY`)
+- Default de `AGENTMAP_API_URL` corrigido para `3150`
+- Ainda dependente de configuração manual da sessão Kilo (Gate -1)
 
 ### Gate -1 (você precisa fazer)
 
@@ -82,8 +94,8 @@ Get-Process -Name "kilo*" -ErrorAction SilentlyContinue
 | `AGENTMAP_API_TOKEN` | API key se configurada | `null` |
 | `KILO_SESSION_CONFIG_PATH` | Caminho do config de sessão | `.agentmap/kilo-session.json` |
 | `WATCHER_POLL_INTERVAL_MS` | Intervalo de polling (ms) | `20000` |
-| `WATCHER_DEBOUNCE_MS` | Janela de agrupamento (ms) | `3000` |
-| `WATCHER_AUTONOMY_LEVEL` | `WAKE_ONLY`, `WAKE_AND_CONTINUE`, `FULL_AUTONOMY` | `WAKE_ONLY` |
+
+> **Nota:** `WATCHER_DEBOUNCE_MS` e `WATCHER_AUTONOMY_LEVEL` estão documentados no plano v4 mas **ainda não implementados** no `watcher-wakeup.js`.
 
 ### Como rodar
 
@@ -96,9 +108,9 @@ Logs em `.agentmap/watcher-wakeup.log`.
 ## Validação
 
 - **Fase 1** — `eventSequence` + polling incremental: validado via script `backend/validar-wakeup.cjs`
-- **Fase 4** — Filtro de relevância: validado via API
-- **Fase 2/3** — Recurso MCP + EventBus + auto-subscribe: código implementado e compilando
-- **Fase 5** — Watcher: código funcional, depende de configuração manual da sessão Kilo (Gate -1)
+- **Fase 4** — Filtro de relevância por tipo: validado via API (`?tipo=WAKEUP_PARENT`)
+- **Fase 2/3** — Recurso MCP + EventBus: código implementado e compilando. Auto-subscribe instruction no prompt de `agentmap_workflows_iniciar_trabalho` ainda **não implementado**.
+- **Fase 5** — Watcher: polling funcional com `eventSequence`, filtro de relevância, debounce/coalescing e níveis de autonomia implementados. Depende de configuração manual da sessão Kilo (Gate -1).
 
 ## Riscos conhecidos
 
@@ -113,3 +125,5 @@ Logs em `.agentmap/watcher-wakeup.log`.
 2. Rode o watcher: `node "PLANO GERAL/UPDATE/watcher-wakeup.js"`
 3. Envie um agente filho reportar resultado.
 4. Confira se o pai acordou automaticamente.
+
+> **Aviso:** o watcher atual é um esqueleto. Ele consulta a API do AgentMap, mas ainda falta implementar filtro de relevância, troca de `since_id` por `eventSequence`, debounce/coalescing e níveis de autonomia antes de considerar o wake-up confiável.

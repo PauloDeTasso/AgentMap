@@ -300,11 +300,9 @@ Kilo Code
 
 ## Conhecimentos
 
-- Java 17+;
-- Spring Boot;
-- Spring Security;
-- Spring Data JPA;
-- Hibernate;
+- Node.js;
+- TypeScript;
+- Express;
 - API REST;
 - JSON;
 - DTOs;
@@ -642,7 +640,7 @@ Responsável por analisar:
 Arquivo:
 
 ```text
-.ai/contratos/CONTRATO_PROJETO.md
+.ia/contratos/CONTRATO_PROJETO.md
 ```
 
 É a constituição do projeto.
@@ -674,7 +672,7 @@ Nenhum agente deve ignorá-lo.
 # 18. CONTRATOS ESPECIALIZADOS
 
 ```text
-.ai/contratos/
+.ia/contratos/
 │
 ├── CONTRATO_PROJETO.md
 ├── CONTRATO_ARQUITETURA.md
@@ -764,7 +762,7 @@ Cada agente terá um perfil.
 Exemplo:
 
 ```text
-.ai/agentes/frontend.md
+.ia/agentes/frontend.md
 ```
 
 Deve conter:
@@ -1087,7 +1085,7 @@ qual versão resultou
 Utilizar registros de decisão.
 
 ```text
-.ai/decisoes/
+.ia/decisoes/
 ├── DECISAO-001.md
 ├── DECISAO-002.md
 └── DECISAO-003.md
@@ -1470,7 +1468,7 @@ DOCUMENTAÇÃO
 O projeto terá:
 
 ```text
-.ai/riscos/
+.ia/riscos/
 ```
 
 Cada risco deverá possuir:
@@ -1493,7 +1491,7 @@ estado
 Separar problemas conhecidos de tarefas.
 
 ```text
-.ai/problemas/
+.ia/problemas/
 ```
 
 Assim o agente sabe:
@@ -1512,7 +1510,7 @@ Isso evita alterações inesperadas.
 Além dos contratos, o projeto poderá possuir:
 
 ```text
-.ai/conhecimento/
+.ia/conhecimento/
 ```
 
 Com:
@@ -1535,7 +1533,7 @@ Criar procedimentos padronizados.
 Exemplo:
 
 ```text
-.ai/procedimentos/
+.ia/procedimentos/
 ├── CRIAR_TAREFA.md
 ├── IMPLEMENTAR_TAREFA.md
 ├── REVISAR_CODIGO.md

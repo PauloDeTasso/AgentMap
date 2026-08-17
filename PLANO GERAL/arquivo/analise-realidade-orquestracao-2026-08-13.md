@@ -1,6 +1,8 @@
 # Análise de Realidade — Orquestração Multiagente do AgentMap
 ## Data: 2026-08-13
 
+> **NOTA:** Este documento é a versão histórica de 2026-08-13. Ele foi substituído pela análise atualizada em `analise-realidade-orquestracao.md` (2026-08-15), que corrige várias conclusões deste documento à luz da implementação real. Mantido para referência histórica.
+
 ## 1. Validação do Kilo Instalado
 
 ### 1.1 Resultado da Validação

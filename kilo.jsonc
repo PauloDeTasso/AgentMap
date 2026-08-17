@@ -35,4 +35,15 @@
  *
  * Esta configuração NÃO afeta o armazenamento local do AgentMap (.ia/).
  * O AgentMap armazena tudo localmente em arquivos JSON, independentemente desta flag.
+ *
+ * O valor padrão aqui é true. Sobrescreva no arquivo kilo.local.jsonc (não versionado)
+ * para desativar a coleta neste ambiente.
+ */
+
+/*
+ * CONFIGURAÇÃO DO MCP DO AGENTMAP
+ *
+ * O AgentMap é exposto ao Kilo Code via MCP local (STDIO).
+ * Comando: npx tsx src/mcp-server/index.ts
+ * Transporte: stdio (sem exposição de rede)
  */

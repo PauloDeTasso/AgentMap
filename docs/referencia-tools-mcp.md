@@ -1,6 +1,6 @@
 # Referência de Tools MCP
 
-Este documento lista as 124 tools MCP disponíveis para integração com agentes externos via Model Context Protocol.
+Este documento lista as 131 tools MCP disponíveis para integração com agentes externos via Model Context Protocol.
 
 > **Nota:** O AgentMap disponibiliza um conjunto completo de tools padronizadas para que agentes de IA possam interagir com projetos, tarefas, agentes, workflows, handoffs e demais entidades do gerenciador. Todas as operações seguem convenções consistentes de entrada, saída e validação.
 
@@ -102,6 +102,14 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 | `agentmap_workflows_finalizar_trabalho` | Registra resultado, artefatos, handoff e finaliza sessão | `{ "sessaoId"?: string, "tarefaId": string, "agenteId": string, "resumo": string, "estado"?: string, "arquivosAlterados"?: string[], "testesExecutados"?: string[], "testesAprovados"?: string[] }` |
 | `agentmap_workflows_consultar_pendencias` | Consulta pendências, handoffs, validações e bloqueios por agente | `{ "agenteId": string }` |
 | `agentmap_workflows_obter_mapa_projeto` | Obtém o mapa completo do projeto | `{}` |
+
+### Worktree / Paralelismo
+
+| Tool | Descrição | Parâmetros |
+|---|---|---|
+| `agentmap_tarefas_prontas_para_worktree` | Lista tarefas sem dependência pendente | `{}` |
+| `agentmap_verificar_dependencias_pendentes` | Verifica dependências de uma tarefa | `{ "tarefaId": string }` |
+| `agentmap_abrir_worktree` | Cria worktree automaticamente para uma tarefa | `{ "tarefaId": string, "agenteId"?: string }` |
 
 ### Handoffs
 
@@ -371,3 +379,4 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 | `PATH_TRAVERSAL` | Tentativa de path traversal bloqueada |
 | `VALIDATION_ERROR` | Erro de validação de schema |
 | `NOT_FOUND` | Entidade não encontrada |
+

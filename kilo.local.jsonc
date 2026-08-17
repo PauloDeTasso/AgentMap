@@ -24,4 +24,6 @@
  *
  * Esta configuração NÃO afeta o armazenamento local do AgentMap (.ia/).
  * O AgentMap armazena tudo localmente em arquivos JSON, independentemente desta flag.
+ *
+ * Este arquivo é ignorado pelo .gitignore. NÃO versionar segredos ou preferências locais aqui.
  */

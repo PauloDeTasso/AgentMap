@@ -72,7 +72,6 @@ GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend-t
     "limite": 20
   }
 }
-```
 
 ### 3.3 Pai (AgentMap/usuário) → Filho
 
@@ -210,7 +209,7 @@ docs/arquitetura.md
 
 | Problema | Solução |
 |---|---|
-| `Cannot POST /api/monitoramento/mensagens` | Backend não está rodando. Inicie com `npm start` em `backend/` |
+| `Cannot POST /api/monitoramento/mensagens` | Backend não está rodando. Inicie com `npm run dev` em `backend/` |
 | `Cannot GET /api/monitoramento/kilo/receive-chat` | Backend não foi rebuildado após alterações. Rode `npm run build` e reinicie |
 | Mensagem não aparece no monitoramento | Verifique se o WebSocket está conectado (status verde no topo) |
 | Filho não vê resposta do pai | Filho deve chamar `GET /api/monitoramento/kilo/receive-chat` periodicamente |

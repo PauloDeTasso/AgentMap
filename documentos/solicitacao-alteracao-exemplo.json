@@ -15,7 +15,7 @@
     "tipo": "CONTRATO_API",
     "nome": "Contrato de cliente",
     "identificador": "cliente-resposta",
-    "localizacao": "backend/src/main/resources/contratos/cliente-resposta.json"
+    "localizacao": "esquemas/cliente-resposta.schema.json"
   },
 
   "alteracao": {
@@ -23,8 +23,8 @@
     "descricao": "Adicionar o campo status ao contrato de resposta.",
     "motivo": "O frontend precisa receber o estado atual do contrato.",
     "arquivosAfetados": [
-      "ContratoRespostaDTO.java",
-      "cliente-resposta.json"
+      "esquemas/cliente-resposta.schema.json",
+      "docs/api-reference.md"
     ]
   },
 

@@ -4,7 +4,7 @@
 
 ## 📌 O que é
 
-O **AgentMap** é uma aplicação pessoal e local para Windows 11 criada para organizar todas as informações que utilizo com meus agentes de Inteligência Artificial.
+O **AgentMap** é uma aplicação pessoal e local para Windows, Linux e macOS criada para organizar todas as informações que utilizo com meus agentes de Inteligência Artificial.
 
 O objetivo é simples:
 
@@ -74,7 +74,7 @@ Projeto
 
 # 🖥️ Funcionamento local
 
-O AgentMap será executado **somente na máquina local com Windows 11**.
+O AgentMap será executado **somente na máquina local com Windows, Linux e macOS**.
 
 Não existe, neste momento, objetivo de:
 
@@ -90,7 +90,7 @@ Não existe, neste momento, objetivo de:
 O objetivo é facilitar meu próprio trabalho.
 
 ```text
-Windows 11
+Windows, Linux e macOS
    │
    ▼
 AgentMap
@@ -795,7 +795,7 @@ A licença será definida posteriormente.
 
 # 📌 Status
 
-**Projeto pessoal em desenvolvimento para Windows 11.**
+**Projeto pessoal em desenvolvimento para Windows, Linux e macOS.**
 
 O AgentMap é desenvolvido para uso local e pessoal, priorizando simplicidade, organização, facilidade de manutenção e acesso direto aos arquivos.
 

@@ -145,7 +145,7 @@ O AgentMap foi validado com dados realistas em todos os módulos:
 
 ## API REST
 
-A interface web consome uma API REST completa com 90+ endpoints, todos funcionais e documentados. A API utiliza formato JSON consistente:
+A interface web consome uma API REST completa com ~180 rotas, todos funcionais e documentados. A API utiliza formato JSON consistente:
 
 ```json
 {
@@ -169,7 +169,7 @@ Status codes utilizados: 200 (sucesso), 400 (validação), 401 (autenticação),
 
 ## Integração MCP
 
-Além da interface web, o AgentMap disponibiliza 124 tools MCP para integração direta com agentes de IA via Kilo Code / VS Code:
+Além da interface web, o AgentMap disponibiliza 131 tools MCP para integração direta com agentes de IA via Kilo Code / VS Code:
 
 - **Tools de leitura:** consultar projetos, agentes, tarefas, contratos, decisões, etc.
 - **Tools de escrita:** criar e atualizar entidades via MCP
@@ -184,3 +184,4 @@ SDK: `@modelcontextprotocol/sdk` v1.30.0
 ## Conclusão
 
 A navegação do AgentMap está funcional, testada e populada com dados realistas. Todos os 27 painéis operam corretamente, a API responde de forma consistente e o sistema está pronto para uso em projetos reais.
+

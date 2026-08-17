@@ -18,9 +18,9 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 4. agentmap_workflows_obter_mapa_projeto → visão consolidada
 5. Somente depois, opere no projeto.
 
-## 3. Inventário Completo de Tools (118 tools)
+## 3. Inventário Completo de Tools (131 tools)
 
-### Projetos (6)
+### Projetos (7)
 - agentmap_projetos_listar — Lista todos os projetos registrados.
 - agentmap_projetos_criar — Cria um novo projeto (requer nome, caminhoParental, descricao).
 - agentmap_projetos_abrir — Abre um projeto existente por caminho ou ID (caminhoOuId).
@@ -35,7 +35,7 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 - agentmap_agentes_atualizar — Atualiza agente (id + campos em dados).
 - agentmap_agentes_excluir — Exclui agente (id).
 
-### Tarefas (7)
+### Tarefas (8)
 - agentmap_tarefas_listar — Lista tarefas do projeto aberto.
 - agentmap_tarefas_obter — Obtém tarefa por ID.
 - agentmap_tarefas_criar — Cria tarefa (requer dados com titulo, objetivo, agenteResponsavel, dominio).
@@ -43,6 +43,7 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 - agentmap_tarefas_alterar_estado — Altera estado respeitando transições válidas (id, novoEstado).
 - agentmap_tarefas_excluir — Exclui tarefa (id).
 - agentmap_tarefas_contexto — Pacote completo para executar uma tarefa (id).
+- agentmap_tarefas_prontas_para_worktree — Lista tarefas prontas para criação de worktree.
 
 ### Solicitações (9)
 - agentmap_solicitacoes_listar — Lista solicitações de alteração.
@@ -112,11 +113,12 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 - agentmap_decisoes_atualizar — Atualiza decisão (id + campos).
 - agentmap_decisoes_excluir — Exclui decisão (id).
 
-### Dependencias (4)
+### Dependencias (5)
 - agentmap_dependencias_listar — Lista dependências.
 - agentmap_dependencias_obter — Obtém dependência por ID.
 - agentmap_dependencias_criar — Cria dependência (requer dados com fonte, destino, tipo; fonte e destino não podem ser iguais).
 - agentmap_dependencias_excluir — Exclui dependência (id).
+- agentmap_verificar_dependencias_pendentes — Verifica dependências pendentes de uma tarefa (tarefaId).
 
 ### Responsabilidades (4)
 - agentmap_responsabilidades_listar — Lista responsabilidades.
@@ -169,6 +171,11 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 - agentmap_arquivos_ler — Lê conteúdo de arquivo (caminho).
 - agentmap_arquivos_excluir — Exclui arquivo/diretório (caminho).
 
+### Eventos (3)
+- agentmap_eventos_pendentes — Lista eventos pendentes de um agente (agenteId).
+- agentmap_eventos_listar — Lista eventos do projeto.
+- agentmap_eventos_confirmar — Confirma processamento de um evento (id).
+
 ### Contexto (2)
 - agentmap_obter_contexto_projeto — Contexto completo do projeto (config, tecnologias, agentes, contratos, decisões, estado atual, resumo de tarefas).
 - agentmap_obter_contexto_tarefa — Contexto completo de uma tarefa (contratos, dependências, decisões, arquivos relevantes, agente responsável) (tarefaId).
@@ -191,8 +198,21 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 - agentmap_workflows_consultar_pendencias — Consulta pendencias, handoffs, validações e bloqueios por agente (agenteId).
 - agentmap_workflows_obter_mapa_projeto — Mapa completo do projeto (dependências, riscos, bloqueios, pendencias).
 
+### Worktree (1)
+- agentmap_abrir_worktree — Abre um worktree Git isolado para uma tarefa (tarefaId).
+
+### Descoberta (2)
+- agentmap_descobrir — Descobre capabilities, recursos e estrutura do sistema.
+- agentmap_sugerir_fluxo — Recomenda sequência de tools baseada no objetivo do agente (objetivo, contexto).
+
 ### Trecho de Arquivo (1)
 - agentmap_ler_trecho_arquivo — Lê trecho de arquivo com validação de path traversal (caminho, linhaInicio, linhaFim, limite).
+
+### Kilo (4)
+- kilohub_receive_chat_message — Recebe mensagem de chat do Kilo.
+- kilohub_report_status — Reporta status para o Kilo.
+- kilohub_report_progress — Reporta progresso para o Kilo.
+- kilohub_report_result — Reporta resultado para o Kilo.
 
 ---
 
@@ -276,3 +296,4 @@ Fluxo inicial obrigatório (sempre execute na ordem):
 - Use as tools para consultar e modificar o estado.
 - Nunca edite arquivos .ia diretamente; use as tools.
 - IDs são strings; sempre passe os IDs retornados pelas tools.
+

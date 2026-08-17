@@ -463,6 +463,12 @@ curl -X POST http://localhost:3150/api/eventos/custom \
 | `GET` | `/api/monitoramento/dispatcher/logs` | Lista logs do dispatcher |
 | `GET` | `/api/monitoramento/kilo/receive-chat` | Busca mensagens Kilo por agente/tarefa |
 
+**Parâmetros de consulta:**
+- `GET /api/monitoramento/mensagens` aceita `limite` (número), `agenteId` (string) e `tipo` (string).
+- `GET /api/monitoramento/dispatcher/pendentes` aceita `agenteId` (string, opcional).
+- `GET /api/monitoramento/dispatcher/logs` aceita `limite` (número, opcional).
+- `GET /api/monitoramento/kilo/receive-chat` aceita `agenteId` (string) e `limite` (number).
+
 **Exemplo - enviar mensagem:**
 ```bash
 curl -X POST http://localhost:3150/api/monitoramento/mensagens \

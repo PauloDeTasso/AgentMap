@@ -57,8 +57,6 @@
 | Tool | Descrição | Uso |
 |------|-----------|-----|
 | `agentmap_arquivos_ler` | Lê um arquivo | Ler especificações |
-| `agentmap_arquivos_escrever` | Escreve arquivo | Criar artefatos |
-| `agentmap_arquivos_atualizar` | Atualiza arquivo existente | Modificar conteúdo |
 | `agentmap_arquivos_listar` | Lista arquivos em diretório | Navegar estrutura |
 
 ### Tools de Monitoramento (Nova)

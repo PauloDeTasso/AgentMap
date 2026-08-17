@@ -309,7 +309,7 @@ Este playbook contém os padrões de uso recomendados para operar o AgentMap de 
 1. \`resources/subscribe\` ou \`subscriptions/listen\` — Inscreva-se em recursos
 2. \`notifications/resources/updated\` — Receba notificações
 3. \`resources/read\` — Leia o recurso atualizado
-4. \`agentmap_obter_mapa_projeto\` — Visão completa do projeto
+4. \`agentmap_workflows_obter_mapa_projeto\` — Visão completa do projeto
 
 ## Regras obrigatórias
 

@@ -49,8 +49,8 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 
 ### 3.3 MCP / AgentMap
 - **Protocolo:** stdio (não HTTP/SSE)
-- **Tools disponíveis:** 33 tools MCP registradas e funcionais
-- **Agentes cadastrados:** arquiteto, frontend, backend, agentmap-admin, dba
+- **Tools disponíveis:** 131 tools MCP registradas e funcionais
+- **Agentes suportados:** arquiteto, frontend, backend, agentmap-admin, dba (perfis padrão definidos no sistema)
 - **Sistema de governança:** tarefas, handoffs, resultados, contratos, procedimentos, contexto
 - **Persistência:** Arquivos JSON em `.ia/`
 - **Validação:** JSON Schema + Zod
@@ -77,7 +77,7 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 | `TarefaService.ts` | ✅ Funcional — CRUD de tarefas |
 | `HandoffService.ts` | ✅ Funcional — handoffs entre agentes |
 | `EventoService.ts` | ✅ Funcional — eventos assíncronos |
-| MCP Tools | ✅ Funcionais — 33 tools registradas |
+| MCP Tools | ✅ Funcionais — 131 tools registradas |
 
 ### Código Morto / Depreciado
 | Serviço/Arquivo | Status | Motivo |
@@ -104,11 +104,10 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 ### 5.2 O que é FALTA (gaps reais)
 | Gap Real | Descrição |
 |----------|-----------|
-| Sequenciamento de dependências | Falta tool MCP `verificarDependenciasPendentes` |
-| Estados de execução expandidos | `EstadoTarefa` precisa de `PREPARANDO`, `PAUSANDO`, `CANCELANDO`, `ORFA`, `RECUPERANDO`, `BLOQUEADA`, `TIMEOUT` |
-| Heartbeat | Falta detecção de órfãos e timeout |
-| Validação de critérios | Falta pipeline: Kilo terminou → critérios → validação → CONCLUÍDA |
-| Execução real via Agent Manager | Falta tool MCP `abrirWorktree` integrada ao Agent Manager |
+| Sequenciamento de dependências | Tools `agentmap_verificar_dependencias_pendentes` e `agentmap_tarefas_prontas_para_worktree` já existem |
+| Estados de execução expandidos | `EstadoTarefa` já possui `PREPARANDO`, `PAUSANDO`, `CANCELANDO`, `ORFA`, `RECUPERANDO`, `BLOQUEADA`, `TIMEOUT` (18 estados implementados) |
+| Heartbeat | Já implementado com `ultimoHeartbeat`, `timeoutHeartbeat` e detecção de órfãos (`verificarOrfaos`) |
+| Execução real via Agent Manager | Tool `agentmap_abrir_worktree` existe, mas integração automática com Agent Manager ainda não foi realizada |
 | Intervenção via web | Falta controle real de pausar/cancelar/redirecionar |
 
 ### 5.3 O que NÃO EXISTE (e não deve ser criado)
@@ -132,10 +131,10 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 
 ## 7. Próximos Passos Realistas
 
-1. **Imediato:** Remover código morto (DaemonManager, ExecutorKiloDaemon) e rotas depreciadas.
-2. **Curto prazo:** Expandir `EstadoTarefa`, implementar heartbeat e detecção de órfãos.
-3. **Médio prazo:** Criar tools MCP `tarefasProntasParaWorktree`, `verificarDependenciasPendentes`, `abrirWorktree`.
-4. **Longo prazo:** Integração real com Agent Manager para abertura automática de worktrees.
+1. **Imediato:** Remover código morto (DaemonManager, ExecutorKiloDaemon) e rotas depreciadas, se ainda não removidos.
+2. **Curto prazo:** Integrar tool `agentmap_abrir_worktree` com o Agent Manager para abertura automática de worktrees.
+3. **Médio prazo:** Implementar controle real de intervenção via web (pausar/cancelar/redirecionar tarefas).
+4. **Longo prazo:** Validar pipeline completa de validação de critérios (Kilo terminou → critérios → validação → CONCLUÍDA).
 
 ---
 
@@ -147,3 +146,4 @@ Cada agente opera em seu próprio worktree, permitindo execução paralela de ta
 - `backend/src/servicios/StateMachineService.ts` — state machine funcional
 - `backend/src/seguranca/paths.ts` — path security com symlink protection
 - `.ia/configuracao/transicoes.json` — transições dinâmicas
+

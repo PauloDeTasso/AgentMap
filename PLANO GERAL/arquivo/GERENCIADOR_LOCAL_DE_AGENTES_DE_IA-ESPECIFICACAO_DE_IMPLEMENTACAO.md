@@ -7,7 +7,7 @@
 
 # 1. VISÃO GERAL
 
-O sistema a ser construído é um **Gerenciador Local de Projetos para Agentes de IA**, rodando **exclusivamente na máquina local (Windows 11)** de um único usuário (o Proprietário do Produto).
+O sistema a ser construído é um **Gerenciador Local de Projetos para Agentes de IA**, rodando **exclusivamente na máquina local (Windows, Linux e macOS)** de um único usuário (o Proprietário do Produto).
 
 Ele nasce da fusão de duas ideias complementares:
 
@@ -55,7 +55,7 @@ NOVO ESTADO
 
 ## 2.1 Dentro do escopo
 
-- Aplicação local para Windows 11 (sem servidor remoto, sem multiusuário).
+- Aplicação local para Windows, Linux e macOS (sem servidor remoto, sem multiusuário).
 - Gestão de múltiplos **projetos**, cada um com sua própria pasta `.ia/`.
 - Gestão de múltiplos **agentes** por projeto (perfis reutilizáveis entre projetos).
 - Gestão de **contratos**, **tarefas**, **contexto**, **decisões arquiteturais**, **riscos**, **problemas conhecidos**, **base de conhecimento**, **procedimentos**, **permissões**, **ferramentas**, **qualidade/testes**, **Git** (leitura de estado) e **auditoria**.
@@ -388,7 +388,7 @@ Transforma necessidades em engenharia executável.
 ## 7.6 Backend
 
 - **Ambiente:** VS Code, Kilo Code. **Domínio:** `/backend/**`.
-- **Conhecimentos:** Java 17+, Spring Boot, Spring Data JPA, Hibernate, API REST, JSON, DTOs, validação, PostgreSQL, migrações, tratamento de exceções, registros, testes, CORS, segurança, observabilidade.
+- **Conhecimentos:** Node.js, TypeScript, Express, API REST, JSON, DTOs, validação, PostgreSQL, migrações, tratamento de exceções, registros, testes, CORS, segurança, observabilidade.
 - **Arquitetura:** DDD, Arquitetura Limpa, Arquitetura em Camadas, SOLID, GRASP, padrões de projeto, baixo acoplamento, alta coesão.
 - **Contratos obrigatórios:** projeto, arquitetura, API, banco, segurança.
 
@@ -1050,9 +1050,8 @@ Estes são os esquemas de referência que o Arquiteto deve usar como base para o
 	"id": "backend", "nome": "Backend", "funcao": "desenvolvimento_backend",
 	"descricao": "Responsável pela API, regras de negócio, segurança e integração com banco.",
 	"estado": "ativo",
-	"conhecimentos": ["Java", "Spring Boot", "Spring Security", "Spring Data JPA", "Hibernate",
-		"PostgreSQL", "API REST", "JSON", "DTO", "Validação", "JWT", "RBAC", "BCrypt",
-		"Testes", "DDD", "Arquitetura Limpa", "SOLID", "GRASP", "Padrões de Projeto"],
+	"conhecimentos": ["Node.js", "TypeScript", "Express", "API REST", "JSON", "DTO", "Validação",
+		"PostgreSQL", "Testes", "DDD", "Arquitetura Limpa", "SOLID", "GRASP", "Padrões de Projeto"],
 	"diretoriosPermitidos": ["/backend/**"],
 	"diretoriosProibidos": ["/frontend/**", "/android/**", "/infraestrutura/**"],
 	"contratosObrigatorios": ["contrato-projeto", "contrato-arquitetura", "contrato-api",
@@ -1565,4 +1564,4 @@ PROJETO → AGENTES → INFORMAÇÕES → ARQUIVOS LOCAIS → AGENTE DE IA
 
 # 23. STATUS
 
-**Projeto pessoal em desenvolvimento para Windows 11**, priorizando simplicidade, organização, facilidade de manutenção, acesso direto aos arquivos e governança verificável do trabalho dos agentes de IA. Licença a definir posteriormente.
+**Projeto pessoal em desenvolvimento para Windows, Linux e macOS**, priorizando simplicidade, organização, facilidade de manutenção, acesso direto aos arquivos e governança verificável do trabalho dos agentes de IA. Licença a definir posteriormente.

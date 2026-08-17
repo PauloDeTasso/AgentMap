@@ -188,7 +188,7 @@ npm run mcp    # Inicia o servidor MCP via stdio
 
 ## Padrões MCP 2026
 
-- **Tools:** registradas com `registerTool(name, config, handler)`
+- **Tools:** registradas com `registerTracedTool` / `registerWorkflowTool(name, config, handler)`
 - **Config:** `title`, `description`, `inputSchema` (Zod), `outputSchema` (Zod), `annotations`
 - **Retorno sucesso:** `content` + `structuredContent` (validado contra `outputSchema`)
 - **Retorno erro:** `content` + `isError: true`

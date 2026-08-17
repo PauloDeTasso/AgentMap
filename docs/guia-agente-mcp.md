@@ -17,8 +17,9 @@ O sistema está em produção e pronto para uso em ambientes profissionais.
 1. Use `agentmap_descobrir` para listar todas as capabilities, agents, docs, CLI e mais.
 2. Leia o resource `agentmap://onboarding` para entender o sistema.
 3. Consulte o resource `agentmap://playbook` para ver padrões de uso recomendados.
-4. Use `agentmap_sugerir_fluxo` se precisar de orientação sobre qual tool usar primeiro.
-5. Consulte `docs/referencia-tools-mcp.md` para ver **todos os parâmetros esperados** por cada tool MCP antes de executar.
+4. Consulte o resource `agentmap://guia-eficacia` para entender quando, por que e como usar cada ferramenta em cenários reais.
+5. Use `agentmap_sugerir_fluxo` se precisar de orientação sobre qual tool usar primeiro.
+6. Consulte `docs/referencia-tools-mcp.md` para ver **todos os parâmetros esperados** por cada tool MCP antes de executar.
 
 ## Ciclo de Trabalho
 
@@ -98,6 +99,7 @@ Se o trabalho precisa ser continuado por outro agente, use `agentmap_handoffs_cr
 5. **Coordenação entre agentes**: antes de iniciar trabalho, consulte `agentmap_eventos_pendentes({ agenteId: "<seu-id>" })` para verificar eventos pendentes destinados a você. Após processar um evento, marque-o como consumido com `agentmap_eventos_confirmar({ id: "<evento-id>" })`.
 6. **Subscrições MCP (2025):** use `resources/subscribe` para receber notificações automáticas de mudanças em `agentmap://solicitacoes/{seu-id}`, `agentmap://handoffs/{seu-id}` e `agentmap://bloqueios/{projeto-id}`. Após receber `notifications/resources/updated`, chame `resources/read` para obter os dados atualizados.
 7. **Subscrições MCP (2026):** use `subscriptions/listen` com `resourceSubscriptions` para receber notificações com `_meta.subscriptionId`. Após reconexão stdio, re-liste; o servidor não mantém estado entre reconexões.
+8. **Wakeup parent (polling incremental):** use `agentmap_monitoramento_verificar_pendentes` com `aposEventSequence` para consultar mensagens novas sem polling cego. O campo `ultimoEventSequence` na resposta indica o cursor para a próxima consulta.
 
 ## Formato de Resposta MCP 2026
 
@@ -257,16 +259,40 @@ O AgentMap oferece um painel de monitoramento em tempo real acessível pela inte
 | Endpoint | Descrição |
 |---|---|
 | `GET /api/monitor` | Visão consolidada do monitoramento |
-| `GET /api/monitoramento/mensagens` | Lista mensagens com filtros |
+| `GET /api/monitoramento/mensagens` | Lista mensagens com filtros (`limite`, `agenteId`, `tipo`) |
 | `POST /api/monitoramento/mensagens` | Cria mensagem de monitoramento |
-| `PUT /api/monitoramento/agente/:id/status` | Atualiza status de agente |
+| `PUT /api/monitoramento/agente/:agenteId/status` | Atualiza status de agente |
 | `GET /api/monitoramento/agentes` | Lista agentes monitorados |
 | `GET /api/monitoramento/modo` | Modo global (MANUAL/AUTO) |
 | `POST /api/monitoramento/modo` | Altera modo global |
 | `POST /api/monitoramento/intervir` | Executa intervenção manual |
-| `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher |
+| `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher (`agenteId` opcional) |
 | `POST /api/monitoramento/dispatcher/executar` | Executa item pendente |
-| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
+| `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher (`limite` opcional) |
+
+### Wakeup Parent (Tool MCP)
+
+Para polling incremental sem cego, use a tool `agentmap_monitoramento_verificar_pendentes`:
+
+```json
+{
+  "name": "agentmap_monitoramento_verificar_pendentes",
+  "arguments": {
+    "aposEventSequence": 42,
+    "limite": 20
+  }
+}
+```
+
+- `aposEventSequence`: cursor opcional. Se omitido, retorna as últimas mensagens relevantes.
+- `limite`: número máximo de mensagens a retornar (padrão: 20, máximo: 100).
+- Resposta inclui `temNovidades`, `ultimoEventSequence` e `mensagens` com `eventSequence`, `tipo`, `emissor`, `agenteId`, `tarefaId`, `conteudo` e `timestamp`.
+
+Cada mensagem de monitoramento possui um `eventSequence` autoincremental. O campo `ultimoEventSequence` na resposta indica o maior sequence disponível para avançar o cursor na próxima consulta.
+
+### Recurso de monitoramento (MCP Resource)
+
+O recurso `agentmap://monitoramento/mensagens/{projetoId?}` fornece mensagens de monitoramento filtrando automaticamente os tipos relevantes (`KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`, `WAKEUP_PARENT`, `AGENTE_FILHO_RESULTADO`). Ele é assinável via `resources/subscribe` (2025) ou `subscriptions/listen` (2026) para receber notificações em tempo real.
 
 ### Enviar Mensagem de Monitoramento
 

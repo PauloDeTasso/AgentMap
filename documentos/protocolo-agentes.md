@@ -77,14 +77,14 @@ sequencial no ano corrente.
 
 ### 2.1 Tarefa
 
-Estados: `RASCUNHO`, `PLANEJADA`, `PRONTA`, `EM_EXECUCAO`, `EM_TESTE`, `EM_REVISAO`, `AGUARDANDO_APROVACAO`, `CONCLUIDA`, `BLOQUEADA`, `CANCELADA`, `REJEITADA`
+Estados: `RASCUNHO`, `PENDENTE`, `PLANEJADA`, `PRONTA`, `PREPARANDO`, `EM_EXECUCAO`, `PAUSANDO`, `CANCELANDO`, `EM_TESTE`, `EM_REVISAO`, `AGUARDANDO_APROVACAO`, `CONCLUIDA`, `BLOQUEADA`, `TIMEOUT`, `ORFA`, `RECUPERANDO`, `CANCELADA`, `REJEITADA`
 
 ```
-RASCUNHO → PLANEJADA → PRONTA → EM_EXECUCAO → EM_TESTE → EM_REVISAO → AGUARDANDO_APROVACAO → CONCLUIDA
-                 ↓         ↓           ↓           ↓           ↓                    ↓
-              CANCELADA  BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA            REJEITADA
-                 ↓         ↓           ↓           ↓           ↓                    ↓
-              (terminal) (qualquer) (qualquer)  (qualquer)  (qualquer)        RASCUNHO, PLANEJADA, PRONTA, EM_EXECUCAO
+RASCUNHO → PENDENTE → PLANEJADA → PRONTA → PREPARANDO → EM_EXECUCAO → PAUSANDO → CANCELANDO → EM_TESTE → EM_REVISAO → AGUARDANDO_APROVACAO → CONCLUIDA
+                  ↓         ↓           ↓           ↓           ↓              ↓           ↓           ↓           ↓                    ↓                    ↓
+               CANCELADA  BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA     BLOQUEADA  BLOQUEADA  BLOQUEADA  BLOQUEADA          BLOQUEADA            REJEITADA
+                  ↓         ↓           ↓           ↓           ↓              ↓           ↓           ↓           ↓                    ↓                    ↓
+               (terminal) (qualquer)  (qualquer)  (qualquer)  (qualquer)     (qualquer)  (qualquer)  (qualquer)  (qualquer)         (qualquer)         RASCUNHO, PENDENTE, PLANEJADA, PRONTA, PREPARANDO, EM_EXECUCAO
 ```
 
 Regras:

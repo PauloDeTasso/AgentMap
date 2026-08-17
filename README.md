@@ -776,18 +776,31 @@ npm run dev
 Isso inicia:
 - Backend + API REST em `http://localhost:3150`
 - Frontend (interface web) servido automaticamente
-- MCP Server via STDIO (para integração com Kilo Code)
+
+### Iniciar o MCP Server (Kilo Code)
+
+```bash
+cd backend
+npm run mcp
+```
+
+Ou diretamente:
+```bash
+npx tsx src/mcp-server/index.ts
+```
+
+Isso inicia o servidor MCP via STDIO para integração com Kilo Code / VS Code.
 
 ### Acessar
 
-| Recurso | URL |
+| Recurso | URL / Comando |
 |---|---|
 | 🖥️ Frontend / Dashboard | http://localhost:3150 |
 | 🔌 API REST | http://localhost:3150/api |
 | 📊 Status | http://localhost:3150/api/status |
 | 💓 Health | http://localhost:3150/api/health |
 | 📈 Observabilidade | http://localhost:3150/api/observabilidade/metricas |
-| 🔧 MCP Server (Kilo Code) | `npx tsx src/mcp-server/index.ts` |
+| 🔧 MCP Server (Kilo Code) | `npm run mcp` |
 
 ### Criar um projeto novo
 
@@ -941,7 +954,7 @@ Variáveis de ambiente e configurações locais devem ser definidas em `kilo.loc
 
 O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 
-- **124 tools MCP** registradas com `registerTool` do SDK `@modelcontextprotocol/sdk` v1.30.0
+- **131 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0
 - **Transporte STDIO** local (sem exposição de rede)
 - **`outputSchema` + `structuredContent`** para resultados estruturados
 - **Validação de entrada** via Zod em todas as tools
@@ -949,6 +962,25 @@ O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 - **Erros via `isError: true`** com mensagens acionáveis para auto-correção do modelo
 - **Subscriptions dual-era:** `resources/subscribe` (2025) e `subscriptions/listen` (2026-07-28) coexistem; o servidor roteia automaticamente conforme a versão do protocolo anunciada no `initialize`
 - **Graceful shutdown:** streams `subscriptions/listen` são encerrados com resultado vazio antes do fechamento do transporte
+
+### Worktree Tools
+
+Além das tools de domínio, o AgentMap expõe 3 tools específicas para paralelismo via Agent Manager:
+
+- `agentmap_tarefas_prontas_para_worktree` — lista tarefas sem dependência pendente
+- `agentmap_verificar_dependencias_pendentes` — verifica dependências de uma tarefa
+- `agentmap_abrir_worktree` — cria worktree automaticamente para uma tarefa
+
+### Kilo Hub Tools
+
+Tools de integração com Kilo Code para agentes filhos (somente leitura/escrita limitada):
+
+- `kilohub_report_status` — reporta status de sessão Kilo
+- `kilohub_report_progress` — reporta progresso de tarefa
+- `kilohub_report_result` — reporta resultado final de tarefa
+- `kilohub_receive_chat_message` — busca respostas/mensagens direcionadas a um agente Kilo
+
+> **Nota:** `kilohub_send_chat_message` foi removida. Agentes filhos devem usar **HTTP direto** para enviar mensagens: `POST http://localhost:3150/api/monitoramento/mensagens`
 
 ### Ecossistema Kilo Code / VS Code 2026
 
@@ -973,6 +1005,8 @@ O sistema foi projetado com segurança desde sua concepção. Entre os princípi
 | ✅ Ausência de credenciais no código | ✅ Controle de acesso às ferramentas MCP |
 | ✅ Princípio do menor privilégio | ✅ Separação entre consulta e alteração |
 | ✅ Prevenção de execução arbitrária de comandos | ✅ Limpeza automática de temporários (TTL + manual) |
+
+Consulte [`SECURITY.md`](./SECURITY.md) para detalhes de controles e responsabilidades.
 
 ## 🧹 Limpeza de Temporários
 
@@ -1036,8 +1070,8 @@ O AgentMap está funcional, testado e pronto para uso em projetos reais. A inter
 | Recurso | Detalhe |
 |---|---|
 | 🖥️ Interface Web | **27 painéis funcionais** com navegação completa |
-| 🔌 API REST | **90+ endpoints** funcionais e documentados |
-| 🛠️ Tools MCP | **124 tools** registradas para integração com agentes |
+| 🔌 API REST | **~180 rotas** funcionais e documentadas |
+| 🛠️ Tools MCP | **131 tools** registradas para integração com agentes |
 | 📊 Dados | Base populada com dados realistas em todos os módulos |
 | 🔔 Eventos | Sistema de eventos assíncronos com subscrições em tempo real |
 | 🔒 Segurança | Validação Zod, proteção contra path traversal, CORS configurado |

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
  * watcher-wakeup.js
  *
@@ -17,6 +17,8 @@
  *   AGENTMAP_API_TOKEN       (opcional, se a API exigir auth)
  *   KILO_SESSION_CONFIG_PATH (opcional, default: .agentmap/kilo-session.json)
  *   WATCHER_POLL_INTERVAL_MS (opcional, default: 20000)
+ *   WATCHER_DEBOUNCE_MS      (opcional, default: 5000)
+ *   WATCHER_AUTONOMY_LEVEL   (opcional, default: WAKE_ONLY)
  */
 
 "use strict";
@@ -30,14 +32,29 @@ const { spawn } = require("child_process");
 // ---------------------------------------------------------------------------
 
 const CONFIG = {
-  agentmapApiUrl: process.env.AGENTMAP_API_URL || "http://localhost:3000",
+  agentmapApiUrl: process.env.AGENTMAP_API_URL || "http://localhost:3150",
   agentmapApiToken: process.env.AGENTMAP_API_TOKEN || null,
   sessionConfigPath:
     process.env.KILO_SESSION_CONFIG_PATH ||
     path.join(process.cwd(), ".agentmap", "kilo-session.json"),
   pollIntervalMs: Number(process.env.WATCHER_POLL_INTERVAL_MS) || 20000,
+  debounceMs: Number(process.env.WATCHER_DEBOUNCE_MS) || 5000,
+  autonomyLevel: process.env.WATCHER_AUTONOMY_LEVEL || "WAKE_ONLY",
   stateFilePath: path.join(process.cwd(), ".agentmap", "watcher-state.json"),
   logFilePath: path.join(process.cwd(), ".agentmap", "watcher-wakeup.log"),
+};
+
+const TIPOS_RELEVANTES = new Set([
+  "TASK_COMPLETED",
+  "HANDOFF_COMPLETED",
+  "BLOCKED",
+  "APPROVAL_REQUIRED",
+]);
+
+const AUTONOMY_FLAGS = {
+  WAKE_ONLY: [],
+  WAKE_AND_CONTINUE: [],
+  FULL_AUTONOMY: ["--auto"],
 };
 
 // ---------------------------------------------------------------------------
@@ -53,7 +70,6 @@ async function log(level, msg, extra) {
     await fs.mkdir(path.dirname(CONFIG.logFilePath), { recursive: true });
     await fs.appendFile(CONFIG.logFilePath, line + "\n", "utf8");
   } catch (err) {
-    // Não deixa falha de log derrubar o watcher.
     console.error("Falha ao escrever log em arquivo:", err.message);
   }
 }
@@ -108,7 +124,7 @@ async function carregarEstado() {
     const raw = await fs.readFile(CONFIG.stateFilePath, "utf8");
     return JSON.parse(raw);
   } catch {
-    return { ultimoMessageIdProcessado: null, ultimoTimestampProcessado: null };
+    return { ultimoEventSequence: 0 };
   }
 }
 
@@ -121,16 +137,16 @@ async function salvarEstado(estado) {
 // Passo 3 (Opção B) — Polling na API do AgentMap
 // ---------------------------------------------------------------------------
 //
-// TODO (agente principal): ajustar o endpoint e o formato de resposta para
-// bater exatamente com a API REST real do AgentMap (ver api/ no repositório).
-// Abaixo assume um endpoint hipotético que retorna mensagens/eventos de
-// monitoramento em ordem cronológica crescente.
+// O endpoint GET /api/monitoramento/mensagens suporta limite, agenteId, tipo.
+// Não há parâmetro after no HTTP endpoint — o watcher faz fetch e filtra
+// client-side por eventSequence > ultimo_processado.
+// O service method listarMensagensApos(after, limite) existe internamente
+// mas não é exposto via HTTP; use a MCP tool agentmap_monitoramento_verificar_pendentes
+// se precisar de cursor server-side via MCP.
 
-async function buscarMensagensNovas(desdeMessageId) {
+async function buscarMensagensNovas(ultimoEventSequence) {
   const url = new URL("/api/monitoramento/mensagens", CONFIG.agentmapApiUrl);
-  if (desdeMessageId) {
-    url.searchParams.set("since_id", desdeMessageId);
-  }
+  url.searchParams.set("limite", "100");
 
   const headers = { Accept: "application/json" };
   if (CONFIG.agentmapApiToken) {
@@ -145,15 +161,28 @@ async function buscarMensagensNovas(desdeMessageId) {
   }
 
   const body = await res.json();
-  // Espera-se algo como: { mensagens: [{ id, agente_origem, resumo, criado_em }, ...] }
-  return Array.isArray(body.mensagens) ? body.mensagens : [];
+  const mensagens = Array.isArray(body.dados) ? body.dados : [];
+  const novas = mensagens.filter(
+    (m) =>
+      typeof m.eventSequence === "number" &&
+      m.eventSequence > (ultimoEventSequence || 0)
+  );
+  return { mensagens: novas, ultimoEventSequence: ultimoEventSequence || 0 };
 }
 
-// Só reagimos a mensagens relevantes para o agente principal — ajustar filtro
-// conforme os campos reais (ex.: destinatario === "agente_principal", ou
-// tipo === "handoff_concluido").
 function ehRelevanteParaAgentePrincipal(mensagem) {
-  return true; // TODO (agente principal): filtrar de verdade
+  if (!mensagem) return false;
+  const tipo = mensagem.tipo || "";
+  const destino = (mensagem.destinatario || mensagem.agenteId || "").toLowerCase();
+  const projeto = (mensagem.projeto || "").toLowerCase();
+  const status = (mensagem.status || "").toUpperCase();
+
+  if (projeto && projeto !== "projeto_atual") return false;
+  if (status && status !== "PENDENTE") return false;
+  if (!TIPOS_RELEVANTES.has(tipo)) return false;
+  if (destino && destino !== "agente_principal" && destino !== "principal") return false;
+
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -162,7 +191,7 @@ function ehRelevanteParaAgentePrincipal(mensagem) {
 
 function montarResumoMensagem(mensagens) {
   const linhas = mensagens.map(
-    (m) => `- [${m.agente_origem || "agente"}] ${m.resumo || m.id}`
+    (m) => `- [${m.emissor || "agente"}] ${m.conteudo || m.id}`
   );
   return (
     `Novas mensagens no monitoramento do AgentMap enquanto você estava ocioso:\n` +
@@ -173,20 +202,28 @@ function montarResumoMensagem(mensagens) {
 
 function acordarAgentePrincipal(sessaoConfig, mensagemTexto) {
   return new Promise((resolve, reject) => {
+    const flags = AUTONOMY_FLAGS[CONFIG.autonomyLevel] || [];
     const args = [
       "run",
-      "--attach", `http://127.0.0.1:${sessaoConfig.port}`,
-      "--session", sessaoConfig.sessionId,
-      "--username", sessaoConfig.username,
-      "--password", sessaoConfig.password,
-      "--auto",
-      "--format", "json",
+      "--attach",
+      `http://127.0.0.1:${sessaoConfig.port}`,
+      "--session",
+      sessaoConfig.sessionId,
+      "--username",
+      sessaoConfig.username,
+      "--password",
+      sessaoConfig.password,
+      "--format",
+      "json",
+      ...flags,
       mensagemTexto,
     ];
 
     log("INFO", "Disparando kilo run --attach", {
       port: sessaoConfig.port,
       sessionId: sessaoConfig.sessionId,
+      autonomyLevel: CONFIG.autonomyLevel,
+      autoFlag: flags.includes("--auto"),
     });
 
     const proc = spawn("kilo", args, { stdio: ["ignore", "pipe", "pipe"] });
@@ -201,11 +238,14 @@ function acordarAgentePrincipal(sessaoConfig, mensagemTexto) {
     });
 
     proc.on("close", (code) => {
-      // Exit codes documentados: 0 = sucesso, 124 = timeout, 1 = erro
       if (code === 0) {
         resolve({ code, stdout, stderr });
       } else if (code === 124) {
-        reject(new Error(`kilo run atingiu timeout (exit 124). stderr: ${stderr}`));
+        reject(
+          new Error(
+            `kilo run atingiu timeout (exit 124). stderr: ${stderr}`
+          )
+        );
       } else if (code === 401 || /Unauthorized/i.test(stderr)) {
         reject(
           new Error(
@@ -214,35 +254,26 @@ function acordarAgentePrincipal(sessaoConfig, mensagemTexto) {
           )
         );
       } else {
-        reject(new Error(`kilo run saiu com código ${code}. stderr: ${stderr}`));
+        reject(
+          new Error(`kilo run saiu com código ${code}. stderr: ${stderr}`)
+        );
       }
     });
   });
 }
 
 // ---------------------------------------------------------------------------
-// Loop principal
+// Loop principal com debounce
 // ---------------------------------------------------------------------------
 
-async function cicloDeChecagem() {
-  const estado = await carregarEstado();
+let debounceTimer = null;
+let pendingRelevantes = [];
 
-  let mensagens;
-  try {
-    mensagens = await buscarMensagensNovas(estado.ultimoMessageIdProcessado);
-  } catch (err) {
-    await log("ERROR", "Falha ao consultar API do AgentMap", { erro: err.message });
-    return;
-  }
+async function flushWakeup() {
+  if (pendingRelevantes.length === 0) return;
 
-  const relevantes = mensagens.filter(ehRelevanteParaAgentePrincipal);
-  if (relevantes.length === 0) {
-    return; // nada novo, silêncio total (sem poluir o log a cada poll)
-  }
-
-  await log("INFO", `${relevantes.length} mensagem(ns) nova(s) detectada(s)`, {
-    ids: relevantes.map((m) => m.id),
-  });
+  const mensagensParaEnviar = [...pendingRelevantes];
+  pendingRelevantes = [];
 
   let sessaoConfig;
   try {
@@ -251,34 +282,78 @@ async function cicloDeChecagem() {
     await log("ERROR", "Não consegui carregar config da sessão do Kilo Code", {
       erro: err.message,
     });
-    return; // tenta de novo no próximo ciclo, sem perder as mensagens (não avança o estado)
+    return;
   }
 
-  const resumo = montarResumoMensagem(relevantes);
+  const resumo = montarResumoMensagem(mensagensParaEnviar);
 
   try {
     await acordarAgentePrincipal(sessaoConfig, resumo);
-    await log("INFO", "Wake-up enviado com sucesso");
+    await log("INFO", "Wake-up enviado com sucesso", {
+      quantidade: mensagensParaEnviar.length,
+    });
 
-    const ultima = relevantes[relevantes.length - 1];
+    const ultima = mensagensParaEnviar[mensagensParaEnviar.length - 1];
     await salvarEstado({
-      ultimoMessageIdProcessado: ultima.id,
-      ultimoTimestampProcessado: ultima.criado_em || new Date().toISOString(),
+      ultimoEventSequence: ultima.eventSequence || 0,
     });
   } catch (err) {
-    await log("ERROR", "Falha ao acordar o agente principal", { erro: err.message });
-    // Não avança o estado — na próxima checagem tenta reenviar a mesma leva.
+    await log("ERROR", "Falha ao acordar o agente principal", {
+      erro: err.message,
+    });
+    pendingRelevantes = mensagensParaEnviar;
   }
+}
+
+async function cicloDeChecagem() {
+  const estado = await carregarEstado();
+
+  let resultado;
+  try {
+    resultado = await buscarMensagensNovas(estado.ultimoEventSequence);
+  } catch (err) {
+    await log("ERROR", "Falha ao consultar API do AgentMap", {
+      erro: err.message,
+    });
+    return;
+  }
+
+  const relevantes = resultado.mensagens.filter(
+    ehRelevanteParaAgentePrincipal
+  );
+  if (relevantes.length === 0) {
+    return;
+  }
+
+  await log(
+    "INFO",
+    `${relevantes.length} mensagem(ns) nova(s) detectada(s)`,
+    {
+      eventSequences: relevantes.map((m) => m.eventSequence),
+    }
+  );
+
+  pendingRelevantes.push(...relevantes);
+
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+
+  debounceTimer = setTimeout(async () => {
+    debounceTimer = null;
+    await flushWakeup();
+  }, CONFIG.debounceMs);
 }
 
 async function main() {
   await log("INFO", "watcher-wakeup iniciado", {
     agentmapApiUrl: CONFIG.agentmapApiUrl,
     pollIntervalMs: CONFIG.pollIntervalMs,
+    debounceMs: CONFIG.debounceMs,
+    autonomyLevel: CONFIG.autonomyLevel,
     sessionConfigPath: CONFIG.sessionConfigPath,
   });
 
-  // Roda imediatamente e depois no intervalo configurado.
   await cicloDeChecagem();
   setInterval(cicloDeChecagem, CONFIG.pollIntervalMs);
 }

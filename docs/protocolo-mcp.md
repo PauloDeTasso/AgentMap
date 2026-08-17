@@ -96,17 +96,8 @@ Esta especificação descreve a versão estável do protocolo, atualmente em pro
 - `agentmap_contatos_*` — CRUD de contatos do projeto
 
 ### Monitoramento
-- `agentmap_monitoramento_obter` — Visão consolidada do monitoramento
-- `agentmap_monitoramento_mensagens_listar` — Lista mensagens de monitoramento
-- `agentmap_monitoramento_mensagens_criar` — Cria mensagem de monitoramento
-- `agentmap_monitoramento_agente_status` — Atualiza status de agente
-- `agentmap_monitoramento_agentes_listar` — Lista agentes monitorados
-- `agentmap_monitoramento_modo_obter` — Obtém modo global (MANUAL/AUTO)
-- `agentmap_monitoramento_modo_alterar` — Altera modo global
-- `agentmap_monitoramento_intervir` — Executa intervenção manual
-- `agentmap_monitoramento_dispatcher_pendentes` — Lista itens pendentes
-- `agentmap_monitoramento_dispatcher_executar` — Executa item pendente
-- `agentmap_monitoramento_dispatcher_logs` — Logs do dispatcher
+
+- `agentmap_monitoramento_verificar_pendentes` — Consulta mensagens novas no monitoramento, filtrando tipos relevantes (`KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`, `WAKEUP_PARENT`, `AGENTE_FILHO_RESULTADO`). Suporta cursor `aposEventSequence` para polling incremental e `limite` para paginação.
 
 ### Workflows
 - `agentmap_workflows_iniciar_trabalho` — Inicia trabalho com contexto completo
@@ -148,6 +139,9 @@ Esta especificação descreve a versão estável do protocolo, atualmente em pro
 | `agentmap://status` | Status do servidor MCP |
 | `agentmap://manifest` | Manifesto do AgentMap |
 | `agentmap://projeto` | Config do projeto atual |
+| `agentmap://onboarding` | Guia de descoberta do sistema |
+| `agentmap://playbook` | Padrões de uso recomendados |
+| `agentmap://guia-eficacia` | Guia de eficácia: quando, por que e como usar cada ferramenta |
 
 ### Dinâmicos (Resource Templates)
 | URI Template | Descrição |
@@ -155,6 +149,7 @@ Esta especificação descreve a versão estável do protocolo, atualmente em pro
 | `agentmap://solicitacoes/{agenteId}` | Solicitações de alteração de um agente |
 | `agentmap://handoffs/{agenteId}` | Handoffs de um agente |
 | `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto |
+| `agentmap://monitoramento/mensagens/{projetoId?}` | Mensagens de monitoramento do projeto (assinável para notificações em tempo real) |
 
 ### Subscriptions (MCP 2025 + 2026)
 
@@ -292,3 +287,24 @@ O AgentMap gerencia arquivos temporários através de endpoints públicos:
 - `GET /api/temp/caminho` — retorna o caminho absoluto da pasta `temp/`
 
 Limpeza automática por TTL (padrão: 7 dias) é executada pelo `TempCleanupService`. O botão "🧹 Limpar Temp" no header do frontend aciona a limpeza manual via `POST /api/temp/limpar`.
+
+## Monitoramento incremental e wakeup parent
+
+O AgentMap suporta polling incremental de mensagens de monitoramento através do campo `eventSequence`:
+
+- Cada mensagem recebe um `eventSequence` autoincremental persistido em `.ia/contexto/monitoramento-sequence.json`.
+- A tool `agentmap_monitoramento_verificar_pendentes` aceita o parâmetro `aposEventSequence` para retornar apenas mensagens com `eventSequence` maior que o cursor informado.
+- O campo `ultimoEventSequence` na resposta indica o maior sequence disponível, permitindo que o cliente avance o cursor sem perder mensagens.
+
+### Tipos de mensagem relevantes para wakeup parent
+
+A tool `agentmap_monitoramento_verificar_pendentes` filtra automaticamente os seguintes tipos:
+
+| Tipo | Descrição |
+|---|---|
+| `KILO_CHAT` | Mensagem padrão de agente |
+| `KILO_REPLY` | Resposta a mensagem específica |
+| `KILO_RESULT` | Resultado final de tarefa |
+| `KILO_CHAT_REPLY` | Resposta de chat simples |
+| `WAKEUP_PARENT` | Evento de wakeup para o agente principal/pai |
+| `AGENTE_FILHO_RESULTADO` | Resultado enviado por agente filho |

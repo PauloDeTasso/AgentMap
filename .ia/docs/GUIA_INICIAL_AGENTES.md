@@ -138,7 +138,7 @@ Estados terminais (sem saída):
 
 ## 4. TODAS AS FERRAMENTAS DISPONÍVEIS
 
-### 4.1 MCP Tools (124 tools registradas)
+### 4.1 MCP Tools (131 tools registradas)
 
 Estas tools são chamadas por agentes via protocolo MCP. Estão registradas em `backend/src/mcp-server/tools/index.ts`.
 

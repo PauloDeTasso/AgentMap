@@ -1937,7 +1937,7 @@
       "origem": "agentmap-admin",
       "destino": "arquiteto",
       "tarefaId": "TAR-2026-00012",
-      "resumo": "Auditoria completa de tools do AgentMap concluida: 121 tools encontradas, nenhuma quebrada ou faltante",
+      "resumo": "Auditoria completa de tools do AgentMap concluida: 131 tools encontradas, nenhuma quebrada ou faltante",
       "concluido": [
         "Ler HOF-2026-00079",
         "Ler INSTRUCOES-AGENTMAP-ADMIN-AUDITORIA.md",
@@ -1954,12 +1954,12 @@
         "/.ia/contexto/tools-quebradas-agentmap.json"
       ],
       "decisoes": [
-        "Auditoria completa das 121 tools do AgentMap/MCP concluida. Nenhuma tool quebrada ou faltante identificada."
+        "Auditoria completa das 131 tools do AgentMap/MCP concluida. Nenhuma tool quebrada ou faltante identificada."
       ],
       "alteracoes": [],
       "riscos": [],
       "bloqueios": [],
-      "observacoes": "Auditoria completa das tools do AgentMap/MCP executada. Foram identificadas 121 tools registradas no backend/src/mcp-server/tools/*.ts. Nenhuma tool quebrada, faltante ou incoerente encontrada. Documentos gerados em /.ia/contexto/mapeamento-tools-agentmap.json e /.ia/contexto/tools-quebradas-agentmap.json.",
+      "observacoes": "Auditoria completa das tools do AgentMap/MCP executada. Foram identificadas 131 tools registradas no backend/src/mcp-server/tools/*.ts. Nenhuma tool quebrada, faltante ou incoerente encontrada. Documentos gerados em /.ia/contexto/mapeamento-tools-agentmap.json e /.ia/contexto/tools-quebradas-agentmap.json.",
       "estado": "PENDENTE",
       "datas": {
         "criadaEm": "2026-08-13T02:37:11.166Z",
