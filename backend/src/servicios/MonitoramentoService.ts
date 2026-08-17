@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
-import { ModoAutonomia } from '../tipos';
+import { ModoAutonomia, KiloState, KiloSession } from '../tipos';
 import { ResultadoOperacao } from '../tipos';
 
 export type ModoOperacao = ModoAutonomia;
@@ -404,5 +404,53 @@ export class MonitoramentoService extends EventEmitter {
 
   listarLogsDispatcher(_limite = 100) {
     return { sucesso: true, dados: [] };
+  }
+
+  private getKiloStatePath(): string {
+    return path.win32.join('.ia', 'contexto', 'kilo-state.json');
+  }
+
+  async registrarKiloState(estado: KiloState): Promise<ResultadoOperacao<string>> {
+    const result = this.fs.escreverJson(this.getKiloStatePath(), estado);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+
+    const msg: MensagemMonitoramento = {
+      id: `MSG-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      tipo: 'KILO_DESCOBERTO',
+      emissor: 'sistema',
+      conteudo: `Estado Kilo atualizado: ${estado.worktrees.length} worktrees, ${estado.sessoes.length} sessoes, ${estado.agentes.length} agentes.`,
+      dados: estado
+    };
+    this.broadcast(msg);
+
+    return { sucesso: true, dados: this.getKiloStatePath() };
+  }
+
+  async obterKiloState(): Promise<ResultadoOperacao<KiloState>> {
+    const result = this.fs.lerJson<KiloState>(this.getKiloStatePath());
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: true, dados: {
+        descobertoEm: new Date().toISOString(),
+        worktrees: [],
+        sessoes: [],
+        agentes: []
+      }};
+    }
+    return result;
+  }
+
+  broadcastKiloEvent(tipo: 'KILO_DESCOBERTO' | 'KILO_RECONCILIADO' | 'KILO_SESSION_DESCONHECIDA', dados: Record<string, unknown>): void {
+    const msg: MensagemMonitoramento = {
+      id: `MSG-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      tipo,
+      emissor: 'sistema',
+      conteudo: (dados.mensagem as string) || `Evento Kilo: ${tipo}`,
+      dados
+    };
+    this.broadcast(msg);
   }
 }

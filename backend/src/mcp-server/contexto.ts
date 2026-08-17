@@ -33,6 +33,9 @@ import { MonitoramentoService } from 'servicios/MonitoramentoService';
 import { FluxoService } from 'servicios/FluxoService';
 import { InstanciaService } from 'servicios/InstanciaService';
 import { OrquestradorService } from 'servicios/OrquestradorService';
+import { KiloDiscoveryService } from 'servicios/KiloDiscoveryService';
+import { KiloReconciliationService } from 'servicios/KiloReconciliationService';
+import { TaskContextBuilder } from 'servicios/TaskContextBuilder';
 import { globalEventBus } from './events/event-bus';
 
 export interface ProjetoContext {
@@ -87,7 +90,10 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
         new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
         new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
         new DependenciaService(projeto.fileService, projeto.auditoria, validator)
-      )
+      ),
+      kiloDiscovery: projeto.kiloDiscovery,
+      kiloReconciliation: projeto.kiloReconciliation,
+      taskContextBuilder: new TaskContextBuilder(projeto.fileService, projeto.auditoria, validator)
     };
   }
 

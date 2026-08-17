@@ -30,6 +30,9 @@ import { MonitoramentoService } from '../servicios/MonitoramentoService';
 import { FluxoService } from '../servicios/FluxoService';
 import { InstanciaService } from '../servicios/InstanciaService';
 import { OrquestradorService } from '../servicios/OrquestradorService';
+import { KiloDiscoveryService } from '../servicios/KiloDiscoveryService';
+import { KiloReconciliationService } from '../servicios/KiloReconciliationService';
+import { TaskContextBuilder } from '../servicios/TaskContextBuilder';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
 
@@ -65,6 +68,9 @@ export interface Servicos {
   fluxo: FluxoService;
   instancia: InstanciaService;
   orquestrador: OrquestradorService;
+  kiloDiscovery: KiloDiscoveryService;
+  kiloReconciliation: KiloReconciliationService;
+  taskContextBuilder: TaskContextBuilder;
 }
 
 export function projectMiddleware(projetoService: ProjetoService) {
@@ -123,7 +129,10 @@ export function projectMiddleware(projetoService: ProjetoService) {
         new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
         new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
         new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator)
-      )
+      ),
+      kiloDiscovery: projeto.kiloDiscovery,
+      kiloReconciliation: projeto.kiloReconciliation,
+      taskContextBuilder: new TaskContextBuilder(projeto.fileService, projeto.auditoria, projeto.validator)
     };
     console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
     next();

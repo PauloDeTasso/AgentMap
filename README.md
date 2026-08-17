@@ -816,6 +816,39 @@ Isso inicia:
 5. Registrar resultado, artefatos e handoff quando necessário
 6. Confirmar eventos processados
 
+### Comunicação entre AgentMap e Agent Manager (Kilo Code)
+
+O AgentMap e o Agent Manager se comunicam por **HTTP/MCP**, nunca por escrita direta em arquivos compartilhados.
+
+**Fluxo Pai → Filho:**
+- Você envia instruções ao agente Kilo **diretamente pelo prompt do Agent Manager** no VS Code
+- O AgentMap não empurra mensagens; o filho deve consultar periodicamente
+
+**Fluxo Filho → AgentMap:**
+- Agentes filhos **não possuem tools MCP de escrita**. Eles devem usar **HTTP direto**:
+  - `POST http://localhost:3150/api/monitoramento/mensagens`
+  - Tipos aceitos: `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`
+
+**Fluxo AgentMap → Filho (leitura):**
+- Agentes filhos leem respostas por:
+  - HTTP: `GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20`
+  - Tool MCP (se disponível): `kilohub_receive_chat_message`
+
+**Formato obrigatório de mensagens:**
+```json
+{
+  "tipo": "KILO_CHAT",
+  "emissor": "agente-kilo",
+  "agenteId": "backend-teste",
+  "tarefaId": "TAR-2026-00001",
+  "conteudo": "[backend-teste][TAR-2026-00001] Mensagem completa...",
+  "dados": {"messageId": "msg-001"},
+  "acoes": []
+}
+```
+
+Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
+
 ---
 
 ## 📁 Estrutura de projetos gerenciados
@@ -881,6 +914,7 @@ AgentMap/
 |---|---|
 | `docs/guia-agente-mcp.md` | Guia do agente MCP |
 | `docs/referencia-tools-mcp.md` | Referência completa de tools com parâmetros |
+| `docs/api-reference.md` | Referência completa da API REST |
 | `docs/arquitetura-mcp.md` | Arquitetura MCP |
 | `PLANO GERAL/...` | Especificação autoritativa do projeto |
 

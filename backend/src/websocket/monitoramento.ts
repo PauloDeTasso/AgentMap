@@ -142,6 +142,11 @@ export class MonitoramentoWebSocket {
         ws.send(JSON.stringify({ type: 'logs_dispatcher', data: logs }));
         break;
 
+      case 'solicitar_kilo_state':
+        const kiloState = await this.monitoramento.obterKiloState();
+        ws.send(JSON.stringify({ type: 'kilo_state', data: kiloState }));
+        break;
+
       case 'intervenir':
         this.monitoramento.executarIntervencao(data?.comando, data?.payload || {})
           .then(result => {

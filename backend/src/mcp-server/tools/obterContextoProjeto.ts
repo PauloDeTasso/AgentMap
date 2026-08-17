@@ -77,6 +77,7 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_projeto', {
       estado,
       resumoConhecimento: { totalItens: conhecimentoCount },
       resumoTarefas: tarefasResumo,
+      kilo: await servicos.kiloDiscovery.obterEstadoKilo()
     };
 
     auditoria.registrarToolCall('agentmap_obter_contexto_projeto', projeto, {}, { sucesso: true, dados });

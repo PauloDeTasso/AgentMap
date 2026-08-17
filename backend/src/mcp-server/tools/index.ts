@@ -34,3 +34,5 @@ import './obterContextoTarefa';
 import './worktree';
 import './descobrir';
 import './sugerirFluxo';
+import './kilohub';
+import './kilohub-receive';

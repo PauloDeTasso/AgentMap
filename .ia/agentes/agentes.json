@@ -1,0 +1,11 @@
+{
+  "agentes": [
+    {
+      "id": "backend-teste",
+      "nome": "Backend Teste",
+      "funcao": "desenvolvimento_backend",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/backend-teste.json"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { FileService } from '../arquivos/FileService';
-import { AgentePerfil, AgenteRegistro } from '../tipos';
+import { AgentePerfil, AgenteRegistro, Tarefa, ResultadoOperacao } from '../tipos';
 
 export interface KiloAgentConfig {
   description: string;
@@ -9,6 +9,16 @@ export interface KiloAgentConfig {
   hidden: boolean;
   color: string;
   permission: Record<string, string>;
+}
+
+export interface TaskContext {
+  objetivo: string;
+  contrato: string;
+  dependencias: string[];
+  decisoes: string[];
+  restricoes: string[];
+  criteriosAceitacao: string[];
+  arquivosRelevantes: { caminho: string; conteudo: string }[];
 }
 
 export class KiloAgentGeneratorService {
@@ -64,6 +74,93 @@ export class KiloAgentGeneratorService {
       const caminhoRelativo = path.join('.kilo', 'agent', `${agentId}.md`).replace(/\\/g, '/');
       this.fs.escrever(caminhoRelativo, md);
     }
+  }
+
+  async gerarContextoTarefa(tarefa: Tarefa, agenteId?: string): Promise<ResultadoOperacao<string>> {
+    const contexto: TaskContext = {
+      objetivo: tarefa.objetivo || tarefa.titulo,
+      contrato: tarefa.contratosObrigatorios.join(', ') || 'Nenhum contrato obrigatório',
+      dependencias: tarefa.dependencias || [],
+      decisoes: [],
+      restricoes: tarefa.restricoes || [],
+      criteriosAceitacao: tarefa.criteriosAceitacao || [],
+      arquivosRelevantes: []
+    };
+
+    const contextoPath = path.join('.kilo', 'agent', `task-${tarefa.id}-context.md`).replace(/\\/g, '/');
+    const md = this.montarContextoMarkdown(tarefa, contexto);
+    return this.fs.escrever(contextoPath, md);
+  }
+
+  montarContextoMarkdown(tarefa: Tarefa, contexto: TaskContext): string {
+    const linhas: string[] = [];
+
+    linhas.push(`# Contexto da Tarefa ${tarefa.id}`);
+    linhas.push('');
+    linhas.push(`**Título:** ${tarefa.titulo}`);
+    linhas.push(`**Tipo:** ${tarefa.tipo}`);
+    linhas.push(`**Prioridade:** ${tarefa.prioridade}`);
+    linhas.push(`**Agente Responsável:** ${tarefa.agenteResponsavel}`);
+    linhas.push(`**Domínio:** ${tarefa.dominio}`);
+    linhas.push(`**Ambiente:** ${tarefa.ambiente}`);
+    linhas.push('');
+
+    linhas.push('## Objetivo');
+    linhas.push(contexto.objetivo);
+    linhas.push('');
+
+    linhas.push('## Contratos Obrigatórios');
+    linhas.push(contexto.contrato);
+    linhas.push('');
+
+    if (contexto.dependencias.length > 0) {
+      linhas.push('## Dependências');
+      for (const dep of contexto.dependencias) {
+        linhas.push(`- ${dep}`);
+      }
+      linhas.push('');
+    }
+
+    if (contexto.restricoes.length > 0) {
+      linhas.push('## Restrições');
+      for (const r of contexto.restricoes) {
+        linhas.push(`- ${r}`);
+      }
+      linhas.push('');
+    }
+
+    if (contexto.criteriosAceitacao.length > 0) {
+      linhas.push('## Critérios de Aceitação');
+      for (const c of contexto.criteriosAceitacao) {
+        linhas.push(`- [ ] ${c}`);
+      }
+      linhas.push('');
+    }
+
+    if (tarefa.condicoesDeParada.length > 0) {
+      linhas.push('## Condições de Parada');
+      for (const c of tarefa.condicoesDeParada) {
+        linhas.push(`- ${c}`);
+      }
+      linhas.push('');
+    }
+
+    if (tarefa.riscos.length > 0) {
+      linhas.push('## Riscos');
+      for (const r of tarefa.riscos) {
+        linhas.push(`- ${r}`);
+      }
+      linhas.push('');
+    }
+
+    linhas.push('## Protocolo de Entrega');
+    linhas.push('- Sempre reportar progresso via `kilohub_report_status`');
+    linhas.push('- Ao concluir, usar `kilohub_report_result` com resumo, arquivos alterados e testes');
+    linhas.push('- Nunca expor segredos, chaves ou tokens');
+    linhas.push('- Respeitar contratos e domínios definidos');
+    linhas.push('');
+
+    return linhas.join('\n');
   }
 
   private mapearPermissoes(permissoes: { ler: boolean; criar: boolean; alterar: boolean; excluir: boolean; executar: boolean; testar: boolean; revisar: boolean; aprovar: boolean; implantar: boolean }, permitidos: string[], proibidos: string[]): Record<string, string> {

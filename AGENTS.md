@@ -137,6 +137,18 @@ O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 
 O AgentMap **não executa agentes** e **não depende de CLI `kilo` standalone**. Ele fornece contexto, ferramentas e governança; o paralelismo é responsabilidade do Agent Manager.
 
+### Comunicação AgentMap ↔ Agent Manager
+
+- **Pai → Filho:** envie instruções diretamente pelo prompt do Agent Manager no VS Code.
+- **Filho → AgentMap (escrita):** agentes filhos **não possuem tools MCP de escrita**. Eles devem usar **HTTP direto**:
+  - `POST http://localhost:3150/api/monitoramento/mensagens`
+  - Tipos aceitos: `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`
+- **Filho ← AgentMap (leitura):** agentes filhos leem respostas por:
+  - HTTP: `GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20`
+  - Tool MCP (se disponível): `kilohub_receive_chat_message`
+
+Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
+
 ## Segurança
 
 - **CORS:** origins configuradas para desenvolvimento local

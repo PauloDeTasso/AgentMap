@@ -31,5 +31,8 @@ export * from './ContractValidatorService';
 export * from './BackupService';
 export * from './MonitoramentoService';
 export * from './KiloAgentGeneratorService';
+export * from './KiloDiscoveryService';
+export * from './KiloReconciliationService';
+export * from './TaskContextBuilder';
 export * from './FluxoService';
 

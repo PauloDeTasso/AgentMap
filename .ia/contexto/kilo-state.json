@@ -1,0 +1,47 @@
+{
+  "descobertoEm": "2026-08-17T01:10:36.516Z",
+  "worktrees": [
+    {
+      "nome": "backend-api-test",
+      "caminho": ".kilo\\worktrees\\backend-api-test",
+      "branch": "backend-api-test"
+    },
+    {
+      "nome": "frontend-nav-test",
+      "caminho": ".kilo\\worktrees\\frontend-nav-test",
+      "branch": "frontend-nav-test"
+    },
+    {
+      "nome": "integration-tester",
+      "caminho": ".kilo\\worktrees\\integration-tester",
+      "branch": "integration-tester"
+    },
+    {
+      "nome": "qa-e2e-navigation-test",
+      "caminho": ".kilo\\worktrees\\qa-e2e-navigation-test",
+      "branch": "qa-e2e-navigation-test"
+    },
+    {
+      "nome": "task-tar-2026-00001-testar-chat-kilo",
+      "caminho": ".kilo\\worktrees\\task-tar-2026-00001-testar-chat-kilo",
+      "branch": "task-tar-2026-00001-testar-chat-kilo",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "test-e2e-stdio",
+      "caminho": ".kilo\\worktrees\\test-e2e-stdio",
+      "branch": "test-e2e-stdio"
+    }
+  ],
+  "sessoes": [
+    {
+      "id": "ses_ff2d3814affe7CfGqy10eOnfAC",
+      "nome": "ses_ff2d3814affe7CfGqy10eOnfAC",
+      "tipo": "local",
+      "worktreeId": "wt-1786927414085-1",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T00:43:35.011Z"
+    }
+  ],
+  "agentes": []
+}

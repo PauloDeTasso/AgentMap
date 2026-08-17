@@ -29,7 +29,37 @@ Este documento lista as 124 tools MCP disponíveis para integração com agentes
 | `agentmap_monitoramento_dispatcher_executar` | Executa item pendente do dispatcher | `{ "agenteId": string }` |
 | `agentmap_monitoramento_dispatcher_logs` | Lista logs do dispatcher | `{ "limite"?: number }` |
 
+#### Tools Kilo (somente leitura para agentes filhos)
+
+| Tool | Descrição | Parâmetros |
+|---|---|---|
+| `kilohub_receive_chat_message` | Busca respostas/mensagens direcionadas a um agente Kilo | `{ "agenteId"?: string, "tarefaId"?: string, "messageId"?: string, "limite"?: number }` |
+| `kilohub_report_status` | Reporta status de sessão Kilo | `{ "messageId": string, "sessionId": string, "status": "ativo" | "pausado" | "finalizado" | "erro", "message"?: string }` |
+| `kilohub_report_progress` | Reporta progresso de tarefa | `{ "messageId": string, "tarefaId": string, "progress": number, "message"?: string }` |
+| `kilohub_report_result` | Reporta resultado final de tarefa | `{ "messageId": string, "tarefaId": string, "resultado": { "resumo": string, "arquivosAlterados"?: string[], "testesExecutados"?: string[], "testesAprovados"?: string[], "riscosEncontrados"?: string[], "pendencias"?: string[], "observacoes"?: string, "commit"?: string } }` |
+
+> **Importante:** `kilohub_send_chat_message` foi removida. Agentes filhos devem usar **HTTP** para enviar mensagens.
+
 **Endpoint REST equivalente:** `GET /api/monitor` retorna visão consolidada com projeto, estado, sessões ativas, alertas, mensagens recentes e eventos.
+
+**Envio de mensagens por HTTP (filho → AgentMap):**
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "KILO_CHAT",
+    "emissor": "agente-kilo",
+    "agenteId": "backend-teste",
+    "tarefaId": "TAR-2026-00001",
+    "conteudo": "[backend-teste][TAR-2026-00001] Mensagem completa...",
+    "dados": {"messageId": "msg-001"}
+  }'
+```
+
+**Leitura de mensagens por HTTP (filho ← AgentMap):**
+```bash
+curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend-teste&limite=20"
+```
 
 ### Projetos
 

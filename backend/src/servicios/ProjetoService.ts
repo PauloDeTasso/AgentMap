@@ -7,6 +7,7 @@ import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { DependenciaService } from './DependenciaService';
 import { FluxoService } from './FluxoService';
+import { MonitoramentoService } from './MonitoramentoService';
 import { ProjetoConfig, ProjetoRegistro, RegistroProjetos, ResultadoOperacao } from '../tipos';
 import {
   loadRegistroProjetos,
@@ -14,6 +15,8 @@ import {
   registrarProjeto,
   removerProjetoDoRegistro
 } from '../config';
+import { KiloDiscoveryService } from './KiloDiscoveryService';
+import { KiloReconciliationService } from './KiloReconciliationService';
 
 export interface ProjetoAberto {
   id: string;
@@ -25,6 +28,9 @@ export interface ProjetoAberto {
   config: ProjetoConfig;
   dependencia: DependenciaService;
   fluxo: FluxoService;
+  monitoramento: MonitoramentoService;
+  kiloDiscovery: KiloDiscoveryService;
+  kiloReconciliation: KiloReconciliationService;
 }
 
 export class ProjetoService {
@@ -204,7 +210,10 @@ export class ProjetoService {
       validator: this.validator,
       config,
       dependencia: new DependenciaService(fileService, auditoria, this.validator),
-      fluxo
+      fluxo,
+      monitoramento: new MonitoramentoService(fileService, auditoria, this.validator),
+      kiloDiscovery: new KiloDiscoveryService(fileService, auditoria, caminhoRaiz),
+      kiloReconciliation: new KiloReconciliationService(fileService, auditoria, this.validator, caminhoRaiz)
     };
     console.log('[ProjetoService.abrirProjeto] ProjetoAberto criado - id:', projeto.id, 'nome:', projeto.nome, 'caminho:', projeto.caminhoRaiz);
 
@@ -214,6 +223,19 @@ export class ProjetoService {
     saveRegistroProjetos(this.registro);
 
     auditoria.registrar('PROJETO_ABERTO', `Projeto '${config.nome}' aberto.`, { caminhoRaiz });
+
+    projeto.kiloReconciliation.reconciliar().then(async (reconciliacao) => {
+      if (reconciliacao.sucesso && reconciliacao.dados) {
+        const kiloStateResult = await projeto.kiloDiscovery.obterEstadoKilo();
+        if (kiloStateResult.sucesso && kiloStateResult.dados) {
+          projeto.monitoramento.registrarKiloState(kiloStateResult.dados).catch((err) => {
+            console.warn('[ProjetoService][KILO] Falha ao registrar estado Kilo:', err?.message || err);
+          });
+        }
+      }
+    }).catch((err) => {
+      console.warn('[ProjetoService][KILO] Falha na reconciliação automática:', err?.message || err);
+    });
 
     return { sucesso: true, dados: projeto };
   }

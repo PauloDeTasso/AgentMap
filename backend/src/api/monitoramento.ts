@@ -39,7 +39,22 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
       acoes
     };
 
+    if (tipo === 'KILO_CHAT' || tipo === 'KILO_REPLY' || tipo === 'KILO_RESULT' || tipo === 'KILO_CHAT_REPLY') {
+      console.log(`[KILO][HTTP_IN] tipo=${tipo} agenteId=${agenteId || emissor} tarefaId=${tarefaId} conteudo="${conteudo}"`);
+    }
+
     const result = monitoramento.adicionarMensagem(msg);
+    if (!result.sucesso) {
+      if (tipo === 'KILO_CHAT' || tipo === 'KILO_REPLY' || tipo === 'KILO_RESULT' || tipo === 'KILO_CHAT_REPLY') {
+        console.error(`[KILO][HTTP_FAIL] tipo=${tipo} erro=${result.erro}`);
+      }
+      return responder(res, result, result.sucesso ? 201 : 400);
+    }
+
+    if (tipo === 'KILO_CHAT' || tipo === 'KILO_REPLY' || tipo === 'KILO_RESULT' || tipo === 'KILO_CHAT_REPLY') {
+      console.log(`[KILO][HTTP_OK] id=${msg.id} tipo=${tipo}`);
+    }
+
     return responder(res, result, result.sucesso ? 201 : 400);
   }));
 
@@ -98,6 +113,45 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   router.get('/dispatcher/logs', asyncHandler(async (req: Request, res: Response) => {
     const limite = req.query.limite ? Number(req.query.limite) : 100;
     const dados = monitoramento.listarLogsDispatcher(limite);
+    return responder(res, { sucesso: true, dados });
+  }));
+
+  router.get('/kilo/receive-chat', asyncHandler(async (req: Request, res: Response) => {
+    const agenteId = req.query.agenteId as string | undefined;
+    const tarefaId = req.query.tarefaId as string | undefined;
+    const messageId = req.query.messageId as string | undefined;
+    const limite = req.query.limite ? Number(req.query.limite) : 20;
+
+    const mensagens = monitoramento.listarMensagens(limite * 5);
+    const tiposPermitidos = new Set(['KILO_CHAT', 'KILO_REPLY', 'KILO_RESULT', 'KILO_CHAT_REPLY']);
+
+    let resultado = (mensagens || []).filter((m: any) => tiposPermitidos.has(m.tipo));
+
+    if (messageId) {
+      resultado = (mensagens || []).filter((m: any) => tiposPermitidos.has(m.tipo) || m.dados?.replyTo === messageId || m.dados?.messageId === messageId);
+    }
+    if (agenteId) {
+      resultado = resultado.filter((m: any) => m.agenteId === agenteId || m.emissor === agenteId);
+    }
+    if (tarefaId) {
+      resultado = resultado.filter((m: any) => m.tarefaId === tarefaId);
+    }
+
+    const dados = {
+      total: resultado.length,
+      mensagens: resultado.slice(-limite).map((m: any) => ({
+        messageId: m.id || m.dados?.messageId,
+        tipo: m.tipo,
+        emissor: m.emissor,
+        agenteId: m.agenteId,
+        tarefaId: m.tarefaId,
+        conteudo: m.conteudo,
+        timestamp: m.timestamp,
+        dados: m.dados
+      }))
+    };
+
+    console.log(`[KILO][HTTP_LIST] agenteId=${agenteId || '*'} total=${dados.total}`);
     return responder(res, { sucesso: true, dados });
   }));
 

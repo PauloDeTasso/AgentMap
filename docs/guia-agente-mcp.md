@@ -288,6 +288,37 @@ curl -X POST http://localhost:3150/api/monitoramento/mensagens \
 
 O WebSocket `ws://localhost:3150/ws/monitoramento` oferece atualizações em tempo real. O serviço `MonitoramentoWebSocket` faz broadcast de mensagens para sessões conectadas.
 
+### Comunicação com Agent Manager / Kilo Code
+
+Agentes rodando no **Agent Manager (VS Code)** usam worktrees isolados. Eles **não possuem tools MCP de escrita** para o monitoramento. O canal correto é **HTTP direto**.
+
+**Enviar mensagem (filho → AgentMap):**
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "KILO_CHAT",
+    "emissor": "agente-kilo",
+    "agenteId": "backend-teste",
+    "tarefaId": "TAR-2026-00001",
+    "conteudo": "[backend-teste][TAR-2026-00001] Mensagem completa...",
+    "dados": {"messageId": "msg-001"}
+  }'
+```
+
+**Ler respostas (filho ← AgentMap):**
+```bash
+curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend-teste&limite=20"
+```
+
+**Tipos de mensagem Kilo:**
+- `KILO_CHAT` — mensagem padrão
+- `KILO_REPLY` — resposta a uma mensagem (`dados.replyTo`)
+- `KILO_RESULT` — resultado final de tarefa
+- `KILO_CHAT_REPLY` — resposta de chat simples
+
+Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
+
 ## Códigos de Erro
 
 | Código | Significado |

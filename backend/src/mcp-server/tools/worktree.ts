@@ -4,7 +4,9 @@ import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { KiloIdempotencyService } from '../../servicios/KiloIdempotencyService';
 import * as z from 'zod';
+import * as path from 'path';
 import { EstadoTarefa } from '../../tipos';
 
 const ESTADOS_TERMINAIS: EstadoTarefa[] = ['CONCLUIDA', 'CANCELADA', 'REJEITADA'];
@@ -88,33 +90,118 @@ registerTracedTool(mcpServer, 'agentmap_verificar_dependencias_pendentes', {
 });
 
 registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
-  description: 'Integra com Agent Manager para criar worktree automaticamente para uma tarefa.',
-  inputSchema: z.object({ tarefaId: z.string() })
-}, async ({ tarefaId }: { tarefaId: string }) => {
+  description: 'Registra intenção de criação de worktree para uma tarefa e retorna instruções para o Agent Manager (VS Code) ou passos manuais.',
+  inputSchema: z.object({
+    messageId: z.string(),
+    tarefaId: z.string()
+  })
+}, async ({ messageId, tarefaId }: { messageId: string; tarefaId: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return toMcpResult(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
+  const idempotency = new KiloIdempotencyService(projeto.fileService, projeto.auditoria);
+  const jaProcessado = await idempotency.isProcessado(messageId);
+  if (jaProcessado) {
+    const resultado = { sucesso: false, erro: `Mensagem duplicada: ${messageId}`, codigoErro: 'DUPLICATE_MESSAGE' };
+    auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
+    return toMcpResult(resultado);
+  }
+
   const tarefaResult = ctx.dados!.servicos.tarefa.obter(tarefaId);
   if (!tarefaResult.sucesso || !tarefaResult.dados) {
     const resultado = { sucesso: false, erro: 'Tarefa não encontrada', codigoErro: 'NOT_FOUND' };
-    auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { tarefaId }, resultado);
+    auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
     return toMcpResult(resultado);
   }
 
   const tarefa = tarefaResult.dados;
-  const branchName = `task/${tarefaId}`;
+  const branchName = sanitizarBranch(`task/${tarefaId}-${tarefa.titulo.replace(/[^a-zA-Z0-9_-]/g, '-').toLowerCase()}`);
 
-  const resultado = {
-    sucesso: true,
-    dados: {
-      tarefaId,
-      titulo: tarefa.titulo,
-      branchName,
-      mensagem: `Worktree deve ser criado via Agent Manager para branch ${branchName}. Integração com extensão VS Code necessária.`
-    }
+  const contextResult = await ctx.dados!.servicos.taskContextBuilder.gerarMarkdownContexto(tarefaId);
+  const contextoGerado = contextResult.sucesso && contextResult.dados;
+
+  const isVsCode = detectarAmbienteVsCode();
+  const agentManagerDisponivel = isVsCode && !!process.env['VSCODE_PID'];
+
+  const worktreePath = path.join(projeto.caminhoRaiz, `.kilo/worktrees/${branchName.replace(/\//g, '-')}`);
+
+  const intention = {
+    messageId,
+    tarefaId,
+    branchName,
+    worktreePath,
+    agenteId: tarefa.agenteResponsavel,
+    criadoEm: new Date().toISOString(),
+    status: 'PENDENTE'
   };
-  auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { tarefaId }, resultado);
-  return toMcpData(resultado.dados);
+
+  const intentionsPath = path.win32.join('.ia', 'contexto', 'worktree-intentions.json');
+  const intentionsResult = projeto.fileService.lerJson<{ intencoes: typeof intention[] }>(intentionsPath);
+  const intentionsData = intentionsResult.sucesso && intentionsResult.dados
+    ? intentionsResult.dados
+    : { intencoes: [] };
+
+  const existente = intentionsData.intencoes.findIndex(i => i.tarefaId === tarefaId && i.status !== 'CANCELADO');
+  if (existente >= 0) {
+    intentionsData.intencoes[existente] = { ...intentionsData.intencoes[existente], ...intention };
+  } else {
+    intentionsData.intencoes.push(intention);
+  }
+  projeto.fileService.escreverJson(intentionsPath, intentionsData);
+
+  await idempotency.marcarProcessado(messageId, 'agentmap_abrir_worktree', tarefaId);
+
+  const dados = {
+    messageId,
+    tarefaId,
+    titulo: tarefa.titulo,
+    branchName,
+    contextoGerado,
+    agentManagerDisponivel,
+    worktreePath,
+    instrucaoAgenteManager: agentManagerDisponivel
+      ? {
+          mode: 'worktree' as const,
+          prompt: `Executar tarefa ${tarefaId}: ${tarefa.titulo}`,
+          branchName,
+          taskId: tarefaId
+        }
+      : null,
+    mensagem: agentManagerDisponivel
+      ? `Chame agent_manager com mode="worktree", branchName="${branchName}" e prompt da tarefa. Contexto: ${contextoGerado || 'não gerado'}.`
+      : `Crie o worktree manualmente: git worktree add -b ${branchName} ${worktreePath} HEAD. Contexto: ${contextoGerado || 'não gerado'}.`,
+    passos: agentManagerDisponivel
+      ? [
+          'Chame agent_manager com mode="worktree"',
+          `branchName: "${branchName}"`,
+          `prompt: "Executar tarefa ${tarefaId}: ${tarefa.titulo}"`,
+          'Após criação, reconciliação detectará o novo worktree/session automaticamente'
+        ]
+      : [
+          'git worktree add -b ' + branchName + ' ' + worktreePath + ' HEAD',
+          'Copie o contexto gerado para o worktree',
+          'Inicie o agente no worktree'
+        ]
+  };
+
+  const resultado = { sucesso: true, dados };
+  auditoria.registrar('WORKTREE_INTENCAO_CRIADA', `Intenção de worktree registrada para tarefa ${tarefaId} na branch ${branchName}`, {
+    messageId,
+    tarefaId,
+    branchName,
+    worktreePath
+  });
+  auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
+  return toMcpData(dados);
 });
+
+function sanitizarBranch(branch: string): string {
+  return branch.replace(/[^a-zA-Z0-9/_\-]/g, '').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').slice(0, 100);
+}
+
+function detectarAmbienteVsCode(): boolean {
+  const indicadores = ['TERM_PROGRAM', 'VSCODE_PID', 'VSCODE_CWD', 'VSCODE_GIT_ASKPASS'];
+  return indicadores.some(key => !!process.env[key]);
+}

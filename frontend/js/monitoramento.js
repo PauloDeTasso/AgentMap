@@ -5,6 +5,7 @@ let autoScroll = true;
 let msgCounter = 0;
 let mensagensCache = [];
 let agentesCache = [];
+let kiloCache = [];
 let filtroAgente = 'todos';
 let filtroTipo = 'todos';
 let modoAtual = null;
@@ -42,10 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function conectarWebSocket() {
     ws = new WebSocket(wsUrl);
 
-    ws.onopen = () => {
-      statusWs.textContent = '🟢 WebSocket Conectado';
-      statusWs.className = 'header__status status-conectado';
-    };
+      ws.onopen = () => {
+        statusWs.textContent = '🟢 WebSocket Conectado';
+        statusWs.className = 'header__status status-conectado';
+        ws.send(JSON.stringify({ type: 'solicitar_kilo_state', data: {} }));
+      };
 
     ws.onmessage = (event) => {
       try {
@@ -92,6 +94,10 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'agentes':
         agentesCache = data || [];
         renderizarAgentes(agentesCache);
+        break;
+      case 'kilo_state':
+        kiloCache = data || [];
+        renderizarKilo(kiloCache);
         break;
       case 'resultado':
         if (data?.sucesso === false) {
@@ -312,6 +318,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     atualizarFiltroAgente(agentes);
+  }
+
+  function renderizarKilo(kilo) {
+    const list = document.getElementById('kilo-list');
+    const count = document.getElementById('kilo-count');
+    if (!list) return;
+
+    const worktrees = kilo.worktrees || [];
+    const sessoes = kilo.sessoes || [];
+    count.textContent = `${worktrees.length} worktrees`;
+
+    list.innerHTML = '';
+    worktrees.forEach(wt => {
+      const sessao = sessoes.find(s => s.worktreeId === wt.nome || s.id === wt.sessaoId);
+      const div = document.createElement('div');
+      div.className = 'agente-item agente-item--kilo';
+      div.innerHTML = `
+        <div class="agente-nome">
+          <span class="status-badge status-badge--kilo"></span>
+          ${wt.nome}
+          <span class="modo-tag">${wt.branch || ''}</span>
+        </div>
+        <div class="agente-status">
+          <span>${sessao?.nome || 'Sem sessão'}</span>
+          <span class="status-badge-text">${sessao?.estado || 'desconhecido'}</span>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    if (worktrees.length === 0) {
+      list.innerHTML = '<div style="padding:12px;color:#6e7681;font-size:12px;">Nenhum worktree Kilo descoberto</div>';
+    }
   }
 
   function atualizarFiltroAgente(agentes) {
