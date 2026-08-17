@@ -39,7 +39,7 @@ registerTracedTool(mcpServer, 'agentmap_ler_trecho_arquivo', {
     const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
     try {
-      const validated = pathValidator.validate(caminho || '');
+      const validated = pathValidator.validate(caminho);
       const readResult = projeto.fileService.ler(validated.caminhoRelativo);
       if (!readResult.sucesso || !readResult.dados) {
         const result = readResult;

@@ -36,7 +36,7 @@ const fluxos = {
     'agentmap_obter_mapa_projeto',
     'agentmap_auditoria_listar'
   ],
-  bloequeio: [
+  bloqueio: [
     'agentmap_bloqueios_listar',
     'agentmap_bloqueios_obter',
     'agentmap_bloqueios_resolver'
@@ -47,7 +47,7 @@ registerTracedTool(mcpServer, 'agentmap_sugerir_fluxo', {
   title: 'Sugerir Fluxo',
   description: 'Recomenda sequência de tools baseada no objetivo do agente.',
   inputSchema: z.object({
-    objetivo: z.string().describe('Objetivo desejado: onboarding, iniciar_trabalho, handoff, solicitacao, monitoramento, bloequeio'),
+    objetivo: z.string().describe('Objetivo desejado: onboarding, iniciar_trabalho, handoff, solicitacao, monitoramento, bloqueio'),
     contexto: z.string().optional().describe('Contexto adicional para refinar a sugestão')
   }),
   annotations: {

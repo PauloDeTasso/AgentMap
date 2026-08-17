@@ -1,49 +1,79 @@
 import { mcpServer } from '../server';
-import { toMcpResult, toMcpData } from '../utils/helpers';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
+const resultadoSchema = z.object({
+  id: z.string(),
+  tarefaId: z.string(),
+  execucaoId: z.number(),
+  agenteId: z.string(),
+  resumo: z.string(),
+  estado: z.string(),
+  arquivosAlterados: z.array(z.string()),
+  artefatos: z.array(z.string()),
+  testesExecutados: z.array(z.string()),
+  testesAprovados: z.array(z.string()),
+  riscosEncontrados: z.array(z.string()),
+  pendencias: z.array(z.string()),
+  alteracoesSolicitadas: z.array(z.string()),
+  observacoes: z.string().nullable(),
+  datas: z.object({
+    criadaEm: z.string().nullable(),
+    atualizadaEm: z.string().nullable(),
+    concluidaEm: z.string().nullable()
+  })
+}).passthrough();
+
 registerTracedTool(mcpServer, 'agentmap_resultados_listar', {
+  title: 'Listar Resultados',
   description: 'Lista resultados.',
-  inputSchema: z.object({})
+  inputSchema: z.object({}),
+  outputSchema: z.array(resultadoSchema),
+  annotations: { readOnlyHint: true }
 }, async () => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = ctx.dados!.servicos.resultado.listar();
   auditoria.registrarToolCall('agentmap_resultados_listar', projeto, {}, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_resultados_obter', {
+  title: 'Obter Resultado',
   description: 'Obtem um resultado.',
-  inputSchema: z.object({ id: z.string() })
+  inputSchema: z.object({ id: z.string() }),
+  outputSchema: resultadoSchema,
+  annotations: { readOnlyHint: true }
 }, async ({ id }: { id: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = ctx.dados!.servicos.resultado.obter(String(id || ''));
   auditoria.registrarToolCall('agentmap_resultados_obter', projeto, { id }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_resultados_criar', {
+  title: 'Criar Resultado',
   description: 'Cria um resultado.',
-  inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
+  inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
+  outputSchema: resultadoSchema
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.resultado.criar(dados);
   auditoria.registrarToolCall('agentmap_resultados_criar', projeto, { dados }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });

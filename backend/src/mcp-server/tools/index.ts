@@ -36,3 +36,4 @@ import './descobrir';
 import './sugerirFluxo';
 import './kilohub';
 import './kilohub-receive';
+import './monitoramento-wakeup';

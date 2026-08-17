@@ -13,8 +13,8 @@ export const SchemaObterAgente = z.object({
 });
 
 export const SchemaRecomendarAgente = z.object({
-  tarefaId: z.string(),
-  criterios: z.record(z.string(), z.unknown()).optional(),
+  tarefaId: z.string().optional(),
+  criterios: z.record(z.string(), z.unknown()).optional()
 });
 
 export const SchemaLerTrechoArquivo = z.object({

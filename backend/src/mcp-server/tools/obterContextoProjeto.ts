@@ -4,6 +4,7 @@ import { SchemaObterContextoProjeto } from '../schemas/validacao';
 import { mapearProjeto, mapearAgenteRegistro } from '../mapper/mapeadores';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import * as z from 'zod';
 import * as path from 'path';
 
@@ -20,20 +21,21 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_projeto', {
 
     const { projeto, servicos } = ctx.dados;
     const auditoria = createMcpAuditoria(projeto.auditoria);
+    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
     const agentesResult = servicos.agente.listar();
-    const contratosResult = projeto.fileService.lerJson<{ contratos: unknown[] }>(
-      path.win32.join('.ia', 'contratos', 'contratos.json')
-    );
-    const decisoesResult = projeto.fileService.lerJson<{ decisoes: unknown[] }>(
-      path.win32.join('.ia', 'decisoes', 'decisoes.json')
-    );
-    const estadoResult = projeto.fileService.lerJson<unknown>(
-      path.win32.join('.ia', 'estado', 'estado-atual.json')
-    );
-    const conhecimentoResult = projeto.fileService.lerJson<{ conhecimento: unknown[] }>(
-      path.win32.join('.ia', 'conhecimento', 'conhecimento.json')
-    );
+    const contratosPath = path.posix.join('.ia', 'contratos', 'contratos.json');
+    const decisoesPath = path.posix.join('.ia', 'decisoes', 'decisoes.json');
+    const estadoPath = path.posix.join('.ia', 'estado', 'estado-atual.json');
+    const conhecimentoPath = path.posix.join('.ia', 'conhecimento', 'conhecimento.json');
+    const contratosValidated = pathValidator.validate(contratosPath);
+    const decisoesValidated = pathValidator.validate(decisoesPath);
+    const estadoValidated = pathValidator.validate(estadoPath);
+    const conhecimentoValidated = pathValidator.validate(conhecimentoPath);
+    const contratosResult = projeto.fileService.lerJson<{ contratos: unknown[] }>(contratosValidated.caminhoRelativo);
+    const decisoesResult = projeto.fileService.lerJson<{ decisoes: unknown[] }>(decisoesValidated.caminhoRelativo);
+    const estadoResult = projeto.fileService.lerJson<unknown>(estadoValidated.caminhoRelativo);
+    const conhecimentoResult = projeto.fileService.lerJson<{ conhecimento: unknown[] }>(conhecimentoValidated.caminhoRelativo);
     const tarefasResult = servicos.tarefa.listar();
 
     const agentes = agentesResult.sucesso && agentesResult.dados
