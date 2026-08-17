@@ -5,6 +5,7 @@ import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { ModoAutonomia, KiloState, KiloSession } from '../tipos';
 import { ResultadoOperacao } from '../tipos';
+import { globalEventBus } from '../mcp-server/events/event-bus';
 
 export type ModoOperacao = ModoAutonomia;
 export type StatusAgente = 'ATIVO' | 'AGUARDANDO' | 'ERRO' | 'OFFLINE' | 'DISPONIVEL';
@@ -21,6 +22,7 @@ export interface MensagemMonitoramento {
   dados?: any;
   acoes?: Array<{ label: string; comando: string; estilo?: string }>;
   modo?: ModoOperacao;
+  eventSequence?: number;
 }
 
 export interface StatusAgenteMonitoramento {
@@ -45,7 +47,9 @@ export class MonitoramentoService extends EventEmitter {
   private statusPath = '.ia/contexto/status';
   private configPath = '.ia/configuracao/monitoramento.json';
   private mensagensPath = '.ia/contexto/mensagens-monitoramento.json';
+  private sequencePath = '.ia/contexto/monitoramento-sequence.json';
   private logsLimit = 500;
+  private ultimoSequence: number = 0;
 
   constructor(
     private fs: FileService,
@@ -56,6 +60,28 @@ export class MonitoramentoService extends EventEmitter {
     this.setMaxListeners(100);
     this.carregarConfig();
     this.carregarMensagens();
+    this.carregarSequence();
+  }
+
+  private carregarSequence(): void {
+    const result = this.fs.lerJson<{ ultimoSequence: number }>(this.sequencePath);
+    if (result.sucesso && result.dados && typeof result.dados.ultimoSequence === 'number') {
+      this.ultimoSequence = result.dados.ultimoSequence;
+    } else {
+      const msgs = this.carregarMensagens();
+      const maxSeq = msgs.reduce((max, m) => Math.max(max, (m as any).eventSequence || 0), 0);
+      this.ultimoSequence = maxSeq;
+      this.salvarSequence();
+    }
+  }
+
+  private salvarSequence(): ResultadoOperacao<string> {
+    return this.fs.escreverJson(this.sequencePath, { ultimoSequence: this.ultimoSequence });
+  }
+
+  private proximoSequence(): number {
+    this.ultimoSequence += 1;
+    return this.ultimoSequence;
   }
 
   private sanitizarConteudo(conteudo: string): string {
@@ -99,6 +125,18 @@ export class MonitoramentoService extends EventEmitter {
       mensagens = mensagens.slice(-this.logsLimit);
     }
     return this.fs.escreverJson(this.mensagensPath, mensagens);
+  }
+
+  listarMensagensApos(after: number, limite = 100): { mensagens: MensagemMonitoramento[]; ultimoEventSequence: number } {
+    const msgs = this.carregarMensagens();
+    const sanitizadas = msgs
+      .filter((m: any) => after === 0 || (typeof m.eventSequence === 'number' && m.eventSequence > after))
+      .map(msg => ({
+        ...msg,
+        conteudo: this.sanitizarConteudo(msg.conteudo || '')
+      }));
+    const sliced = sanitizadas.slice(-limite);
+    return { mensagens: sliced, ultimoEventSequence: this.ultimoSequence };
   }
 
   obterModo(): { modoGlobal: ModoOperacao } {
@@ -276,12 +314,20 @@ export class MonitoramentoService extends EventEmitter {
   adicionarMensagem(msg: MensagemMonitoramento): ResultadoOperacao<string> {
     const msgs = this.carregarMensagens();
     const sanitizado = { ...msg, conteudo: this.sanitizarConteudo(msg.conteudo || '') };
+    sanitizado.eventSequence = this.proximoSequence();
     msgs.push(sanitizado);
     const result = this.salvarMensagens(msgs);
     if (!result.sucesso) {
       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
     }
+
+    const seqResult = this.salvarSequence();
+    if (!seqResult.sucesso) {
+      console.error(`[Monitoramento] Falha ao salvar sequence: ${seqResult.erro}`);
+    }
+
     this.broadcast(sanitizado);
+    globalEventBus.publish({ uri: 'agentmap://monitoramento/mensagens', timestamp: Date.now(), reason: 'nova_mensagem' });
     return { sucesso: true };
   }
 
