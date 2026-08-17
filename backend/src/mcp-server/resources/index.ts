@@ -678,11 +678,8 @@ mcpServer.server.setNotificationHandler(
 );
 
 globalEventBus.subscribe((event) => {
-  console.error('[E2E-DEBUG] EventBus handler fired', JSON.stringify(event));
-
   const legacySubscribers = subscriptionManager.getSubscribers(event.uri);
   if (legacySubscribers.length > 0) {
-    console.error('[E2E-DEBUG] sendResourceUpdated called for legacy');
     mcpServer.server.sendResourceUpdated({ uri: event.uri }).catch((err) => {
       console.error(`[MCP] Falha ao enviar notificação legacy para ${event.uri}:`, err);
       for (const sessionId of legacySubscribers) {
@@ -693,7 +690,6 @@ globalEventBus.subscribe((event) => {
 
   const listenSubscriberIds = subscriptionManager.getListenSubscribersForUri(event.uri);
   if (listenSubscriberIds.length > 0) {
-    console.error('[E2E-DEBUG] sendResourceUpdated called for listen', JSON.stringify(listenSubscriberIds));
     for (const subscriptionId of listenSubscriberIds) {
       sendResourceUpdatedForListen(event.uri, subscriptionId).catch((err) => {
         console.error(`[MCP] Falha ao enviar notificação listen para ${event.uri} (${subscriptionId}):`, err);

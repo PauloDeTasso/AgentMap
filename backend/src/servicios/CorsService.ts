@@ -42,6 +42,14 @@ export class CorsService {
   }
 
   updateConfig(newConfig: Partial<CorsConfig>): void {
+    if (newConfig.origins) {
+      newConfig.origins = newConfig.origins.filter((o: string) => {
+        if (typeof o !== 'string') return false;
+        if (o === 'http://localhost:3150') return true;
+        if (o.startsWith('https://')) return true;
+        return false;
+      });
+    }
     this.config = { ...this.config, ...newConfig };
   }
 }

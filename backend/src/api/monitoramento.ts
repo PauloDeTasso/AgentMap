@@ -40,7 +40,7 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
     };
 
     if (tipo === 'KILO_CHAT' || tipo === 'KILO_REPLY' || tipo === 'KILO_RESULT' || tipo === 'KILO_CHAT_REPLY') {
-      console.log(`[KILO][HTTP_IN] tipo=${tipo} agenteId=${agenteId || emissor} tarefaId=${tarefaId} conteudo="${conteudo}"`);
+      console.log(`[KILO][HTTP_IN] tipo=${tipo} agenteId=${agenteId || emissor} tarefaId=${tarefaId}`);
     }
 
     const result = monitoramento.adicionarMensagem(msg);

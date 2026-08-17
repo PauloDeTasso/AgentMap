@@ -5,6 +5,7 @@ import { SchemaValidator } from '../validacao/SchemaValidator';
 import { loadSettings, GERENCIADOR_DIR } from '../config';
 import { ResultadoOperacao } from '../tipos';
 import * as path from 'path';
+import { toMcpResult, toMcpData } from './utils/helpers';
 
 const esquemasPath = path.resolve(__dirname, '..', '..', '..', 'esquemas');
 const validator = new SchemaValidator(esquemasPath);
@@ -87,45 +88,7 @@ export const mcpServer = new McpServer(
 
 export type McpContent = { content: Array<{ type: 'text'; text: string }> };
 
-export function toMcpResult<T>(result: ResultadoOperacao<T>): McpContent {
-  if (!result.sucesso) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            sucesso: false,
-            codigo: result.codigoErro || 'UNKNOWN_ERROR',
-            mensagem: result.erro || 'Erro desconhecido',
-            detalhes: {}
-          })
-        }
-      ]
-    };
-  }
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify({
-          sucesso: true,
-          dados: result.dados
-        })
-      }
-    ]
-  };
-}
-
-export function toMcpData(dados: unknown): McpContent {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: JSON.stringify(dados)
-      }
-    ]
-  };
-}
+export { toMcpResult, toMcpData } from './utils/helpers';
 
 export { projetoService, validator, settings, esquemasPath };
 

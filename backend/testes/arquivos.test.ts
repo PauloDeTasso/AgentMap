@@ -11,7 +11,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { criarArquivoRouter } from '../src/api/arquivos';
-import { spawn } from 'child_process';
 import { FileService } from '../src/arquivos/FileService';
 
 function createTestApp(fileService: FileService): Application {
@@ -66,21 +65,12 @@ describe('Arquivos Router - /explorer', () => {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (spawn as jest.Mock).mockReturnValue({
-      on: jest.fn(),
-      unref: jest.fn(),
-    });
-  });
-
   test('missing path returns 400 MISSING_PATH', async () => {
     const app = createTestApp(fileService);
     const res = await httpRequest(app, 'GET', '/api/arquivos/explorer');
     expect(res.status).toBe(400);
     expect(res.body.sucesso).toBe(false);
     expect(res.body.codigoErro).toBe('MISSING_PATH');
-    expect(spawn).not.toHaveBeenCalled();
   });
 
   test('non-existent path returns 404 NOT_FOUND', async () => {
@@ -89,10 +79,9 @@ describe('Arquivos Router - /explorer', () => {
     expect(res.status).toBe(404);
     expect(res.body.sucesso).toBe(false);
     expect(res.body.codigoErro).toBe('NOT_FOUND');
-    expect(spawn).not.toHaveBeenCalled();
   });
 
-  test('valid path spawns explorer with array argument', async () => {
+  test('valid path returns absoluto without spawning explorer', async () => {
     const dirName = 'explorer-test-dir';
     const dirPath = path.join(projectRoot, dirName);
     fs.mkdirSync(dirPath, { recursive: true });
@@ -102,12 +91,8 @@ describe('Arquivos Router - /explorer', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.sucesso).toBe(true);
-    expect(spawn).toHaveBeenCalledTimes(1);
-
-    const spawnCall = (spawn as jest.Mock).mock.calls[0];
-    expect(spawnCall[0]).toBe('explorer');
-    expect(Array.isArray(spawnCall[1])).toBe(true);
-    expect(spawnCall[1]).toEqual([dirPath]);
+    expect(res.body.dados.caminho).toBe(dirName);
+    expect(res.body.dados.absoluto).toBe(dirPath);
   });
 
   test('path traversal is blocked with 403 PATH_TRAVERSAL', async () => {
@@ -116,27 +101,5 @@ describe('Arquivos Router - /explorer', () => {
     expect(res.status).toBe(403);
     expect(res.body.sucesso).toBe(false);
     expect(res.body.codigoErro).toBe('PATH_TRAVERSAL');
-    expect(spawn).not.toHaveBeenCalled();
-  });
-
-  test('spawn receives array args (no shell injection vector)', async () => {
-    const dirName = 'safe-dir';
-    const dirPath = path.join(projectRoot, dirName);
-    fs.mkdirSync(dirPath, { recursive: true });
-
-    const app = createTestApp(fileService);
-    const res = await httpRequest(app, 'GET', `/api/arquivos/explorer?path=${dirName}`);
-
-    expect(res.status).toBe(200);
-    expect(spawn).toHaveBeenCalledTimes(1);
-
-    const spawnCall = (spawn as jest.Mock).mock.calls[0];
-    expect(spawnCall[0]).toBe('explorer');
-    expect(Array.isArray(spawnCall[1])).toBe(true);
-    expect(spawnCall[1]).toHaveLength(1);
-    expect(spawnCall[1][0]).toBe(dirPath);
-
-    const options = spawnCall[2];
-    expect(options.shell).not.toBe(true);
   });
 });

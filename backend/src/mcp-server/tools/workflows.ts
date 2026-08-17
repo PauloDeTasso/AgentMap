@@ -1,5 +1,5 @@
 import { mcpServer } from '../server';
-import { toMcpStructured, mcpError } from '../utils/helpers';
+import { toMcpStructured, mcpError, toMcpResult } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
@@ -145,31 +145,38 @@ registerTracedTool(mcpServer, 'agentmap_workflows_obter_mapa_projeto', {
   annotations: {
     readOnlyHint: true
   }
-}, async () => {
-  const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return mcpError(ctx);
-  const { projeto } = ctx.dados!;
-  const auditoria = createMcpAuditoria(projeto.auditoria);
-  const [agentes, tarefas, estado, decisoes, contratos, permissoes] = await Promise.all([
-    ctx.dados!.servicos.agente.listar(),
-    ctx.dados!.servicos.tarefa.listar(),
-    ctx.dados!.projeto.fileService.lerJson<any>('.ia/estado/estado-atual.json'),
-    ctx.dados!.servicos.decisao.listar(),
-    ctx.dados!.projeto.fileService.lerJson<any>('.ia/contratos/contratos.json'),
-    ctx.dados!.projeto.fileService.lerJson<any>('.ia/configuracao/permissoes.json')
-  ]);
-  const resultado = {
-    sucesso: true,
-    dados: {
-      projeto: ctx.dados!.projeto.config,
-      agentes: agentes.sucesso ? agentes.dados : [],
-      tarefas: tarefas.sucesso ? tarefas.dados : [],
-      estado: estado.sucesso && estado.dados ? estado.dados : null,
-      decisoes: decisoes.sucesso ? decisoes.dados : [],
-      contratos: contratos.sucesso && contratos.dados ? contratos.dados : null,
-      permissoes: permissoes.sucesso && permissoes.dados ? permissoes.dados : null
+  }, async () => {
+    const ctx = carregarContexto(projetoService);
+    if (!ctx.sucesso) return mcpError(ctx);
+    const { projeto } = ctx.dados!;
+    const auditoria = createMcpAuditoria(projeto.auditoria);
+    let agentes, tarefas, estado, decisoes, contratos, permissoes;
+    try {
+      [agentes, tarefas, estado, decisoes, contratos, permissoes] = await Promise.all([
+        ctx.dados!.servicos.agente.listar(),
+        ctx.dados!.servicos.tarefa.listar(),
+        ctx.dados!.projeto.fileService.lerJson<any>('.ia/estado/estado-atual.json'),
+        ctx.dados!.servicos.decisao.listar(),
+        ctx.dados!.projeto.fileService.lerJson<any>('.ia/contratos/contratos.json'),
+        ctx.dados!.projeto.fileService.lerJson<any>('.ia/configuracao/permissoes.json')
+      ]);
+    } catch (e: any) {
+      const result = { sucesso: false, erro: e.message || 'Erro ao carregar mapa do projeto', codigoErro: 'MAP_LOAD_ERROR' };
+      auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, result);
+      return toMcpResult(result);
     }
-  };
-  auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, resultado);
-  return toMcpStructured(resultado.dados);
-});
+    const resultado = {
+      sucesso: true,
+      dados: {
+        projeto: ctx.dados!.projeto.config,
+        agentes: agentes.sucesso ? agentes.dados : [],
+        tarefas: tarefas.sucesso ? tarefas.dados : [],
+        estado: estado.sucesso && estado.dados ? estado.dados : null,
+        decisoes: decisoes.sucesso ? decisoes.dados : [],
+        contratos: contratos.sucesso && contratos.dados ? contratos.dados : null,
+        permissoes: permissoes.sucesso && permissoes.dados ? permissoes.dados : null
+      }
+    };
+    auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, resultado);
+    return toMcpStructured(resultado.dados);
+  });

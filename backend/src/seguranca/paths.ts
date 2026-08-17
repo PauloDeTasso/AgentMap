@@ -91,7 +91,8 @@ export function matchesPattern(relPath: string, patterns: string[]): boolean {
           regex += '[^/]*';
           i += 1;
         } else {
-          regex += p[i] === '.' ? '\\.' : p[i];
+          const c = p[i];
+          regex += c === '.' || '+?()[]{}^$|'.includes(c) ? '\\' + c : c;
           i += 1;
         }
       }

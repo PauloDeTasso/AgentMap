@@ -31,12 +31,11 @@ export class ModernProtocolAdapter implements ProtocolAdapter {
   constructor(private sendUpdated: (params: { uri: string }) => Promise<void>) {}
 
   subscribe(_sessionId: string, _uri: string): void {
-    // TODO quando SDK v2 suportar subscriptions/listen:
-    // registrar callback moderno no servidor.
+    // Estado de subscription permanece no SubscriptionManager.
   }
 
   unsubscribe(_sessionId: string, _uri: string): void {
-    // TODO quando SDK v2 suportar subscriptions/listen.
+    // noop
   }
 
   notify(uri: string): Promise<void> {

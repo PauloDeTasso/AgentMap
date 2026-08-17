@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import path from 'path';
 import { setupRotas } from './api';
+import { authMiddleware } from './api/auth';
 import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
@@ -30,6 +31,8 @@ export function createApp(): Application {
   app.use(corsService.getMiddleware());
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+  app.use('/api', authMiddleware);
 
   app.use((req, res, next) => {
     const start = Date.now();

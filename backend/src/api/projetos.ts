@@ -5,6 +5,7 @@ import { loadSettings, saveSettings, saveRegistroProjetos } from '../config';
 import { RegistroProjetos, ProjetoRegistro } from '../tipos';
 import * as fs from 'fs';
 import * as path from 'path';
+import { resolveProjectPath } from '../seguranca/paths';
 
 const LOCK_FILE = path.join(require('os').tmpdir(), 'agentmap-projetos-lock');
 
@@ -40,10 +41,12 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     if (!targetDir || typeof targetDir !== 'string') {
       return responder(res, { sucesso: false, erro: 'Pasta nao encontrada', codigoErro: 'DIR_NOT_FOUND' }, 404);
     }
-    if (targetDir.includes('..')) {
+    let resolved: string;
+    try {
+      resolved = resolveProjectPath(targetDir, '.').caminhoAbsoluto;
+    } catch (e: any) {
       return responder(res, { sucesso: false, erro: 'Caminho inválido', codigoErro: 'INVALID_PATH' }, 400);
     }
-    const resolved = path.resolve(targetDir);
     if (!fs.existsSync(resolved) || !fs.statSync(resolved).isDirectory()) {
       return responder(res, { sucesso: false, erro: 'Pasta nao encontrada', codigoErro: 'DIR_NOT_FOUND' }, 404);
     }

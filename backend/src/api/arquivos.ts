@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
-import { spawn } from 'child_process';
 import { asyncHandler, responder } from './middleware';
 import { normalizePath, matchesPattern, PathTraversalError } from '../seguranca/paths';
 
@@ -26,6 +25,13 @@ export function criarArquivoRouter(): Router {
     if (!caminho || conteudo === undefined) {
       return responder(res, { sucesso: false, erro: 'caminho e conteudo são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
     }
+    const agenteId = (req.headers['x-agent-id'] as string | undefined) || (req.body?.agenteId as string | undefined);
+    if (agenteId) {
+      const perm = req.servicos!.agente.validarDominioArquivo(agenteId, caminho);
+      if (!perm.sucesso || !perm.dados) {
+        return responder(res, { sucesso: false, erro: perm.erro || 'Sem permissão de escrita', codigoErro: 'FORBIDDEN' }, 403);
+      }
+    }
     return responder(res, req.servicos!.projeto.fileService.escrever(caminho, conteudo, { backup: true }), 201);
   }));
 
@@ -33,6 +39,13 @@ export function criarArquivoRouter(): Router {
     const { caminho, conteudo } = req.body;
     if (!caminho || conteudo === undefined) {
       return responder(res, { sucesso: false, erro: 'caminho e conteudo são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
+    }
+    const agenteId = (req.headers['x-agent-id'] as string | undefined) || (req.body?.agenteId as string | undefined);
+    if (agenteId) {
+      const perm = req.servicos!.agente.validarDominioArquivo(agenteId, caminho);
+      if (!perm.sucesso || !perm.dados) {
+        return responder(res, { sucesso: false, erro: perm.erro || 'Sem permissão de escrita', codigoErro: 'FORBIDDEN' }, 403);
+      }
     }
     return responder(res, req.servicos!.projeto.fileService.escrever(caminho, conteudo, { backup: true }));
   }));
@@ -110,10 +123,6 @@ export function criarArquivoRouter(): Router {
       }
       return responder(res, { sucesso: false, erro: 'Erro ao resolver caminho', codigoErro: 'PATH_ERROR' }, 400);
     }
-    const child = spawn('explorer', [realPath], { detached: true, stdio: 'ignore' });
-    child.on('error', (err: Error) => {
-      console.error('[GET /api/arquivos/explorer] erro ao abrir explorer:', err.message);
-    });
     return responder(res, { sucesso: true, dados: { caminho: caminho, absoluto: realPath } });
   }));
 

@@ -143,7 +143,7 @@ export function criarAdminRouter(): Router {
     } catch (error: any) {
       return responder(res, {
         sucesso: false,
-        erro: 'Estado do projeto indisponível: ' + (error?.message || error),
+        erro: 'Estado do projeto indisponível',
         codigoErro: 'PROJECT_STATE_UNAVAILABLE'
       }, 500);
     }

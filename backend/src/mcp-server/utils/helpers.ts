@@ -79,7 +79,7 @@ export function toMcpStructured(dados: unknown): { content: Array<{ type: 'text'
         text: safeStringify(dados)
       }
     ],
-    structuredContent: Array.isArray(dados) ? ({} as Record<string, unknown>) : (dados as Record<string, unknown>)
+    structuredContent: (Array.isArray(dados) ? { data: dados } : (dados as Record<string, unknown>))
   };
 }
 

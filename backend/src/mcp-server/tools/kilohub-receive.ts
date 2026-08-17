@@ -27,18 +27,10 @@ registerTracedTool(mcpServer, 'kilohub_receive_chat_message', {
     return toMcpResult(resultado);
   }
 
-  let mensagens = result.dados.filter(m => m.tipo === 'KILO_CHAT' || m.tipo === 'KILO_REPLY' || m.tipo === 'KILO_RESULT');
-
   const tiposPermitidos = new Set(['KILO_CHAT', 'KILO_REPLY', 'KILO_RESULT', 'KILO_CHAT_REPLY']);
-
+  let mensagens = result.dados.filter(m => tiposPermitidos.has(m.tipo));
   if (messageId) {
-    mensagens = result.dados.filter(m => {
-      const isKilo = tiposPermitidos.has(m.tipo);
-      const isReply = m.dados?.replyTo === messageId || m.dados?.messageId === messageId;
-      return isKilo || isReply;
-    });
-  } else {
-    mensagens = result.dados.filter(m => tiposPermitidos.has(m.tipo));
+    mensagens = mensagens.filter(m => m.dados?.replyTo === messageId || m.dados?.messageId === messageId);
   }
 
   if (agenteId) {

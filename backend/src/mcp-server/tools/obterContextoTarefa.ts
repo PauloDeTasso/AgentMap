@@ -24,6 +24,6 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_tarefa', {
     const resultado = await servicos.tarefa.montarContexto(tarefaId || '');
     auditoria.registrarToolCall('agentmap_obter_contexto_tarefa', projeto, { id: tarefaId }, resultado);
 
-    return toMcpResult(resultado);
+    return toMcpData(resultado.dados);
   }
 );

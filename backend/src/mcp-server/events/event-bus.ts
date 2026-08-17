@@ -1,5 +1,3 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
-
 export interface ResourceChangedEvent {
   uri: string;
   timestamp: number;
@@ -25,7 +23,6 @@ export class EventBus {
   }
 
   publish(event: ResourceChangedEvent): void {
-    console.error('[E2E-DEBUG] EventBus.publish', JSON.stringify(event));
     if (this.coalescenceTimers.has(event.uri)) {
       clearTimeout(this.coalescenceTimers.get(event.uri)!);
     }

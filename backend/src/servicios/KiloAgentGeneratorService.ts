@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { FileService } from '../arquivos/FileService';
-import { AgentePerfil, AgenteRegistro, Tarefa, ResultadoOperacao } from '../tipos';
+import { Tarefa, ResultadoOperacao } from '../tipos';
 
 export interface KiloAgentConfig {
   description: string;
@@ -23,58 +23,6 @@ export interface TaskContext {
 
 export class KiloAgentGeneratorService {
   constructor(private fs: FileService) {}
-
-  gerarAgentes(agentes: (AgentePerfil & { registro: AgenteRegistro })[]): void {
-    const kiloAgentDir = path.join('.kilo', 'agent');
-
-    this.fs.criarDiretorio(kiloAgentDir);
-
-    for (const agente of agentes) {
-      const agentId = agente.registro.id || agente.id;
-      const nome = agente.nome;
-      const funcao = agente.funcao;
-      const estado = agente.estado;
-      const permissoes = agente.permissoes;
-      const diretoriosPermitidos = agente.diretoriosPermitidos || [];
-      const diretoriosProibidos = agente.diretoriosProibidos || [];
-      const contratosObrigatorios = agente.contratosObrigatorios || [];
-      const conhecimentos = agente.conhecimentos || [];
-      const responsabilidades = agente.responsabilidades || [];
-      const condicoesDeParada = agente.condicoesDeParada || [];
-      const requerAprovacaoPara = agente.requerAprovacaoPara || [];
-      const protocolo = agente.protocoloDeEntrega;
-
-      const mode = estado === 'ativo' ? 'primary' : estado === 'disponivel' ? 'subagent' : 'primary';
-      const permission = this.mapearPermissoes(permissoes, diretoriosPermitidos, diretoriosProibidos);
-
-      const systemPrompt = this.gerarSystemPrompt(
-        agentId,
-        nome,
-        funcao,
-        conhecimentos,
-        responsabilidades,
-        diretoriosPermitidos,
-        diretoriosProibidos,
-        contratosObrigatorios,
-        condicoesDeParada,
-        requerAprovacaoPara,
-        protocolo
-      );
-
-      const frontmatter: KiloAgentConfig = {
-        description: `${nome} — ${funcao}`,
-        mode,
-        steps: 25,
-        hidden: false,
-        color: this.corPorFuncao(funcao),
-        permission
-      };
-
-      const md = this.montarMarkdown(frontmatter, systemPrompt);
-      const caminhoRelativo = path.join('.kilo', 'agent', `${agentId}.md`).replace(/\\/g, '/');
-      this.fs.escrever(caminhoRelativo, md);
-    }
-  }
 
   async gerarContextoTarefa(tarefa: Tarefa, agenteId?: string): Promise<ResultadoOperacao<string>> {
     const contexto: TaskContext = {

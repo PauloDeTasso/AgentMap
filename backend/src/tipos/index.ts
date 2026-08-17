@@ -1096,9 +1096,27 @@ export const TIPOS_CONFLITO: TipoConflito[] = ['RECURSO_DUPLICADO', 'DECISAO_INC
 export const TIPOS_ARTEFATO: TipoArtefato[] = ['ARQUIVO', 'CLASSE', 'METODO', 'MODULO', 'CONTRATO', 'MIGRACAO', 'TESTE', 'DOCUMENTACAO', 'CONFIGURACAO', 'SCRIPT', 'DIAGRAMA'];
 export const TIPOS_PENDENCIA: TipoPendencia[] = ['IMPLEMENTACAO', 'VALIDACAO', 'CORRECAO', 'COMPLETUDE'];
 
-export interface DispatchEventoKilo {
-  type: 'step_start' | 'text' | 'step_finish' | 'error' | 'permission' | 'system';
-  timestamp: number;
+export interface KiloDaemonState {
+  running: boolean;
+  stale: boolean;
+  state: {
+    pid: number;
+    hostname: string;
+    port: number;
+    url: string;
+    urls: Record<string, string>;
+    username: string;
+    version: string;
+    startedAt: string;
+    log: string;
+  };
+  health: {
+    healthy: boolean;
+    version: string;
+  };
+  file: string;
+  started: boolean;
+  reused: boolean;
 }
 
 export type EstadoInstancia = 'REGISTRADA' | 'CONECTADA' | 'DESCONECTADA' | 'ERRO';
@@ -1128,29 +1146,6 @@ export interface InstanciasRegistry {
 }
 
 export const ESTADOS_INSTANCIA: EstadoInstancia[] = ['REGISTRADA', 'CONECTADA', 'DESCONECTADA', 'ERRO'];
-
-export interface KiloDaemonState {
-  running: boolean;
-  stale: boolean;
-  state: {
-    pid: number;
-    hostname: string;
-    port: number;
-    url: string;
-    urls: Record<string, string>;
-    username: string;
-    version: string;
-    startedAt: string;
-    log: string;
-  };
-  health: {
-    healthy: boolean;
-    version: string;
-  };
-  file: string;
-  started: boolean;
-  reused: boolean;
-}
 
 export interface DispatchEventoKilo {
   type: 'step_start' | 'text' | 'step_finish' | 'error' | 'permission' | 'system';
