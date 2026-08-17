@@ -17,6 +17,11 @@ export interface GerenciadorSettings {
     banco: string;
     usuario: string;
   };
+  apiKey?: string;
+  rateLimit?: {
+    windowMs: number;
+    max: number;
+  };
   limitesMcp?: Record<string, unknown>;
 }
 

@@ -1,5 +1,5 @@
 {
-  "descobertoEm": "2026-08-17T10:39:52.268Z",
+  "descobertoEm": "2026-08-17T21:28:11.156Z",
   "worktrees": [
     {
       "nome": "backend-api-test",
@@ -25,9 +25,108 @@
       "nome": "test-e2e-stdio",
       "caminho": ".kilo\\worktrees\\test-e2e-stdio",
       "branch": "test-e2e-stdio"
+    },
+    {
+      "nome": "testes-api-rest",
+      "caminho": ".kilo\\worktrees\\testes-api-rest",
+      "branch": "testes-api-rest",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "testes-eventos-e-observabilidade",
+      "caminho": ".kilo\\worktrees\\testes-eventos-e-observabilidade",
+      "branch": "testes-eventos-e-observabilidade",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "testes-frontend-e2e",
+      "caminho": ".kilo\\worktrees\\testes-frontend-e2e",
+      "branch": "testes-frontend-e2e",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "testes-mcp-resources",
+      "caminho": ".kilo\\worktrees\\testes-mcp-resources",
+      "branch": "testes-mcp-resources",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "testes-mcp-tools",
+      "caminho": ".kilo\\worktrees\\testes-mcp-tools",
+      "branch": "testes-mcp-tools",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "testes-seguran-a",
+      "caminho": ".kilo\\worktrees\\testes-seguran-a",
+      "branch": "testes-seguran-a",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "testes-servi-os-dom-nio",
+      "caminho": ".kilo\\worktrees\\testes-servi-os-dom-nio",
+      "branch": "testes-servi-os-dom-nio",
+      "tarefaId": "TAR-2026"
     }
   ],
-  "sessoes": [],
+  "sessoes": [
+    {
+      "id": "ses_fee80f840ffeiogZ0BAxnLcFcw",
+      "nome": "ses_fee80f840ffeiogZ0BAxnLcFcw",
+      "tipo": "local",
+      "worktreeId": "wt-1786999932188-20",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:12.921Z"
+    },
+    {
+      "id": "ses_fee80f0dcffedtlGcFMaC8P4yJ",
+      "nome": "ses_fee80f0dcffedtlGcFMaC8P4yJ",
+      "tipo": "local",
+      "worktreeId": "wt-1786999933533-21",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:14.825Z"
+    },
+    {
+      "id": "ses_fee80e75bffe5TbEiwueTaL4TP",
+      "nome": "ses_fee80e75bffe5TbEiwueTaL4TP",
+      "tipo": "local",
+      "worktreeId": "wt-1786999935394-22",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:17.278Z"
+    },
+    {
+      "id": "ses_fee80db3cffeNVe0FZbkD1VHwK",
+      "nome": "ses_fee80db3cffeNVe0FZbkD1VHwK",
+      "tipo": "local",
+      "worktreeId": "wt-1786999937941-23",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:20.568Z"
+    },
+    {
+      "id": "ses_fee80c8e9ffeU791wQCvTBjamI",
+      "nome": "ses_fee80c8e9ffeU791wQCvTBjamI",
+      "tipo": "local",
+      "worktreeId": "wt-1786999941397-24",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:25.103Z"
+    },
+    {
+      "id": "ses_fee80b897ffeVtcgSQuuLzyWrN",
+      "nome": "ses_fee80b897ffeVtcgSQuuLzyWrN",
+      "tipo": "local",
+      "worktreeId": "wt-1786999945902-25",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:29.236Z"
+    },
+    {
+      "id": "ses_fee80a89cffev6AuaT2l4CkTDe",
+      "nome": "ses_fee80a89cffev6AuaT2l4CkTDe",
+      "tipo": "local",
+      "worktreeId": "wt-1786999950121-26",
+      "estado": "ativo",
+      "criadoEm": "2026-08-17T20:52:33.314Z"
+    }
+  ],
   "agentes": [
     {
       "id": "comunicacao-filho",

@@ -8,7 +8,7 @@ export interface CorsConfig {
 }
 
 const DEFAULT_CORS: CorsConfig = {
-  origins: ['http://localhost:3150'],
+  origins: ['http://localhost:3150', 'http://127.0.0.1:3150'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-api-key'],
   credentials: true
@@ -43,12 +43,15 @@ export class CorsService {
 
   updateConfig(newConfig: Partial<CorsConfig>): void {
     if (newConfig.origins) {
-      newConfig.origins = newConfig.origins.filter((o: string) => {
+      const filtered = newConfig.origins.filter((o: any) => {
         if (typeof o !== 'string') return false;
         if (o === 'http://localhost:3150') return true;
+        if (o === 'http://127.0.0.1:3150') return true;
         if (o.startsWith('https://')) return true;
         return false;
       });
+      const merged = Array.from(new Set([...this.config.origins, ...filtered]));
+      newConfig = { ...newConfig, origins: merged };
     }
     this.config = { ...this.config, ...newConfig };
   }

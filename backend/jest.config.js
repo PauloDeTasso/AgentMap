@@ -7,6 +7,24 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.test.json' }]
   },
+  moduleNameMapper: {
+    '^servicios$': '<rootDir>/src/servicios',
+    '^servicios/(.*)$': '<rootDir>/src/servicios/$1',
+    '^tipos$': '<rootDir>/src/tipos',
+    '^tipos/(.*)$': '<rootDir>/src/tipos/$1',
+    '^arquivos$': '<rootDir>/src/arquivos',
+    '^arquivos/(.*)$': '<rootDir>/src/arquivos/$1',
+    '^validacao$': '<rootDir>/src/validacao',
+    '^validacao/(.*)$': '<rootDir>/src/validacao/$1',
+    '^seguranca$': '<rootDir>/src/seguranca',
+    '^seguranca/(.*)$': '<rootDir>/src/seguranca/$1',
+    '^api$': '<rootDir>/src/api',
+    '^api/(.*)$': '<rootDir>/src/api/$1',
+    '^observability$': '<rootDir>/src/observability',
+    '^observability/(.*)$': '<rootDir>/src/observability/$1',
+    '^websocket$': '<rootDir>/src/websocket',
+    '^websocket/(.*)$': '<rootDir>/src/websocket/$1'
+  },
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
   coverageThreshold: {
     global: {
