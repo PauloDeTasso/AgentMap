@@ -67,6 +67,10 @@ const agentePerfilSchema = z.object({
   })
 }).passthrough();
 
+const agenteObterSchema = agentePerfilSchema.extend({
+  registro: agenteRegistroSchema
+});
+
 registerTracedTool(mcpServer, 'agentmap_agentes_listar', {
   title: 'Listar Agentes',
   description: 'Lista todos os agentes do projeto aberto.',
@@ -89,7 +93,7 @@ registerTracedTool(mcpServer, 'agentmap_agentes_obter', {
   title: 'Obter Agente',
   description: 'Obtém um agente pelo ID, incluindo perfil e registro.',
   inputSchema: z.object({ id: z.string() }),
-  outputSchema: agentePerfilSchema.and(agenteRegistroSchema),
+  outputSchema: agenteObterSchema,
   annotations: {
     readOnlyHint: true
   }

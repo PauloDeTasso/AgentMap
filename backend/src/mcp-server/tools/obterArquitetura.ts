@@ -3,6 +3,7 @@ import { carregarContexto } from '../contexto';
 import { SchemaObterArquitetura } from '../schemas/validacao';
 import { mapearArquitetura } from '../mapper/mapeadores';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
+import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { registerTracedTool } from '../../observability/tool-tracing';
 import * as path from 'path';
 
@@ -19,13 +20,14 @@ registerTracedTool(mcpServer, 'agentmap_obter_arquitetura', {
 
     const { projeto } = ctx.dados;
     const auditoria = createMcpAuditoria(projeto.auditoria);
+    const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
-    const estadoResult = projeto.fileService.lerJson<unknown>(
-      path.win32.join('.ia', 'estado', 'estado-atual.json')
-    );
-    const estadoGitResult = projeto.fileService.lerJson<unknown>(
-      path.win32.join('.ia', 'git', 'estado-git.json')
-    );
+    const estadoPath = path.posix.join('.ia', 'estado', 'estado-atual.json');
+    const estadoGitPath = path.posix.join('.ia', 'git', 'estado-git.json');
+    const estadoValidated = pathValidator.validate(estadoPath);
+    const estadoGitValidated = pathValidator.validate(estadoGitPath);
+    const estadoResult = projeto.fileService.lerJson<unknown>(estadoValidated.caminhoRelativo);
+    const estadoGitResult = projeto.fileService.lerJson<unknown>(estadoGitValidated.caminhoRelativo);
 
     const dados = mapearArquitetura(
       projeto.config as any,

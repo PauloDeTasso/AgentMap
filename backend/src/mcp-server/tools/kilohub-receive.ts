@@ -1,4 +1,5 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService } from '../server';
+import { mcpServer, toMcpResult, projetoService } from '../server';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
@@ -6,16 +7,20 @@ import { KiloIdempotencyService } from '../../servicios/KiloIdempotencyService';
 import * as z from 'zod';
 
 registerTracedTool(mcpServer, 'kilohub_receive_chat_message', {
+  title: 'Receber Mensagem Chat',
   description: 'Busca respostas/mensagens direcionadas a um agente Kilo no monitoramento do AgentMap.',
   inputSchema: z.object({
     agenteId: z.string().optional(),
     tarefaId: z.string().optional(),
     messageId: z.string().optional(),
     limite: z.number().int().positive().max(100).default(20)
-  })
+  }),
+  annotations: {
+    readOnlyHint: true
+  }
 }, async ({ agenteId, tarefaId, messageId, limite = 20 }: { agenteId?: string; tarefaId?: string; messageId?: string; limite?: number }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
@@ -24,7 +29,7 @@ registerTracedTool(mcpServer, 'kilohub_receive_chat_message', {
   if (!result.sucesso || !result.dados) {
     const resultado = { sucesso: false, erro: 'Erro ao ler mensagens', codigoErro: 'MESSAGES_READ_ERROR' };
     auditoria.registrarToolCall('kilohub_receive_chat_message', projeto, { agenteId, tarefaId, messageId, limite }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const tiposPermitidos = new Set(['KILO_CHAT', 'KILO_REPLY', 'KILO_RESULT', 'KILO_CHAT_REPLY']);
@@ -59,5 +64,5 @@ registerTracedTool(mcpServer, 'kilohub_receive_chat_message', {
   console.log(`[KILO][CHAT_LIST] agenteId=${agenteId || '*'} total=${dados.total}`);
   auditoria.registrar('KILO_MENSAGENS_LIDAS', `${mensagens.length} mensagens Kilo lidas`, { agenteId, tarefaId, total: mensagens.length });
   auditoria.registrarToolCall('kilohub_receive_chat_message', projeto, { agenteId, tarefaId, messageId, limite }, { sucesso: true, dados });
-  return toMcpData(dados);
+  return toMcpStructured(dados);
 });

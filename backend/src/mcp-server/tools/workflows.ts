@@ -1,5 +1,5 @@
 import { mcpServer } from '../server';
-import { toMcpStructured, mcpError, toMcpResult } from '../utils/helpers';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
@@ -54,7 +54,13 @@ registerWorkflowTool(mcpServer, 'agentmap_workflows_iniciar_trabalho', {
 registerWorkflowTool(mcpServer, 'agentmap_workflows_finalizar_trabalho', {
   title: 'Finalizar Trabalho',
   description: 'Finaliza trabalho: registra resultado, artefatos, handoff, validacao e libera reservas.',
-  inputSchema: z.object({}).passthrough(),
+  inputSchema: z.object({
+    sessaoId: z.string().optional(),
+    tarefaId: z.string(),
+    agenteId: z.string(),
+    resumo: z.string().optional(),
+    estado: z.string().optional()
+  }).passthrough(),
   outputSchema: z.object({
     resultado: z.unknown(),
     handoff: z.unknown()
@@ -127,7 +133,7 @@ registerTracedTool(mcpServer, 'agentmap_workflows_consultar_pendencias', {
   };
   auditoria.registrarToolCall('agentmap_workflows_consultar_pendencias', projeto, { agenteId }, resultado);
   return toMcpStructured(resultado.dados);
-});
+}, { extractAgentId: (input: { agenteId?: string }) => input.agenteId });
 
 registerTracedTool(mcpServer, 'agentmap_workflows_obter_mapa_projeto', {
   title: 'Mapa do Projeto',
@@ -163,7 +169,7 @@ registerTracedTool(mcpServer, 'agentmap_workflows_obter_mapa_projeto', {
     } catch (e: any) {
       const result = { sucesso: false, erro: e.message || 'Erro ao carregar mapa do projeto', codigoErro: 'MAP_LOAD_ERROR' };
       auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
     const resultado = {
       sucesso: true,
@@ -179,4 +185,4 @@ registerTracedTool(mcpServer, 'agentmap_workflows_obter_mapa_projeto', {
     };
     auditoria.registrarToolCall('agentmap_workflows_obter_mapa_projeto', projeto, {}, resultado);
     return toMcpStructured(resultado.dados);
-  });
+  }, { extractAgentId: () => undefined });

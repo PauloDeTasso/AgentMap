@@ -23,6 +23,7 @@ const handoffSchema = z.object({
   estado: z.string(),
   datas: z.object({
     criadaEm: z.string().nullable(),
+    criacao: z.string().nullable(),
     aceitaEm: z.string().nullable(),
     concluidaEm: z.string().nullable()
   })

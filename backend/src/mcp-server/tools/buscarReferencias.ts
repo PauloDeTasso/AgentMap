@@ -53,6 +53,7 @@ registerTracedTool(mcpServer, 'agentmap_buscar_referencias', {
         resultados: hits,
       };
 
+      auditoria.registrarToolCall('agentmap_buscar_referencias', projeto, { simbolo, diretorio, limite }, { sucesso: true, dados });
       return toMcpData(dados);
     } catch (e: any) {
       const result = { sucesso: false, erro: e.message || 'Diretório inválido', codigoErro: 'PATH_TRAVERSAL' };

@@ -56,17 +56,26 @@ const eventoHistoricoSchema = z.object({
 registerTracedTool(mcpServer, 'agentmap_solicitacoes_listar', {
   title: 'Listar Solicitacoes',
   description: 'Lista todas as solicitações de alteracao do projeto.',
-  inputSchema: z.object({}),
+  inputSchema: z.object({ filtros: z.object({ status: z.string().optional(), prioridade: z.string().optional() }).optional() }),
   annotations: {
     readOnlyHint: true
   }
-}, async () => {
+}, async ({ filtros }: { filtros?: { status?: string; prioridade?: string } }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = ctx.dados!.servicos.solicitacao.listar();
-  auditoria.registrarToolCall('agentmap_solicitacoes_listar', projeto, {}, resultado);
+  if (resultado.sucesso && resultado.dados && (filtros?.status || filtros?.prioridade)) {
+    const status = filtros?.status ? String(filtros.status) : undefined;
+    const prioridade = filtros?.prioridade ? String(filtros.prioridade) : undefined;
+    resultado.dados = resultado.dados.filter((s: any) => {
+      if (status && s.status !== status) return false;
+      if (prioridade && s.prioridade !== prioridade) return false;
+      return true;
+    });
+  }
+  auditoria.registrarToolCall('agentmap_solicitacoes_listar', projeto, { filtros }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
@@ -196,6 +205,7 @@ registerTracedTool(mcpServer, 'agentmap_solicitacoes_historico', {
   title: 'Historico da Solicitacao',
   description: 'Lista o historico de eventos de uma solicitacao.',
   inputSchema: z.object({ id: z.string() }),
+  outputSchema: z.array(eventoHistoricoSchema),
   annotations: {
     readOnlyHint: true
   }

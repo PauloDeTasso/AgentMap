@@ -1,4 +1,5 @@
 import { mcpServer, toMcpResult, toMcpData, projetoService } from '../server';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
@@ -6,16 +7,20 @@ import { KiloIdempotencyService } from '../../servicios/KiloIdempotencyService';
 import * as z from 'zod';
 
 registerTracedTool(mcpServer, 'kilohub_report_status', {
+  title: 'Reportar Status',
   description: 'Reporta o status de uma sessão Kilo de volta ao AgentMap.',
   inputSchema: z.object({
     messageId: z.string(),
     sessionId: z.string(),
     status: z.enum(['ativo', 'pausado', 'finalizado', 'erro']),
     message: z.string().optional()
-  })
+  }),
+  annotations: {
+    readOnlyHint: false
+  }
 }, async ({ messageId, sessionId, status, message }: { messageId: string; sessionId: string; status: string; message?: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
@@ -24,14 +29,14 @@ registerTracedTool(mcpServer, 'kilohub_report_status', {
   if (jaProcessado) {
     const resultado = { sucesso: false, erro: `Mensagem duplicada: ${messageId}`, codigoErro: 'DUPLICATE_MESSAGE' };
     auditoria.registrarToolCall('kilohub_report_status', projeto, { messageId, sessionId, status, message }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const kiloStateResult = await ctx.dados!.servicos.kiloDiscovery.obterEstadoKilo();
   if (!kiloStateResult.sucesso || !kiloStateResult.dados) {
     const resultado = { sucesso: false, erro: kiloStateResult.erro || 'Erro ao obter estado Kilo', codigoErro: 'KILO_DISCOVERY_FAILED' };
     auditoria.registrarToolCall('kilohub_report_status', projeto, { messageId, sessionId, status, message }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const sessaoEncontrada = kiloStateResult.dados.sessoes.find(s => s.id === sessionId);
@@ -42,28 +47,29 @@ registerTracedTool(mcpServer, 'kilohub_report_status', {
       codigoErro: 'UNKNOWN_SESSION'
     };
     auditoria.registrarToolCall('kilohub_report_status', projeto, { messageId, sessionId, status, message }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const monitoramento = projeto.fileService;
   const statusPath = `.ia/contexto/status/${sessaoEncontrada.agenteId || sessionId}.json`;
   const existingResult = monitoramento.lerJson<Record<string, unknown>>(statusPath);
-  const statusData: Record<string, unknown> = existingResult.sucesso && existingResult.dados
+  const baseStatusData: Record<string, unknown> = existingResult.sucesso && existingResult.dados
     ? existingResult.dados
     : { id: sessaoEncontrada.agenteId || sessionId, nome: sessaoEncontrada.agenteId || sessionId, ultimaAtividade: new Date().toISOString(), ultimoHeartbeat: new Date().toISOString() };
 
-  Object.assign(statusData, {
+  const statusData: Record<string, unknown> = {
+    ...baseStatusData,
     status: status === 'ativo' ? 'ATIVO' : status === 'pausado' ? 'AGUARDANDO' : status === 'finalizado' ? 'DISPONIVEL' : 'ERRO',
     sessionId,
     ultimaAtividade: new Date().toISOString(),
     ultimoHeartbeat: new Date().toISOString()
-  });
+  };
 
   const writeResult = monitoramento.escreverJson(statusPath, statusData);
   if (!writeResult.sucesso) {
     const resultado = { sucesso: false, erro: writeResult.erro, codigoErro: writeResult.codigoErro };
     auditoria.registrarToolCall('kilohub_report_status', projeto, { messageId, sessionId, status, message }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   await idempotency.marcarProcessado(messageId, 'kilohub_report_status', sessionId);
@@ -84,20 +90,24 @@ registerTracedTool(mcpServer, 'kilohub_report_status', {
     agenteId: sessaoEncontrada.agenteId
   });
   auditoria.registrarToolCall('kilohub_report_status', projeto, { messageId, sessionId, status, message }, { sucesso: true, dados });
-  return toMcpData(dados);
+  return toMcpStructured(dados);
 });
 
 registerTracedTool(mcpServer, 'kilohub_report_progress', {
+  title: 'Reportar Progresso',
   description: 'Reporta o progresso de uma tarefa a partir de uma sessão Kilo.',
   inputSchema: z.object({
     messageId: z.string(),
     tarefaId: z.string(),
     progress: z.number().min(0).max(100),
     message: z.string().optional()
-  })
+  }),
+  annotations: {
+    readOnlyHint: false
+  }
 }, async ({ messageId, tarefaId, progress, message }: { messageId: string; tarefaId: string; progress: number; message?: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
@@ -106,14 +116,14 @@ registerTracedTool(mcpServer, 'kilohub_report_progress', {
   if (jaProcessado) {
     const resultado = { sucesso: false, erro: `Mensagem duplicada: ${messageId}`, codigoErro: 'DUPLICATE_MESSAGE' };
     auditoria.registrarToolCall('kilohub_report_progress', projeto, { messageId, tarefaId, progress, message }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const tarefaResult = ctx.dados!.servicos.tarefa.obter(tarefaId);
   if (!tarefaResult.sucesso || !tarefaResult.dados) {
     const resultado = { sucesso: false, erro: 'Tarefa não encontrada', codigoErro: 'TASK_NOT_FOUND' };
     auditoria.registrarToolCall('kilohub_report_progress', projeto, { messageId, tarefaId, progress, message }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   await idempotency.marcarProcessado(messageId, 'kilohub_report_progress', tarefaId);
@@ -134,10 +144,11 @@ registerTracedTool(mcpServer, 'kilohub_report_progress', {
     estado: tarefaResult.dados.estado
   });
   auditoria.registrarToolCall('kilohub_report_progress', projeto, { messageId, tarefaId, progress, message }, { sucesso: true, dados });
-  return toMcpData(dados);
+  return toMcpStructured(dados);
 });
 
 registerTracedTool(mcpServer, 'kilohub_report_result', {
+  title: 'Reportar Resultado',
   description: 'Reporta o resultado final de uma tarefa executada por um agente Kilo.',
   inputSchema: z.object({
     messageId: z.string(),
@@ -152,10 +163,13 @@ registerTracedTool(mcpServer, 'kilohub_report_result', {
       observacoes: z.string().optional(),
       commit: z.string().optional()
     })
-  })
+  }),
+  annotations: {
+    readOnlyHint: false
+  }
 }, async ({ messageId, tarefaId, resultado }: { messageId: string; tarefaId: string; resultado: Record<string, unknown> }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
@@ -164,14 +178,14 @@ registerTracedTool(mcpServer, 'kilohub_report_result', {
   if (jaProcessado) {
     const resultadoOp = { sucesso: false, erro: `Mensagem duplicada: ${messageId}`, codigoErro: 'DUPLICATE_MESSAGE' };
     auditoria.registrarToolCall('kilohub_report_result', projeto, { messageId, tarefaId, resultado }, resultadoOp);
-    return toMcpResult(resultadoOp);
+    return mcpError(resultadoOp);
   }
 
   const tarefaResult = ctx.dados!.servicos.tarefa.obter(tarefaId);
   if (!tarefaResult.sucesso || !tarefaResult.dados) {
     const resultadoOp = { sucesso: false, erro: 'Tarefa não encontrada', codigoErro: 'TASK_NOT_FOUND' };
     auditoria.registrarToolCall('kilohub_report_result', projeto, { messageId, tarefaId, resultado }, resultadoOp);
-    return toMcpResult(resultadoOp);
+    return mcpError(resultadoOp);
   }
 
   const tarefa = tarefaResult.dados;
@@ -201,7 +215,7 @@ registerTracedTool(mcpServer, 'kilohub_report_result', {
   if (!atualizarResult.sucesso) {
     const resultadoOp = { sucesso: false, erro: atualizarResult.erro, codigoErro: atualizarResult.codigoErro };
     auditoria.registrarToolCall('kilohub_report_result', projeto, { messageId, tarefaId, resultado }, resultadoOp);
-    return toMcpResult(resultadoOp);
+    return mcpError(resultadoOp);
   }
 
   ctx.dados!.servicos.orquestrador.handoffAutomatico(tarefaId, tarefa.agenteResponsavel).catch((err) => {
@@ -209,6 +223,8 @@ registerTracedTool(mcpServer, 'kilohub_report_result', {
   });
 
   await idempotency.marcarProcessado(messageId, 'kilohub_report_result', tarefaId);
+
+  const estadoAtual = atualizarResult.dados?.estado ?? null;
 
   const dados = {
     messageId,
@@ -223,14 +239,14 @@ registerTracedTool(mcpServer, 'kilohub_report_result', {
       observacoes,
       commit
     },
-    estadoAtual: atualizarResult.dados!.estado
+    estadoAtual
   };
 
   auditoria.registrar('KILO_RESULTADO_REPORTADO', `Resultado reportado para tarefa ${tarefaId}: ${resumo}`, {
     messageId,
     tarefaId,
-    estado: atualizarResult.dados!.estado
+    estado: estadoAtual
   });
   auditoria.registrarToolCall('kilohub_report_result', projeto, { messageId, tarefaId, resultado }, { sucesso: true, dados });
-  return toMcpData(dados);
+  return toMcpStructured(dados);
 });

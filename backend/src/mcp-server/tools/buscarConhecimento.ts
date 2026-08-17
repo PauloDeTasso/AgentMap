@@ -88,15 +88,17 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
         for (const entry of agentesDirResult.dados) {
           if (entry.tipo === 'diretorio') {
             const conhecimentoDir = path.posix.join('.ia', 'agentes', entry.nome, 'conhecimento');
-            if (projeto.fileService.existe(conhecimentoDir)) {
-              const listResult = projeto.fileService.listar(conhecimentoDir);
+            const conhecimentoDirValidated = pathValidator.validate(conhecimentoDir);
+            if (projeto.fileService.existe(conhecimentoDirValidated.caminhoRelativo)) {
+              const listResult = projeto.fileService.listar(conhecimentoDirValidated.caminhoRelativo);
               if (listResult.sucesso && listResult.dados) {
                 for (const ckEntry of listResult.dados) {
                   if (ckEntry.tipo === 'arquivo') {
                     const relPath = path.posix.join(conhecimentoDir, ckEntry.nome);
-                    const readResult = projeto.fileService.ler(relPath);
+                    const relValidated = pathValidator.validate(relPath);
+                    const readResult = projeto.fileService.ler(relValidated.caminhoRelativo);
                     if (readResult.sucesso && readResult.dados) {
-                      processarTexto(readResult.dados, relPath, 'conhecimento-agente', `${entry.nome} - ${ckEntry.nome}`);
+                      processarTexto(readResult.dados, relValidated.caminhoRelativo, 'conhecimento-agente', `${entry.nome} - ${ckEntry.nome}`);
                     }
                   }
                 }
@@ -144,16 +146,18 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
         }
       }
 
-      const docsDir = path.win32.join('docs');
-      if (projeto.fileService.existe(docsDir)) {
-        const listResult = projeto.fileService.listar(docsDir);
+      const docsDir = path.posix.join('docs');
+      const docsValidated = pathValidator.validate(docsDir);
+      if (projeto.fileService.existe(docsValidated.caminhoRelativo)) {
+        const listResult = projeto.fileService.listar(docsValidated.caminhoRelativo);
         if (listResult.sucesso && listResult.dados) {
           for (const entry of listResult.dados) {
             if (entry.tipo === 'arquivo' && (entry.extensao === 'md' || entry.extensao === 'txt')) {
               const relPath = path.posix.join(docsDir, entry.nome);
-              const readResult = projeto.fileService.ler(relPath);
+              const relValidated = pathValidator.validate(relPath);
+              const readResult = projeto.fileService.ler(relValidated.caminhoRelativo);
               if (readResult.sucesso && readResult.dados) {
-                processarTexto(readResult.dados, relPath, 'documentacao', entry.nome);
+                processarTexto(readResult.dados, relValidated.caminhoRelativo, 'documentacao', entry.nome);
               }
             }
           }
@@ -162,16 +166,18 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
 
       if (incluirProjetos) {
         for (const dirName of ['frontend', 'backend']) {
-          const dirPath = path.win32.join(dirName);
-          if (projeto.fileService.existe(dirPath)) {
-            const listResult = projeto.fileService.listar(dirPath);
+          const dirPath = path.posix.join(dirName);
+          const dirValidated = pathValidator.validate(dirPath);
+          if (projeto.fileService.existe(dirValidated.caminhoRelativo)) {
+            const listResult = projeto.fileService.listar(dirValidated.caminhoRelativo);
             if (listResult.sucesso && listResult.dados) {
               for (const entry of listResult.dados) {
                 if (entry.tipo === 'arquivo' && entry.extensao === 'md') {
                   const relPath = path.posix.join(dirPath, entry.nome);
-                  const readResult = projeto.fileService.ler(relPath);
+                  const relValidated = pathValidator.validate(relPath);
+                  const readResult = projeto.fileService.ler(relValidated.caminhoRelativo);
                   if (readResult.sucesso && readResult.dados) {
-                    processarTexto(readResult.dados, relPath, 'projeto-md', entry.nome);
+                    processarTexto(readResult.dados, relValidated.caminhoRelativo, 'projeto-md', entry.nome);
                   }
                 }
               }
