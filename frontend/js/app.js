@@ -353,6 +353,7 @@ async function renderizarTelaInicial() {
   html += `<div class="card__actions" style="margin-top:16px;">
       <button class="btn btn--primario" id="btn-criar-projeto-inicial" style="width:100%;">Criar Novo Projeto</button>
       <button class="btn" id="btn-abrir-projeto-inicial" style="width:100%;">Abrir Projeto Manualmente</button>
+      <button class="btn btn--info" id="btn-listar-projetos-inicial" style="width:100%;">Ver Projetos Existentes</button>
       <button class="btn btn--ghost" id="btn-configuracoes-inicial" style="width:100%;">Configuracoes</button>
     </div></div>`;
 
@@ -361,6 +362,50 @@ async function renderizarTelaInicial() {
   document.getElementById('btn-criar-projeto-inicial')?.addEventListener('click', () => showModal('modal-novo-projeto'));
   document.getElementById('btn-abrir-projeto-inicial')?.addEventListener('click', () => showModal('modal-abrir-projeto'));
   document.getElementById('btn-configuracoes-inicial')?.addEventListener('click', () => abrirModalConfiguracao());
+  document.getElementById('btn-listar-projetos-inicial')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-listar-projetos-inicial');
+    if (btn) { btn.disabled = true; btn.textContent = 'Carregando...'; }
+    await mostrarListaProjetosExistentes();
+    if (btn) { btn.disabled = false; btn.textContent = 'Ver Projetos Existentes'; }
+  });
+}
+
+async function mostrarListaProjetosExistentes() {
+  const main = $('main-content');
+  if (!main) return;
+  const dir = estado.settings?.diretorioProjetosDefault || '';
+  main.innerHTML = `<div class="card"><h2 class="card__titulo">Projetos Existentes</h2><p class="card__texto">Projetos encontrados em ${escapeHtml(dir || 'diretório não configurado')}</p><div id="lista-projetos-existentes"><p style="color:var(--text-muted);">Carregando...</p></div><div class="card__actions" style="margin-top:16px;"><button class="btn btn--ghost" id="btn-voltar-inicial" style="width:100%;">Voltar</button></div></div>`;
+  document.getElementById('btn-voltar-inicial')?.addEventListener('click', () => { if (estado.projetoAtual) { renderizarDashboard(); } else { renderizarTelaInicial(); } });
+
+  let projetos = [];
+  try {
+    const res = await api.listarProjetos();
+    if (res.sucesso && Array.isArray(res.dados)) {
+      projetos = res.dados;
+    }
+  } catch (e) {
+    console.error('Erro ao listar projetos:', e);
+  }
+
+  const container = document.getElementById('lista-projetos-existentes');
+  if (!container) return;
+  if (projetos.length === 0) {
+    container.innerHTML = '<p class="painel-vazio">Nenhum projeto cadastrado.</p>';
+    return;
+  }
+  let html = '<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">';
+  for (const p of projetos) {
+    const caminho = p.caminhoRaiz || p.caminho || '';
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);">
+      <div><strong>${escapeHtml(p.nome || '')}</strong><br><small style="color:var(--text-muted);">${escapeHtml(caminho)}</small></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn--small btn--primario" onclick="abrirProjeto('${escapeAttr(p.id)}')">Abrir</button>
+        <button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 function abrirModalConfiguracao() {
