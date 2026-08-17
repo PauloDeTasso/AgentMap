@@ -86,6 +86,18 @@ export class ProjetoService {
     }
     console.log('[ProjetoService.criarProjeto] Scaffold OK');
 
+    const iaRoot = path.win32.join(caminhoRaiz, '.ia');
+    [path.win32.join('.ia', 'contratos'), path.win32.join('.ia', 'tarefas'), path.win32.join('.ia', 'dependencias')].forEach((dir) => {
+      const fullPath = path.win32.join(caminhoRaiz, dir);
+      if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+      }
+    });
+    const fluxoMdPath = path.win32.join(iaRoot, 'fluxo-trabalho.md');
+    if (!fs.existsSync(fluxoMdPath)) {
+      fs.writeFileSync(fluxoMdPath, `# Fluxo de Trabalho Sincronizado — ${nome}\n\nEste documento define como o trabalho deve ser organizado para respeitar dependências entre agentes.\n`, 'utf-8');
+    }
+
     const objetivos = Array.isArray(dadosExtra?.objetivos) ? dadosExtra.objetivos : [];
     const escopoIncluso = Array.isArray(dadosExtra?.escopoIncluso) ? dadosExtra.escopoIncluso : [];
     const escopoExcluido = Array.isArray(dadosExtra?.escopoExcluido) ? dadosExtra.escopoExcluido : [];

@@ -30,6 +30,10 @@ export class FluxoService {
     const pendentes = this.obterPendentes(checklist);
     const estado = pendentes.length === 0 ? 'OK' : 'PENDENTE';
 
+    if (!checklist.fluxoTrabalhoExiste) {
+      this.auditoria.registrar('CHECKLIST_FLUXO_WARNING', 'Arquivo .ia/fluxo-trabalho.md não encontrado — não bloqueia abertura do projeto', { checklist });
+    }
+
     this.auditoria.registrar('CHECKLIST_FLUXO_VERIFICADO', `Checklist de fluxo verificado: ${estado}`, { checklist, pendentes });
 
     return { sucesso: pendentes.length === 0, dados: checklist };
@@ -37,7 +41,6 @@ export class FluxoService {
 
   obterPendentes(checklist: ChecklistFluxo): string[] {
     const pendentes: string[] = [];
-    if (!checklist.fluxoTrabalhoExiste) pendentes.push('Arquivo .ia/fluxo-trabalho.md não encontrado');
     if (!checklist.pastaContratosExiste) pendentes.push('Pasta .ia/contratos não encontrada');
     if (!checklist.pastaTarefasExiste) pendentes.push('Pasta .ia/tarefas não encontrada');
     if (!checklist.pastaDependenciasExiste) pendentes.push('Pasta .ia/dependencias não encontrada');
