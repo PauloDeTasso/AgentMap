@@ -1,10 +1,46 @@
 {
-  "descobertoEm": "2026-08-17T21:28:11.156Z",
+  "descobertoEm": "2026-08-18T22:57:34.108Z",
   "worktrees": [
     {
       "nome": "backend-api-test",
       "caminho": ".kilo\\worktrees\\backend-api-test",
       "branch": "backend-api-test"
+    },
+    {
+      "nome": "docs-api-wakeup-update",
+      "caminho": ".kilo\\worktrees\\docs-api-wakeup-update",
+      "branch": "docs-api-wakeup-update",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "docs-arq-wakeup-update",
+      "caminho": ".kilo\\worktrees\\docs-arq-wakeup-update",
+      "branch": "docs-arq-wakeup-update",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "docs-comm-wakeup-update",
+      "caminho": ".kilo\\worktrees\\docs-comm-wakeup-update",
+      "branch": "docs-comm-wakeup-update",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "docs-guia-wakeup-update",
+      "caminho": ".kilo\\worktrees\\docs-guia-wakeup-update",
+      "branch": "docs-guia-wakeup-update",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "docs-proc-wakeup-update",
+      "caminho": ".kilo\\worktrees\\docs-proc-wakeup-update",
+      "branch": "docs-proc-wakeup-update",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "docs-root-wakeup-update",
+      "caminho": ".kilo\\worktrees\\docs-root-wakeup-update",
+      "branch": "docs-root-wakeup-update",
+      "tarefaId": "TAR-2026"
     },
     {
       "nome": "frontend-nav-test",
@@ -25,106 +61,63 @@
       "nome": "test-e2e-stdio",
       "caminho": ".kilo\\worktrees\\test-e2e-stdio",
       "branch": "test-e2e-stdio"
-    },
-    {
-      "nome": "testes-api-rest",
-      "caminho": ".kilo\\worktrees\\testes-api-rest",
-      "branch": "testes-api-rest",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "testes-eventos-e-observabilidade",
-      "caminho": ".kilo\\worktrees\\testes-eventos-e-observabilidade",
-      "branch": "testes-eventos-e-observabilidade",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "testes-frontend-e2e",
-      "caminho": ".kilo\\worktrees\\testes-frontend-e2e",
-      "branch": "testes-frontend-e2e",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "testes-mcp-resources",
-      "caminho": ".kilo\\worktrees\\testes-mcp-resources",
-      "branch": "testes-mcp-resources",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "testes-mcp-tools",
-      "caminho": ".kilo\\worktrees\\testes-mcp-tools",
-      "branch": "testes-mcp-tools",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "testes-seguran-a",
-      "caminho": ".kilo\\worktrees\\testes-seguran-a",
-      "branch": "testes-seguran-a",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "testes-servi-os-dom-nio",
-      "caminho": ".kilo\\worktrees\\testes-servi-os-dom-nio",
-      "branch": "testes-servi-os-dom-nio",
-      "tarefaId": "TAR-2026"
     }
   ],
   "sessoes": [
     {
-      "id": "ses_fee80f840ffeiogZ0BAxnLcFcw",
-      "nome": "ses_fee80f840ffeiogZ0BAxnLcFcw",
+      "id": "ses_fe9c32080ffeE5qcAm4gV1pD1Y",
+      "nome": "ses_fe9c32080ffeE5qcAm4gV1pD1Y",
       "tipo": "local",
-      "worktreeId": "wt-1786999932188-20",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:12.921Z"
+      "criadoEm": "2026-08-18T18:58:03.284Z"
     },
     {
-      "id": "ses_fee80f0dcffedtlGcFMaC8P4yJ",
-      "nome": "ses_fee80f0dcffedtlGcFMaC8P4yJ",
+      "id": "ses_fe8edf24fffe2XogSZbtgo538A",
+      "nome": "ses_fe8edf24fffe2XogSZbtgo538A",
       "tipo": "local",
-      "worktreeId": "wt-1786999933533-21",
+      "worktreeId": "wt-1787093437230-4",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:14.825Z"
+      "criadoEm": "2026-08-18T22:50:54.318Z"
     },
     {
-      "id": "ses_fee80e75bffe5TbEiwueTaL4TP",
-      "nome": "ses_fee80e75bffe5TbEiwueTaL4TP",
+      "id": "ses_fe8edf112ffegaVg8rmnCmNic5",
+      "nome": "ses_fe8edf112ffegaVg8rmnCmNic5",
       "tipo": "local",
-      "worktreeId": "wt-1786999935394-22",
+      "worktreeId": "wt-1787093442061-5",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:17.278Z"
+      "criadoEm": "2026-08-18T22:50:54.649Z"
     },
     {
-      "id": "ses_fee80db3cffeNVe0FZbkD1VHwK",
-      "nome": "ses_fee80db3cffeNVe0FZbkD1VHwK",
+      "id": "ses_fe8eda012ffe1Lv6Kxd3Ba9LyM",
+      "nome": "ses_fe8eda012ffe1Lv6Kxd3Ba9LyM",
       "tipo": "local",
-      "worktreeId": "wt-1786999937941-23",
+      "worktreeId": "wt-1787093449185-6",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:20.568Z"
+      "criadoEm": "2026-08-18T22:51:15.436Z"
     },
     {
-      "id": "ses_fee80c8e9ffeU791wQCvTBjamI",
-      "nome": "ses_fee80c8e9ffeU791wQCvTBjamI",
+      "id": "ses_fe8ed772effe5m6sgvIVNZoQWI",
+      "nome": "ses_fe8ed772effe5m6sgvIVNZoQWI",
       "tipo": "local",
-      "worktreeId": "wt-1786999941397-24",
+      "worktreeId": "wt-1787093456953-7",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:25.103Z"
+      "criadoEm": "2026-08-18T22:51:25.895Z"
     },
     {
-      "id": "ses_fee80b897ffeVtcgSQuuLzyWrN",
-      "nome": "ses_fee80b897ffeVtcgSQuuLzyWrN",
+      "id": "ses_fe8ed69a7ffetePSZ5NmCwiYdo",
+      "nome": "ses_fe8ed69a7ffetePSZ5NmCwiYdo",
       "tipo": "local",
-      "worktreeId": "wt-1786999945902-25",
+      "worktreeId": "wt-1787093462649-8",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:29.236Z"
+      "criadoEm": "2026-08-18T22:51:29.304Z"
     },
     {
-      "id": "ses_fee80a89cffev6AuaT2l4CkTDe",
-      "nome": "ses_fee80a89cffev6AuaT2l4CkTDe",
+      "id": "ses_fe8ed48d5ffesrLHP9lw475n4Q",
+      "nome": "ses_fe8ed48d5ffesrLHP9lw475n4Q",
       "tipo": "local",
-      "worktreeId": "wt-1786999950121-26",
+      "worktreeId": "wt-1787093469509-9",
       "estado": "ativo",
-      "criadoEm": "2026-08-17T20:52:33.314Z"
+      "criadoEm": "2026-08-18T22:51:37.705Z"
     }
   ],
   "agentes": [

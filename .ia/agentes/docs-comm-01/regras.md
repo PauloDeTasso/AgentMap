@@ -1,0 +1,3 @@
+# Regras
+
+Substitua este conteúdo.

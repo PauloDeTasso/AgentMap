@@ -1,0 +1,34 @@
+{
+  "ambientesPermitidos": [
+    "local"
+  ],
+  "contratosObrigatorios": [],
+  "descricao": "Agente responsavel por atualizar docs/guia-agente-mcp.md e resources/guia-eficacia.md com fluxos de comunicacao e wake-up",
+  "diretoriosPermitidos": [
+    "docs/",
+    "backend/src/mcp-server/resources/"
+  ],
+  "diretoriosProibidos": [
+    ".ia/contexto/",
+    ".env"
+  ],
+  "estado": "ativo",
+  "funcao": "atualizacao_docs",
+  "id": "docs-guia-01",
+  "nome": "Doc Guia",
+  "permissoes": {
+    "alterar": true,
+    "aprovar": false,
+    "criar": true,
+    "excluir": false,
+    "executar": false,
+    "implantar": false,
+    "ler": true,
+    "revisar": false,
+    "testar": false
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:47:25.078Z",
+    "ultimaAtualizacao": "2026-08-18T22:47:25.078Z"
+  }
+}

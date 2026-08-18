@@ -1,0 +1,57 @@
+{
+  "id": "TAR-2026-00005",
+  "titulo": "Atualizar docs comunicacao e protocolo com teste bidirecional",
+  "descricao": "Documentar teste bidirecional real e plugin wake-up oficial",
+  "objetivo": "Atualizar docs/comunicacao-agentmap-kilo.md e documentos/protocolo-agentes.md: incluir o teste bidirecional realizado (pergunta sobre frontend/backend), documentar o plugin .kilo/plugin/agentmap-wakeup.ts como solucao oficial de wake-up (substituindo Gate -1/0), e registrar o flow completo: session.idle -> polling AgentMap -> promptAsync. Adicionar seccao de testes realizados.",
+  "tipo": "documentacao",
+  "estado": "EM_EXECUCAO",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "docs-comm-01",
+  "dominio": "documentacao",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "comunicacao-agentmap-kilo.md documenta o teste real realizado",
+    "protocolo-agentes.md inclui referencia ao plugin wake-up"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
+  "tags": [
+    "wake-up",
+    "comunicacao",
+    "docs"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:48:34.899Z",
+    "criadoEm": "2026-08-18T22:48:34.899Z",
+    "inicio": "2026-08-18T22:49:22.441Z",
+    "ultimaAtualizacao": "2026-08-18T22:49:22.441Z",
+    "atualizadaEm": "2026-08-18T22:48:34.899Z",
+    "conclusao": null
+  }
+}

@@ -14,7 +14,9 @@
       "dependencias": [],
       "contratosObrigatorios": [],
       "procedimentosObrigatorios": [],
-      "arquivosPermitidos": ["backend/**"],
+      "arquivosPermitidos": [
+        "backend/**"
+      ],
       "arquivosProibidos": [],
       "contextoNecessario": [],
       "criteriosAceitacao": [
@@ -50,13 +52,354 @@
         "atualizadaEm": "2026-08-16T21:37:00.000Z",
         "conclusao": null
       }
+    },
+    {
+      "id": "TAR-2026-00002",
+      "titulo": "Atualizar docs arquitetura e navegacao com wake-up",
+      "descricao": "Documentar plugin wake-up, MCP subscriptions + wake-up, flow session.idle",
+      "objetivo": "Atualizar docs/arquitetura-mcp.md e docs/apresentacao-navegacao.md documentando o plugin agentmap-wakeup.ts (.kilo/plugin/agentmap-wakeup.ts), o flow de wake-up via session.idle -> polling AgentMap -> promptAsync, e a comunicacao bidirecional entre Agent Manager worktree e AgentMap via HTTP. Adicionar diagrama do flow de wake-up e referencias ao RELATORIO-FINAL-AGENTMAP.md.",
+      "tipo": "documentacao",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "docs-arq-01",
+      "dominio": "documentacao",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "docs/arquitetura-mcp.md atualizado com seccao wake-up plugin",
+        "docs/apresentacao-navegacao.md atualizado com flow de comunicacao",
+        "referencias cruzadas corretas"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [
+        "wake-up",
+        "arquitetura",
+        "docs"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-18T22:48:19.254Z",
+        "criadoEm": "2026-08-18T22:48:19.254Z",
+        "inicio": "2026-08-18T22:49:19.815Z",
+        "ultimaAtualizacao": "2026-08-18T23:07:31.969Z",
+        "atualizadaEm": "2026-08-18T22:48:19.254Z",
+        "conclusao": "2026-08-18T23:07:31.969Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00003",
+      "titulo": "Atualizar API reference e tools MCP com monitoramento wake-up",
+      "descricao": "Documentar endpoints de monitoramento Kilo + polling eventSequence",
+      "objetivo": "Atualizar docs/api-reference.md e docs/referencia-tools-mcp.md: incluir endpoints GET /api/monitoramento/kilo/receive-chat, GET /api/monitoramento/mensagens?after=N&agenteId=X, POST /api/monitoramento/mensagens, e documentar a tool agentmap_monitoramento_verificar_pendentes com polling incremental via aposEventSequence/eventSequence. Adicionar WAKEUP_PARENT aos tipos de mensagem e documentar a tool agentmap_monitoramento_verificar_pendentes em referencia-tools-mcp.md.",
+      "tipo": "documentacao",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "docs-api-01",
+      "dominio": "documentacao",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "api-reference.md inclui receive-chat e after param",
+        "referencia-tools-mcp.md lista monitoramento-wakeup tool completa"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [
+        "wake-up",
+        "api",
+        "docs"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-18T22:48:23.876Z",
+        "criadoEm": "2026-08-18T22:48:23.876Z",
+        "inicio": "2026-08-18T22:49:20.693Z",
+        "ultimaAtualizacao": "2026-08-18T23:07:33.294Z",
+        "atualizadaEm": "2026-08-18T22:48:23.876Z",
+        "conclusao": "2026-08-18T23:07:33.294Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00004",
+      "titulo": "Atualizar guias de agente com fluxo wake-up e comunicacao",
+      "descricao": "Documentar flow bidirecional e polling incremental no guia de agentes",
+      "objetivo": "Atualizar docs/guia-agente-mcp.md e backend/src/mcp-server/resources/guia-eficacia.md: adicionar o fluxo de comunicacao bidirecional KILO_CHAT -> KILO_REPLY -> KILO_RESULT como padrao recomendado, documentar uso da tool agentmap_monitoramento_verificar_pendentes com aposEventSequence para wakeup parent, e incluir exemplos de curl para envio e recepcao de mensagens via POST/GET HTTP.",
+      "tipo": "documentacao",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "docs-guia-01",
+      "dominio": "documentacao",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "guia-agente-mcp.md tem fluxo KILO_CHAT-KILO_REPLY-KILO_RESULT",
+        "guia-eficacia.md referencia o flow bidirecional"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [
+        "wake-up",
+        "guia",
+        "docs"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-18T22:48:29.156Z",
+        "criadoEm": "2026-08-18T22:48:29.156Z",
+        "inicio": "2026-08-18T22:49:21.569Z",
+        "ultimaAtualizacao": "2026-08-18T23:07:36.422Z",
+        "atualizadaEm": "2026-08-18T22:48:29.156Z",
+        "conclusao": "2026-08-18T23:07:36.422Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00005",
+      "titulo": "Atualizar docs comunicacao e protocolo com teste bidirecional",
+      "descricao": "Documentar teste bidirecional real e plugin wake-up oficial",
+      "objetivo": "Atualizar docs/comunicacao-agentmap-kilo.md e documentos/protocolo-agentes.md: incluir o teste bidirecional realizado (pergunta sobre frontend/backend), documentar o plugin .kilo/plugin/agentmap-wakeup.ts como solucao oficial de wake-up (substituindo Gate -1/0), e registrar o flow completo: session.idle -> polling AgentMap -> promptAsync. Adicionar seccao de testes realizados.",
+      "tipo": "documentacao",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "docs-comm-01",
+      "dominio": "documentacao",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "comunicacao-agentmap-kilo.md documenta o teste real realizado",
+        "protocolo-agentes.md inclui referencia ao plugin wake-up"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [
+        "wake-up",
+        "comunicacao",
+        "docs"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-18T22:48:34.899Z",
+        "criadoEm": "2026-08-18T22:48:34.899Z",
+        "inicio": "2026-08-18T22:49:22.441Z",
+        "ultimaAtualizacao": "2026-08-18T23:07:37.096Z",
+        "atualizadaEm": "2026-08-18T22:48:34.899Z",
+        "conclusao": "2026-08-18T23:07:37.096Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00006",
+      "titulo": "Atualizar docs protocolo e solicitacao com wake-up",
+      "descricao": "Documentar protocolo de wake-up em docs de protocolo e processos",
+      "objetivo": "Atualizar docs/protocolo-mcp.md e documentos/solicitacao-alteracao-guia.md com referencias ao mecanismo de wake-up, aos tipos de mensagem KILO_CHAT/KILO_REPLY/KILO_RESULT/WAKEUP_PARENT, e ao polling incremental via eventSequence. Adicionar seccao sobre plugin Kilo e comunicacao via HTTP.",
+      "tipo": "documentacao",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "docs-proc-01",
+      "dominio": "documentacao",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "protocolo-mcp.md inclui seccao wake-up",
+        "solicitacao-alteracao-guia.md referencia comunicacao Kilo"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [
+        "wake-up",
+        "protocolo",
+        "docs"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-18T22:48:41.030Z",
+        "criadoEm": "2026-08-18T22:48:41.030Z",
+        "inicio": "2026-08-18T22:49:23.334Z",
+        "ultimaAtualizacao": "2026-08-18T23:07:37.129Z",
+        "atualizadaEm": "2026-08-18T22:48:41.030Z",
+        "conclusao": "2026-08-18T23:07:37.129Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00007",
+      "titulo": "Atualizar README e docs raiz com wake-up e comunicacao",
+      "descricao": "Documentar wake-up em READMEs e docs raiz",
+      "objetivo": "Atualizar README.md, SECURITY.md, AGENTS.md, e2e/README.md, banco/README.md, e kilo.jsonc com: documentacao do plugin agentmap-wakeup.ts no .kilo/plugin/, flow de comunicacao bidirecional, secao sobre wake-up automatico de sessoes ociosas via session.idle, e atualizacao do contador de tools MCP. Adicionar seccao sobre comunicacao Agent Manager HTTP no README.",
+      "tipo": "documentacao",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "docs-root-01",
+      "dominio": "documentacao",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "README.md tem seccao wake-up plugin",
+        "kilo.jsonc configurado com plugin referenciado"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [],
+      "condicoesDeParada": [],
+      "criteriosConclusao": [],
+      "tags": [
+        "wake-up",
+        "readme",
+        "docs"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-18T22:48:46.136Z",
+        "criadoEm": "2026-08-18T22:48:46.136Z",
+        "inicio": "2026-08-18T22:49:24.240Z",
+        "ultimaAtualizacao": "2026-08-18T23:07:37.173Z",
+        "atualizadaEm": "2026-08-18T22:48:46.136Z",
+        "conclusao": "2026-08-18T23:07:37.173Z"
+      }
     }
   ],
   "estatisticas": {
-    "total": 1,
-    "pendentes": 1,
-    "emExecucao": 0,
-    "concluidas": 0,
-    "bloqueadas": 0
+    "PENDENTE": 1,
+    "CONCLUIDA": 6,
+    "total": 7
   }
 }

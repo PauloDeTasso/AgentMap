@@ -180,12 +180,16 @@ sequenceDiagram
 - **Não utiliza credenciais externas** — autenticação é feita via sessão Kilo existente
 - **Não escreve arquivos compartilhados** — comunicação é exclusivamente via HTTP/MCP
 
+**Testado em 2026-08-18:** flow bidirecional validado com 6 agentes executando em worktrees
+isoladas simultaneamente — `KILO_CHAT` → `KILO_REPLY` → `KILO_RESULT`, todas as mensagens
+registradas e consultáveis via Monitor de Mensagens.
+
 ### Comunicação AgentMap ↔ Agent Manager
 
 - **Pai → Filho:** envie instruções diretamente pelo prompt do Agent Manager no VS Code.
 - **Filho → AgentMap (escrita):** agentes filhos **não possuem tools MCP de escrita**. Eles devem usar **HTTP direto**:
   - `POST http://localhost:3150/api/monitoramento/mensagens`
-  - Tipos aceitos: `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`
+  - Tipos aceitos: `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`, `WAKEUP_PARENT`
 - **Filho ← AgentMap (leitura):** agentes filhos leem respostas por:
   - HTTP: `GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20`
   - Tool MCP (se disponível): `kilohub_receive_chat_message`

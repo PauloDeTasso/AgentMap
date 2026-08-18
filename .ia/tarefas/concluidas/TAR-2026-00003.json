@@ -1,0 +1,57 @@
+{
+  "id": "TAR-2026-00003",
+  "titulo": "Atualizar API reference e tools MCP com monitoramento wake-up",
+  "descricao": "Documentar endpoints de monitoramento Kilo + polling eventSequence",
+  "objetivo": "Atualizar docs/api-reference.md e docs/referencia-tools-mcp.md: incluir endpoints GET /api/monitoramento/kilo/receive-chat, GET /api/monitoramento/mensagens?after=N&agenteId=X, POST /api/monitoramento/mensagens, e documentar a tool agentmap_monitoramento_verificar_pendentes com polling incremental via aposEventSequence/eventSequence. Adicionar WAKEUP_PARENT aos tipos de mensagem e documentar a tool agentmap_monitoramento_verificar_pendentes em referencia-tools-mcp.md.",
+  "tipo": "documentacao",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "docs-api-01",
+  "dominio": "documentacao",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "api-reference.md inclui receive-chat e after param",
+    "referencia-tools-mcp.md lista monitoramento-wakeup tool completa"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
+  "tags": [
+    "wake-up",
+    "api",
+    "docs"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:48:23.876Z",
+    "criadoEm": "2026-08-18T22:48:23.876Z",
+    "inicio": "2026-08-18T22:49:20.693Z",
+    "ultimaAtualizacao": "2026-08-18T23:07:33.294Z",
+    "atualizadaEm": "2026-08-18T22:48:23.876Z",
+    "conclusao": "2026-08-18T23:07:33.294Z"
+  }
+}

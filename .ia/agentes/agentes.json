@@ -6,6 +6,90 @@
       "funcao": "desenvolvimento_backend",
       "estado": "ativo",
       "arquivoPerfil": ".ia/agentes/backend-teste.json"
+    },
+    {
+      "id": "docs-arq-01",
+      "nome": "Doc Arquitetura",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-arq-01/docs-arq-01.json"
+    },
+    {
+      "id": "docs-api-01",
+      "nome": "Doc API",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-api-01/docs-api-01.json"
+    },
+    {
+      "id": "docs-guia-01",
+      "nome": "Doc Guia",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-guia-01/docs-guia-01.json"
+    },
+    {
+      "id": "docs-comm-01",
+      "nome": "Doc Comunicacao",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-comm-01/docs-comm-01.json"
+    },
+    {
+      "id": "docs-proc-01",
+      "nome": "Doc Processo",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-proc-01/docs-proc-01.json"
+    },
+    {
+      "id": "docs-root-01",
+      "nome": "Doc Root",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-root-01/docs-root-01.json"
+    },
+    {
+      "id": "docs-arq-01",
+      "nome": "Doc Arquitetura",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-arq-01/docs-arq-01.json"
+    },
+    {
+      "id": "docs-api-01",
+      "nome": "Doc API",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-api-01/docs-api-01.json"
+    },
+    {
+      "id": "docs-guia-01",
+      "nome": "Doc Guia",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-guia-01/docs-guia-01.json"
+    },
+    {
+      "id": "docs-comm-01",
+      "nome": "Doc Comunicacao",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-comm-01/docs-comm-01.json"
+    },
+    {
+      "id": "docs-proc-01",
+      "nome": "Doc Processo",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-proc-01/docs-proc-01.json"
+    },
+    {
+      "id": "docs-root-01",
+      "nome": "Doc Root",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": "/.ia/agentes/docs-root-01/docs-root-01.json"
     }
   ]
 }

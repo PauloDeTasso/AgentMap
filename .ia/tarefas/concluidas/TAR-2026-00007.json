@@ -1,0 +1,57 @@
+{
+  "id": "TAR-2026-00007",
+  "titulo": "Atualizar README e docs raiz com wake-up e comunicacao",
+  "descricao": "Documentar wake-up em READMEs e docs raiz",
+  "objetivo": "Atualizar README.md, SECURITY.md, AGENTS.md, e2e/README.md, banco/README.md, e kilo.jsonc com: documentacao do plugin agentmap-wakeup.ts no .kilo/plugin/, flow de comunicacao bidirecional, secao sobre wake-up automatico de sessoes ociosas via session.idle, e atualizacao do contador de tools MCP. Adicionar seccao sobre comunicacao Agent Manager HTTP no README.",
+  "tipo": "documentacao",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "docs-root-01",
+  "dominio": "documentacao",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "README.md tem seccao wake-up plugin",
+    "kilo.jsonc configurado com plugin referenciado"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
+  "tags": [
+    "wake-up",
+    "readme",
+    "docs"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-18T22:48:46.136Z",
+    "criadoEm": "2026-08-18T22:48:46.136Z",
+    "inicio": "2026-08-18T22:49:24.240Z",
+    "ultimaAtualizacao": "2026-08-18T23:07:37.173Z",
+    "atualizadaEm": "2026-08-18T22:48:46.136Z",
+    "conclusao": "2026-08-18T23:07:37.173Z"
+  }
+}

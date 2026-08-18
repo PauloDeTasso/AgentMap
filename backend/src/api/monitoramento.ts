@@ -9,8 +9,16 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
     const limite = req.query.limite ? Number(req.query.limite) : 100;
     const agenteId = req.query.agenteId as string | undefined;
     const tipo = req.query.tipo as string | undefined;
+    const after = req.query.after ? Number(req.query.after) : 0;
 
-    let msgs = monitoramento.listarMensagens(limite);
+    let msgs: any[];
+    if (after > 0) {
+      const result = monitoramento.listarMensagensApos(after, limite);
+      msgs = result.mensagens;
+    } else {
+      msgs = monitoramento.listarMensagens(limite);
+    }
+
     if (agenteId) {
       msgs = msgs.filter((m: any) => m.agenteId === agenteId || m.emissor === agenteId);
     }
