@@ -254,6 +254,22 @@ Dentro de cada projeto (`.ia/`):
 | `SOLICITACAO_APROVADA`        | Ao aprovar uma solicitação            |
 | `SOLICITACAO_REJEITADA`       | Ao rejeitar uma solicitação           |
 
+### Comunicação entre agentes (cross-reference)
+
+A comunicação entre AgentMap e agentes no Agent Manager é detalhada em
+[`docs/comunicacao-agentmap-kilo.md`](../docs/comunicacao-agentmap-kilo.md).
+
+Agentes filhos no Agent Manager **não possuem tools MCP de escrita**. Eles devem enviar progresso e
+resultados via **HTTP direto**, consultando o fluxo completo em
+[`docs/comunicacao-agentmap-kilo.md`](../docs/comunicacao-agentmap-kilo.md) — seção 3.1 e §7.
+
+**Nota:** agentes filhos no Agent Manager enviam mensagens via HTTP
+`POST http://localhost:3150/api/monitoramento/mensagens` com os tipos `KILO_CHAT`, `KILO_REPLY`,
+`KILO_RESULT` ou `KILO_CHAT_REPLY`. O agente pai (responsável pela solicitação) é acordado
+automaticamente pelo plugin `.kilo/plugin/agentmap-wakeup.ts` quando fica ociado (`session.idle`),
+que injeta um prompt via `promptAsync` se houver mensagens pendentes. Veja
+[`docs/protocolo-mcp.md`](../docs/protocolo-mcp.md) — seção "Plugin Kilo e Wake-Up".
+
 ---
 
 ## Fluxo completo
@@ -366,3 +382,11 @@ O sistema valida:
 - **Sempre** aguarde aprovação quando `requerAprovacao` for `true`.
 - **Nunca** reutilize IDs de solicitações excluídas.
 - **Sempre** registre eventos relevantes no histórico.
+
+### Documentação relacionada
+
+| Documento | Finalidade |
+|---|---|
+| [`docs/comunicacao-agentmap-kilo.md`](../docs/comunicacao-agentmap-kilo.md) | Flow bidirecional entre AgentMap e agentes no Agent Manager (HTTP/MCP) |
+| [`docs/protocolo-mcp.md`](../docs/protocolo-mcp.md) | Protocolo MCP do AgentMap, incluindo plugin de wake-up |
+| `.kilo/plugin/agentmap-wakeup.ts` | Plugin oficial de wake-up via `session.idle` → `promptAsync`
