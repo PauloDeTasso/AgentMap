@@ -62,7 +62,7 @@ if (-not $Silent) {
 $backendLog = Join-Path $logsDir "backend.log"
 $mcpLog = Join-Path $logsDir "mcp.log"
 
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run dev" -WorkingDirectory $backendDir -WindowStyle Normal
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run dev > `"$backendLog`" 2>&1" -WorkingDirectory $backendDir -WindowStyle Normal
 
 if (-not $Silent) {
     Write-Host "Waiting for backend to start..." -ForegroundColor Yellow
@@ -93,7 +93,7 @@ if ($retry -ge $maxRetries) {
 if (-not $Silent) {
     Write-Host "Starting MCP server..." -ForegroundColor Green
 }
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run mcp" -WorkingDirectory $backendDir -WindowStyle Normal
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run mcp >> `"$mcpLog`" 2>&1" -WorkingDirectory $backendDir -WindowStyle Normal
 
 if (-not $Silent) {
     Write-Host ""

@@ -5,9 +5,13 @@ echo =========================================
 echo   AgentMap - Reiniciando servidores
 echo =========================================
 echo.
-echo Parando...
-powershell -ExecutionPolicy Bypass -File "%~dp0..\scripts\stop-agentmap.ps1" -Silent >nul 2>&1
-timeout /t 2 /nobreak >nul
-echo Iniciando...
-powershell -ExecutionPolicy Bypass -File "%~dp0..\scripts\start-agentmap.ps1" -Silent
-pause
+
+set "ROOT=%~dp0.."
+set "SCRIPTS=%~dp0"
+
+echo [1/2] Parando...
+powershell -ExecutionPolicy Bypass -File "%SCRIPTS%stop-agentmap.ps1" -Silent
+timeout /t 3 /nobreak >nul
+
+echo [2/2] Iniciando...
+call "%SCRIPTS%start-agentmap.bat"

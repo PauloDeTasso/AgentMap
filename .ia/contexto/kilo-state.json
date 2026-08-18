@@ -1,46 +1,10 @@
 {
-  "descobertoEm": "2026-08-18T22:57:34.108Z",
+  "descobertoEm": "2026-08-18T23:19:09.547Z",
   "worktrees": [
     {
       "nome": "backend-api-test",
       "caminho": ".kilo\\worktrees\\backend-api-test",
       "branch": "backend-api-test"
-    },
-    {
-      "nome": "docs-api-wakeup-update",
-      "caminho": ".kilo\\worktrees\\docs-api-wakeup-update",
-      "branch": "docs-api-wakeup-update",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "docs-arq-wakeup-update",
-      "caminho": ".kilo\\worktrees\\docs-arq-wakeup-update",
-      "branch": "docs-arq-wakeup-update",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "docs-comm-wakeup-update",
-      "caminho": ".kilo\\worktrees\\docs-comm-wakeup-update",
-      "branch": "docs-comm-wakeup-update",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "docs-guia-wakeup-update",
-      "caminho": ".kilo\\worktrees\\docs-guia-wakeup-update",
-      "branch": "docs-guia-wakeup-update",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "docs-proc-wakeup-update",
-      "caminho": ".kilo\\worktrees\\docs-proc-wakeup-update",
-      "branch": "docs-proc-wakeup-update",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "docs-root-wakeup-update",
-      "caminho": ".kilo\\worktrees\\docs-root-wakeup-update",
-      "branch": "docs-root-wakeup-update",
-      "tarefaId": "TAR-2026"
     },
     {
       "nome": "frontend-nav-test",
@@ -63,63 +27,7 @@
       "branch": "test-e2e-stdio"
     }
   ],
-  "sessoes": [
-    {
-      "id": "ses_fe9c32080ffeE5qcAm4gV1pD1Y",
-      "nome": "ses_fe9c32080ffeE5qcAm4gV1pD1Y",
-      "tipo": "local",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T18:58:03.284Z"
-    },
-    {
-      "id": "ses_fe8edf24fffe2XogSZbtgo538A",
-      "nome": "ses_fe8edf24fffe2XogSZbtgo538A",
-      "tipo": "local",
-      "worktreeId": "wt-1787093437230-4",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T22:50:54.318Z"
-    },
-    {
-      "id": "ses_fe8edf112ffegaVg8rmnCmNic5",
-      "nome": "ses_fe8edf112ffegaVg8rmnCmNic5",
-      "tipo": "local",
-      "worktreeId": "wt-1787093442061-5",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T22:50:54.649Z"
-    },
-    {
-      "id": "ses_fe8eda012ffe1Lv6Kxd3Ba9LyM",
-      "nome": "ses_fe8eda012ffe1Lv6Kxd3Ba9LyM",
-      "tipo": "local",
-      "worktreeId": "wt-1787093449185-6",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T22:51:15.436Z"
-    },
-    {
-      "id": "ses_fe8ed772effe5m6sgvIVNZoQWI",
-      "nome": "ses_fe8ed772effe5m6sgvIVNZoQWI",
-      "tipo": "local",
-      "worktreeId": "wt-1787093456953-7",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T22:51:25.895Z"
-    },
-    {
-      "id": "ses_fe8ed69a7ffetePSZ5NmCwiYdo",
-      "nome": "ses_fe8ed69a7ffetePSZ5NmCwiYdo",
-      "tipo": "local",
-      "worktreeId": "wt-1787093462649-8",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T22:51:29.304Z"
-    },
-    {
-      "id": "ses_fe8ed48d5ffesrLHP9lw475n4Q",
-      "nome": "ses_fe8ed48d5ffesrLHP9lw475n4Q",
-      "tipo": "local",
-      "worktreeId": "wt-1787093469509-9",
-      "estado": "ativo",
-      "criadoEm": "2026-08-18T22:51:37.705Z"
-    }
-  ],
+  "sessoes": [],
   "agentes": [
     {
       "id": "comunicacao-filho",

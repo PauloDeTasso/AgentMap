@@ -5,8 +5,13 @@ echo =========================================
 echo   AgentMap - Parando servidores
 echo =========================================
 echo.
-echo Parando processos do AgentMap...
-powershell -ExecutionPolicy Bypass -File "%~dp0..\scripts\stop-agentmap.ps1" -Silent
+
+set "ROOT=%~dp0.."
+set "SCRIPTS=%~dp0"
+
+powershell -ExecutionPolicy Bypass -File "%SCRIPTS%stop-agentmap.ps1"
+
 echo.
-echo AgentMap parado.
-pause
+echo =========================================
+echo   AgentMap parado.
+echo =========================================
