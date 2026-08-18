@@ -301,7 +301,6 @@ export interface EstadoAtual {
   contratosAlterados: number;
   testes: { total: number; aprovados: number; reprovados: number };
   qualidade: { percentual: number; pendenciasCriticas: number };
-  seguranca: { estado: string; riscosCriticos: number; riscosAltos: number };
 }
 
 export interface Bloqueio {

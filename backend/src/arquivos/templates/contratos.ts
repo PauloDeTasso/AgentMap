@@ -24,7 +24,6 @@ export function getContratosPadrao(): { id: string; nome: string; versao: string
     { id: 'contrato-banco', nome: 'Contrato de Banco', versao: '1.0.0', estado: 'ativo', obrigatorio: false },
     { id: 'contrato-frontend', nome: 'Contrato de Frontend', versao: '1.0.0', estado: 'ativo', obrigatorio: false },
     { id: 'contrato-android', nome: 'Contrato de Android', versao: '1.0.0', estado: 'ativo', obrigatorio: false },
-    { id: 'contrato-seguranca', nome: 'Contrato de Segurança', versao: '1.0.0', estado: 'ativo', obrigatorio: true },
     { id: 'contrato-infraestrutura', nome: 'Contrato de Infraestrutura', versao: '1.0.0', estado: 'ativo', obrigatorio: false },
     { id: 'contrato-testes', nome: 'Contrato de Testes', versao: '1.0.0', estado: 'ativo', obrigatorio: false },
     { id: 'contrato-documentacao', nome: 'Contrato de Documentação', versao: '1.0.0', estado: 'ativo', obrigatorio: false },
@@ -43,7 +42,6 @@ export function getContratosCompletos(): Record<string, ContratoBase> {
       'Todo agente deve respeitar seu domínio.',
       'Todo agente deve respeitar os contratos.',
       'Todo agente deve executar somente tarefas autorizadas.',
-      'Todo agente deve respeitar as regras de segurança.',
       'Todo agente deve registrar sua entrega.',
       'Alterações críticas exigem aprovação humana.',
       'Segredos nunca devem ser armazenados no código.',
@@ -101,7 +99,6 @@ export function getContratosCompletos(): Record<string, ContratoBase> {
     [
       'Código deve seguir padrões de acessibilidade.',
       'Componentes devem ser responsivos.',
-      'Segurança no navegador deve ser aplicada.',
       'Integração com API deve seguir o contrato da API.'
     ],
     ['frontend']
@@ -112,27 +109,11 @@ export function getContratosCompletos(): Record<string, ContratoBase> {
     'Definir padrões de desenvolvimento do aplicativo Android.',
     [
       'Seguir diretrizes oficiais Android.',
-      'Segurança de dados com armazenamento seguro.',
       'Permissões devem ser solicitadas em tempo de execução.',
       'Integração com API deve seguir o contrato da API.'
     ],
     ['android']
   );
-
-  contratos['contrato-seguranca'] = criarContratoBase(
-    'contrato-seguranca', 'Contrato de Segurança', '1.0.0',
-    'Definir requisitos mínimos de segurança.',
-    [
-      'Validação de entrada em todos os pontos de entrada.',
-      'Autenticação e autorização em todos os endpoints protegidos.',
-      'Segredos fora do código e do Git.',
-      'Criptografia em repouso e em trânsito.'
-    ],
-    ['todos']
-  );
-  (contratos['contrato-seguranca'] as any).principios = ['Defesa em profundidade', 'Menor privilégio', 'Validação de entrada', 'Segurança desde o início', 'Não confiar no cliente', 'Segredos fora do código'];
-  (contratos['contrato-seguranca'] as any).controles = ['Autenticação', 'Autorização', 'Controle de acesso', 'JWT', 'RBAC', 'BCrypt', 'XSS', 'CSRF', 'SQL Injection', 'Rate Limiting', 'CORS', 'Criptografia', 'Gestão de Segredos', 'Auditoria'];
-  (contratos['contrato-seguranca'] as any).requerAprovacaoPara = ['aceitacao_de_risco_critico', 'alteracao_de_autenticacao', 'alteracao_de_autorizacao', 'alteracao_de_criptografia'];
 
   contratos['contrato-infraestrutura'] = criarContratoBase(
     'contrato-infraestrutura', 'Contrato de Infraestrutura', '1.0.0',
@@ -152,7 +133,6 @@ export function getContratosCompletos(): Record<string, ContratoBase> {
     [
       'Todo código novo deve ter testes.',
       'Cobertura mínima de 70% para regras de negócio.',
-      'Testes de segurança em endpoints críticos.',
       'Validação de contratos entre consumidores e provedor.'
     ],
     ['testes', 'backend', 'frontend', 'android']

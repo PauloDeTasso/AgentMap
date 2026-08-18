@@ -1,4 +1,4 @@
-﻿import * as path from 'path';
+import * as path from 'path';
 import * as fsSync from 'fs';
 import {
   criarProjetoConfig,
@@ -98,7 +98,6 @@ Executar uma tarefa atribuída seguindo todos os contratos e restrições.
 
 - Implementação concluída.
 - Testes aprovados.
-- Segurança verificada.
 - Contratos respeitados.
 - Documentação atualizada.
 - Revisão realizada.
@@ -112,11 +111,10 @@ Realizar revisão de código verificável.
 ## Passos
 
 1. Analisar arquitetura.
-2. Verificar segurança.
-3. Verificar testes.
-4. Verificar contratos.
-5. Detectar duplicação e complexidade.
-6. Registrar recomendações.
+2. Verificar testes.
+3. Verificar contratos.
+4. Detectar duplicação e complexidade.
+5. Registrar recomendações.
 
 ## Critérios de conclusão
 
@@ -240,32 +238,6 @@ Reverter uma implantação problemática.
 };
 
 const POLITICAS_MD: Record<string, string> = {
-  POLITICA_SEGURANCA: `# Política de Segurança
-
-## Princípios
-
-- Defesa em profundidade.
-- Menor privilégio.
-- Validação de entrada.
-- Segurança desde o início.
-- Não confiar no cliente.
-- Segredos fora do código.
-
-## Controles obrigatórios
-
-- Autenticação e autorização.
-- JWT e RBAC.
-- BCrypt para senhas.
-- Proteção contra XSS, CSRF e SQL Injection.
-- Rate limiting e CORS.
-- Criptografia em repouso e trânsito.
-- Gestão de segredos.
-- Auditoria de eventos.
-
-## Segredos
-
-Segredos nunca devem ser armazenados no código ou no Git. Utilize gerenciadores de segredos.
-`,
   POLITICA_GIT: `# Política de Git
 
 ## Regras
@@ -509,12 +481,11 @@ export class ScaffoldService {
         { ordem: 5, etapa: 'tarefas', responsavel: 'planejador-arquiteto', descricao: 'Criar tarefas com dependências explícitas.' },
         { ordem: 6, etapa: 'implementacao', responsavel: 'agente_especializado', descricao: 'Executar implementações respeitando dependências.' },
         { ordem: 7, etapa: 'testes', responsavel: 'testes', descricao: 'Executar testes automatizados e validar cobertura.' },
-        { ordem: 8, etapa: 'seguranca', responsavel: 'seguranca', descricao: 'Aplicar checklist de segurança e validar entrada/saída.' },
-        { ordem: 9, etapa: 'revisao', responsavel: 'revisor', descricao: 'Revisar código, qualidade e aderência aos contratos.' },
-        { ordem: 10, etapa: 'aprovacao', responsavel: 'proprietario', descricao: 'Aprovar ou rejeitar entregas conforme critérios.' },
-        { ordem: 11, etapa: 'integracao', responsavel: 'git', descricao: 'Registrar alterações no Git e atualizar estado.' },
-        { ordem: 12, etapa: 'documentacao', responsavel: 'documentacao', descricao: 'Documentar entregas, decisões e exemplos.' },
-        { ordem: 13, etapa: 'atualizacao_estado', responsavel: 'gerenciador', descricao: 'Atualizar estado do projeto e métricas.' }
+        { ordem: 8, etapa: 'revisao', responsavel: 'revisor', descricao: 'Revisar código, qualidade e aderência aos contratos.' },
+        { ordem: 9, etapa: 'aprovacao', responsavel: 'proprietario', descricao: 'Aprovar ou rejeitar entregas conforme critérios.' },
+        { ordem: 10, etapa: 'integracao', responsavel: 'git', descricao: 'Registrar alterações no Git e atualizar estado.' },
+        { ordem: 11, etapa: 'documentacao', responsavel: 'documentacao', descricao: 'Documentar entregas, decisões e exemplos.' },
+        { ordem: 12, etapa: 'atualizacao_estado', responsavel: 'gerenciador', descricao: 'Atualizar estado do projeto e métricas.' }
       ],
       regras: [
         'Nenhuma tarefa deve iniciar antes de suas dependências estarem concluídas.',
@@ -524,7 +495,7 @@ export class ScaffoldService {
         'Tarefas com dependências devem esperar bloco/reserva antes de prosseguir.'
       ]
     }, null, 2), 'utf-8');
-    fsSync.writeFileSync(path.join(iaRoot, 'fluxo-trabalho.md'), `# Fluxo de Trabalho Sincronizado — ${nome}\n\nEste documento define como o trabalho deve ser organizado para respeitar dependências entre agentes.\n\n## Princípio\n\nO AgentMap registra dependências, mas **não inicia agentes automaticamente**. O fluxo real deve ser conduzido como pessoas:\n\n1. O planejador define o que deve ser feito e em que ordem.\n2. Os agentes só começam quando os pré-requisitos estão prontos.\n3. O monitoramento mostra o estado atual para decisões humanas.\n\n## Ordem padrão do projeto\n\n1. Planejador/Arquiteto\n2. Backend / Banco / Frontend / Android / Infraestrutura\n3. Testes / Segurança / Observabilidade\n4. Revisor / Documentação / Desempenho\n\n## Regras de execução\n\n- Nenhuma tarefa com dependência pendente deve iniciar.\n- Se uma tarefa dependente tentar executar antes da hora, ela deve registrar um bloqueio no AgentMap e aguardar.\n- O usuário/revisor deve usar o monitoramento para identificar gargalos e desbloqueios.\n\n## Sincronização com Kilo Code / Agent Manager\n\n- Crie worktrees apenas para tarefas sem dependências pendentes.\n- Worktrees de tarefas dependentes devem ser criados/ativados somente após a conclusão da tarefa pré-requisito.\n- Use o monitoramento do AgentMap para validar o estado antes de iniciar novos worktrees.\n`, 'utf-8');
+    fsSync.writeFileSync(path.join(iaRoot, 'fluxo-trabalho.md'), `# Fluxo de Trabalho Sincronizado — ${nome}\n\nEste documento define como o trabalho deve ser organizado para respeitar dependências entre agentes.\n\n## Princípio\n\nO AgentMap registra dependências, mas **não inicia agentes automaticamente**. O fluxo real deve ser conduzido como pessoas:\n\n1. O planejador define o que deve ser feito e em que ordem.\n2. Os agentes só começam quando os pré-requisitos estão prontos.\n3. O monitoramento mostra o estado atual para decisões humanas.\n\n## Ordem padrão do projeto\n\n1. Planejador/Arquiteto\n2. Backend / Banco / Frontend / Android / Infraestrutura\n3. Testes / Observabilidade\n4. Revisor / Documentação / Desempenho\n\n## Regras de execução\n\n- Nenhuma tarefa com dependência pendente deve iniciar.\n- Se uma tarefa dependente tentar executar antes da hora, ela deve registrar um bloqueio no AgentMap e aguardar.\n- O usuário/revisor deve usar o monitoramento para identificar gargalos e desbloqueios.\n\n## Sincronização com Kilo Code / Agent Manager\n\n- Crie worktrees apenas para tarefas sem dependências pendentes.\n- Worktrees de tarefas dependentes devem ser criados/ativados somente após a conclusão da tarefa pré-requisito.\n- Use o monitoramento do AgentMap para validar o estado antes de iniciar novos worktrees.\n`, 'utf-8');
 
     // Reservas
     fsSync.writeFileSync(path.join(iaRoot, 'reservas', 'reservas.json'), JSON.stringify({ reservas: [] }, null, 2), 'utf-8');
@@ -560,12 +531,11 @@ export class ScaffoldService {
         { ordem: 5, etapa: 'tarefas', responsavel: 'planejador-arquiteto', descricao: 'Criar tarefas com dependências explícitas.' },
         { ordem: 6, etapa: 'implementacao', responsavel: 'agente_especializado', descricao: 'Executar implementações respeitando dependências.' },
         { ordem: 7, etapa: 'testes', responsavel: 'testes', descricao: 'Executar testes automatizados e validar cobertura.' },
-        { ordem: 8, etapa: 'seguranca', responsavel: 'seguranca', descricao: 'Aplicar checklist de segurança e validar entrada/saída.' },
-        { ordem: 9, etapa: 'revisao', responsavel: 'revisor', descricao: 'Revisar código, qualidade e aderência aos contratos.' },
-        { ordem: 10, etapa: 'aprovacao', responsavel: 'proprietario', descricao: 'Aprovar ou rejeitar entregas conforme critérios.' },
-        { ordem: 11, etapa: 'integracao', responsavel: 'git', descricao: 'Registrar alterações no Git e atualizar estado.' },
-        { ordem: 12, etapa: 'documentacao', responsavel: 'documentacao', descricao: 'Documentar entregas, decisões e exemplos.' },
-        { ordem: 13, etapa: 'atualizacao_estado', responsavel: 'gerenciador', descricao: 'Atualizar estado do projeto e métricas.' }
+        { ordem: 8, etapa: 'revisao', responsavel: 'revisor', descricao: 'Revisar código, qualidade e aderência aos contratos.' },
+        { ordem: 9, etapa: 'aprovacao', responsavel: 'proprietario', descricao: 'Aprovar ou rejeitar entregas conforme critérios.' },
+        { ordem: 10, etapa: 'integracao', responsavel: 'git', descricao: 'Registrar alterações no Git e atualizar estado.' },
+        { ordem: 11, etapa: 'documentacao', responsavel: 'documentacao', descricao: 'Documentar entregas, decisões e exemplos.' },
+        { ordem: 12, etapa: 'atualizacao_estado', responsavel: 'gerenciador', descricao: 'Atualizar estado do projeto e métricas.' }
       ],
       regras: [
         'Nenhuma tarefa deve iniciar antes de suas dependências estarem concluídas.',
@@ -591,7 +561,7 @@ O AgentMap registra dependências, mas **não inicia agentes automaticamente**. 
 
 1. Planejador/Arquiteto
 2. Backend / Banco / Frontend / Android / Infraestrutura
-3. Testes / Segurança / Observabilidade
+3. Testes / Observabilidade
 4. Revisor / Documentação / Desempenho
 
 ## Regras de execução
@@ -624,7 +594,7 @@ Todo agente deve seguir esta ordem antes de executar qualquer trabalho.
 
 1. Planejador/Arquiteto
 2. Agentes de implementação: Backend, Banco, Frontend, Android, Infraestrutura
-3. Agentes de verificação: Testes, Segurança, Observabilidade
+3. Agentes de verificação: Testes, Observabilidade
 4. Agentes de revisão e documentação: Revisor, Documentação, Desempenho
 
 ## Documentos obrigatórios
@@ -691,7 +661,6 @@ Cada papel tem um documento de entrega em:
       'android',
       'infraestrutura',
       'testes',
-      'seguranca',
       'revisor',
       'documentacao',
       'observabilidade',
@@ -752,7 +721,7 @@ Cada papel tem um documento de entrega em:
       diretoriosPermitidos: ['*'],
       diretoriosProibidos: ['.env', '*.key', '*.pem'],
       conhecimentos: [],
-      dominios: ['planejamento', 'backend', 'banco', 'frontend', 'android', 'infraestrutura', 'testes', 'seguranca', 'revisor', 'documentacao', 'observabilidade', 'desempenho'],
+      dominios: ['planejamento', 'backend', 'banco', 'frontend', 'android', 'infraestrutura', 'testes', 'revisor', 'documentacao', 'observabilidade', 'desempenho'],
       datas: { criacao: hoje, atualizacao: hoje }
     }, null, 2), 'utf-8');
     fsSync.writeFileSync(path.join(orquestradorDir, 'habilidades.json'), JSON.stringify({

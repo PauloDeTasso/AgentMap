@@ -32,14 +32,13 @@ describe('ScaffoldService — Estrutura .ia/', () => {
     expect(fs.existsSync(path.join(configDir, 'ambiente.json'))).toBe(true);
   });
 
-  test('cria diretório de agentes com 16 agentes', () => {
+  test('cria diretório de agentes com 14 agentes', () => {
     const agentesDir = path.join(projectRoot, '.ia', 'agentes');
     const registry = JSON.parse(fs.readFileSync(path.join(agentesDir, 'agentes.json'), 'utf-8'));
-    expect(registry.agentes).toHaveLength(16);
+    expect(registry.agentes).toHaveLength(14);
     expect(registry.agentes[0].id).toBe('planejador-arquiteto');
     expect(registry.agentes.some((a: { id: string }) => a.id === 'devops')).toBe(true);
     expect(registry.agentes.some((a: { id: string }) => a.id === 'qa-testes')).toBe(true);
-    expect(registry.agentes.some((a: { id: string }) => a.id === 'security-engineer')).toBe(true);
     expect(registry.agentes.some((a: { id: string }) => a.id === 'technical-writer')).toBe(true);
   });
 
@@ -51,14 +50,12 @@ describe('ScaffoldService — Estrutura .ia/', () => {
     ['android', 'android'],
     ['infraestrutura', 'infraestrutura'],
     ['testes', 'testes'],
-    ['seguranca', 'seguranca'],
     ['revisor', 'revisor'],
     ['documentacao', 'documentacao'],
     ['observabilidade', 'observabilidade'],
     ['desempenho', 'desempenho'],
     ['devops', 'devops'],
     ['qa-testes', 'qa-testes'],
-    ['security-engineer', 'security-engineer'],
     ['technical-writer', 'technical-writer']
   ])('cria estrutura do agente %s com perfil, habilidades e markdown', (subpasta, perfilId) => {
     const dir = path.join(projectRoot, '.ia', 'agentes', subpasta);
@@ -82,7 +79,6 @@ describe('ScaffoldService — Estrutura .ia/', () => {
     expect(fs.existsSync(path.join(contratosDir, 'contrato-banco.json'))).toBe(true);
     expect(fs.existsSync(path.join(contratosDir, 'contrato-frontend.json'))).toBe(true);
     expect(fs.existsSync(path.join(contratosDir, 'contrato-android.json'))).toBe(true);
-    expect(fs.existsSync(path.join(contratosDir, 'contrato-seguranca.json'))).toBe(true);
     expect(fs.existsSync(path.join(contratosDir, 'contrato-infraestrutura.json'))).toBe(true);
     expect(fs.existsSync(path.join(contratosDir, 'contrato-testes.json'))).toBe(true);
     expect(fs.existsSync(path.join(contratosDir, 'contrato-documentacao.json'))).toBe(true);
@@ -146,7 +142,6 @@ describe('ScaffoldService — Estrutura .ia/', () => {
   test('cria arquivos Git, políticas e auditoria', () => {
     expect(fs.existsSync(path.join(projectRoot, '.ia', 'git', 'estado-git.json'))).toBe(true);
     expect(fs.existsSync(path.join(projectRoot, '.ia', 'politicas', 'politicas.json'))).toBe(true);
-    expect(fs.existsSync(path.join(projectRoot, '.ia', 'politicas', 'POLITICA_SEGURANCA.md'))).toBe(true);
     expect(fs.existsSync(path.join(projectRoot, '.ia', 'politicas', 'POLITICA_GIT.md'))).toBe(true);
     expect(fs.existsSync(path.join(projectRoot, '.ia', 'politicas', 'POLITICA_QUALIDADE.md'))).toBe(true);
     expect(fs.existsSync(path.join(projectRoot, '.ia', 'politicas', 'POLITICA_PERMISSOES.md'))).toBe(true);

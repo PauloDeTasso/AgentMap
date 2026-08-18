@@ -28,7 +28,6 @@ export const MODELO_TAREFA: Tarefa = {
     'Implementação concluída',
     'Critérios de aceitação atendidos',
     'Testes aprovados',
-    'Segurança verificada',
     'Contratos respeitados',
     'Documentação atualizada',
     'Revisão realizada'

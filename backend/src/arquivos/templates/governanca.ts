@@ -17,8 +17,7 @@ export function criarEstadoAtual(projetoId: string): EstadoAtual {
     decisoesRecentes: 0,
     contratosAlterados: 0,
     testes: { total: 0, aprovados: 0, reprovados: 0 },
-    qualidade: { percentual: 0, pendenciasCriticas: 0 },
-    seguranca: { estado: 'nao_verificada', riscosCriticos: 0, riscosAltos: 0 }
+    qualidade: { percentual: 0, pendenciasCriticas: 0 }
   };
 }
 
@@ -87,8 +86,7 @@ export function criarPermissoes(): { permissoes: { descricao: string; permissoes
     perfis: [
       { id: 'proprietario', nome: 'Proprietário do Produto', permissoes: ['ler', 'criar', 'alterar', 'excluir', 'executar', 'testar', 'revisar', 'aprovar', 'implantar'] },
       { id: 'agente', nome: 'Agente', permissoes: ['ler', 'criar', 'alterar', 'executar', 'testar'] },
-      { id: 'revisor', nome: 'Revisor', permissoes: ['ler', 'testar', 'revisar'] },
-      { id: 'seguranca', nome: 'Segurança', permissoes: ['ler', 'testar', 'revisar'] }
+      { id: 'revisor', nome: 'Revisor', permissoes: ['ler', 'testar', 'revisar'] }
     ]
   };
 }
@@ -116,7 +114,6 @@ export function criarCriterios(): { criterios: unknown[] } {
   return {
     criterios: [
       { id: 'correcao', nome: 'Correção', descricao: 'O código resolve o problema sem introduzir novos bugs.', obrigatorio: true },
-      { id: 'seguranca', nome: 'Segurança', descricao: 'O código respeita o contrato de segurança.', obrigatorio: true },
       { id: 'testabilidade', nome: 'Testabilidade', descricao: 'O código é testável.', obrigatorio: true },
       { id: 'manutencao', nome: 'Manutenibilidade', descricao: 'O código é fácil de manter.', obrigatorio: true },
       { id: 'arquitetura', nome: 'Arquitetura', descricao: 'O código respeita a arquitetura proposta.', obrigatorio: true }
@@ -154,7 +151,6 @@ export function criarEventosAuditoria(): { eventos: EventoAuditoria[] } {
 export function criarPoliticas(): { politicas: unknown[] } {
   return {
     politicas: [
-      { id: 'politica-seguranca', nome: 'Política de Segurança', versao: '1.0.0', estado: 'ativa', objetivo: 'Garantir a segurança de todos os componentes.', regras: ['Validar todas as entradas', 'Nunca armazenar segredos no código', 'Usar HTTPS em produção'], proibicoes: ['Compartilhar credenciais no código', 'Desativar validações de segurança'], excecoes: [], requerAprovacaoPara: ['alteracao_de_autenticacao'], agentesAplicaveis: ['todos'], ambientesAplicaveis: ['desenvolvimento', 'teste', 'homologacao', 'producao'], consequenciasViolacao: ['Rejeição de código', 'Incidente registrado'], historico: [{ versao: '1.0.0', data: hoje(), alteracao: 'Criação' }] },
       { id: 'politica-git', nome: 'Política de Git', versao: '1.0.0', estado: 'ativa', objetivo: 'Padronizar o uso do Git.', regras: ['Commits atômicos e com mensagem clara', 'Branch por tarefa', 'Pull request antes de merge'], proibicoes: ['Commit direto em main', 'Forçar push'], excecoes: [], requerAprovacaoPara: ['force_push'], agentesAplicaveis: ['todos'], ambientesAplicaveis: ['desenvolvimento', 'teste'], consequenciasViolacao: ['Rever histórico'], historico: [{ versao: '1.0.0', data: hoje(), alteracao: 'Criação' }] },
       { id: 'politica-qualidade', nome: 'Política de Qualidade', versao: '1.0.0', estado: 'ativa', objetivo: 'Garantir qualidade do código.', regras: ['Cobertura mínima 70%', 'Testes em novas funcionalidades', 'Revisão de código obrigatória'], proibicoes: [], excecoes: [], requerAprovacaoPara: ['baixar_cobertura'], agentesAplicaveis: ['todos'], ambientesAplicaveis: ['desenvolvimento', 'teste'], consequenciasViolacao: ['Bloqueio de merge'], historico: [{ versao: '1.0.0', data: hoje(), alteracao: 'Criação' }] },
       { id: 'politica-permissoes', nome: 'Política de Permissões', versao: '1.0.0', estado: 'ativa', objetivo: 'Definir acesso mínimo necessário.', regras: ['Princípio do menor privilégio', 'Agente só acessa seu domínio'], proibicoes: ['Acesso irrestrito'], excecoes: [], requerAprovacaoPara: ['alterar_domínio_agente'], agentesAplicaveis: ['todos'], ambientesAplicaveis: ['desenvolvimento', 'teste', 'homologacao', 'producao'], consequenciasViolacao: ['Revisão de acesso'], historico: [{ versao: '1.0.0', data: hoje(), alteracao: 'Criação' }] },

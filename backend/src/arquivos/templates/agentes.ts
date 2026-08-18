@@ -36,11 +36,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: true, executar: true, testar: true, revisar: false, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/frontend/**'],
     diretoriosProibidos: ['/backend/**', '/android/**', '/banco/**', '/infraestrutura/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-frontend', 'contrato-api', 'contrato-seguranca', 'contrato-interface'],
-    conhecimentos: ['HTML5', 'CSS3', 'JavaScript', 'DOM', 'Fetch', 'JSON', 'Acessibilidade', 'Responsividade', 'XSS', 'CSRF', 'Autenticação', 'Autorização'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-frontend', 'contrato-api', 'contrato-interface'],
+    conhecimentos: ['HTML5', 'CSS3', 'JavaScript', 'DOM', 'Fetch', 'JSON', 'Acessibilidade', 'Responsividade'],
     requerAprovacaoPara: ['alteracao_interna_contrato'],
     condicoesDeParada: ['api_incompativel', 'contrato_conflitante', 'arquivo_fora_do_dominio', 'requisito_ambiguo'],
-    responsabilidades: ['Implementar interface', 'Implementar comportamentos do navegador', 'Integrar com API', 'Validar entradas', 'Tratar erros', 'Implementar responsividade', 'Implementar acessibilidade', 'Aplicar segurança no navegador', 'Executar testes']
+    responsabilidades: ['Implementar interface', 'Implementar comportamentos do navegador', 'Integrar com API', 'Validar entradas', 'Tratar erros', 'Implementar responsividade', 'Implementar acessibilidade', 'Executar testes']
   },
   {
     id: 'backend', nome: 'Backend', funcao: 'desenvolvimento_backend',
@@ -48,11 +48,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: true, executar: true, testar: true, revisar: false, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/backend/**'],
     diretoriosProibidos: ['/frontend/**', '/android/**', '/infraestrutura/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-arquitetura', 'contrato-api', 'contrato-banco', 'contrato-seguranca'],
-    conhecimentos: ['Java 17+', 'Spring Boot', 'Spring Security', 'Spring Data JPA', 'Hibernate', 'API REST', 'JSON', 'DTO', 'Validação', 'PostgreSQL', 'Migrações', 'JWT', 'RBAC', 'BCrypt', 'Rate Limiting', 'CORS', 'Testes', 'DDD', 'SOLID', 'GRASP', 'Padrões de Projeto'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-arquitetura', 'contrato-api', 'contrato-banco'],
+    conhecimentos: ['Java 17+', 'Spring Boot', 'Spring Data JPA', 'Hibernate', 'API REST', 'JSON', 'DTO', 'Validação', 'PostgreSQL', 'Migrações', 'Testes', 'DDD', 'SOLID', 'GRASP', 'Padrões de Projeto'],
     requerAprovacaoPara: ['alteracao_arquitetural', 'alteracao_destrutiva_api', 'migracao_necessaria', 'alteracao_de_autenticacao'],
-    condicoesDeParada: ['mudanca_arquitetural', 'alteracao_de_contrato', 'alteracao_destrutiva', 'risco_de_seguranca', 'migracao_necessaria', 'api_incompativel'],
-    responsabilidades: ['Implementar API REST', 'Implementar regras de negócio', 'Implementar autenticação/autorização', 'Implementar validação de entrada', 'Criar DTOs', 'Criar migrações de banco', 'Aplicar segurança (JWT, BCrypt, RBAC)', 'Tratar exceções', 'Rate limiting, CORS', 'Executar testes']
+    condicoesDeParada: ['mudanca_arquitetural', 'alteracao_de_contrato', 'alteracao_destrutiva', 'migracao_necessaria', 'api_incompativel'],
+    responsabilidades: ['Implementar API REST', 'Implementar regras de negócio', 'Implementar validação de entrada', 'Criar DTOs', 'Criar migrações de banco', 'Tratar exceções', 'Executar testes']
   },
   {
     id: 'banco', nome: 'Banco de Dados', funcao: 'banco_de_dados',
@@ -60,11 +60,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: false, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/banco/**'],
     diretoriosProibidos: ['/frontend/**', '/android/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-banco', 'contrato-seguranca'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-banco'],
     conhecimentos: ['PostgreSQL', 'Modelagem', 'Normalização', 'Índices', 'Transações', 'Concorrência', 'Integridade', 'Desempenho', 'Migrações'],
     requerAprovacaoPara: ['alteracao_destrutiva', 'alteracao_producao'],
-    condicoesDeParada: ['alteracao_destrutiva', 'risco_de_seguranca', 'api_incompativel'],
-    responsabilidades: ['Modelar dados', 'Criar migrações', 'Definir relacionamentos', 'Definir índices', 'Preservar integridade', 'Analisar consultas', 'Analisar desempenho', 'Aplicar segurança']
+    condicoesDeParada: ['alteracao_destrutiva', 'api_incompativel'],
+    responsabilidades: ['Modelar dados', 'Criar migrações', 'Definir relacionamentos', 'Definir índices', 'Preservar integridade', 'Analisar consultas', 'Analisar desempenho']
   },
   {
     id: 'android', nome: 'Android', funcao: 'desenvolvimento_android',
@@ -72,11 +72,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: true, executar: true, testar: true, revisar: false, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/android/**'],
     diretoriosProibidos: ['/backend/**', '/frontend/**', '/banco/**', '/infraestrutura/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-android', 'contrato-api', 'contrato-seguranca', 'contrato-interface'],
-    conhecimentos: ['Kotlin', 'Android', 'Gradle', 'Componentes Android', 'Ciclo de Vida', 'Corrotinas', 'HTTP', 'JSON', 'API REST', 'Autenticação', 'Armazenamento Seguro', 'Permissões', 'Câmera', 'Arquivos', 'Notificações', 'Testes', 'Desempenho', 'Compatibilidade'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-android', 'contrato-api', 'contrato-interface'],
+    conhecimentos: ['Kotlin', 'Android', 'Gradle', 'Componentes Android', 'Ciclo de Vida', 'Corrotinas', 'HTTP', 'JSON', 'API REST', 'Armazenamento', 'Permissões', 'Câmera', 'Arquivos', 'Notificações', 'Testes', 'Desempenho', 'Compatibilidade'],
     requerAprovacaoPara: ['alteracao_permissao_critica', 'acesso_producao'],
     condicoesDeParada: ['api_incompativel', 'contrato_conflitante', 'arquivo_fora_do_dominio'],
-    responsabilidades: ['Implementar aplicativo', 'Integrar API', 'Implementar autenticação', 'Tratar permissões', 'Implementar armazenamento seguro', 'Implementar funcionalidades Android', 'Executar testes', 'Validar desempenho']
+    responsabilidades: ['Implementar aplicativo', 'Integrar API', 'Tratar permissões', 'Implementar armazenamento', 'Implementar funcionalidades Android', 'Executar testes', 'Validar desempenho']
   },
   {
     id: 'infraestrutura', nome: 'Infraestrutura', funcao: 'infraestrutura_implantacao',
@@ -84,7 +84,7 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: false, aprovar: false, implantar: true },
     diretoriosPermitidos: ['/infraestrutura/**', '/docker/**', '/implantacao/**'],
     diretoriosProibidos: ['/frontend/**', '/android/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-infraestrutura', 'contrato-seguranca'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-infraestrutura'],
     conhecimentos: ['Linux', 'Docker', 'Docker Compose', 'Nginx', 'HTTPS', 'DNS', 'Firewall', 'VPS', 'Segredos', 'Cópias de Segurança', 'Monitoramento'],
     requerAprovacaoPara: ['implantacao_producao', 'alteracao_producao', 'alteracao_rede_critica'],
     condicoesDeParada: ['alteracao_de_infraestrutura', 'necessidade_de_segredo', 'alteracao_destrutiva'],
@@ -96,23 +96,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/testes/**'],
     diretoriosProibidos: [],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-testes', 'contrato-api', 'contrato-seguranca'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-testes', 'contrato-api'],
     conhecimentos: ['Testes unitários', 'Testes de integração', 'Testes de API', 'Testes de contrato', 'Testes de segurança', 'Testes de interface', 'Testes E2E', 'Testes de regressão', 'Testes de desempenho'],
     requerAprovacaoPara: ['alteracao_de_ambiente'],
     condicoesDeParada: ['teste_critico_falhando', 'api_incompativel', 'violacao_de_contrato'],
     responsabilidades: ['Executar testes', 'Criar testes', 'Validar requisitos', 'Validar critérios de aceitação', 'Detectar regressões', 'Validar contratos', 'Validar segurança']
-  },
-  {
-    id: 'seguranca', nome: 'Segurança', funcao: 'seguranca',
-    subpasta: 'seguranca', perfilId: 'seguranca', estado: 'ativo',
-    permissoes: { ler: true, criar: false, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
-    diretoriosPermitidos: ['/.ia/**'],
-    diretoriosProibidos: [],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-seguranca'],
-    conhecimentos: ['Autenticação', 'Autorização', 'JWT', 'RBAC', 'BCrypt', 'XSS', 'CSRF', 'SQL Injection', 'Rate Limiting', 'CORS', 'Criptografia', 'Gestão de Segredos', 'Segurança de Dependências'],
-    requerAprovacaoPara: ['aceitacao_de_risco_critico', 'alteracao_de_autenticacao', 'alteracao_de_autorizacao', 'alteracao_de_criptografia'],
-    condicoesDeParada: ['risco_critico', 'alteracao_de_seguranca', 'necessidade_de_segredo'],
-    responsabilidades: ['Analisar autenticação', 'Analisar autorização', 'Analisar entrada de dados', 'Analisar exposição de dados', 'Analisar dependências', 'Analisar configuração', 'Analisar código', 'Analisar infraestrutura', 'Registrar riscos']
   },
   {
     id: 'revisor', nome: 'Revisor de Código', funcao: 'revisao',
@@ -120,11 +108,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: false, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/**'],
     diretoriosProibidos: [],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-arquitetura', 'contrato-seguranca', 'contrato-testes'],
-    conhecimentos: ['Arquitetura', 'Legibilidade', 'SOLID', 'Coesão', 'Acoplamento', 'Duplicação', 'Desempenho', 'Segurança', 'Testes', 'Tratamento de erros', 'Contratos', 'Padrões do projeto'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-arquitetura', 'contrato-testes'],
+    conhecimentos: ['Arquitetura', 'Legibilidade', 'SOLID', 'Coesão', 'Acoplamento', 'Duplicação', 'Desempenho', 'Testes', 'Tratamento de erros', 'Contratos', 'Padrões do projeto'],
     requerAprovacaoPara: [],
-    condicoesDeParada: ['problema_de_arquitetura', 'problema_de_seguranca', 'problema_de_contrato'],
-    responsabilidades: ['Revisar código', 'Verificar arquitetura', 'Verificar segurança', 'Verificar testes', 'Verificar contratos', 'Detectar duplicação', 'Detectar complexidade', 'Registrar recomendações']
+    condicoesDeParada: ['problema_de_arquitetura', 'problema_de_contrato'],
+    responsabilidades: ['Revisar código', 'Verificar arquitetura', 'Verificar testes', 'Verificar contratos', 'Detectar duplicação', 'Detectar complexidade', 'Registrar recomendações']
   },
   {
     id: 'documentacao', nome: 'Documentação', funcao: 'documentacao',
@@ -133,10 +121,10 @@ export const AGENTES_BASE: AgenteInicial[] = [
     diretoriosPermitidos: ['/docs/**', '/README.md', '/CHANGELOG.md'],
     diretoriosProibidos: [],
     contratosObrigatorios: ['contrato-projeto', 'contrato-documentacao'],
-    conhecimentos: ['Documentação de arquitetura', 'Documentação de API', 'Documentação de instalação', 'Documentação de configuração', 'Documentação de implantação', 'Documentação de segurança', 'Documentação de decisões', 'Solução de problemas', 'Histórico'],
+    conhecimentos: ['Documentação de arquitetura', 'Documentação de API', 'Documentação de instalação', 'Documentação de configuração', 'Documentação de implantação', 'Documentação de decisões', 'Solução de problemas', 'Histórico'],
     requerAprovacaoPara: [],
     condicoesDeParada: ['informacao_insuficiente'],
-    responsabilidades: ['Documentar arquitetura', 'Documentar API', 'Documentar instalação', 'Documentar configuração', 'Documentar implantação', 'Documentar segurança', 'Documentar decisões', 'Documentar problemas', 'Atualizar histórico']
+    responsabilidades: ['Documentar arquitetura', 'Documentar API', 'Documentar instalação', 'Documentar configuração', 'Documentar implantação', 'Documentar decisões', 'Documentar problemas', 'Atualizar histórico']
   },
   {
     id: 'observabilidade', nome: 'Observabilidade', funcao: 'observabilidade',
@@ -168,7 +156,7 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: false, aprovar: false, implantar: true },
     diretoriosPermitidos: ['/infraestrutura/**', '/backend/**', '/.ia/**'],
     diretoriosProibidos: ['/frontend/**', '/android/**', '/banco/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-infraestrutura', 'contrato-seguranca'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-infraestrutura'],
     conhecimentos: ['CI/CD', 'Docker', 'Kubernetes', 'Cloud', 'Monitoramento', 'Scaling', 'IaC', 'Terraform', 'Ansible', 'GitOps', 'Observabilidade'],
     requerAprovacaoPara: ['implantacao_producao', 'alteracao_producao', 'alteracao_rede_critica'],
     condicoesDeParada: ['alteracao_de_infraestrutura', 'necessidade_de_segredo', 'alteracao_destrutiva'],
@@ -180,23 +168,11 @@ export const AGENTES_BASE: AgenteInicial[] = [
     permissoes: { ler: true, criar: true, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/testes/**', '/backend/**', '/frontend/**'],
     diretoriosProibidos: ['/android/**', '/infraestrutura/**', '/banco/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-testes', 'contrato-api', 'contrato-seguranca'],
-    conhecimentos: ['Testes automatizados', 'E2E', 'Regressão', 'Integração', 'Performance', 'Segurança', 'Jest', 'Cypress', 'JUnit', 'Testes de contrato', 'Testes de API'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-testes', 'contrato-api'],
+    conhecimentos: ['Testes automatizados', 'E2E', 'Regressão', 'Integração', 'Performance', 'Jest', 'Cypress', 'JUnit', 'Testes de contrato', 'Testes de API'],
     requerAprovacaoPara: ['alteracao_de_ambiente'],
     condicoesDeParada: ['teste_critico_falhando', 'api_incompativel', 'violacao_de_contrato'],
-    responsabilidades: ['Executar testes automatizados', 'Criar testes E2E', 'Validar requisitos', 'Detectar regressões', 'Validar contratos', 'Validar segurança', 'Reportar bugs', 'Garantir qualidade']
-  },
-  {
-    id: 'security-engineer', nome: 'Security Engineer', funcao: 'seguranca',
-    subpasta: 'security-engineer', perfilId: 'security-engineer', estado: 'ativo',
-    permissoes: { ler: true, criar: false, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
-    diretoriosPermitidos: ['/.ia/**', '/backend/**', '/infraestrutura/**'],
-    diretoriosProibidos: ['/frontend/**', '/android/**', '/banco/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-seguranca'],
-    conhecimentos: ['Pentesting', 'Auditoria', 'Conformidade', 'Gestão de vulnerabilidades', 'OWASP', 'SAST', 'DAST', 'Criptografia', 'Gestão de segredos', 'Compliance'],
-    requerAprovacaoPara: ['aceitacao_de_risco_critico', 'alteracao_de_autenticacao', 'alteracao_de_autorizacao', 'alteracao_de_criptografia'],
-    condicoesDeParada: ['risco_critico', 'alteracao_de_seguranca', 'necessidade_de_segredo'],
-    responsabilidades: ['Realizar auditoria de segurança', 'Executar pentesting', 'Garantir conformidade', 'Gerenciar vulnerabilidades', 'Analisar código seguro', 'Implementar controles', 'Reportar riscos', 'Revisar autenticação']
+    responsabilidades: ['Executar testes automatizados', 'Criar testes E2E', 'Validar requisitos', 'Detectar regressões', 'Validar contratos', 'Reportar bugs', 'Garantir qualidade']
   },
   {
     id: 'technical-writer', nome: 'Technical Writer / Documentador', funcao: 'documentacao',
@@ -246,12 +222,11 @@ export function criarAgentePerfil(agente: AgenteInicial, dataISO: string): Agent
     ambientesPermitidos: ['desenvolvimento', 'teste'],
     requerAprovacaoPara: agente.requerAprovacaoPara,
     condicoesDeParada: agente.condicoesDeParada,
-    criteriosDeQualidade: ['correcao', 'seguranca', 'testabilidade', 'manutenibilidade', 'arquitetura'],
+    criteriosDeQualidade: ['correcao', 'testabilidade', 'manutenibilidade', 'arquitetura'],
     criteriosDeConclusao: [
       'Requisito implementado',
       'Critérios de aceitação atendidos',
       'Testes realizados e aprovados',
-      'Segurança verificada',
       'Contratos respeitados',
       'Documentação atualizada',
       'Revisão realizada',
