@@ -464,10 +464,12 @@ curl -X POST http://localhost:3150/api/eventos/custom \
 | `GET` | `/api/monitoramento/kilo/receive-chat` | Busca mensagens Kilo por agente/tarefa |
 
 **Parâmetros de consulta:**
-- `GET /api/monitoramento/mensagens` aceita `limite` (número), `agenteId` (string) e `tipo` (string).
+- `GET /api/monitoramento/mensagens` aceita `limite` (número), `agenteId` (string), `tipo` (string) e `after` (number — `eventSequence` para polling incremental).
 - `GET /api/monitoramento/dispatcher/pendentes` aceita `agenteId` (string, opcional).
 - `GET /api/monitoramento/dispatcher/logs` aceita `limite` (número, opcional).
-- `GET /api/monitoramento/kilo/receive-chat` aceita `agenteId` (string) e `limite` (number).
+- `GET /api/monitoramento/kilo/receive-chat` aceita `agenteId` (string), `tarefaId` (string, opcional), `messageId` (string, opcional) e `limite` (number, opcional).
+
+**Tipos de mensagem (`tipo`):** `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`, `WAKEUP_PARENT`.
 
 **Exemplo - enviar mensagem:**
 ```bash
