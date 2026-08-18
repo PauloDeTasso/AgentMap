@@ -419,6 +419,7 @@ O AgentMap oferece um painel de monitoramento em tempo real consolidado no paine
 | `GET /api/monitoramento/modo` | Modo global (MANUAL/AUTO) |
 | `POST /api/monitoramento/modo` | Altera modo global |
 | `POST /api/monitoramento/intervir` | Executa intervenção manual |
+| `GET /api/monitoramento/kilo/receive-chat` | Lê respostas do AgentMap para um agente (receive-chat) |
 | `GET /api/monitoramento/dispatcher/pendentes` | Itens pendentes do dispatcher |
 | `POST /api/monitoramento/dispatcher/executar` | Executa item pendente |
 | `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
@@ -478,6 +479,28 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 - `KILO_REPLY` — resposta a uma mensagem (`dados.replyTo`)
 - `KILO_RESULT` — resultado final de tarefa
 - `KILO_CHAT_REPLY` — resposta de chat simples
+- `WAKEUP_PARENT` — wake-up enviado pelo plugin `agentmap-wakeup.ts` quando uma sessão Kilo
+  entra em estado `session.idle`; acorda o agente pai (AgentMap) para reavaliar o ciclo de
+  trabalho ou despachar próximas tarefas
+
+**Wake-up via plugin `agentmap-wakeup.ts`:**
+
+O plugin `agentmap-wakeup.ts` é o **mecanismo oficial de wake-up** entre Kilo Code / Agent
+Manager e AgentMap. Ele monitora o estado `session.idle` de cada sessão Kilo conectada.
+Quando uma sessão permanece inativa por período configurado, o plugin emite um evento
+`WAKEUP_PARENT` (tipo `KILO_CHAT` com `dados.wakeup=true`) que acorda o agente pai,
+permitindo que AgentMap reavalie pendências, envie novas instruções ou dispare o próximo
+handoff sem intervenção manual.
+
+**Ler respostas (filho ← AgentMap):**
+```
+GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=docs-comm-01&limite=20
+```
+
+- O parâmetro `agenteId` filtra as mensagens direcionadas ao agente específico.
+- O parâmetro `limite` controla o número máximo de mensagens retornadas (padrão: 20).
+- A resposta contém as mensagens do tipo `KILO_REPLY` e `WAKEUP_PARENT` pendentes para o agente.
+- O agente-filho deve chamar este endpoint periodicamente para consultar respostas do pai.
 
 Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
 

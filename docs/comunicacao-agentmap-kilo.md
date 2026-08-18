@@ -243,7 +243,70 @@ Você é o agente <agenteId>. Consulte respostas do AgentMap:
 GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=<agenteId>&limite=20
 ```
 
-## 11. Logs de auditoria
+## 11. Teste Real
+
+**Testado em:** 2026-08-18
+
+Um teste bidirecional foi realizado entre uma worktree do Agent Manager (agente-filho) e o
+AgentMap para validar o canal HTTP de comunicação. Os resultados confirmam o funcionamento
+de `POST /api/monitoramento/mensagens` e `GET /api/monitoramento/kilo/receive-chat` entre
+worktree e AgentMap.
+
+### 11.1 Cenário
+
+- **Worktree:** `docs-comm-wakeup-update` — agenteId `docs-comm-01`, tarefaId `TAR-2026-00005`
+- **Direcionador:** AgentMap rodando em `http://localhost:3150`
+- **Mecanismo de wake-up:** plugin `agentmap-wakeup.ts` (via `session.idle`) — o agente-filho foi
+  acordado automaticamente ao detectar inatividade na sessão Kilo.
+
+### 11.2 Sequência de eventos
+
+| Ordem | Ação | Tipo / Direção | Endpoint |
+|---|---|---|---|
+| 1 | Agente-filho acordado pelo plugin `agentmap-wakeup.ts` (session.idle) | Wake-up | — |
+| 2 | Agente-filho envia `KILO_CHAT` perguntando sobre tecnologia frontend | Filho → AgentMap | `POST /api/monitoramento/mensagens` |
+| 3 | AgentMap responde com `KILO_REPLY` | AgentMap → Filho | via `GET /api/monitoramento/kilo/receive-chat` |
+| 4 | Agente-filho pergunta sobre backend | Filho → AgentMap | `POST /api/monitoramento/mensagens` |
+| 5 | AgentMap responde com `KILO_REPLY` | AgentMap → Filho | via `GET /api/monitoramento/kilo/receive-chat` |
+| 6 | Agente-filho envia `KILO_RESULT` com resultado final | Filho → AgentMap | `POST /api/monitoramento/mensagens` |
+
+### 11.3 Mensagens trocadas
+
+1. **KILO_CHAT** (Filho → AgentMap) — Pergunta sobre tecnologia frontend.
+2. **KILO_REPLY** (AgentMap → Filho) — Resposta via endpoint de leitura.
+
+   ```
+   GET /api/monitoramento/kilo/receive-chat?agenteId=docs-comm-01&limite=20
+   ```
+
+3. **KILO_CHAT** (Filho → AgentMap) — Pergunta sobre backend.
+4. **KILO_REPLY** (AgentMap → Filho) — Resposta sobre backend.
+5. **KILO_RESULT** (Filho → AgentMap) — Resultado final: `Concluido. Arquivos alterados: docs/comunicacao-agentmap-kilo.md, documentos/protocolo-agentes.md`
+
+### 11.4 eventSequence
+
+O ciclo de mensagens foi registrado com os seguintes sequenciais de evento: **39, 40, 41, 42, 43**.
+
+| eventSequence | Tipo | Direção | Conteúdo resumido |
+|---|---|---|---|
+| 39 | KILO_CHAT | Filho → AgentMap | Pergunta sobre tecnologia frontend |
+| 40 | KILO_REPLY | AgentMap → Filho | Resposta frontend |
+| 41 | KILO_CHAT | Filho → AgentMap | Pergunta sobre backend |
+| 42 | KILO_REPLY | AgentMap → Filho | Resposta backend |
+| 43 | KILO_RESULT | Filho → AgentMap | Conclusão da tarefa |
+
+### 11.5 Conclusão
+
+O teste confirma que:
+
+- `POST /api/monitoramento/mensagens` entrega corretamente as mensagens do agente-filho ao
+  AgentMap, persistindo-as e tornando-as visíveis no painel Monitor em tempo real (WebSocket).
+- `GET /api/monitoramento/kilo/receive-chat` devolve as respostas do AgentMap ao agente-filho,
+  com filtragem por `agenteId` e limite configurável.
+- O plugin `agentmap-wakeup.ts` acorda o agente via `session.idle` de forma confiável,
+  iniciando o ciclo de comunicação sem intervenção manual.
+
+## 12. Logs de auditoria
 
 O backend registra logs com prefixo `[KILO]`:
 - `[KILO][HTTP_IN]` — mensagem recebida via HTTP
