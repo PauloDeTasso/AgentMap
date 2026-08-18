@@ -28,6 +28,20 @@ Este documento lista as 131 tools MCP disponíveis para integração com agentes
 | `agentmap_monitoramento_dispatcher_pendentes` | Lista itens pendentes do dispatcher | `{ "agenteId"?: string }` |
 | `agentmap_monitoramento_dispatcher_executar` | Executa item pendente do dispatcher | `{ "agenteId": string }` |
 | `agentmap_monitoramento_dispatcher_logs` | Lista logs do dispatcher | `{ "limite"?: number }` |
+| `agentmap_monitoramento_verificar_pendentes` | Verifica novidades de monitoramento para wake-up de agente (polling) | `{ "aposEventSequence"?: number, "limite"?: number }` |
+
+**Saída da tool `agentmap_monitoramento_verificar_pendentes`:**
+```json
+{
+  "temNovidades": boolean,
+  "ultimoEventSequence": number,
+  "mensagens": [...]
+}
+```
+
+**Tipos de mensagem (`tipo`):** `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`, `WAKEUP_PARENT`, `AGENTE_FILHO_RESULTADO`.
+
+> **Mecanismo de polling para wake-up:** A tool `agentmap_monitoramento_verificar_pendentes` e o resource `agentmap://monitoramento/mensagens/{projetoId}` são o mecanismo de polling usado por agentes para wake-up. O agente consulta periodicamente, verificando se há novas mensagens com `eventSequence` maior que o último processado (via `aposEventSequence`).
 
 #### Tools Kilo (somente leitura para agentes filhos)
 
