@@ -534,6 +534,7 @@ O backend expõe endpoints dedicados para integração com o painel Monitor:
 | `GET /api/monitoramento/dispatcher/pendentes` | Lista itens pendentes do dispatcher |
 | `POST /api/monitoramento/dispatcher/executar` | Executa item pendente do dispatcher |
 | `GET /api/monitoramento/dispatcher/logs` | Logs do dispatcher |
+| `GET /api/monitoramento/kilo/receive-chat` | Busca mensagens de chat direcionadas a um agente Kilo via HTTP (param: `agenteId`, `limite`) |
 
 ### Modos de Operação
 
@@ -587,6 +588,65 @@ O dispatcher gerencia itens pendentes de execução. Através dos endpoints `GET
 ### WebSocket
 
 Além da API REST, o AgentMap expõe um WebSocket em `ws://localhost:3150/ws/monitoramento` para notificações em tempo real. O serviço `MonitoramentoWebSocket` broadcast mensagens para sessões conectadas, permitindo atualizações instantâneas no painel Monitor sem polling.
+
+### Wake-up Automático
+
+O AgentMap suporta **wake-up automático** do agente principal via plugin Kilo. O plugin `.kilo/plugin/agentmap-wakeup.ts` escuta eventos de ciclo de vida da sessão (`session.idle`) e, ao detectar oscilação, consulta o AgentMap por mensagens pendentes. Se houver uma mensagem relevante (respostas de agentes filhos), o plugin injeta um prompt via `promptAsync`, acordando o agente automaticamente.
+
+**Flow do plugin:**
+
+```mermaid
+sequenceDiagram
+    participant K as Kilo Code (sessão pai)
+    participant P as Plugin agentmap-wakeup
+    participant A as AgentMap (HTTP/MCP)
+
+    K->>P: session.idle (evento)
+    P->>A: GET /api/monitoramento/mensagens?after=<eventSequence>
+    A-->>P: mensagens relevantes (KILO_REPLY, AGENTE_FILHO_RESULTADO, WAKEUP_PARENT)
+    P->>K: client.session.promptAsync(prompt)
+    K->>K: agente reativado, processa resposta
+```
+
+**Configuração do plugin em `kilo.jsonc`:**
+
+```json
+{
+  "plugin": [
+    "./.kilo/plugin/agentmap-wakeup.ts"
+  ]
+}
+```
+
+O plugin roda **dentro do processo Kilo Code** — não expõe portas de rede nem utiliza credenciais externas. Ele consome a API REST local do AgentMap (`http://localhost:3150`) e/ou a tool MCP `agentmap_monitoramento_verificar_pendentes` para consultar pendências.
+
+### Comunicação Agent Manager HTTP
+
+Agentes filhos que executam em worktrees do Agent Manager se comunicam com o AgentMap via **HTTP direto**, nunca por escrita em arquivos compartilhados. O protocolo é documentado em detalhe em [Comunicação AgentMap ↔ Agent Manager](#comunicação-agentmap-↔-agent-manager-kilo-code).
+
+**Resumo do protocolo HTTP:**
+
+| Direção | Endpoint | Método | Observação |
+|---|---|---|---|
+| Filho → AgentMap | `/api/monitoramento/mensagens` | POST | Envia progresso, respostas e resultados (`KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`) |
+| Filho ← AgentMap | `/api/monitoramento/kilo/receive-chat` | GET | Lê respostas direcionadas ao agente (`?agenteId=<id>&limite=20`) |
+| Pai → Filho | Via prompt do Agent Manager | — | O pai responde diretamente pelo prompt no VS Code |
+
+**Formato obrigatório de mensagem:**
+
+```json
+{
+  "tipo": "KILO_CHAT",
+  "emissor": "agente-kilo",
+  "agenteId": "backend-teste",
+  "tarefaId": "TAR-2026-00001",
+  "conteudo": "[backend-teste][TAR-2026-00001] Mensagem completa...",
+  "dados": { "messageId": "msg-001" },
+  "acoes": []
+}
+```
+
+Veja: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
 
 ---
 
@@ -959,7 +1019,7 @@ Variáveis de ambiente e configurações locais devem ser definidas em `kilo.loc
 
 O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 
-- **131 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0
+- **132 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0, incluindo `agentmap_monitoramento_verificar_pendentes` para wake-up
 - **Transporte STDIO** local (sem exposição de rede)
 - **`outputSchema` + `structuredContent`** para resultados estruturados
 - **Validação de entrada** via Zod em todas as tools
@@ -1076,7 +1136,7 @@ O AgentMap está funcional, testado e pronto para uso em projetos reais. A inter
 |---|---|
 | 🖥️ Interface Web | **27 painéis funcionais** com navegação completa |
 | 🔌 API REST | **~180 rotas** funcionais e documentadas |
-| 🛠️ Tools MCP | **131 tools** registradas para integração com agentes |
+| 🛠️ Tools MCP | **132 tools** registradas para integração com agentes, incluindo `agentmap_monitoramento_verificar_pendentes` |
 | 📊 Dados | Base populada com dados realistas em todos os módulos |
 | 🔔 Eventos | Sistema de eventos assíncronos com subscrições em tempo real |
 | 🔒 Segurança | Validação Zod, proteção contra path traversal, CORS configurado |

@@ -125,17 +125,60 @@ O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 
 - **Transporte:** STDIO local (`npx tsx src/mcp-server/index.ts`)
 - **SDK:** `@modelcontextprotocol/sdk` v1.30.0
-- **Tools:** 131 tools registradas com `registerTool` / `registerTracedTool`, seguindo o padrão MCP 2026:
+- **Tools:** 132 tools registradas com `registerTool` / `registerTracedTool`, seguindo o padrão MCP 2026:
   - `outputSchema` + `structuredContent` para dados estruturados
   - `isError: true` para erros de execução
   - Annotations (`readOnlyHint`, `destructiveHint`, etc)
   - Validação de entrada via Zod
   - Tracing e métricas OpenTelemetry via wrapper `registerTracedTool`
-- **Configuração:** `kilo.jsonc` na raiz ou `~/.config/kilo/kilo.jsonc` (global)
+  - Inclui `agentmap_monitoramento_verificar_pendentes` para wake-up automático
 - **Paralelismo real:** **Agent Manager** (extensão VS Code) cria worktrees isolados por agente
 - **VS Code 1.115+:** inclui preview de **Agents app** com sessões paralelas em worktrees
 
 O AgentMap **não executa agentes** e **não depende de CLI `kilo` standalone**. Ele fornece contexto, ferramentas e governança; o paralelismo é responsabilidade do Agent Manager.
+
+### Configuração do Kilo
+
+O arquivo `kilo.jsonc` define a integração com o MCP do AgentMap. O campo `mcp` registra o servidor MCP local (STDIO).
+
+Além do MCP, o `kilo.jsonc` pode registrar um **plugin de wake-up** via chave `"plugin"`:
+
+```json
+{
+  "plugin": [
+    "./.kilo/plugin/agentmap-wakeup.ts"
+  ]
+}
+```
+
+O plugin é carregado pelo processo Kilo Code e implementa o wake-up automático. Veja a seção [Flow de Wake-up](#flow-de-wake-up) abaixo.
+
+### Flow de Wake-up
+
+O plugin `.kilo/plugin/agentmap-wakeup.ts` implementa o acordar automático do agente principal:
+
+1. **Detecção de idle:** o plugin escuta eventos do barramento interno do Kilo (`event` hook) e filtra por `session.idle`. Quando a sessão pai fica ociosa, o plugin ativa.
+2. **Polling:** o plugin consulta o AgentMap por novas mensagens de monitoramento — via HTTP (`GET /api/monitoramento/mensagens?after=<eventSequence>`) ou via MCP tool `agentmap_monitoramento_verificar_pendentes` — filtrando tipos relevantes (`KILO_CHAT_REPLY`, `AGENTE_FILHO_RESULTADO`, `WAKEUP_PARENT`).
+3. **Injeção:** se houver mensagem relevante, o plugin injeta um prompt na sessão via `client.session.promptAsync()` com `noReply: false`, acordando o agente pai para processar a resposta do filho.
+
+```mermaid
+sequenceDiagram
+    participant K as Kilo Code (sessão pai)
+    participant P as Plugin agentmap-wakeup
+    participant A as AgentMap (HTTP/MCP)
+
+    K->>P: session.idle (evento)
+    P->>A: GET /api/monitoramento/mensagens?after=<eventSequence>
+    A-->>P: mensagens relevantes (KILO_REPLY, AGENTE_FILHO_RESULTADO, WAKEUP_PARENT)
+    P->>K: client.session.promptAsync(prompt)
+    K->>K: agente reativado, processa resposta
+```
+
+**Características de segurança do plugin:**
+- Roda **dentro do processo Kilo Code** (mesmo runtime)
+- **Não expõe portas de rede** — consome apenas a API local em `http://localhost:3150`
+- **Não utiliza credenciais externas** — autenticação é feita via sessão Kilo existente
+- **Não escreve arquivos compartilhados** — comunicação é exclusivamente via HTTP/MCP
 
 ### Comunicação AgentMap ↔ Agent Manager
 

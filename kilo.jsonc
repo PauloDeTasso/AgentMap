@@ -11,6 +11,9 @@
       "timeout": 30000
     }
   },
+  "plugin": [
+    "./.kilo/plugin/agentmap-wakeup.ts"
+  ],
   "provider": {
     "openrouter": {
       "data_collection_enabled": true
@@ -46,4 +49,19 @@
  * O AgentMap é exposto ao Kilo Code via MCP local (STDIO).
  * Comando: npx tsx src/mcp-server/index.ts
  * Transporte: stdio (sem exposição de rede)
+ */
+
+/*
+ * PLUGIN DE WAKE-UP AUTOMÁTICO
+ *
+ * O plugin agentmap-wakeup.ts implementa o acordar automático do agente
+ * principal. Ele escuta eventos session.idle, consulta o AgentMap por
+ * mensagens pendentes e injeta um prompt via promptAsync quando há
+ * resposta de agente filho.
+ *
+ * Características de segurança:
+ * - Roda dentro do processo Kilo Code (mesmo runtime)
+ * - Não expõe portas de rede
+ * - Não utiliza credenciais externas
+ * - Não escreve arquivos compartilhados
  */
