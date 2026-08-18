@@ -799,7 +799,10 @@ async function renderizarProjetos(el) {
     const projetos = res.dados;
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Projetos (${projetos.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="showModal('modal-novo-projeto')">+ Novo Projeto</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="showModal('modal-novo-projeto')">+ Novo Projeto</button>
+        ${projetos.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosProjetos()">Excluir Todos</button>` : ''}
+      </div>
     </div>`;
     if (projetos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum projeto cadastrado.</p>'; return; }
     const table = document.createElement('table');
@@ -945,7 +948,6 @@ window.excluirProjeto = async function(id, nome) {
     const res = await api.removerProjeto(id);
     if (res.sucesso) {
       showToast('Projeto excluído!', 'sucesso');
-      // If we deleted the currently open project, reset to welcome screen
       if (estado.projetoAtual && estado.projetoAtual.id === id) {
         estado.projetoAtual = null;
         estado.agentes = [];
@@ -955,10 +957,32 @@ window.excluirProjeto = async function(id, nome) {
         document.getElementById('btn-criar-projeto-inicial').addEventListener('click', () => showModal('modal-novo-projeto'));
         renderizarProjetoAtual();
       }
-      if (typeof carregarPainel === 'function' && document.querySelector('[data-painel="projetos"].painel-lateral__item--ativo')) {
-        carregarPainel('projetos');
-      } else {
-        renderizarProjetos(document.getElementById('painel-atividade') || null);
+      if (typeof carregarPainel === 'function') {
+        await carregarPainel('projetos');
+      }
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirTodosProjetos = async function() {
+  if (!confirm('Excluir TODOS os projetos? Esta ação remove todos os arquivos de todos os projetos e não pode ser revertida.')) return;
+  try {
+    const res = await api.removerTodosProjetos();
+    if (res.sucesso) {
+      showToast('Todos os projetos foram excluídos!', 'sucesso');
+      estado.projetoAtual = null;
+      estado.agentes = [];
+      estado.tarefas = [];
+      estado.arquivos = [];
+      $('main-content').innerHTML = '<div class="card"><h2 class="card__titulo">Bem-vindo</h2><p class="card__texto">Nenhum projeto aberto. Crie ou abra um projeto para começar.</p><div class="card__actions"><button class="btn btn--primario" id="btn-criar-projeto-inicial">Criar Novo Projeto</button></div></div>';
+      document.getElementById('btn-criar-projeto-inicial').addEventListener('click', () => showModal('modal-novo-projeto'));
+      renderizarProjetoAtual();
+      if (typeof carregarPainel === 'function') {
+        await carregarPainel('projetos');
       }
     } else {
       showToast(res.erro, 'erro');

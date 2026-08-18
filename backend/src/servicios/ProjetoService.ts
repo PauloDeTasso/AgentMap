@@ -306,7 +306,112 @@ export class ProjetoService {
       this.registro.projetoAtual = null;
     }
 
+    this.limparReferenciasProjeto(id, proj.nome, proj.caminhoRaiz);
+
     return { sucesso: true, dados: true };
+  }
+
+  removerTodosProjetos(): ResultadoOperacao<boolean> {
+    const projetos = [...this.registro.projetos];
+    for (const proj of projetos) {
+      if (fs.existsSync(proj.caminhoRaiz)) {
+        fs.rmSync(proj.caminhoRaiz, { recursive: true, force: true });
+      }
+      this.projetosAbertos.delete(proj.id);
+      this.limparReferenciasProjeto(proj.id, proj.nome, proj.caminhoRaiz);
+    }
+    this.registro = { projetos: [], projetoAtual: null };
+    saveRegistroProjetos(this.registro);
+    return { sucesso: true, dados: true };
+  }
+
+  private limparReferenciasProjeto(id: string, nome: string, caminhoRaiz: string): void {
+    const agentMapDir = GERENCIADOR_DIR;
+    const targets = [
+      path.join(agentMapDir, '.ia', 'contexto', 'mapeamento-inicial-agentmap.json'),
+      path.join(agentMapDir, '.ia', 'handoffs', 'handoffs.json'),
+    ];
+
+    for (const filePath of targets) {
+      if (!fs.existsSync(filePath)) continue;
+      try {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        const data = JSON.parse(raw);
+        let altered = false;
+
+        const clean = (value: any): any => {
+          if (Array.isArray(value)) {
+            const filtered = value
+              .map(clean)
+              .filter((v: any) => !(v && typeof v === 'object' && (v.id === id || v.caminhoRaiz === caminhoRaiz)));
+            if (filtered.length !== value.length) altered = true;
+            return filtered;
+          }
+          if (value && typeof value === 'object') {
+            if (value.id === id || value.caminhoRaiz === caminhoRaiz) {
+              altered = true;
+              return null;
+            }
+            const cleaned: Record<string, any> = {};
+            for (const [k, v] of Object.entries(value)) {
+              const cv = clean(v);
+              if (cv !== undefined && cv !== null) cleaned[k] = cv;
+            }
+            if (JSON.stringify(cleaned) !== JSON.stringify(value)) altered = true;
+            return cleaned;
+          }
+          if (typeof value === 'string') {
+            if (value === caminhoRaiz || value === nome || value === id) {
+              altered = true;
+              return '';
+            }
+            return value;
+          }
+          return value;
+        };
+
+        const cleanedData = clean(data);
+        if (altered) {
+          fs.writeFileSync(filePath, JSON.stringify(cleanedData, null, 2), 'utf-8');
+        }
+      } catch (err) {
+        console.warn(`[ProjetoService] Falha ao limpar referencias em ${filePath}:`, err);
+      }
+    }
+
+    const walkMd = (dir: string) => {
+      if (!fs.existsSync(dir)) return;
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walkMd(full);
+        } else if (entry.isFile() && full.endsWith('.md')) {
+          try {
+            let content = fs.readFileSync(full, 'utf-8');
+            const escapedCaminho = caminhoRaiz.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const escapedNome = nome.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const newContent = content
+              .split('\n')
+              .map((line) =>
+                line
+                  .replace(new RegExp(escapedCaminho, 'g'), '[REMOVIDO]')
+                  .replace(new RegExp(escapedNome, 'g'), '[REMOVIDO]')
+                  .replace(new RegExp(escapedId, 'g'), '[REMOVIDO]')
+              )
+              .join('\n');
+            if (newContent !== content) {
+              fs.writeFileSync(full, newContent, 'utf-8');
+            }
+          } catch (err) {
+            console.warn(`[ProjetoService] Falha ao limpar MD ${full}:`, err);
+          }
+        }
+      }
+    };
+
+    walkMd(path.join(agentMapDir, '.ia'));
   }
 
   atualizarConfiguracao(id: string, config: ProjetoConfig): ResultadoOperacao<ProjetoConfig> {

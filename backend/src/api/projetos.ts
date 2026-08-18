@@ -172,6 +172,10 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     return responder(res, projetoService.removerProjeto(req.params.id));
   }));
 
+  router.delete('/todos', asyncHandler(async (_req: Request, res: Response) => {
+    return responder(res, projetoService.removerTodosProjetos());
+  }));
+
   router.get('/:id/configuracao', asyncHandler(async (req: Request, res: Response) => {
     const projeto = projetoService.getProjetoCached(req.params.id);
     if (!projeto) {

@@ -312,6 +312,10 @@ class ApiClient {
     return this.request(`/projetos/${id}`, { method: 'DELETE' });
   }
 
+  async removerTodosProjetos() {
+    return this.request(`/projetos/todos`, { method: 'DELETE' });
+  }
+
   async atualizarConfiguracao(id, config) {
     return this.request(`/projetos/${id}/configuracao`, {
       method: 'PUT',
