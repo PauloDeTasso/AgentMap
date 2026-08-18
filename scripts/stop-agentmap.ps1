@@ -24,31 +24,55 @@ $patterns = @(
     "npm run mcp",
     "ts-node src/index.ts",
     "tsx src/mcp-server/index.ts",
-    "AgentMap"
+    "npm.cmd"
 )
 
+# Get current process ID and parent chain to exclude self
+$currentPid = [System.Diagnostics.Process]::GetCurrentProcess().Id
+$parentPid = (Get-CimInstance Win32_Process -Filter "ProcessId=$currentPid").ParentProcessId
+
 function Find-AgentMapProcesses {
+    param([int]$ExcludePid, [int]$ExcludeParentPid)
+
     $result = @()
 
     # Find node.exe processes matching AgentMap patterns
     Get-CimInstance Win32_Process -Filter "Name='node.exe'" | ForEach-Object {
         $cmdLine = $_.CommandLine
+        $isAgentMap = $false
+
         foreach ($pattern in $patterns) {
             if ($cmdLine -like "*$pattern*") {
-                $result += $_
+                $isAgentMap = $true
                 break
             }
         }
-        # Also check if it's from our workspace
-        if ($cmdLine -like "*AgentMap*") {
+        # Also check if it's from our workspace (but not stop-agentmap)
+        if ($cmdLine -like "*AgentMap*" -and $cmdLine -notlike "*stop-agentmap*") {
+            $isAgentMap = $true
+        }
+
+        if ($isAgentMap -and $_.ProcessId -ne $ExcludePid -and $_.ProcessId -ne $ExcludeParentPid) {
             $result += $_
         }
     }
 
-    # Find cmd.exe processes that wrap our scripts
+    # Find cmd.exe processes that wrap our npm/start scripts
+    # Exclude stop-agentmap.bat processes (our own script)
     Get-CimInstance Win32_Process -Filter "Name='cmd.exe'" | ForEach-Object {
         $cmdLine = $_.CommandLine
-        if ($cmdLine -like "*npm run dev*" -or $cmdLine -like "*npm run mcp*" -or $cmdLine -like "*AgentMap*") {
+        $isAgentMap = $false
+
+        if ($cmdLine -like "*npm run dev*" -or $cmdLine -like "*npm run mcp*") {
+            $isAgentMap = $true
+        }
+
+        # Exclude our own stop script process
+        if ($cmdLine -like "*stop-agentmap*") {
+            $isAgentMap = $false
+        }
+
+        if ($isAgentMap -and $_.ProcessId -ne $ExcludePid -and $_.ProcessId -ne $ExcludeParentPid) {
             $result += $_
         }
     }
@@ -73,7 +97,7 @@ $maxRetries = 3
 $retryDelay = 2
 
 for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
-    $processes = Find-AgentMapProcesses
+    $processes = Find-AgentMapProcesses -ExcludePid $currentPid -ExcludeParentPid $parentPid
 
     if ($processes.Count -eq 0) {
         if (-not $Silent -and $attempt -eq 1) {
@@ -117,7 +141,7 @@ for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
     Start-Sleep -Seconds $retryDelay
 
     # Check if any processes remain
-    $remaining = Find-AgentMapProcesses
+    $remaining = Find-AgentMapProcesses -ExcludePid $currentPid -ExcludeParentPid $parentPid
     if ($remaining.Count -eq 0) {
         if (-not $Silent) {
             Write-Host "All AgentMap processes stopped." -ForegroundColor Green
