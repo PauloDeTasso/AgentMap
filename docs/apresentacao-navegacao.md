@@ -185,3 +185,71 @@ SDK: `@modelcontextprotocol/sdk` v1.30.0
 
 A navegação do AgentMap está funcional, testada e populada com dados realistas. Todos os 27 painéis operam corretamente, a API responde de forma consistente e o sistema está pronto para uso em projetos reais.
 
+---
+
+## Wake-up e Comunicação Bidirecional
+
+### (a) Painel Monitor e API de Monitoramento
+
+O painel **Monitor** (item 27 da navegação) é a visão central de acompanhamento em tempo real. Ele consome a API de monitoramento exposta pelo backend:
+
+| Endpoint | Método | Descrição |
+|---|---|---|
+| `/api/monitor` | GET | Visão consolidada: agentes ativos, status, saúde geral |
+| `/api/monitoramento/mensagens` | GET | Lista mensagens de monitoramento (com suporte a `limite` e polling incremental via `eventSequence`) |
+| `/api/monitoramento/mensagens` | POST | Cria mensagem de monitoramento — usado por agentes filhos para reportar resultados |
+| `/api/monitoramento/agente/:id/status` | PUT | Atualiza status de um agente monitorado |
+| `/api/monitoramento/agentes` | GET | Lista agentes monitorados |
+| `/api/monitoramento/modo` | GET/POST | Consulta/alterado o modo global (MANUAL/AUTO) |
+| `/api/monitoramento/intervir` | POST | Executa intervenção manual |
+| `/api/monitoramento/dispatcher/pendentes` | GET | Itens pendentes do dispatcher |
+| `/api/monitoramento/dispatcher/executar` | POST | Executa item pendente do dispatcher |
+
+Além da API REST, o AgentMap expõe um **WebSocket** em `ws://localhost:3150/ws/monitoramento` para notificações em tempo real — o `MonitoramentoWebSocket` faz broadcast de mensagens para sessões conectadas, permitindo atualizações instantâneas no painel sem polling.
+
+### (b) Plugin agentmap-wakeup — wake-up automático de sessões ociosas
+
+O plugin oficial `agentmap-wakeup` (arquivo `.kilo/plugin/agentmap-wakeup.ts`) roda **dentro do processo do Kilo Code** e acorda sessões automaticamente quando elas ficam ociosas. O mecanismo é:
+
+1. O Kilo gera o evento **`session.idle`** quando uma sessão não tem atividade há um intervalo configurado.
+2. O plugin captura o evento e, após um **debounce de 3000 ms** (configurável via `AGENTMAP_WAKEUP_DEBOUNCE_MS`), consulta `GET /api/monitoramento/mensagens?limite=50` no backend do AgentMap.
+3. A resposta é filtrada incrementalmente pelo campo **`eventSequence`** — apenas mensagens cujo `eventSequence` seja maior que o último processado são consideradas.
+4. Se há mensagens pendentes relevantes, o plugin injeta um novo prompt na sessão via **`client.session.promptAsync({ sessionID, parts })`**, acordando o agente já com o contexto das atualizações.
+5. O cursor `eventSequence` é atualizado, garantindo **idempotência** — o mesmo lote de mensagens não será reenviado.
+
+Esse fluxo completo é documentado em detalhes em `docs/arquitetura-mcp.md` (seção "Plugin agentmap-wakeup") e em `PLANO GERAL/UPDATE/v0019/RELATORIO-FINAL-AGENTMAP.md` (seções 1 e 4).
+
+### (c) Comunicação bidirecional via HTTP — Agent Manager worktree ↔ AgentMap
+
+Agentes filhos (criados pelo **Agent Manager** em worktrees isolados) não possuem acesso direto às tools MCP de escrita. Eles se comunicam com o AgentMap via **HTTP direto**, de forma bidirecional:
+
+**AgentMap → Agente filho (push / inbound):**
+
+- Quando uma sessão fica ociosa, o plugin `agentmap-wakeup` consulta `GET /api/monitoramento/mensagens` e, se há mensagens, injeta o prompt via `promptAsync`. O conteúdo da mensagem vem do AgentMap.
+- Agentes filhos leem respostas via:
+  - HTTP: `GET /api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20`
+  - Tool MCP (se disponível): `kilohub_receive_chat_message`
+
+**Agente filho → AgentMap (report / outbound):**
+
+- Agentes filhos enviam resultados, status e mensagens via **POST direto** para `http://localhost:3150/api/monitoramento/mensagens` com os tipos aceitos: `KILO_CHAT`, `KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`.
+- O payload inclui `agenteId` e `tarefaId` para rastreabilidade, e o conteúdo da mensagem é exibido no painel **Monitor** em tempo real (via WebSocket ou polling).
+
+```
+  Agent Manager (worktree)              AgentMap (localhost:3150)
+  ─────────────────────────              ───────────────────────
+  session.idle (evento nativo do Kilo) ──►
+                                          GET /api/monitoramento/mensagens
+                                          (filtra por eventSequence)
+  client.session.promptAsync ◄──────────  mensagem pendente
+  (acorda a sessão)
+
+  POST /api/monitoramento/mensagens ────►  mensagem reportada
+  (tipo: KILO_RESULT, agenteId, tarefaId, conteudo)
+
+  GET /api/monitoramento/kilo/receive-chat ◄── respostas do sistema
+  (agenteId, limite)
+```
+
+Essa comunicação bidirecional é descrita na documentação oficial em `docs/comunicacao-agentmap-kilo.md`.
+
