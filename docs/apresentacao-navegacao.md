@@ -163,7 +163,7 @@ Endpoints principais por domínio:
 - `GET /api/bloqueios`, `PUT /api/bloqueios/:id/resolver`
 - `GET /api/eventos`, `POST /api/eventos/custom`
 
-Status codes utilizados: 200 (sucesso), 400 (validação), 401 (autenticação), 404 (não encontrado), 429 (rate limit).
+Status codes utilizados: 200 (sucesso), 400 (validação), 404 (não encontrado).
 
 ---
 

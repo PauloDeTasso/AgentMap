@@ -1011,7 +1011,7 @@ O sistema foi projetado com segurança desde sua concepção. Entre os princípi
 | ✅ Princípio do menor privilégio | ✅ Separação entre consulta e alteração |
 | ✅ Prevenção de execução arbitrária de comandos | ✅ Limpeza automática de temporários (TTL + manual) |
 
-Consulte [`SECURITY.md`](./SECURITY.md) para detalhes de controles e responsabilidades.
+As proteções de segurança do AgentMap são focadas em uso local: path traversal, CORS, security headers, sanitização, validação Zod e audit logging.
 
 ## 🧹 Limpeza de Temporários
 

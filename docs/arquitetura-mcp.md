@@ -123,7 +123,7 @@ A função `carregarContexto()` em `contexto.ts` replica o `projectMiddleware` d
 - **Workspace**: MCP só opera dentro do projeto aberto. Todos os caminhos passam por `FileService.resolve()` → `resolveProjectPath()` → `isPathSafe()`.
 - **Identidade**: Tools que escrevem recebem `projetoId`, `agenteId`, `sessaoId` como parâmetros explícitos.
 - **Sem shell**: Nenhuma tool executa comandos do sistema.
-- **Sem path traversal**: Reutiliza `seguranca/paths.ts` integralmente.
+- **Sem path traversal**: Reutiliza `FileService.resolve()` → `resolveProjectPath()` → `isPathSafe()` integralmente.
 
 ## Convenção de Nomes
 
