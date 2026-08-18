@@ -140,6 +140,33 @@ Preciso de contexto?
 5. `agentmap_solicitacoes_aprovar` ou `rejeitar`
 6. `agentmap_resultados_criar`
 
+### 4.9 Comunicação Bidirecional Agent Manager
+
+**Objetivo:** agentes em Agent Manager worktrees (sem tools MCP de escrita) mantêm comunicação bidirecional com o AgentMap via HTTP para wake-up de sessões ociosas e troca de mensagens.
+
+1. **Enviar (filho → AgentMap):** use `POST /api/monitoramento/mensagens` com `tipo: "KILO_CHAT"` para iniciar o diálogo:
+
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/mensagens \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "KILO_CHAT",
+    "emissor": "agente-kilo",
+    "agenteId": "backend-teste",
+    "tarefaId": "TAR-2026-00001",
+    "conteudo": "[backend-teste][TAR-2026-00001] Mensagem completa...",
+    "dados": {"messageId": "msg-001"}
+  }'
+```
+
+2. **Ler (filho ← AgentMap):** use `GET /api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20` para ler respostas (`KILO_REPLY`, `KILO_RESULT`, `KILO_CHAT_REPLY`) direcionadas ao agente.
+
+3. **Fluxo completo:** KILO_CHAT (envio) → KILO_REPLY (resposta do AgentMap) → KILO_RESULT (resultado final da tarefa).
+
+4. **Wake-up de sessões ociosas:** o plugin do Agent Manager usa `agentmap_monitoramento_verificar_pendentes` (com `aposEventSequence` para polling incremental) e a resource assinável `agentmap://monitoramento/mensagens/{projetoId}` para detectar novas mensagens e acordar sessões ociosas automaticamente. Sempre avance o cursor com `ultimoEventSequence` para evitar reprocessamento.
+
+**Dica:** combine `agentmap_monitoramento_verificar_pendentes` com `agentmap://monitoramento/mensagens/{projetoId}` assinável para cobertura redundante — polling como fallback e subscrição para notificações em tempo real.
+
 ## 5. Combinações Poderosas
 
 | Combinação | Resultado |

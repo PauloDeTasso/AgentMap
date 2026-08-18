@@ -123,6 +123,7 @@ O AgentMap suporta subscrições de recursos para notificações em tempo real. 
 | `agentmap://solicitacoes/{agenteId}` | Solicitações destinadas a um agente específico |
 | `agentmap://handoffs/{agenteId}` | Handoffs pendentes para um agente |
 | `agentmap://bloqueios/{projetoId}` | Bloqueios do projeto atual |
+| `agentmap://monitoramento/mensagens/{projetoId}` | Mensagens de monitoramento do projeto (wake-up de sessões ociosas) |
 
 ### Modo 2025 — `resources/subscribe`
 
@@ -288,7 +289,7 @@ Para polling incremental sem cego, use a tool `agentmap_monitoramento_verificar_
 - `limite`: número máximo de mensagens a retornar (padrão: 20, máximo: 100).
 - Resposta inclui `temNovidades`, `ultimoEventSequence` e `mensagens` com `eventSequence`, `tipo`, `emissor`, `agenteId`, `tarefaId`, `conteudo` e `timestamp`.
 
-Cada mensagem de monitoramento possui um `eventSequence` autoincremental. O campo `ultimoEventSequence` na resposta indica o maior sequence disponível para avançar o cursor na próxima consulta.
+Cada mensagem de monitoramento possui um `eventSequence` autoincremental. O campo `ultimoEventSequence` na resposta indica o maior sequence disponível para avançar o cursor na próxima consulta. Esta técnica é o mecanismo recomendado para wake-up de sessões ociosas: o agente consulta periodicamente e avança o cursor incrementalmente (`aposEventSequence`) para detectar novas mensagens sem polling cego.
 
 ### Recurso de monitoramento (MCP Resource)
 
@@ -344,6 +345,25 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 - `KILO_CHAT_REPLY` — resposta de chat simples
 
 Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
+
+#### Padrão Recomendado: Comunicação Bidirecional (Agent Manager Worktree)
+
+Agentes rodando em **worktrees isoladas do Agent Manager** devem adotar o seguinte fluxo bidirecional como padrão recomendado para comunicação com o AgentMap via monitoramento:
+
+1. **KILO_CHAT** — o agente envia uma mensagem inicial via `POST /api/monitoramento/mensagens` com `tipo: "KILO_CHAT"`.
+2. **KILO_REPLY** — o AgentMap (ou outro agente) responde via `POST /api/monitoramento/mensagens` com `tipo: "KILO_REPLY"` e `dados.replyTo` referenciando a mensagem original.
+3. **KILO_RESULT** — ao finalizar a tarefa, o agente envia `POST /api/monitoramento/mensagens` com `tipo: "KILO_RESULT"` para registrar o resultado final.
+
+Este fluxo garante rastreabilidade completa: do início (chat) à resposta (reply) ao resultado final (result). A resource `agentmap://monitoramento/mensagens/{projetoId}` (assinável) pode ser combinada com `agentmap_monitoramento_verificar_pendentes` para wake-up de sessões ociosas via plugin.
+
+#### Como agentes filhos enviam HTTP POST e leem GET /receive-chat
+
+Agentes filhos em Agent Manager worktrees não possuem tools MCP de escrita para monitoramento. Eles usam HTTP direto:
+
+- **Enviar:** `POST http://localhost:3150/api/monitoramento/mensagens` com `tipo`, `emissor`, `agenteId`, `tarefaId`, `conteudo` e opcional `dados`/`acoes`.
+- **Ler:** `GET http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20` — retorna mensagens `KILO_REPLY`, `KILO_RESULT` e `KILO_CHAT_REPLY` direcionadas ao agente.
+
+Veja exemplos completos na secção "Comunicação com Agent Manager / Kilo Code" acima.
 
 ## Códigos de Erro
 
