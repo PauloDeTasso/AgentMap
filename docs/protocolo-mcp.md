@@ -308,3 +308,84 @@ A tool `agentmap_monitoramento_verificar_pendentes` filtra automaticamente os se
 | `KILO_CHAT_REPLY` | Resposta de chat simples |
 | `WAKEUP_PARENT` | Evento de wakeup para o agente principal/pai |
 | `AGENTE_FILHO_RESULTADO` | Resultado enviado por agente filho |
+
+## Plugin Kilo e Wake-Up
+
+### Visão geral
+
+O plugin oficial `.kilo/plugin/agentmap-wakeup.ts` roda **dentro do mesmo processo** do `kilo serve`
+(extensão VS Code ou CLI), não sendo um script externo. Ele substitui o mecanismo antigo baseado em
+`kilo run --attach` via CLI externa (conhecido como "Gate -1/0"), eliminando a necessidade de
+descobrir porta, senha ou autenticação externa do servidor da extensão.
+
+O plugin escuta o evento `session.idle` disparado pelo Kilo quando uma sessão fica ociosa, consulta
+a API do AgentMap em busca de mensagens pendentes e, se houver, injeta um prompt diretamente na mesma
+sessão via `client.session.promptAsync`. Veja a arquitetura completa em
+`PLANO GERAL/UPDATE/v0019/RELATORIO-FINAL-AGENTMAP.md` (seção 1 e §4).
+
+### Flow de wake-up bidirecional
+
+```
+Kilo Serve (processo único)
+  │
+  │ session.idle (evento nativo do Kilo)
+  ▼
+Plugin AgentMap (.kilo/plugin/agentmap-wakeup.ts)
+  │  1. Captura sessionID de event.properties.sessionID
+  │  2. GET /api/monitoramento/mensagens?limite=50&after=<lastSeq>
+  │  3. Filtra por eventSequence > ultimo processado
+  │  4. Debounce por sessão (DEBOUNCE_MS, padrão 3s)
+  ▼
+client.session.promptAsync({ path: { id: sessionId }, body: { parts: [...] } })
+  │
+  └─→ Agente Principal acorda e processa a mensagem injetada
+```
+
+Referência ao **flow de comunicação bidirecional** completo (incluindo como agentes filhos no
+Agent Manager enviam/recebem mensagens via HTTP): [`docs/comunicacao-agentmap-kilo.md`](../comunicacao-agentmap-kilo.md).
+
+### Configuração do plugin
+
+| Variável de ambiente | Padrão | Descrição |
+|---|---|---|
+| `AGENTMAP_API_URL` | `http://localhost:3150` | Endpoint base da API REST do AgentMap |
+| `AGENTMAP_API_KEY` | (vazio) | Chave enviada como header `x-api-key` (opcional em dev local) |
+| `AGENTMAP_WAKEUP_DEBOUNCE_MS` | `3000` | Janela de debounce por sessão para agrupar eventos idle rápidos |
+
+### Tipos de mensagem para wake-up
+
+#### WAKEUP_PARENT
+
+Evento injetado pelo plugin no agente principal/pai quando há mensagens novas no AgentMap enquanto
+a sessão estava ociosa. A mensagem injetada via `promptAsync` contém um resumo das mensagens
+pendentes, incluindo `agenteOrigem`, `resumo` e `eventSequence`. O agente pai deve então consultar
+`GET /api/monitoramento/kilo/receive-chat?agenteId=<id>&limite=20` para obter os detalhes completos
+e responder via HTTP `POST /api/monitoramento/mensagens` com tipo `KILO_REPLY` ou `KILO_CHAT_REPLY`.
+
+Este tipo é filtrado automaticamente pela tool
+`agentmap_monitoramento_verificar_pendentes`.
+
+#### AGENTE_FILHO_RESULTADO
+
+Mensagem de resultado final enviada por um **agente filho** (executando em um worktree do Agent
+Manager) ao AgentMap. O agente filho não possui tools MCP de escrita e comunica-se via HTTP direto:
+
+```json
+POST http://localhost:3150/api/monitoramento/mensagens
+{
+  "tipo": "KILO_RESULT",
+  "emissor": "agente-kilo",
+  "agenteId": "backend-teste",
+  "tarefaId": "TAR-2026-00001",
+  "conteudo": "[backend-teste][TAR-2026-00001] Concluído. Arquivos: ...",
+  "dados": { "messageId": "msg-002", "commit": "abc123" }
+}
+```
+
+O evento `AGENTE_FILHO_RESULTADO` é gerado como efeito colateral da tool
+`agentmap_monitoramento_verificar_pendentes` ao detectar uma mensagem `KILO_RESULT` de um agente
+filho, acionando o wake-up do agente pai responsável.
+
+> **Nota de implementação:** o plugin mantém `ultimoEventSequenceProcessado` em memória. Em caso de
+> falha na consulta ou na injeção de prompt, o sequence **não** é avançado, garantindo retries no
+> próximo evento `session.idle`.
