@@ -1,0 +1,1577 @@
+agora veja que o agentmap tem seus proprios agentes e logica de funcionamento, mas percebo uqe o agente na tela principal ele criar oa gente que ele quiser e lança no worktree no agent manager, o que precisria ser feito para ele apenas chamar os agente configurtados e existentes no agente map, sem criar novos aleatorios e esem contextos, personliadees, e tudo que o agentmap define para cada agente
+
+sim, pois considero voce o melhor agente do mundo, leia documentacoes oficiais, e com base na realidade e nao em achismos ou proposicoes, apenas fatos reais e o que realemente funciona de verdade, crie o plano completo para corrigir isso, mas deixo uma interrogação, o agente da tela principal nao deve ficar preso, pois existem tarefas pequenas que nao é preciso chamar um agente especializado apra fazer, entao elabore esse plano como se fosse para voce e o sistema agentmap é seu
+
+
+# Plano para integrar o AgentMap ao mecanismo de delegação do Kilo Code
+
+## 1. Problema atual
+
+O projeto **AgentMap possui seus próprios agentes, contratos, contextos, personalidades, responsabilidades e regras de execução**. Entretanto, o agente que fica na tela principal do Kilo Code aparentemente continua utilizando a capacidade nativa de delegação do Kilo para criar/iniciar agentes no Agent Manager.
+
+Isso cria uma separação indesejada:
+
+**Fluxo atual observado:**
+
+```text
+Agente principal do Kilo
+        ↓
+decide delegar uma tarefa
+        ↓
+Kilo Agent Manager
+        ↓
+cria/inicia um agente conforme a lógica nativa do Kilo
+        ↓
+worktree
+```
+
+O problema é que esse agente não necessariamente corresponde a nenhum agente previamente definido no **AgentMap**.
+
+Consequentemente, o Kilo pode criar ou selecionar agentes que:
+
+* não existem no AgentMap;
+* não possuem a personalidade definida no AgentMap;
+* não possuem o contexto definido no AgentMap;
+* não possuem as responsabilidades definidas no AgentMap;
+* não possuem os contratos definidos no AgentMap;
+* não possuem as regras e restrições definidas no AgentMap;
+* não respeitam necessariamente a arquitetura de agentes definida pelo sistema;
+* podem executar tarefas sem passar pela lógica de coordenação do AgentMap.
+
+O objetivo não é simplesmente impedir a delegação.
+
+O objetivo é **controlar a delegação**.
+
+---
+
+# 2. Objetivo arquitetural
+
+O AgentMap deve tornar-se a **fonte de verdade da identidade e especialização dos agentes do projeto**.
+
+Quando uma tarefa precisar ser delegada, o agente principal deve consultar o AgentMap e utilizar **somente agentes registrados e disponíveis no AgentMap**.
+
+O Kilo continua sendo responsável por:
+
+* interface;
+* execução;
+* ferramentas;
+* Agent Manager;
+* worktrees;
+* comunicação com o modelo;
+* execução das ações.
+
+O AgentMap passa a ser responsável por:
+
+* catálogo de agentes;
+* identidade;
+* personalidade;
+* contexto;
+* responsabilidades;
+* capacidades;
+* contratos;
+* regras de delegação;
+* estado;
+* disponibilidade;
+* relacionamento entre agentes;
+* escolha do agente adequado.
+
+A arquitetura desejada é:
+
+```text
+                         KILO CODE
+                            │
+                            │ tarefa
+                            ▼
+                    ┌─────────────────┐
+                    │ AGENTE PRINCIPAL│
+                    └────────┬────────┘
+                             │
+                             │ "preciso delegar?"
+                             ▼
+                    ┌─────────────────┐
+                    │     AGENTMAP    │
+                    │                 │
+                    │ catálogo        │
+                    │ capacidades     │
+                    │ contexto        │
+                    │ personalidade   │
+                    │ contratos       │
+                    │ regras          │
+                    └────────┬────────┘
+                             │
+                    seleciona agente
+                             │
+                             ▼
+                 ┌──────────────────────┐
+                 │ AGENTE EXISTENTE     │
+                 │ NO AGENTMAP          │
+                 └──────────┬───────────┘
+                            │
+                            │ identidade + contexto
+                            ▼
+                    ┌───────────────┐
+                    │ KILO / TASK   │
+                    └───────┬───────┘
+                            │
+                            ▼
+                        WORKTREE
+```
+
+---
+
+# 3. Regra fundamental
+
+Deve existir uma regra explícita:
+
+> **O agente principal nunca deve inventar um agente especializado quando o AgentMap possuir um agente compatível.**
+
+E uma segunda regra:
+
+> **Um agente criado pelo Kilo não deve ser considerado automaticamente um agente do sistema.**
+
+A identidade de um agente deve ser determinada pelo AgentMap.
+
+Exemplo:
+
+```text
+AgentMap
+├── frontend
+├── backend
+├── database
+├── security
+├── tester
+└── documentation
+```
+
+Se uma tarefa exigir backend:
+
+```text
+ERRADO:
+
+Agente principal
+    ↓
+"Vou criar um agente backend especializado"
+    ↓
+Kilo Agent Manager
+    ↓
+novo agente
+```
+
+O comportamento desejado:
+
+```text
+CORRETO:
+
+Agente principal
+    ↓
+consulta AgentMap
+    ↓
+backend existe?
+    ↓
+SIM
+    ↓
+obtém definição do backend
+    ↓
+obtém contexto/personality/contratos
+    ↓
+delegação
+    ↓
+agente backend existente
+```
+
+---
+
+# 4. Porém, nem toda tarefa deve ser delegada
+
+Este é um ponto essencial da arquitetura.
+
+**Não devemos transformar o AgentMap em um intermediário obrigatório para absolutamente todas as tarefas.**
+
+O agente principal deve continuar podendo executar diretamente tarefas pequenas.
+
+Exemplos:
+
+```text
+Tarefa pequena
+    ↓
+agente principal executa diretamente
+```
+
+Exemplos:
+
+* corrigir um typo;
+* alterar uma pequena configuração;
+* responder uma pergunta;
+* modificar uma linha;
+* verificar um arquivo;
+* fazer uma alteração simples;
+* executar um comando simples;
+* explicar um trecho de código.
+
+Já uma tarefa que exige especialização deve utilizar o AgentMap.
+
+Exemplo:
+
+```text
+Tarefa complexa
+    ↓
+precisa de especialização?
+    ↓
+SIM
+    ↓
+AgentMap
+    ↓
+agente especializado existente
+```
+
+Portanto, o sistema precisa de uma **política de decisão de delegação**, e não de uma regra de "sempre delegar".
+
+---
+
+# 5. Política de decisão
+
+A decisão deve seguir aproximadamente esta ordem:
+
+```text
+1. A tarefa é pequena e segura para execução direta?
+       │
+       ├── SIM → agente principal executa
+       │
+       └── NÃO
+            ↓
+2. A tarefa exige conhecimento especializado?
+       │
+       ├── NÃO → agente principal pode executar
+       │
+       └── SIM
+            ↓
+3. Existe agente compatível no AgentMap?
+       │
+       ├── SIM → utilizar agente existente
+       │
+       └── NÃO
+            ↓
+4. Não criar agente automaticamente.
+            ↓
+5. Agente principal executa sozinho
+   OU solicita intervenção/decisão,
+   conforme a política definida pelo sistema.
+```
+
+Isso evita dois problemas simultaneamente:
+
+### Problema A
+
+Delegação excessiva.
+
+```text
+tarefa simples
+→ cria agente
+→ worktree
+→ contexto
+→ execução
+→ retorno
+```
+
+Isso seria desperdício.
+
+### Problema B
+
+Delegação arbitrária.
+
+```text
+tarefa complexa
+→ Kilo inventa agente
+→ agente sem identidade AgentMap
+→ contexto inconsistente
+```
+
+Isso é ainda pior.
+
+---
+
+# 6. O AgentMap deve funcionar como catálogo de capacidades
+
+Cada agente do AgentMap deve possuir uma definição estruturada.
+
+Por exemplo:
+
+```text
+Agente
+├── id
+├── nome
+├── descrição
+├── especialidade
+├── capacidades
+├── responsabilidades
+├── personalidade
+├── contexto
+├── ferramentas permitidas
+├── arquivos permitidos
+├── contratos
+├── modelo
+├── estado
+├── disponibilidade
+└── regras de delegação
+```
+
+O agente principal não deve precisar "adivinhar" essas informações.
+
+Ele deve obtê-las através do AgentMap.
+
+---
+
+# 7. Não duplicar a definição do agente
+
+Um problema importante a evitar é:
+
+```text
+AgentMap
+    └── definição do agente
+
+Kilo
+    └── outra definição do mesmo agente
+
+AGENTS.md
+    └── outra definição
+
+Prompt
+    └── outra definição
+```
+
+Isso cria múltiplas fontes de verdade.
+
+A arquitetura deve definir claramente:
+
+```text
+IDENTIDADE DO AGENTE
+        ↓
+     AGENTMAP
+```
+
+O Kilo deve receber a definição necessária para executar aquela sessão, mas não deve tornar-se o proprietário da identidade do agente.
+
+---
+
+# 8. Integração com o Kilo Code
+
+A documentação atual do Kilo confirma que agentes/subagentes podem ser definidos por arquivos de agente ou pela configuração `kilo.jsonc`, incluindo `description`, `model`, `prompt`, `mode`, permissões e outras propriedades. ([Kilo][1])
+
+Também confirma que agentes com acesso completo podem delegar diretamente para subagentes e que o mecanismo atual usa a ferramenta `task`. O antigo Orchestrator Mode está depreciado. ([Kilo][2])
+
+O Agent Manager, por sua vez, pode iniciar sessões em `worktree` ou `local`, e as tarefas enviadas podem possuir prompt, nome, branch e modelo. ([Kilo][3])
+
+Portanto, o plano **não deve tentar reproduzir o Agent Manager dentro do AgentMap**.
+
+O AgentMap deve controlar a **decisão e identidade da delegação**, enquanto o Kilo continua executando a sessão.
+
+---
+
+# 9. Criar uma camada de "Delegation Gateway"
+
+A solução recomendada é criar no AgentMap uma camada explícita:
+
+```text
+DelegationGateway
+```
+
+Responsabilidade:
+
+```text
+receber solicitação de delegação
+        ↓
+validar tarefa
+        ↓
+consultar agentes disponíveis
+        ↓
+identificar agente compatível
+        ↓
+validar regras
+        ↓
+montar contexto
+        ↓
+retornar instruções de execução
+```
+
+O agente principal não deveria conversar diretamente com uma definição arbitrária de agente.
+
+O fluxo deveria ser:
+
+```text
+Kilo
+  ↓
+AgentMap MCP/API
+  ↓
+DelegationGateway
+  ↓
+AgentRegistry
+  ↓
+AgentDefinition
+  ↓
+DelegationDecision
+```
+
+---
+
+# 10. Criar um AgentRegistry
+
+O AgentMap precisa possuir um registro centralizado:
+
+```text
+AgentRegistry
+```
+
+Esse registro responde perguntas como:
+
+```text
+Quais agentes existem?
+
+Qual agente trabalha com backend?
+
+Qual agente trabalha com frontend?
+
+Qual agente está disponível?
+
+Qual agente pode modificar determinado arquivo?
+
+Qual agente possui determinada capacidade?
+
+Qual agente pode receber esta tarefa?
+
+Qual agente está ocupado?
+
+Qual agente deve ser utilizado para determinada categoria?
+```
+
+Isso evita que o agente principal precise conhecer a estrutura interna dos arquivos do AgentMap.
+
+---
+
+# 11. Criar um mecanismo de capacidades
+
+A seleção não deve depender apenas do nome do agente.
+
+Exemplo:
+
+```text
+backend
+```
+
+é menos útil do que:
+
+```text
+capacidades:
+- java
+- spring
+- spring-security
+- rest
+- postgres
+- jpa
+- flyway
+```
+
+Uma solicitação poderia ser:
+
+```text
+requiredCapabilities:
+[
+    "java",
+    "spring",
+    "postgres"
+]
+```
+
+O AgentMap procura os agentes compatíveis.
+
+Resultado:
+
+```text
+backend
+confidence: 0.94
+```
+
+---
+
+# 12. DelegationRequest
+
+Criar um contrato explícito de delegação.
+
+Exemplo conceitual:
+
+```text
+DelegationRequest
+
+requestId
+parentAgentId
+task
+requiredCapabilities
+files
+priority
+context
+constraints
+expectedOutput
+```
+
+O AgentMap responde:
+
+```text
+DelegationResponse
+
+approved
+agentId
+agentDefinition
+context
+instructions
+permissions
+executionMode
+reason
+```
+
+O ponto importante é que o Kilo **não escolhe arbitrariamente a identidade**.
+
+Ele recebe:
+
+```text
+agentId = backend
+```
+
+e os dados necessários para executar esse agente.
+
+---
+
+# 13. Proibir "agente fantasma"
+
+O AgentMap deve validar toda execução.
+
+Se o Kilo informar:
+
+```text
+agentId = backend
+```
+
+o AgentMap verifica:
+
+```text
+backend existe?
+backend está ativo?
+backend pode receber a tarefa?
+backend possui as capacidades necessárias?
+backend está disponível?
+```
+
+Se qualquer validação falhar:
+
+```text
+delegação recusada
+```
+
+E não:
+
+```text
+criar novo agente
+```
+
+---
+
+# 14. Regra contra criação automática
+
+Essa deve ser uma regra de segurança do AgentMap:
+
+```text
+AUTO_CREATE_AGENT = false
+```
+
+ou equivalente.
+
+Mesmo que o Kilo considere útil criar um agente novo:
+
+```text
+Kilo:
+"preciso de um agente especializado em X"
+```
+
+o AgentMap deve responder:
+
+```text
+AGENT_NOT_REGISTERED
+```
+
+e não criar automaticamente.
+
+Se futuramente quiseremos permitir criação dinâmica, isso deverá ser uma operação explícita e controlada, por exemplo:
+
+```text
+AgentMap Admin
+    ↓
+createAgent()
+    ↓
+validação
+    ↓
+registro
+    ↓
+aprovação
+    ↓
+agente passa a existir
+```
+
+Nunca como consequência automática de uma decisão do modelo.
+
+---
+
+# 15. Contexto deve ser fornecido pelo AgentMap
+
+Quando um agente for acionado, o contexto não deve ser improvisado pelo agente principal.
+
+O AgentMap deve fornecer:
+
+```text
+identidade
++
+personalidade
++
+responsabilidades
++
+capacidades
++
+contratos
++
+regras
++
+contexto relevante
+```
+
+O Kilo então cria a sessão de execução com essas informações.
+
+Isso evita:
+
+```text
+Agente principal
+    ↓
+"vou explicar como o agente backend deve agir..."
+```
+
+Porque isso cria uma segunda implementação da personalidade.
+
+O correto:
+
+```text
+AgentMap
+    ↓
+definição oficial
+    ↓
+Kilo
+    ↓
+sessão do agente
+```
+
+---
+
+# 16. Worktree não deve determinar a identidade
+
+Outro ponto importante:
+
+```text
+worktree ≠ agente
+```
+
+Um worktree é apenas um ambiente isolado de execução.
+
+O fato de o Kilo criar:
+
+```text
+worktree/backend-123
+```
+
+não significa que o agente seja oficialmente o `backend` do AgentMap.
+
+A identidade deve continuar sendo:
+
+```text
+AgentMap Agent ID
+```
+
+O worktree é apenas:
+
+```text
+executionEnvironment
+```
+
+---
+
+# 17. Metadados de execução
+
+Cada execução deve registrar:
+
+```text
+executionId
+requestId
+parentAgentId
+agentId
+taskId
+worktree
+startedAt
+finishedAt
+status
+result
+```
+
+Isso permite rastrear:
+
+```text
+quem chamou
+quem executou
+qual agente foi usado
+qual tarefa recebeu
+qual worktree utilizou
+qual resultado produziu
+```
+
+---
+
+# 18. Estado dos agentes
+
+O AgentMap deve manter estados como:
+
+```text
+AVAILABLE
+BUSY
+OFFLINE
+DISABLED
+ERROR
+```
+
+Assim o agente principal pode perguntar:
+
+```text
+qual agente pode realizar esta tarefa?
+```
+
+e receber:
+
+```text
+backend
+AVAILABLE
+```
+
+ou:
+
+```text
+backend
+BUSY
+```
+
+Nesse caso, o AgentMap decide conforme sua política se:
+
+* aguarda;
+* usa outro agente compatível;
+* executa diretamente;
+* retorna ao agente principal para decisão.
+
+---
+
+# 19. Não bloquear o agente principal
+
+Esse ponto deve ser tratado explicitamente.
+
+A comunicação deve ser **assíncrona sempre que possível**.
+
+Em vez de:
+
+```text
+Kilo
+ ↓
+AgentMap
+ ↓
+aguarda indefinidamente
+ ↓
+agente terminar
+```
+
+usar:
+
+```text
+Kilo
+ ↓
+DelegationRequest
+ ↓
+AgentMap
+ ↓
+ExecutionCreated
+ ↓
+Kilo continua
+```
+
+Depois:
+
+```text
+AgentMap
+ ↓
+ExecutionCompleted
+ ↓
+evento/mensagem
+ ↓
+Kilo
+```
+
+Isso é especialmente importante para o problema que já existe no sistema: o agente principal não deve permanecer bloqueado esperando uma execução longa.
+
+---
+
+# 20. Dois tipos de execução
+
+A arquitetura deve distinguir:
+
+### Execução síncrona
+
+Para tarefas pequenas:
+
+```text
+delegar
+↓
+executar
+↓
+retornar
+```
+
+### Execução assíncrona
+
+Para tarefas demoradas:
+
+```text
+delegar
+↓
+receber executionId
+↓
+continuar trabalho
+↓
+AgentMap acompanha execução
+↓
+resultado chega posteriormente
+```
+
+Isso permite que o agente principal continue trabalhando enquanto o especialista trabalha.
+
+---
+
+# 21. Comunicação por eventos
+
+O AgentMap deve possuir um mecanismo de eventos/notificações.
+
+Exemplo:
+
+```text
+AGENT_STARTED
+AGENT_PROGRESS
+AGENT_MESSAGE
+AGENT_BLOCKED
+AGENT_COMPLETED
+AGENT_FAILED
+```
+
+O evento:
+
+```text
+AGENT_MESSAGE
+```
+
+é particularmente importante para o problema atual.
+
+Quando um agente filho enviar uma mensagem:
+
+```text
+AgentMap
+    ↓
+evento
+    ↓
+monitoramento
+    ↓
+agente principal
+```
+
+O agente principal não precisa ficar perguntando:
+
+```text
+"tem mensagem?"
+"tem mensagem?"
+"tem mensagem?"
+```
+
+---
+
+# 22. MCP como porta de integração
+
+Como o AgentMap já possui MCP, o MCP deve ser tratado como uma das portas oficiais para o Kilo consultar o sistema.
+
+A interface poderia expor operações conceituais como:
+
+```text
+listAgents
+getAgent
+findAgent
+requestDelegation
+getExecution
+getExecutionStatus
+sendMessage
+getMessages
+```
+
+O importante é que essas operações representem **capacidades do AgentMap**, e não simplesmente acesso direto aos arquivos internos.
+
+---
+
+# 23. Ferramentas mínimas
+
+O agente principal deveria ter acesso principalmente a:
+
+```text
+agentmap.listAgents()
+agentmap.findAgent()
+agentmap.requestDelegation()
+agentmap.getExecutionStatus()
+agentmap.getMessages()
+```
+
+E não:
+
+```text
+agentmap.createRandomAgent()
+```
+
+A ausência da operação de criação reduz drasticamente a possibilidade de o modelo inventar agentes.
+
+---
+
+# 24. Contrato de delegação
+
+Antes de executar uma tarefa especializada:
+
+```text
+DelegationRequest
+```
+
+deve passar por validação.
+
+Exemplo:
+
+```text
+TASK
+    ↓
+CAPABILITY MATCH
+    ↓
+AGENT EXISTS
+    ↓
+AGENT ENABLED
+    ↓
+PERMISSION VALIDATION
+    ↓
+CONTEXT RESOLUTION
+    ↓
+DELEGATION APPROVED
+```
+
+Somente então:
+
+```text
+Kilo Agent Manager
+```
+
+deve ser utilizado.
+
+---
+
+# 25. Validação contra agentes desconhecidos
+
+O AgentMap deve rejeitar:
+
+```text
+agentId desconhecido
+```
+
+com erro explícito:
+
+```text
+UNKNOWN_AGENT
+```
+
+E nunca:
+
+```text
+CREATE_AGENT
+```
+
+Isso deve ser coberto por testes automatizados.
+
+---
+
+# 26. Testes obrigatórios
+
+Criar testes para pelo menos:
+
+### Caso 1
+
+Tarefa simples.
+
+Resultado:
+
+```text
+NO_DELEGATION
+```
+
+### Caso 2
+
+Tarefa especializada com agente existente.
+
+Resultado:
+
+```text
+DELEGATE_TO_EXISTING_AGENT
+```
+
+### Caso 3
+
+Tarefa especializada sem agente existente.
+
+Resultado:
+
+```text
+NO_REGISTERED_AGENT
+```
+
+Nunca criar automaticamente.
+
+### Caso 4
+
+Agente existente, mas desabilitado.
+
+Resultado:
+
+```text
+AGENT_UNAVAILABLE
+```
+
+### Caso 5
+
+Agente existente, mas sem capacidade necessária.
+
+Resultado:
+
+```text
+CAPABILITY_MISMATCH
+```
+
+### Caso 6
+
+Agente ocupado.
+
+Resultado conforme política:
+
+```text
+WAIT
+ou
+ALTERNATIVE_AGENT
+ou
+EXECUTE_LOCALLY
+```
+
+### Caso 7
+
+Execução longa.
+
+Resultado:
+
+```text
+ASYNC_EXECUTION
+```
+
+### Caso 8
+
+Agente finaliza.
+
+Resultado:
+
+```text
+AGENT_COMPLETED
+```
+
+### Caso 9
+
+Agente envia mensagem.
+
+Resultado:
+
+```text
+AGENT_MESSAGE
+```
+
+e o principal recebe a informação sem precisar fazer polling manual.
+
+---
+
+# 27. Proteção contra "prompt drift"
+
+O AgentMap deve evitar que o agente principal reconstrua a personalidade do filho.
+
+Por exemplo, não queremos:
+
+```text
+"Crie um agente especialista em Java, seja rigoroso,
+use Clean Architecture, seja muito cuidadoso..."
+```
+
+Queremos:
+
+```text
+agentId = backend
+```
+
+e:
+
+```text
+AgentMap
+    ↓
+definição oficial
+```
+
+O prompt de execução deve ser derivado da definição oficial do agente.
+
+---
+
+# 28. Hierarquia de autoridade
+
+A arquitetura deve estabelecer uma hierarquia clara:
+
+```text
+1. AgentMap
+   identidade e especialização
+
+2. Kilo Agent
+   raciocínio e coordenação
+
+3. Agent Manager
+   execução de sessões/worktrees
+
+4. Worktree
+   isolamento físico do trabalho
+```
+
+Isso resolve a confusão atual.
+
+O Agent Manager não deve ser o catálogo de agentes do sistema.
+
+Ele é o **executor das sessões**.
+
+---
+
+# 29. Não modificar o Kilo desnecessariamente
+
+Não recomendo tentar alterar internamente o código do Kilo para transformar o AgentMap no sistema nativo de agentes.
+
+A documentação atual mostra que o Kilo já possui seu próprio sistema de agentes, subagentes e Agent Manager. ([Kilo][1])
+
+Portanto, a solução mais robusta é criar uma **integração entre os dois sistemas**, usando o mecanismo de ferramentas/MCP disponível.
+
+Assim:
+
+```text
+Kilo
+  +
+AgentMap
+```
+
+em vez de:
+
+```text
+fork/modificação profunda do Kilo
+```
+
+---
+
+# 30. AGENTS.md não deve ser usado como banco de agentes
+
+O `AGENTS.md` é apropriado para instruções gerais do projeto. A documentação do Kilo confirma que ele é carregado automaticamente e possui prioridade inferior ao prompt específico do agente. ([GitHub][4])
+
+Portanto:
+
+```text
+AGENTS.md
+```
+
+deve conter regras gerais do projeto.
+
+Não deve ser utilizado como:
+
+```text
+AgentRegistry
+```
+
+O AgentMap deve continuar sendo o catálogo oficial.
+
+---
+
+# 31. Agentes Kilo x agentes AgentMap
+
+É necessário estabelecer uma distinção explícita:
+
+```text
+Kilo Agent
+```
+
+é um mecanismo de execução/configuração do Kilo.
+
+```text
+AgentMap Agent
+```
+
+é uma entidade pertencente ao sistema AgentMap.
+
+Um agente do AgentMap pode ser executado utilizando uma sessão do Kilo, mas:
+
+```text
+Kilo Agent ≠ AgentMap Agent
+```
+
+Essa distinção deve aparecer na documentação e no código.
+
+---
+
+# 32. Fluxo final desejado
+
+### Tarefa simples
+
+```text
+Usuário
+ ↓
+Kilo principal
+ ↓
+avalia tarefa
+ ↓
+pequena?
+ ↓
+SIM
+ ↓
+executa diretamente
+```
+
+### Tarefa especializada
+
+```text
+Usuário
+ ↓
+Kilo principal
+ ↓
+avalia tarefa
+ ↓
+especializada?
+ ↓
+SIM
+ ↓
+AgentMap
+ ↓
+findAgent()
+ ↓
+agente existente
+ ↓
+requestDelegation()
+ ↓
+AgentMap valida
+ ↓
+Kilo Agent Manager
+ ↓
+worktree
+ ↓
+execução
+ ↓
+resultado
+ ↓
+AgentMap
+ ↓
+Kilo principal
+```
+
+### Tarefa sem agente disponível
+
+```text
+Kilo
+ ↓
+AgentMap
+ ↓
+nenhum agente compatível
+ ↓
+NÃO criar agente
+ ↓
+retornar decisão
+ ↓
+Kilo decide executar diretamente
+ou solicitar intervenção
+```
+
+---
+
+# 33. Plano de implementação
+
+## Fase 1 — Auditoria
+
+Mapear no AgentMap:
+
+```text
+- agentes existentes
+- contratos
+- personalidades
+- contextos
+- MCP
+- API
+- monitoramento
+- mensagens
+- estados
+- worktrees
+- executor atual
+```
+
+E no Kilo:
+
+```text
+- configuração atual
+- agents
+- subagents
+- task
+- Agent Manager
+- worktree
+- MCP
+- permissões
+```
+
+Não alterar código antes de entender o fluxo real.
+
+---
+
+## Fase 2 — Definir contrato
+
+Criar os contratos:
+
+```text
+AgentDefinition
+AgentCapability
+DelegationRequest
+DelegationResponse
+Execution
+ExecutionEvent
+AgentStatus
+```
+
+---
+
+## Fase 3 — AgentRegistry
+
+Implementar:
+
+```text
+AgentRegistry
+```
+
+como fonte de verdade dos agentes.
+
+---
+
+## Fase 4 — CapabilityResolver
+
+Implementar:
+
+```text
+CapabilityResolver
+```
+
+para descobrir qual agente é adequado para uma tarefa.
+
+---
+
+## Fase 5 — DelegationGateway
+
+Implementar:
+
+```text
+DelegationGateway
+```
+
+para controlar todas as delegações.
+
+---
+
+## Fase 6 — MCP
+
+Expor pelo MCP apenas as operações necessárias para:
+
+```text
+consultar agentes
+selecionar agente
+solicitar delegação
+acompanhar execução
+receber mensagens
+```
+
+---
+
+## Fase 7 — Bloqueio de criação arbitrária
+
+Garantir:
+
+```text
+AgentMap não cria agente automaticamente.
+```
+
+E:
+
+```text
+agente desconhecido = rejeição.
+```
+
+---
+
+## Fase 8 — Integração Kilo
+
+Modificar as instruções/configuração do agente principal para estabelecer:
+
+```text
+Antes de delegar uma tarefa especializada,
+consulte o AgentMap.
+
+Nunca invente ou crie um agente especializado.
+
+Utilize somente agentes registrados no AgentMap.
+
+Para tarefas pequenas, execute diretamente.
+```
+
+Isso deve ser acompanhado por uma integração funcional, e não depender apenas de prompt.
+
+**Prompt sozinho não é uma barreira de segurança suficiente.**
+
+---
+
+## Fase 9 — Execução assíncrona
+
+Implementar:
+
+```text
+executionId
+status
+events
+messages
+completion
+failure
+```
+
+para impedir que o agente principal fique preso esperando.
+
+---
+
+## Fase 10 — Testes de integração
+
+Testar o fluxo completo:
+
+```text
+Kilo
+ ↓
+MCP
+ ↓
+AgentMap
+ ↓
+AgentRegistry
+ ↓
+DelegationGateway
+ ↓
+agente existente
+ ↓
+Agent Manager
+ ↓
+worktree
+ ↓
+execução
+ ↓
+AgentMap
+ ↓
+Kilo
+```
+
+---
+
+# 34. Critério de sucesso
+
+A implementação somente deve ser considerada concluída quando:
+
+```text
+[OK] Kilo consegue executar tarefas pequenas diretamente.
+
+[OK] Kilo consegue identificar tarefas que precisam de especialização.
+
+[OK] Kilo consulta o AgentMap antes da delegação.
+
+[OK] Somente agentes registrados no AgentMap podem ser utilizados.
+
+[OK] Personalidade vem do AgentMap.
+
+[OK] Contexto vem do AgentMap.
+
+[OK] Capacidades vêm do AgentMap.
+
+[OK] Contratos vêm do AgentMap.
+
+[OK] Agentes desconhecidos são rejeitados.
+
+[OK] Não existe criação automática de agentes desconhecidos.
+
+[OK] Agent Manager continua responsável pela execução.
+
+[OK] Worktree continua funcionando normalmente.
+
+[OK] Tarefas longas não bloqueiam desnecessariamente o agente principal.
+
+[OK] Mensagens dos agentes chegam ao AgentMap.
+
+[OK] O agente principal pode receber os resultados posteriormente.
+
+[OK] Existe rastreabilidade completa da delegação.
+
+[OK] Existem testes automatizados para os cenários críticos.
+```
+
+# 35. Princípio final da arquitetura
+
+O objetivo não é fazer o Kilo "parar de ser inteligente".
+
+É fazer com que a inteligência do agente principal opere **dentro dos limites arquiteturais do AgentMap**.
+
+O comportamento desejado é:
+
+```text
+Kilo decide SE deve delegar.
+              ↓
+AgentMap decide PARA QUEM delegar.
+              ↓
+Kilo executa a sessão.
+              ↓
+AgentMap acompanha a execução.
+              ↓
+Kilo recebe o resultado.
+```
+
+Assim, o Kilo continua tendo autonomia para trabalhar sozinho quando isso for mais eficiente, mas **não possui autonomia para inventar a arquitetura de agentes do AgentMap**.
+
+Essa separação é o ponto central da correção.
+
+A documentação atual do Kilo reforça que agentes customizados possuem identidade, prompt, modelo, permissões e modo próprios, enquanto o Agent Manager é responsável pelas sessões de execução. ([Kilo][1]) Portanto, a implementação deve preservar essa divisão em vez de tentar fazer o Agent Manager substituir o AgentMap.
+
+**Regra arquitetural definitiva:**
+
+```text
+AGENTMAP = quem o agente é
+KILO     = como o agente raciocina
+MANAGER  = onde o agente executa
+WORKTREE = onde o trabalho isolado acontece
+```
+
+Essa deve ser a base para a próxima implementação do sistema.
+
+[1]: https://kilo.ai/docs/customize/custom-modes?utm_source=chatgpt.com "Custom Modes"
+[2]: https://kilo.ai/docs/code-with-ai/agents/orchestrator-mode?utm_source=chatgpt.com "Orchestrator Mode"
+[3]: https://kilo.ai/docs/automate/agent-manager?utm_source=chatgpt.com "Agent Manager"
+[4]: https://github.com/Kilo-Org/kilocode/blob/main/packages/kilo-docs/pages/customize/agents-md.md?utm_source=chatgpt.com "kilocode/packages/kilo-docs/pages/customize/agents-md.md at main · Kilo-Org/kilocode · GitHub"

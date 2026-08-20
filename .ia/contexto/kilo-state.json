@@ -1,5 +1,5 @@
 {
-  "descobertoEm": "2026-08-19T18:53:54.600Z",
+  "descobertoEm": "2026-08-20T00:47:02.002Z",
   "worktrees": [
     {
       "nome": "backend-api-test",
@@ -25,38 +25,9 @@
       "nome": "test-e2e-stdio",
       "caminho": ".kilo\\worktrees\\test-e2e-stdio",
       "branch": "test-e2e-stdio"
-    },
-    {
-      "nome": "teste-agentmap-backend",
-      "caminho": ".kilo\\worktrees\\teste-agentmap-backend",
-      "branch": "teste-agentmap-backend",
-      "tarefaId": "TAR-2026"
-    },
-    {
-      "nome": "teste-agentmap-frontend",
-      "caminho": ".kilo\\worktrees\\teste-agentmap-frontend",
-      "branch": "teste-agentmap-frontend",
-      "tarefaId": "TAR-2026"
     }
   ],
-  "sessoes": [
-    {
-      "id": "ses_fe4a82249ffe5z7ShlXW0scAIZ",
-      "nome": "ses_fe4a82249ffe5z7ShlXW0scAIZ",
-      "tipo": "local",
-      "worktreeId": "wt-1787165125042-1",
-      "estado": "ativo",
-      "criadoEm": "2026-08-19T18:45:38.410Z"
-    },
-    {
-      "id": "ses_fe4a7ed8cffefc7Rumw6dQXjr4",
-      "nome": "ses_fe4a7ed8cffefc7Rumw6dQXjr4",
-      "tipo": "local",
-      "worktreeId": "wt-1787165139153-2",
-      "estado": "ativo",
-      "criadoEm": "2026-08-19T18:45:51.904Z"
-    }
-  ],
+  "sessoes": [],
   "agentes": [
     {
       "id": "comunicacao-filho",
