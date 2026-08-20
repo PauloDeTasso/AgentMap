@@ -264,6 +264,10 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"], di
 async function injetarPromptRecovery(sessionId: string, client: PluginInput["client"], directory: string) {
   const promptRecovery = "ERRO NO SISTEMA! NAO PRECISA RESOLVER ESSE ERRO, APENAS CONTINUE SUA TAREFA DE ONDE PAROU E SE PRECISAR SE AUTOIDENTIFIQUE PELAS TOOLS DO MCP, ROTAS DE API OU DOCUMENTOS DO AGENT MAP!";
 
+  const logInicio = `[agentmap-wakeup] session.error detectado na sessão ${sessionId} — iniciando recovery`;
+  console.error(logInicio);
+  await logEmArquivo(directory, logInicio);
+
   try {
     const logPrompt = `[agentmap-wakeup] Injetando prompt de recovery na sessão ${sessionId}`;
     console.log(logPrompt);
@@ -279,6 +283,10 @@ async function injetarPromptRecovery(sessionId: string, client: PluginInput["cli
     const logRetorno = `[agentmap-wakeup] promptAsync recovery retornou: ${JSON.stringify(promptResult)}`;
     console.log(logRetorno);
     await logEmArquivo(directory, logRetorno);
+
+    const logSucesso = `[agentmap-wakeup] Recovery injetado com sucesso na sessão ${sessionId} às ${new Date().toISOString()}`;
+    console.log(logSucesso);
+    await logEmArquivo(directory, logSucesso);
   } catch (err) {
     const logErro = `[agentmap-wakeup] Falha ao injetar prompt de recovery: ${err}`;
     console.error(logErro);
