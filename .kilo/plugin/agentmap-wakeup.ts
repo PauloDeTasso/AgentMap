@@ -21,6 +21,14 @@ const AGENTMAP_API_URL = process.env.AGENTMAP_API_URL || "http://localhost:3150"
 const AGENTMAP_API_KEY = process.env.AGENTMAP_API_KEY || "";
 const DEBOUNCE_MS = Number(process.env.AGENTMAP_WAKEUP_DEBOUNCE_MS) || 3000;
 
+const TIPOS_RELEVANTES = new Set([
+  "KILO_CHAT_REPLY",
+  "KILO_REPLY",
+  "KILO_RESULT",
+  "KILO_CHAT",
+  "WAKEUP_PARENT",
+]);
+
 // ---------------------------------------------------------------------------
 // Estado local do plugin (em memória — reinicia junto com o processo do Kilo)
 // ---------------------------------------------------------------------------
@@ -37,11 +45,11 @@ interface MensagemPendente {
   agenteOrigem?: string;
   resumo?: string;
   eventSequence?: number;
+  tipo?: string;
 }
 
 async function buscarMensagensPendentes(): Promise<MensagemPendente[]> {
   const url = new URL("/api/monitoramento/mensagens", AGENTMAP_API_URL);
-  // Usa ?after= para paginação incremental — não reprocessa mensagens já vistas.
   url.searchParams.set("limite", "50");
   if (ultimoEventSequenceProcessado > 0) {
     url.searchParams.set("after", String(ultimoEventSequenceProcessado));
@@ -64,13 +72,16 @@ async function buscarMensagensPendentes(): Promise<MensagemPendente[]> {
       : [];
 
   return mensagens.filter(
-    (m) => typeof m.eventSequence === "number" && m.eventSequence > ultimoEventSequenceProcessado
+    (m) =>
+      typeof m.eventSequence === "number" &&
+      m.eventSequence > ultimoEventSequenceProcessado &&
+      TIPOS_RELEVANTES.has(m.tipo || "")
   );
 }
 
 function montarResumo(mensagens: MensagemPendente[]): string {
   const linhas = mensagens.map(
-    (m) => `- [${m.agenteOrigem || "agente"}] ${m.resumo || m.id}`
+    (m) => `- [${m.agenteOrigem || m.emissor || "agente"}] ${m.resumo || m.conteudo || m.id}`
   );
   return (
     `Novas atualizações no AgentMap enquanto você estava ociado:\n` +
@@ -84,9 +95,6 @@ function montarResumo(mensagens: MensagemPendente[]): string {
 // ---------------------------------------------------------------------------
 
 function agendarVerificacao(sessionId: string, client: PluginInput["client"]) {
-  // Debounce: se vários eventos idle chegarem em sequência rápida (ex.:
-  // vários agentes filhos terminando quase juntos), agrupa numa única
-  // checagem/prompt em vez de acordar a sessão várias vezes seguidas.
   const timerExistente = debounceTimers.get(sessionId);
   if (timerExistente) clearTimeout(timerExistente);
 
@@ -98,14 +106,9 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"]) {
 
       const resumo = montarResumo(pendentes);
 
-      // API oficial da v1 SDK (@kilocode/sdk 7.4.20):
-      //   Session.promptAsync(options: Options<SessionPromptAsyncData>)
-      // onde SessionPromptAsyncData = { path: { id }, body: { parts } }
       await client.session.promptAsync({
-        path: { id: sessionId },
-        body: {
-          parts: [{ type: "text", text: resumo }],
-        },
+        sessionID: sessionId,
+        parts: [{ type: "text", text: resumo }],
       });
 
       ultimoEventSequenceProcessado = Math.max(
@@ -118,7 +121,6 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"]) {
       );
     } catch (err) {
       console.error("[agentmap-wakeup] Falha ao processar wake-up:", err);
-      // Não avança ultimoEventSequenceProcessado — tenta de novo no próximo idle.
     }
   }, DEBOUNCE_MS);
 
@@ -138,7 +140,6 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
     event: async ({ event }) => {
       if (event.type !== "session.idle") return;
 
-      // EventSessionIdle.properties.sessionID (uppercase ID — conforme tipagem v1 SDK)
       const sessionId: string | undefined = event.properties?.sessionID;
 
       if (!sessionId) {

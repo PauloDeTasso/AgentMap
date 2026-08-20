@@ -167,10 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function adicionarMensagem(msg) {
     if (ultimaMensagemEnviada && msg.tipo === 'COMANDO_USUARIO' && msg.emissor === 'usuario') {
       const last = ultimaMensagemEnviada;
-      if (msg.conteudo === last.conteudo && msg.emissor === last.emissor && Math.abs(new Date(msg.timestamp) - new Date(last.timestamp)) < 5000) {
-        ultimaMensagemEnviada = null;
+      if (msg.conteudo === last.conteudo && msg.emissor === last.emissor) {
         const idx = mensagensCache.findIndex(m => m.id === last.id);
         if (idx !== -1) {
+          ultimaMensagemEnviada = null;
           mensagensCache[idx] = { ...mensagensCache[idx], ...msg };
           atualizarFiltroTipo();
           aplicarFiltros();
