@@ -163,19 +163,7 @@ export const AGENTES_BASE: AgenteInicial[] = [
     responsabilidades: ['Implementar pipeline CI/CD', 'Gerenciar containers', 'Configurar cloud', 'Monitorar infraestrutura', 'Aplicar scaling', 'Gerenciar deploy', 'Implementar IaC', 'Gerenciar segredos', 'Garantir disponibilidade']
   },
   {
-    id: 'qa-testes', nome: 'QA / Testes', funcao: 'qualidade_testes',
-    subpasta: 'qa-testes', perfilId: 'qa-testes', estado: 'ativo',
-    permissoes: { ler: true, criar: true, alterar: false, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
-    diretoriosPermitidos: ['/testes/**', '/backend/**', '/frontend/**'],
-    diretoriosProibidos: ['/android/**', '/infraestrutura/**', '/banco/**'],
-    contratosObrigatorios: ['contrato-projeto', 'contrato-testes', 'contrato-api'],
-    conhecimentos: ['Testes automatizados', 'E2E', 'Regressão', 'Integração', 'Performance', 'Jest', 'Cypress', 'JUnit', 'Testes de contrato', 'Testes de API'],
-    requerAprovacaoPara: ['alteracao_de_ambiente'],
-    condicoesDeParada: ['teste_critico_falhando', 'api_incompativel', 'violacao_de_contrato'],
-    responsabilidades: ['Executar testes automatizados', 'Criar testes E2E', 'Validar requisitos', 'Detectar regressões', 'Validar contratos', 'Reportar bugs', 'Garantir qualidade']
-  },
-  {
-    id: 'technical-writer', nome: 'Technical Writer / Documentador', funcao: 'documentacao',
+    id: 'devops', nome: 'DevOps Engineer', funcao: 'devops',
     subpasta: 'technical-writer', perfilId: 'technical-writer', estado: 'ativo',
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: false, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/docs/**', '/README.md', '/.ia/**'],
