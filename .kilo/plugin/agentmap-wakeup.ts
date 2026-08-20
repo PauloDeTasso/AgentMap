@@ -262,7 +262,10 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"], di
 }
 
 async function injetarPromptRecovery(sessionId: string, client: PluginInput["client"], directory: string) {
-  const promptRecovery = "ERRO NO SISTEMA! NAO PRECISA RESOLVER ESSE ERRO, APENAS CONTINUE SUA TAREFA DE ONDE PAROU E SE PRECISAR SE AUTOIDENTIFIQUE PELAS TOOLS DO MCP, ROTAS DE API OU DOCUMENTOS DO AGENT MAP!";
+  const promptRecovery = `ERRO NO SISTEMA!
+Não precisa resolver esse erro agora. Apenas:
+1. Continue sua tarefa de onde parou.
+2. Se precisar se autoidentificar, use as tools do MCP, rotas de API ou documentos do Agent Map.`;
 
   const logInicio = `[agentmap-wakeup] session.error detectado na sessão ${sessionId} — iniciando recovery`;
   console.error(logInicio);
@@ -306,11 +309,15 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
   return {
     event: async ({ event }) => {
       const sessionId: string | undefined = (event as any).properties?.sessionID;
-      const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${event.type} sessionID=${sessionId}`;
+      const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${event.type} sessionID=${sessionId} raw=${JSON.stringify(event)}`;
       console.log(logEvento);
       await logEmArquivo(ctx.directory, logEvento);
 
       if (event.type === "session.idle") {
+        const logIdle = `[agentmap-wakeup] session.idle detectado na sessão ${sessionId}`;
+        console.log(logIdle);
+        await logEmArquivo(ctx.directory, logIdle);
+
         if (!sessionId) {
           console.warn("[agentmap-wakeup] session.idle sem sessionID, ignorando.");
           return;
@@ -321,6 +328,10 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
       }
 
       if (event.type === "session.error") {
+        const logError = `[agentmap-wakeup] session.error detectado na sessão ${sessionId}`;
+        console.error(logError);
+        await logEmArquivo(ctx.directory, logError);
+
         if (!sessionId) {
           console.warn("[agentmap-wakeup] session.error sem sessionID, ignorando.");
           return;
