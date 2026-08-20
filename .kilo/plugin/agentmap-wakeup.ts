@@ -356,7 +356,7 @@ async function injetarHeartbeat(sessionId: string, client: PluginInput["client"]
   }
 }
 
-function iniciarHeartbeat(sessionId: string, client: PluginInput["client"], directory: string) {
+async function iniciarHeartbeat(sessionId: string, client: PluginInput["client"], directory: string) {
   const timerExistente = heartbeatTimers.get(sessionId);
   if (timerExistente) clearTimeout(timerExistente);
 
@@ -384,7 +384,7 @@ function iniciarHeartbeat(sessionId: string, client: PluginInput["client"], dire
   heartbeatTimers.set(sessionId, timer);
 }
 
-function pararHeartbeat(sessionId: string, directory: string) {
+async function pararHeartbeat(sessionId: string, directory: string) {
   const timer = heartbeatTimers.get(sessionId);
   if (timer) {
     clearInterval(timer);
@@ -408,11 +408,12 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
   return {
     event: async ({ event }) => {
       const sessionId: string | undefined = (event as any).properties?.sessionID;
-      const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${event.type} sessionID=${sessionId} raw=${JSON.stringify(event)}`;
+      const eventType = (event as any).type as string;
+      const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${eventType} sessionID=${sessionId} raw=${JSON.stringify(event)}`;
       console.log(logEvento);
       await logEmArquivo(ctx.directory, logEvento);
 
-      if (event.type === "session.idle") {
+      if (eventType === "session.idle") {
         const logIdle = `[agentmap-wakeup] session.idle detectado na sessão ${sessionId}`;
         console.log(logIdle);
         await logEmArquivo(ctx.directory, logIdle);
@@ -423,7 +424,7 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
 
         agendarVerificacao(sessionId, ctx.client, ctx.directory);
-        iniciarHeartbeat(sessionId, ctx.client, ctx.directory);
+        await iniciarHeartbeat(sessionId, ctx.client, ctx.directory);
         sessoesComRecovery.delete(sessionId);
         const timer = recoveryTimers.get(sessionId);
         if (timer) clearTimeout(timer);
@@ -431,7 +432,7 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         return;
       }
 
-      if (event.type === "session.error") {
+      if (eventType === "session.error") {
         const logError = `[agentmap-wakeup] session.error detectado na sessão ${sessionId}`;
         console.error(logError);
         await logEmArquivo(ctx.directory, logError);
@@ -442,11 +443,11 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
 
         await injetarPromptRecovery(sessionId, ctx.client, ctx.directory);
-        pararHeartbeat(sessionId, ctx.directory);
+        await pararHeartbeat(sessionId, ctx.directory);
         return;
       }
 
-      if (event.type === "session.deleted") {
+      if (eventType === "session.deleted") {
         const logDeleted = `[agentmap-wakeup] session.deleted detectado na sessão ${sessionId}`;
         console.log(logDeleted);
         await logEmArquivo(ctx.directory, logDeleted);
@@ -456,11 +457,11 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
           return;
         }
 
-        pararHeartbeat(sessionId, ctx.directory);
+        await pararHeartbeat(sessionId, ctx.directory);
         return;
       }
 
-      if (event.type === "tool.execute.before") {
+      if (eventType === "tool.execute.before") {
         const toolName = (event as any).properties?.input?.tool || (event as any).properties?.tool || "unknown";
         const logToolBefore = `[agentmap-wakeup] tool.execute.before sessão=${sessionId} tool=${toolName}`;
         console.log(logToolBefore);
@@ -468,7 +469,7 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         return;
       }
 
-      if (event.type === "tool.execute.after") {
+      if (eventType === "tool.execute.after") {
         const toolName = (event as any).properties?.input?.tool || (event as any).properties?.tool || "unknown";
         const toolOutput = (event as any).properties?.output || (event as any).properties?.result || {};
         const logToolAfter = `[agentmap-wakeup] tool.execute.after sessão=${sessionId} tool=${toolName} output=${JSON.stringify(toolOutput)}`;
