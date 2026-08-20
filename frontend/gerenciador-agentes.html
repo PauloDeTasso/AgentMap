@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentMap - Gerenciador de Agentes</title>
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .agent-manager-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      transition: border-color 0.15s;
+    }
+    .agent-card:hover {
+      border-color: var(--primary);
+    }
+    .agent-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .agent-card__title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .agent-card__meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .agent-card__section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .agent-card__section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .path-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .path-list__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 10px;
+    }
+    .path-list__item code {
+      flex: 1;
+      word-break: break-all;
+    }
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover {
+      background: var(--primary);
+      color: #0f1117;
+      border-color: var(--primary);
+    }
+    .domain-tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(74, 144, 217, 0.2);
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+    .flow-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(108, 92, 231, 0.2);
+      color: var(--accent);
+      margin: 2px 4px 2px 0;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .filter-bar select,
+    .filter-bar input {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header__container">
+      <h1 class="header__titulo">Gerenciador de Agentes</h1>
+      <div class="header__status" id="status-api">🔴 Desconectado</div>
+      <a class="btn btn--small" href="./index.html" style="text-decoration:none;color:inherit;">Voltar</a>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="toolbar">
+      <h2 style="margin:0;font-size:1.1rem;">Agentes Cadastrados</h2>
+      <div class="filter-bar">
+        <select id="filtro-dominio">
+          <option value="todos">Todos os domínios</option>
+          <option value="frontend">Frontend</option>
+          <option value="backend">Backend</option>
+          <option value="banco">Banco</option>
+          <option value="android">Android</option>
+          <option value="docs">Documentação</option>
+          <option value="infraestrutura">Infraestrutura</option>
+          <option value="testes">Testes</option>
+          <option value="seguranca">Segurança</option>
+          <option value="desempenho">Desempenho</option>
+          <option value="observabilidade">Observabilidade</option>
+          <option value="revisor">Revisor</option>
+          <option value="planejador">Planejador</option>
+          <option value="geral">Geral</option>
+        </select>
+        <input type="text" id="filtro-texto" placeholder="Buscar agente..." />
+      </div>
+    </div>
+    <div id="agent-list" class="agent-manager-container"></div>
+  </main>
+
+  <script src="js/gerenciador-agentes.js" type="module"></script>
+</body>
+</html>

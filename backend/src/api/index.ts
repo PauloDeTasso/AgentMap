@@ -33,6 +33,7 @@ import { criarAdminRouter } from './admin';
 import { criarHealthRouter } from './health';
 import { criarHandoffsCentraisRouter } from './handoffs-centrais';
 import { criarMonitoramentoRouter } from './monitoramento';
+import { criarGerenciadorAgentesRouter } from './gerenciador-agentes';
 import { criarInstanciaRouter } from './instancias';
 import { criarOrquestradorRouter } from './orquestrador';
 import { criarObservabilidadeRouter } from './observabilidade';
@@ -47,6 +48,8 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
   });
 
   router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
+
+  router.use('/api/gerenciador-agentes', criarGerenciadorAgentesRouter());
 
   router.use('/api/temp', criarTempRouter(cleanupService));
 
