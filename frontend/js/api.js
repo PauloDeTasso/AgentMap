@@ -135,6 +135,10 @@ class ApiClient {
     });
   }
 
+  async getGerenciadorAgentes() {
+    return this.request('/gerenciador-agentes/agentes');
+  }
+
   async getTarefas() {
     return this.request('/tarefas');
   }

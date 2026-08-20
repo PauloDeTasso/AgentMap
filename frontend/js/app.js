@@ -745,6 +745,7 @@ function renderizarDashboard() {
         <li class="painel-lateral__item" data-painel="integridade">🔍 Integridade</li>
         <li class="painel-lateral__item" data-painel="dashboard">🏠 Painel de Controle</li>
         <li class="painel-lateral__item" data-painel="monitor">📡 Monitor</li>
+        <li class="painel-lateral__item" data-painel="gerenciador-agentes">⚙️ Gerenciamento de Agentes</li>
     </ul>
   `;
 
@@ -804,6 +805,7 @@ async function carregarPainel(painel) {
     case 'integridade': await renderizarIntegridade(el); break;
     case 'dashboard': await renderizarDashboardCoordenacao(el); break;
     case 'monitor': await renderizarMonitor(el); break;
+    case 'gerenciador-agentes': await renderizarGerenciadorAgentes(el); break;
   }
 }
 
@@ -1398,6 +1400,30 @@ async function renderizarMonitor(el) {
     }
 
     el.innerHTML = html;
+  } catch (err) {
+    el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
+  }
+}
+
+async function renderizarGerenciadorAgentes(el) {
+  try {
+    const res = await api.getGerenciadorAgentes();
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
+    const agentes = Array.isArray(res.dados) ? res.dados : [];
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">Gerenciamento de Agentes (${agentes.length})</h3>
+    </div>`;
+    if (agentes.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum agente cadastrado.</p>'; return; }
+    const table = document.createElement('table');
+    table.className = 'table';
+    table.innerHTML = `<thead><tr><th>ID</th><th>Nome</th><th>Função</th><th>Estado</th><th>Domínio</th></tr></thead><tbody></tbody>`;
+    const tbody = table.querySelector('tbody');
+    for (const a of agentes) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(a.id)}</td><td>${escapeHtml(a.nome)}</td><td>${escapeHtml(a.funcao || '')}</td><td>${escapeHtml(a.estado || '')}</td><td>${escapeHtml(a.dominio || '')}</td></tr>`;
+      tbody.appendChild(tr);
+    }
+    el.appendChild(table);
   } catch (err) {
     el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
