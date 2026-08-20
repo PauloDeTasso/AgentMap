@@ -130,11 +130,20 @@ export function criarGerenciadorAgentesRouter(): Router {
       return responder(res, agentesResult);
     }
 
-    const agentes = agentesResult.dados.map((a) => {
+    const registros = agentesResult.dados;
+    const perfis = await Promise.all(
+      registros.map((r) => req.servicos!.agente.obter(r.id))
+    );
+
+    const agentes = registros.map((a, idx) => {
+      const perfilResult = perfis[idx];
+      const perfil = perfilResult.sucesso && perfilResult.dados ? perfilResult.dados : null;
+      const dominioPrincipal = (perfil?.dominios && perfil.dominios.length > 0 ? perfil.dominios[0] : 'geral').toLowerCase();
       const caminhos = MontarCaminhosAgente(a);
-      const dominioArquivos = DOMINIO_ARQUIVOS_PADRAO[a.id.toLowerCase()] || DOMINIO_ARQUIVOS_PADRAO['geral'] || [];
+      const dominioArquivos = DOMINIO_ARQUIVOS_PADRAO[dominioPrincipal] || DOMINIO_ARQUIVOS_PADRAO['geral'] || [];
       return {
         ...a,
+        dominio: dominioPrincipal,
         caminhos,
         dominioArquivos,
         fluxoPadrao: resolverFluxoPadrao(a.funcao.toLowerCase(), a.id)
