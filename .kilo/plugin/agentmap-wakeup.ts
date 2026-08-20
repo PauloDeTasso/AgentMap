@@ -120,6 +120,9 @@ const TIPOS_RELEVANTES = new Set([
 
 let ultimoEventSequenceProcessado = 0;
 const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const sessoesComRecovery = new Set<string>();
+const RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
+const recoveryTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 // ---------------------------------------------------------------------------
 // Consulta ao AgentMap
@@ -290,11 +293,41 @@ Não precisa resolver esse erro agora. Apenas:
     const logSucesso = `[agentmap-wakeup] Recovery injetado com sucesso na sessão ${sessionId} às ${new Date().toISOString()}`;
     console.log(logSucesso);
     await logEmArquivo(directory, logSucesso);
+
+    sessoesComRecovery.add(sessionId);
+    const timerExistente = recoveryTimers.get(sessionId);
+    if (timerExistente) clearTimeout(timerExistente);
+    recoveryTimers.set(
+      sessionId,
+      setTimeout(() => {
+        sessoesComRecovery.delete(sessionId);
+        recoveryTimers.delete(sessionId);
+      }, RECOVERY_COOLDOWN_MS)
+    );
   } catch (err) {
     const logErro = `[agentmap-wakeup] Falha ao injetar prompt de recovery: ${err}`;
     console.error(logErro);
     await logEmArquivo(directory, logErro);
   }
+}
+
+function isToolError(output: any): boolean {
+  if (!output || typeof output !== "object") return false;
+  if (output.isError === true) return true;
+  if (output.status === "error") return true;
+  if (typeof output.exit === "number" && output.exit !== 0) return true;
+
+  const text = [
+    typeof output.output === "string" ? output.output : "",
+    typeof output.title === "string" ? output.title : "",
+    typeof output.error === "string" ? output.error : "",
+    typeof output.message === "string" ? output.message : "",
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (!text) return false;
+  return /error|exception|failed|traceback|not recognized|não é reconhecido|command not found|code \d+|fatal|crash/.test(text);
 }
 
 // ---------------------------------------------------------------------------
@@ -324,6 +357,10 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
 
         agendarVerificacao(sessionId, ctx.client, ctx.directory);
+        sessoesComRecovery.delete(sessionId);
+        const timer = recoveryTimers.get(sessionId);
+        if (timer) clearTimeout(timer);
+        recoveryTimers.delete(sessionId);
         return;
       }
 
@@ -338,6 +375,43 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
 
         await injetarPromptRecovery(sessionId, ctx.client, ctx.directory);
+        return;
+      }
+
+      if (event.type === "tool.execute.before") {
+        const toolName = (event as any).properties?.input?.tool || (event as any).properties?.tool || "unknown";
+        const logToolBefore = `[agentmap-wakeup] tool.execute.before sessão=${sessionId} tool=${toolName}`;
+        console.log(logToolBefore);
+        await logEmArquivo(ctx.directory, logToolBefore);
+        return;
+      }
+
+      if (event.type === "tool.execute.after") {
+        const toolName = (event as any).properties?.input?.tool || (event as any).properties?.tool || "unknown";
+        const toolOutput = (event as any).properties?.output || (event as any).properties?.result || {};
+        const logToolAfter = `[agentmap-wakeup] tool.execute.after sessão=${sessionId} tool=${toolName} output=${JSON.stringify(toolOutput)}`;
+        console.log(logToolAfter);
+        await logEmArquivo(ctx.directory, logToolAfter);
+
+        if (!sessionId) {
+          console.warn("[agentmap-wakeup] tool.execute.after sem sessionID, ignorando.");
+          return;
+        }
+
+        if (sessoesComRecovery.has(sessionId)) {
+          const logCooldown = `[agentmap-wakeup] Sessão ${sessionId} já recebeu recovery recentemente; ignorando tool.execute.after`;
+          console.log(logCooldown);
+          await logEmArquivo(ctx.directory, logCooldown);
+          return;
+        }
+
+        if (isToolError(toolOutput)) {
+          const logToolError = `[agentmap-wakeup] Erro detectado em tool=${toolName} na sessão ${sessionId}`;
+          console.error(logToolError);
+          await logEmArquivo(ctx.directory, logToolError);
+          await injetarPromptRecovery(sessionId, ctx.client, ctx.directory);
+        }
+
         return;
       }
     },
