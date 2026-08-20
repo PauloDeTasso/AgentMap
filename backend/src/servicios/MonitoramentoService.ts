@@ -173,7 +173,7 @@ export class MonitoramentoService extends EventEmitter {
     }
 
     if (escopo === 'AGENTE' && agenteId) {
-      const statusPath = path.win32.join(this.statusPath, `${agenteId}.json`);
+      const statusPath = path.join(this.statusPath, `${agenteId}.json`);
       const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
       const config = this.carregarConfig();
 
@@ -222,7 +222,7 @@ export class MonitoramentoService extends EventEmitter {
     }
   ): ResultadoOperacao<string> {
     const config = this.carregarConfig();
-    const statusPath = path.win32.join(this.statusPath, `${agenteId}.json`);
+    const statusPath = path.join(this.statusPath, `${agenteId}.json`);
 
     let info: StatusAgenteMonitoramento = {
       id: agenteId,
@@ -284,7 +284,7 @@ export class MonitoramentoService extends EventEmitter {
     if (registryResult.sucesso && registryResult.dados?.agentes) {
       const config = this.carregarConfig();
       for (const agente of registryResult.dados.agentes) {
-        const statusPath = path.win32.join(this.statusPath, `${agente.id}.json`);
+        const statusPath = path.join(this.statusPath, `${agente.id}.json`);
         const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
         const info: StatusAgenteMonitoramento = result.sucesso && result.dados ? result.dados : {
           id: agente.id,
@@ -310,7 +310,7 @@ export class MonitoramentoService extends EventEmitter {
     return sanitizadas.slice(-limite).reverse();
   }
 
-  adicionarMensagem(msg: MensagemMonitoramento): ResultadoOperacao<string> {
+  adicionarMensagem(msg: MensagemMonitoramento): ResultadoOperacao<{ id: string }> {
     const msgs = this.carregarMensagens();
     const sanitizado = { ...msg, conteudo: this.sanitizarConteudo(msg.conteudo || '') };
     sanitizado.eventSequence = this.proximoSequence();
@@ -327,7 +327,7 @@ export class MonitoramentoService extends EventEmitter {
 
     this.broadcast(sanitizado);
     globalEventBus.publish({ uri: 'agentmap://monitoramento/mensagens', timestamp: Date.now(), reason: 'nova_mensagem' });
-    return { sucesso: true };
+    return { sucesso: true, dados: { id: sanitizado.id } };
   }
 
   broadcast(mensagem: MensagemMonitoramento): void {
@@ -335,7 +335,7 @@ export class MonitoramentoService extends EventEmitter {
   }
 
   registrarHeartbeat(agenteId: string): ResultadoOperacao<string> {
-    const statusPath = path.win32.join(this.statusPath, `${agenteId}.json`);
+    const statusPath = path.join(this.statusPath, `${agenteId}.json`);
     const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
     const config = this.carregarConfig();
 
@@ -373,7 +373,7 @@ export class MonitoramentoService extends EventEmitter {
     }
 
     for (const agente of agentesResult.dados) {
-      const statusPath = path.win32.join(this.statusPath, `${agente.nome}.json`);
+      const statusPath = path.join(this.statusPath, `${agente.nome}.json`);
       const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
       if (!result.sucesso || !result.dados) continue;
 
@@ -399,7 +399,7 @@ export class MonitoramentoService extends EventEmitter {
     }
 
     for (const agente of agentesResult.dados) {
-      const statusPath = path.win32.join(this.statusPath, `${agente.nome}.json`);
+      const statusPath = path.join(this.statusPath, `${agente.nome}.json`);
       const result = this.fs.lerJson<StatusAgenteMonitoramento>(statusPath);
       if (!result.sucesso || !result.dados) continue;
 
@@ -452,7 +452,7 @@ export class MonitoramentoService extends EventEmitter {
   }
 
   private getKiloStatePath(): string {
-    return path.win32.join('.ia', 'contexto', 'kilo-state.json');
+    return path.join('.ia', 'contexto', 'kilo-state.json');
   }
 
   async registrarKiloState(estado: KiloState): Promise<ResultadoOperacao<string>> {
@@ -503,7 +503,7 @@ export class MonitoramentoService extends EventEmitter {
     const statusResult = this.fs.listar(this.statusPath);
     if (statusResult.sucesso && statusResult.dados) {
       for (const file of statusResult.dados) {
-        this.fs.excluir(path.win32.join(this.statusPath, file.nome), { backup: false });
+        this.fs.excluir(path.join(this.statusPath, file.nome), { backup: false });
       }
     }
 
@@ -511,7 +511,7 @@ export class MonitoramentoService extends EventEmitter {
     if (agentesResult.sucesso && agentesResult.dados) {
       for (const entry of agentesResult.dados) {
         if (entry.nome === 'agentes.json') continue;
-        this.fs.excluir(path.win32.join('.ia', 'agentes', entry.nome), { backup: false });
+        this.fs.excluir(path.join('.ia', 'agentes', entry.nome), { backup: false });
       }
     }
 
@@ -531,8 +531,8 @@ export class MonitoramentoService extends EventEmitter {
       return { sucesso: false, erro: 'Agente não encontrado', codigoErro: 'NOT_FOUND' };
     }
 
-    this.fs.excluir(path.win32.join('.ia', 'agentes', agente.arquivoPerfil), { backup: false });
-    this.fs.excluir(path.win32.join(this.statusPath, `${agenteId}.json`), { backup: false });
+    this.fs.excluir(path.join('.ia', 'agentes', agente.arquivoPerfil), { backup: false });
+    this.fs.excluir(path.join(this.statusPath, `${agenteId}.json`), { backup: false });
 
     const atualizados = registryResult.dados.agentes.filter(a => a.id !== agenteId);
     this.fs.escreverJson('.ia/agentes/agentes.json', { agentes: atualizados });

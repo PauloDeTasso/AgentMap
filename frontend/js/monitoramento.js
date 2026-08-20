@@ -9,6 +9,8 @@ let kiloCache = [];
 let filtroAgente = 'todos';
 let filtroTipo = 'todos';
 let modoAtual = null;
+let ultimaMensagemEnviada = null;
+let novasCount = 0;
 function generateMsgId() {
   msgCounter += 1;
   return `MSG-${Date.now()}-${msgCounter}`;
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const filtroTipoSelect = document.getElementById('filtro-tipo');
   const statusWs = document.getElementById('status-ws');
   const btnLimparTodas = document.getElementById('btn-limpar-todas');
+  const btnLimparMensagens = document.getElementById('btn-limpar-mensagens');
 
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}/ws/monitoramento`;
@@ -114,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function carregarModoAtual() {
     try {
-      const res = await fetch(`${API_BASE}/modo`, { headers: {} });
+      const res = await fetch(`${API_BASE}/modo`, { headers: { 'Content-Type': 'application/json' } });
       const json = await res.json();
       if (json.sucesso) {
         modoAtual = json.dados.modoGlobal;
@@ -139,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch(`${API_BASE}/modo`, {
         method: 'POST',
-        headers: {},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ modo, escopo: 'GLOBAL' })
       });
       const json = await res.json();
@@ -153,6 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
           conteudo: `Modo alterado para ${modo}`,
           modo
         });
+      } else {
+        console.error('API erro:', json.erro);
       }
     } catch (err) {
       console.error('Erro ao alterar modo:', err);
@@ -160,15 +165,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function adicionarMensagem(msg) {
+    if (ultimaMensagemEnviada && msg.tipo === 'COMANDO_USUARIO' && msg.emissor === 'usuario') {
+      const last = ultimaMensagemEnviada;
+      if (msg.conteudo === last.conteudo && msg.emissor === last.emissor && Math.abs(new Date(msg.timestamp) - new Date(last.timestamp)) < 5000) {
+        ultimaMensagemEnviada = null;
+        const idx = mensagensCache.findIndex(m => m.id === last.id);
+        if (idx !== -1) {
+          mensagensCache[idx] = { ...mensagensCache[idx], ...msg };
+          atualizarFiltroTipo();
+          aplicarFiltros();
+          if (autoScroll) {
+            rolarParaUltima();
+          } else {
+            novasCount += 1;
+            mostrarBadge();
+          }
+          return;
+        }
+      }
+    }
+
     mensagensCache.push(msg);
     if (mensagensCache.length > 500) {
       mensagensCache = mensagensCache.slice(-500);
     }
+    atualizarFiltroTipo();
     aplicarFiltros();
     if (autoScroll) {
       rolarParaUltima();
     } else {
-      mostrarBadgeNovas();
+      novasCount += 1;
+      mostrarBadge();
     }
   }
 
@@ -186,6 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
       msgs = msgs.filter(m => m.tipo === filtroTipo);
     }
     renderizarMensagens(msgs);
+    const tipoAtual = filtroTipo;
+    atualizarFiltroTipo();
+    filtroTipoSelect.value = tipoAtual;
   }
 
   function renderizarMensagens(msgs = null) {
@@ -209,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
       SOLICITAR_APROVACAO: 'mensagem--agente',
       ATUALIZAR_STATUS: 'mensagem--agente',
       INTERVENCAO_USUARIO: 'mensagem--usuario',
+      COMANDO_USUARIO: 'mensagem--usuario',
       MODO_ALTERADO: 'mensagem--sistema',
       AGENTE_STATUS_ALTERADO: 'mensagem--sistema',
       CONECTADO: 'mensagem--sistema'
@@ -303,9 +334,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetch(`${API_BASE}/intervir`, {
       method: 'POST',
-      headers: {},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ comando, payload })
-    }).then(() => {
+    }).then(async (res) => {
+      const json = await res.json();
+      if (!json.sucesso) {
+        console.error('API erro:', json.erro);
+      }
       adicionarMensagem({
         id: generateMsgId(),
         timestamp: new Date().toISOString(),
@@ -385,18 +420,32 @@ document.addEventListener('DOMContentLoaded', () => {
     select.innerHTML = html;
   }
 
+  function atualizarFiltroTipo() {
+    const select = filtroTipoSelect;
+    const tipos = new Set(mensagensCache.map(m => m.tipo).filter(Boolean));
+    let html = '<option value="todos">Todos os tipos</option>';
+    tipos.forEach(tipo => {
+      html += `<option value="${tipo}">${tipo}</option>`;
+    });
+    select.innerHTML = html;
+  }
+
   function rolarParaUltima() {
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    novasCount = 0;
+    badgeNovas.textContent = '0';
     esconderBadge();
   }
 
   function mostrarBadge() {
     if (autoScroll) return;
+    badgeNovas.textContent = String(novasCount);
     badgeNovas.classList.add('scroll-badge--ativo');
   }
 
   function esconderBadge() {
     badgeNovas.classList.remove('scroll-badge--ativo');
+    badgeNovas.textContent = '0';
   }
 
   chatMessages.addEventListener('scroll', () => {
@@ -415,26 +464,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   btnScroll.addEventListener('click', () => {
-    if (autoScroll) {
-      autoScroll = false;
-      mostrarBadge();
-    } else {
-      autoScroll = true;
-      rolarParaUltima();
-    }
+    autoScroll = true;
+    rolarParaUltima();
   });
 
   btnEnviar.addEventListener('click', async () => {
     const texto = inputMensagem.value.trim();
     if (texto) {
+      const msg = {
+        id: generateMsgId(),
+        timestamp: new Date().toISOString(),
+        tipo: 'COMANDO_USUARIO',
+        emissor: 'usuario',
+        conteudo: texto
+      };
+      ultimaMensagemEnviada = msg;
+      adicionarMensagem(msg);
       try {
-        await fetch(`${API_BASE}/mensagens`, {
+        const res = await fetch(`${API_BASE}/mensagens`, {
           method: 'POST',
-         headers: {},
-         body: JSON.stringify({ tipo: 'COMANDO_USUARIO', emissor: 'usuario', conteudo: texto })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(msg)
         });
+        const json = await res.json();
+        if (!json.sucesso) {
+          console.error('API erro:', json.erro);
+          adicionarMensagem({
+            ...msg,
+            id: generateMsgId(),
+            tipo: 'ERRO',
+            conteudo: `Erro ao enviar: ${json.erro || 'falha desconhecida'}`
+          });
+        }
       } catch (err) {
         console.error('Erro ao enviar mensagem:', err);
+        adicionarMensagem({
+          ...msg,
+          id: generateMsgId(),
+          tipo: 'ERRO',
+          conteudo: `Erro de conexão: ${err.message}`
+        });
       }
       inputMensagem.value = '';
     }
@@ -478,6 +547,20 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Erro ao limpar mensagens:', err);
     }
   });
+
+  if (btnLimparMensagens) {
+    btnLimparMensagens.addEventListener('click', async () => {
+      try {
+        await fetch(`${API_BASE}/mensagens`, { method: 'DELETE' });
+      } catch (err) {
+        console.error('Erro ao limpar mensagens:', err);
+      }
+      mensagensCache = [];
+      atualizarFiltroTipo();
+      renderizarMensagens([]);
+      esconderBadge();
+    });
+  }
 
   async function excluirAgente(id) {
     if (!id) return;

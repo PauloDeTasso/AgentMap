@@ -6,10 +6,15 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   const router = Router();
 
   router.get('/mensagens', asyncHandler(async (req: Request, res: Response) => {
-    const limite = req.query.limite ? Number(req.query.limite) : 100;
-    const agenteId = req.query.agenteId as string | undefined;
-    const tipo = req.query.tipo as string | undefined;
-    const after = req.query.after ? Number(req.query.after) : 0;
+    let limite = req.query.limite ? Number(req.query.limite) : 100;
+    if (!Number.isFinite(limite) || limite <= 0) limite = 100;
+    if (limite > 500) limite = 500;
+
+    let after = req.query.after ? Number(req.query.after) : 0;
+    if (!Number.isFinite(after) || after < 0) after = 0;
+
+    const agenteId = typeof req.query.agenteId === 'string' ? req.query.agenteId.trim() : undefined;
+    const tipo = typeof req.query.tipo === 'string' ? req.query.tipo.trim() : undefined;
 
     let msgs: any[];
     if (after > 0) {
@@ -125,10 +130,12 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.get('/kilo/receive-chat', asyncHandler(async (req: Request, res: Response) => {
-    const agenteId = req.query.agenteId as string | undefined;
-    const tarefaId = req.query.tarefaId as string | undefined;
-    const messageId = req.query.messageId as string | undefined;
-    const limite = req.query.limite ? Number(req.query.limite) : 20;
+    const agenteId = typeof req.query.agenteId === 'string' ? req.query.agenteId.trim() : undefined;
+    const tarefaId = typeof req.query.tarefaId === 'string' ? req.query.tarefaId.trim() : undefined;
+    const messageId = typeof req.query.messageId === 'string' ? req.query.messageId.trim() : undefined;
+    let limite = req.query.limite ? Number(req.query.limite) : 20;
+    if (!Number.isFinite(limite) || limite <= 0) limite = 20;
+    if (limite > 200) limite = 200;
 
     const mensagens = monitoramento.listarMensagens(limite * 5);
     const tiposPermitidos = new Set(['KILO_CHAT', 'KILO_REPLY', 'KILO_RESULT', 'KILO_CHAT_REPLY']);
@@ -136,7 +143,7 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
     let resultado = (mensagens || []).filter((m: any) => tiposPermitidos.has(m.tipo));
 
     if (messageId) {
-      resultado = (mensagens || []).filter((m: any) => tiposPermitidos.has(m.tipo) || m.dados?.replyTo === messageId || m.dados?.messageId === messageId);
+      resultado = resultado.filter((m: any) => m.dados?.replyTo === messageId || m.dados?.messageId === messageId);
     }
     if (agenteId) {
       resultado = resultado.filter((m: any) => m.agenteId === agenteId || m.emissor === agenteId);

@@ -12,6 +12,7 @@ export interface PathValidatorOptions {
   allowlist?: string[];
   allowHidden?: boolean;
   denylist?: string[];
+  allowedHiddenPrefixes?: string[];
 }
 
 export const DEFAULT_OUTPUT_LIMITS = {
@@ -25,6 +26,7 @@ export const DEFAULT_PATH_VALIDATOR_OPTIONS: PathValidatorOptions = {
   allowlist: [],
   allowHidden: false,
   denylist: [],
+  allowedHiddenPrefixes: ['.ia'],
 };
 
 export class PathValidator {
@@ -32,12 +34,14 @@ export class PathValidator {
   readonly allowlist: string[];
   readonly allowHidden: boolean;
   readonly denylist: string[];
+  readonly allowedHiddenPrefixes: string[];
 
   constructor(projectRoot: string, options: PathValidatorOptions = {}) {
     this.projectRoot = path.win32.resolve(projectRoot);
     this.allowlist = options.allowlist || [];
-    this.allowHidden = options.allowHidden ?? true;
+    this.allowHidden = options.allowHidden ?? false;
     this.denylist = options.denylist || [];
+    this.allowedHiddenPrefixes = options.allowedHiddenPrefixes || ['.ia'];
   }
 
   validate(caminhoRelativo: string): ValidatedPath {
@@ -55,10 +59,16 @@ export class PathValidator {
     }
 
     if (!this.allowHidden) {
-      const parts = rel.split('/');
-      for (const part of parts) {
-        if (part.startsWith('.')) {
-          throw new PathTraversalError(`Caminho '${rel}' aponta para diretório/arquivo oculto`, caminhoRelativo);
+      const isAllowedHidden = this.allowedHiddenPrefixes.some((prefix) => {
+        const normalizedPrefix = prefix.replace(/\/+$/, '');
+        return rel === normalizedPrefix || rel.startsWith(normalizedPrefix + '/');
+      });
+      if (!isAllowedHidden) {
+        const parts = rel.split('/');
+        for (const part of parts) {
+          if (part.startsWith('.')) {
+            throw new PathTraversalError(`Caminho '${rel}' aponta para diretório/arquivo oculto`, caminhoRelativo);
+          }
         }
       }
     }

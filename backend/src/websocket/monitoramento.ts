@@ -5,13 +5,13 @@ import { MonitoramentoService, MensagemMonitoramento } from '../servicios/Monito
 export class MonitoramentoWebSocket {
   private wss: WebSocketServer | null = null;
   private clientes: Set<WebSocket> = new Set();
+  private mensagemHandler: (msg: MensagemMonitoramento) => void;
 
   private ORIGINS_PERMITIDAS: string[];
 
   constructor(private monitoramento: MonitoramentoService) {
-    this.monitoramento.on('mensagem', (msg: MensagemMonitoramento) => {
-      this.enviarParaTodos(msg);
-    });
+    this.mensagemHandler = (msg: MensagemMonitoramento) => this.enviarParaTodos(msg);
+    this.monitoramento.on('mensagem', this.mensagemHandler);
     const porta = process.env.PORTA || '3150';
     this.ORIGINS_PERMITIDAS = [
       `http://localhost:${porta}`,
@@ -32,9 +32,14 @@ export class MonitoramentoWebSocket {
       const origin = req.headers?.origin || req.headers?.referer || '';
       const isLocal = origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:') || !origin;
       if (!isLocal) {
+        console.warn(`[WebSocket] Origem não permitida rejeitada: ${origin || 'sem origin'}`);
         ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Origem não permitida' } }));
         ws.close(1008, 'Forbidden');
         return;
+      }
+
+      if (!origin) {
+        console.log('[WebSocket] Cliente conectado sem header Origin (permitido em dev)');
       }
 
       console.log('[WebSocket] Cliente conectado ao monitoramento');
@@ -172,7 +177,11 @@ export class MonitoramentoWebSocket {
 
     for (const ws of this.clientes) {
       if (ws.readyState === WebSocket.OPEN) {
-        ws.send(envelope);
+        try {
+          ws.send(envelope);
+        } catch (err) {
+          console.error('[WebSocket] Erro ao enviar mensagem:', err);
+        }
       }
     }
   }
@@ -182,6 +191,7 @@ export class MonitoramentoWebSocket {
       this.wss.close();
       this.wss = null;
     }
+    this.monitoramento.off('mensagem', this.mensagemHandler);
     for (const ws of this.clientes) {
       ws.close();
     }

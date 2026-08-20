@@ -15,7 +15,25 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "baseUrl": "./src",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "servicios": ["servicios"],
+      "servicios/*": ["servicios/*"],
+      "tipos": ["tipos"],
+      "tipos/*": ["tipos/*"],
+      "arquivos": ["arquivos"],
+      "arquivos/*": ["arquivos/*"],
+      "validacao": ["validacao"],
+      "validacao/*": ["validacao/*"],
+      "seguranca": ["seguranca"],
+      "seguranca/*": ["seguranca/*"],
+      "api": ["api"],
+      "api/*": ["api/*"],
+      "observability": ["observability"],
+      "observability/*": ["observability/*"],
+      "websocket": ["websocket"],
+      "websocket/*": ["websocket/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "testes"]
