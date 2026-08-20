@@ -3,6 +3,7 @@ import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { AgenteRegistro, AgentesRegistry, AgentePerfil, ResultadoOperacao, Permissoes, EstadoEntidade } from '../tipos';
+import { validateAgentDirectoryAccess } from '../seguranca/paths';
 
 export class AgenteService {
   constructor(
@@ -34,7 +35,7 @@ export class AgenteService {
       console.error('[AgenteService.obter] agente não encontrado:', id, '| agentes disponíveis:', listaResult.dados.map((a) => a.id));
       return { sucesso: false, erro: 'Agente não encontrado', codigoErro: 'AGENT_NOT_FOUND' };
     }
-    const perfilResult = this.fs.lerJson<AgentePerfil>(registro.arquivoPerfil.replace(/^\.ia\//, ''));
+    const perfilResult = this.fs.lerJson<AgentePerfil>(registro.arquivoPerfil);
     if (!perfilResult.sucesso || !perfilResult.dados) {
       console.error('[AgenteService.obter] erro ao ler perfil:', perfilResult.erro);
       return { sucesso: false, erro: 'Não foi possível ler o perfil do agente', codigoErro: 'PROFILE_READ_ERROR' };
@@ -83,12 +84,16 @@ export class AgenteService {
       return { sucesso: false, erro: 'Não foi possível ler o registro de agentes', codigoErro: 'REGISTRY_READ_ERROR' };
     }
     const agentes = registryResult.dados;
+    const existente = agentes.find((a) => a.id === perfil.id);
+    if (existente) {
+      return { sucesso: false, erro: `Agente com ID '${perfil.id}' já existe`, codigoErro: 'AGENTE_JA_EXISTE' };
+    }
     agentes.push({
       id: perfil.id,
       nome: perfil.nome,
       funcao: perfil.funcao,
       estado: perfil.estado,
-      arquivoPerfil: `/.ia/agentes/${subpasta}/${subpasta}.json`
+      arquivoPerfil: `.ia/agentes/${subpasta}/${subpasta}.json`
     });
     const regResult = this.fs.escreverJson(
       path.win32.join('.ia', 'agentes', 'agentes.json'),
@@ -103,13 +108,17 @@ export class AgenteService {
     return { sucesso: true, dados: fullPerfil };
   }
 
-  atualizar(id: string, perfil: Partial<AgentePerfil>): ResultadoOperacao<AgentePerfil> {
+   atualizar(id: string, perfil: Partial<AgentePerfil>): ResultadoOperacao<AgentePerfil> {
     const result = this.obter(id);
     if (!result.sucesso || !result.dados) {
       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
     }
+    if ('id' in perfil) {
+      return { sucesso: false, erro: 'Não é permitido alterar o ID do agente', codigoErro: 'ID_MUTATION_NOT_ALLOWED' };
+    }
     const existente = result.dados;
-    const atualizado: AgentePerfil = { ...existente, ...perfil };
+    const { registro: _r, ...perfilExistente } = existente;
+    const atualizado: AgentePerfil = { ...perfilExistente, ...perfil };
     if (atualizado.datas) {
       atualizado.datas.ultimaAtualizacao = new Date().toISOString();
     }
@@ -119,7 +128,7 @@ export class AgenteService {
       return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
     }
 
-    const profilePath = existente.registro.arquivoPerfil.replace(/^\.ia\//, '');
+    const profilePath = existente.registro.arquivoPerfil;
     const writeResult = this.fs.escreverJson(profilePath, atualizado, { backup: true });
     if (!writeResult.sucesso) {
       return { sucesso: false, erro: writeResult.erro, codigoErro: writeResult.codigoErro };
@@ -136,6 +145,11 @@ export class AgenteService {
       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
     }
     const perfil = result.dados;
+    const projectRoot = this.fs.getCaminhoAbsoluto('.');
+    const acesso = validateAgentDirectoryAccess(projectRoot, caminhoRelativo, perfil);
+    if (!acesso.permitido) {
+      return { sucesso: true, dados: false };
+    }
     return { sucesso: true, dados: this.fs.isSafe(caminhoRelativo) };
   }
 
@@ -150,7 +164,7 @@ export class AgenteService {
       return { sucesso: false, erro: 'Agente não encontrado', codigoErro: 'AGENT_NOT_FOUND' };
     }
     const registro = agentes[idx];
-    const profilePath = registro.arquivoPerfil.replace(/^\.ia\//, '');
+    const profilePath = registro.arquivoPerfil;
     const profileDir = path.win32.dirname(profilePath);
     this.fs.excluir(profileDir, { backup: false });
     agentes.splice(idx, 1);
@@ -171,9 +185,9 @@ export class AgenteService {
     const erros: string[] = [];
     for (const registro of agentes) {
       try {
-        const profilePath = registro.arquivoPerfil.replace(/^\.ia\//, '');
-        const profileDir = path.win32.dirname(profilePath);
-        this.fs.excluir(profileDir, { backup: false });
+      const profilePath = registro.arquivoPerfil;
+      const profileDir = path.win32.dirname(profilePath);
+      this.fs.excluir(profileDir, { backup: false });
       } catch (err) {
         erros.push(`${registro.id}: ${err instanceof Error ? err.message : String(err)}`);
       }

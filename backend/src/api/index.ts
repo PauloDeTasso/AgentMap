@@ -49,8 +49,6 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
 
   router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
 
-  router.use('/api/gerenciador-agentes', criarGerenciadorAgentesRouter());
-
   router.use('/api/temp', criarTempRouter(cleanupService));
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
@@ -58,6 +56,8 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
   router.use('/api/observabilidade', criarObservabilidadeRouter());
 
   router.use('/api/*', projectMiddleware(projetoService));
+
+  router.use('/api/gerenciador-agentes', criarGerenciadorAgentesRouter());
 
   router.get('/api/estado', asyncHandler(async (req: Request, res: Response) => {
     return responder(res, req.servicos!.projeto.fileService.lerJson(
