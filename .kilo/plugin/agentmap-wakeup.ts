@@ -6,7 +6,7 @@
 // O que faz: toda vez que uma sessão fica ociosa (session.idle), pergunta pro
 // AgentMap se tem mensagem pendente pra essa sessão/projeto. Se tiver, injeta
 // um novo prompt na mesma sessão via client.session.promptAsync — sem precisar
-// de CLI externa, porta ou senha (o plugin já roda com acesso nativo ao client).
+// de CLI externo, porta ou senha (o plugin já roda com acesso nativo ao client).
 //
 // Baseado em: RELATORIO-FINAL-AGENTMAP.md (seção 1 e §4) e tipagens oficiais
 // de @kilocode/plugin v7.4.20 e @kilocode/sdk v7.4.20.
@@ -17,9 +17,9 @@ import type { Plugin, PluginInput } from "@kilocode/plugin";
 // Configuração
 // ---------------------------------------------------------------------------
 
-const AGENTMAP_API_URL = process.env.AGENTMAP_API_URL || "http://localhost:3150";
-const AGENTMAP_API_KEY = process.env.AGENTMAP_API_KEY || "";
-const DEBOUNCE_MS = Number(process.env.AGENTMAP_WAKEUP_DEBOUNCE_MS) || 3000;
+const AGENTMAP_API_URL = (globalThis as any).process?.env?.AGENTMAP_API_URL || "http://localhost:3150";
+const AGENTMAP_API_KEY = (globalThis as any).process?.env?.AGENTMAP_API_KEY || "";
+const DEBOUNCE_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_DEBOUNCE_MS || "3000");
 
 const TIPOS_RELEVANTES = new Set([
   "KILO_CHAT_REPLY",
@@ -27,6 +27,10 @@ const TIPOS_RELEVANTES = new Set([
   "KILO_RESULT",
   "KILO_CHAT",
   "WAKEUP_PARENT",
+  "HANDOFF_CRIADO",
+  "HANDOFF_ACEITO",
+  "HANDOFF_CONCLUIDO",
+  "SOLICITACAO_CRIADA",
 ]);
 
 // ---------------------------------------------------------------------------
@@ -43,7 +47,9 @@ const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 interface MensagemPendente {
   id: string;
   agenteOrigem?: string;
+  emissor?: string;
   resumo?: string;
+  conteudo?: string;
   eventSequence?: number;
   tipo?: string;
 }
@@ -64,18 +70,20 @@ async function buscarMensagensPendentes(): Promise<MensagemPendente[]> {
     return [];
   }
 
-  const body = await res.json();
-  const mensagens: MensagemPendente[] = Array.isArray(body?.dados)
+  const body = (await res.json()) as Record<string, unknown>;
+  const raw = Array.isArray(body?.dados)
     ? body.dados
     : Array.isArray(body?.mensagens)
       ? body.mensagens
       : [];
 
+  const mensagens: MensagemPendente[] = raw.filter((item) => {
+    const obj = item as Partial<MensagemPendente>;
+    return typeof obj.eventSequence === "number" && TIPOS_RELEVANTES.has(obj.tipo || "");
+  });
+
   return mensagens.filter(
-    (m) =>
-      typeof m.eventSequence === "number" &&
-      m.eventSequence > ultimoEventSequenceProcessado &&
-      TIPOS_RELEVANTES.has(m.tipo || "")
+    (m) => typeof m.eventSequence === "number" && m.eventSequence > ultimoEventSequenceProcessado
   );
 }
 
@@ -84,43 +92,88 @@ function montarResumo(mensagens: MensagemPendente[]): string {
     (m) => `- [${m.agenteOrigem || m.emissor || "agente"}] ${m.resumo || m.conteudo || m.id}`
   );
   return (
-    `Novas atualizações no AgentMap enquanto você estava ociado:\n` +
+    `Novas atualizações no AgentMap enquanto você estava ocioso:\n` +
     linhas.join("\n") +
     `\n\nConsulte o AgentMap para os detalhes completos antes de prosseguir.`
   );
 }
 
 // ---------------------------------------------------------------------------
+// Log em arquivo
+// ---------------------------------------------------------------------------
+
+async function logEmArquivo(directory: string, mensagem: string) {
+  try {
+    // @ts-ignore
+    const { promises } = await import("fs") as any;
+    // @ts-ignore
+    const { join } = await import("path") as any;
+    const logDir = join(directory, ".ia", "contexto");
+    const logPath = join(logDir, "agentmap-wakeup.log");
+    const linha = `${new Date().toISOString()} ${mensagem}\n`;
+    await promises.mkdir(logDir, { recursive: true });
+    await promises.appendFile(logPath, linha, "utf-8");
+  } catch {
+    // silencioso — se não conseguir escrever, mantém apenas o console
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Disparo do wake-up (com debounce por sessão)
 // ---------------------------------------------------------------------------
 
-function agendarVerificacao(sessionId: string, client: PluginInput["client"]) {
+function agendarVerificacao(sessionId: string, client: PluginInput["client"], directory: string) {
   const timerExistente = debounceTimers.get(sessionId);
   if (timerExistente) clearTimeout(timerExistente);
+
+  const logAgendado = `[agentmap-wakeup] Verificacao agendada para session ${sessionId} em ${DEBOUNCE_MS}ms`;
+  console.log(logAgendado);
+  logEmArquivo(directory, logAgendado);
 
   const timer = setTimeout(async () => {
     debounceTimers.delete(sessionId);
     try {
       const pendentes = await buscarMensagensPendentes();
-      if (pendentes.length === 0) return;
+      if (pendentes.length === 0) {
+        const logVazio = `[agentmap-wakeup] Nenhuma mensagem pendente para session ${sessionId}`;
+        console.log(logVazio);
+        await logEmArquivo(directory, logVazio);
+        return;
+      }
 
       const resumo = montarResumo(pendentes);
 
-      await client.session.promptAsync({
-        sessionID: sessionId,
-        parts: [{ type: "text", text: resumo }],
+      const logPrompt = `[agentmap-wakeup] Injetando prompt na sessão ${sessionId}:\n${resumo}`;
+      console.log(logPrompt);
+      await logEmArquivo(directory, logPrompt);
+
+      const promptResult = await (client.session as any).promptAsync({
+        path: { id: sessionId },
+        body: {
+          parts: [{ type: "text", text: resumo }],
+        },
       });
+
+      const logRetorno = `[agentmap-wakeup] promptAsync retornou: ${JSON.stringify(promptResult)}`;
+      console.log(logRetorno);
+      await logEmArquivo(directory, logRetorno);
 
       ultimoEventSequenceProcessado = Math.max(
         ultimoEventSequenceProcessado,
         ...pendentes.map((m) => m.eventSequence || 0)
       );
 
-      console.log(
-        `[agentmap-wakeup] Wake-up enviado para sessão ${sessionId} (${pendentes.length} mensagem(ns))`
-      );
+      const logOk = `[agentmap-wakeup] Wake-up enviado para sessão ${sessionId} (${pendentes.length} mensagem(ns))`;
+      console.log(logOk);
+      await logEmArquivo(directory, logOk);
+
+      const logConfirmacao = `[agentmap-wakeup] Confirmacao: mensagem injetada na sessão ${sessionId} às ${new Date().toISOString()}`;
+      console.log(logConfirmacao);
+      await logEmArquivo(directory, logConfirmacao);
     } catch (err) {
-      console.error("[agentmap-wakeup] Falha ao processar wake-up:", err);
+      const logErro = `[agentmap-wakeup] Falha ao processar wake-up: ${err}`;
+      console.error(logErro);
+      await logEmArquivo(directory, logErro);
     }
   }, DEBOUNCE_MS);
 
@@ -132,22 +185,25 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"]) {
 // ---------------------------------------------------------------------------
 
 const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
-  console.log(
-    `[agentmap-wakeup] Plugin carregado — diretório: ${ctx.directory}, AgentMap: ${AGENTMAP_API_URL}`
-  );
+  const inicio = `[agentmap-wakeup] Plugin carregado — diretório: ${ctx.directory}, AgentMap: ${AGENTMAP_API_URL}`;
+  console.log(inicio);
+  await logEmArquivo(ctx.directory, inicio);
 
   return {
     event: async ({ event }) => {
+      const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${event.type} sessionID=${(event as any).properties?.sessionID}`;
+      console.log(logEvento);
+      await logEmArquivo(ctx.directory, logEvento);
       if (event.type !== "session.idle") return;
 
-      const sessionId: string | undefined = event.properties?.sessionID;
+      const sessionId: string | undefined = (event as any).properties?.sessionID;
 
       if (!sessionId) {
         console.warn("[agentmap-wakeup] session.idle sem sessionID, ignorando.");
         return;
       }
 
-      agendarVerificacao(sessionId, ctx.client);
+      agendarVerificacao(sessionId, ctx.client, ctx.directory);
     },
   };
 };

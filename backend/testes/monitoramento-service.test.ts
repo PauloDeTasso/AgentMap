@@ -53,15 +53,15 @@ describe('MonitoramentoService — eventSequence', () => {
     service = new MonitoramentoService(fsInstance, {} as any, {} as any);
   });
 
-  test('incrementa eventSequence a cada mensagem', () => {
-    service.adicionarMensagem({
+  test('incrementa eventSequence a cada mensagem', async () => {
+    await service.adicionarMensagem({
       id: 'MSG-1',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
       emissor: 'filho',
       conteudo: 'msg1'
     });
-    service.adicionarMensagem({
+    await service.adicionarMensagem({
       id: 'MSG-2',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
@@ -75,22 +75,22 @@ describe('MonitoramentoService — eventSequence', () => {
     expect(msgs[1].eventSequence).toBe(1);
   });
 
-  test('listarMensagensApos retorna apenas mensagens novas', () => {
-    service.adicionarMensagem({
+  test('listarMensagensApos retorna apenas mensagens novas', async () => {
+    await service.adicionarMensagem({
       id: 'MSG-1',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
       emissor: 'filho',
       conteudo: 'msg1'
     });
-    service.adicionarMensagem({
+    await service.adicionarMensagem({
       id: 'MSG-2',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
       emissor: 'filho',
       conteudo: 'msg2'
     });
-    service.adicionarMensagem({
+    await service.adicionarMensagem({
       id: 'MSG-3',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
@@ -105,8 +105,8 @@ describe('MonitoramentoService — eventSequence', () => {
     expect(result.ultimoEventSequence).toBe(3);
   });
 
-  test('listarMensagensApos com after maior que ultimo retorna vazio', () => {
-    service.adicionarMensagem({
+  test('listarMensagensApos com after maior que ultimo retorna vazio', async () => {
+    await service.adicionarMensagem({
       id: 'MSG-1',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
@@ -119,8 +119,8 @@ describe('MonitoramentoService — eventSequence', () => {
     expect(result.ultimoEventSequence).toBe(1);
   });
 
-  test('persiste sequence em arquivo', () => {
-    service.adicionarMensagem({
+  test('persiste sequence em arquivo', async () => {
+    await service.adicionarMensagem({
       id: 'MSG-1',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',
@@ -134,12 +134,12 @@ describe('MonitoramentoService — eventSequence', () => {
     );
   });
 
-  test('carrega sequence existente do arquivo', () => {
+  test('carrega sequence existente do arquivo', async () => {
     sequenceStore = { ultimoSequence: 42 };
     mensagensStore = [];
 
     const svc = new MonitoramentoService(fsInstance, {} as any, {} as any);
-    svc.adicionarMensagem({
+    await svc.adicionarMensagem({
       id: 'MSG-1',
       timestamp: new Date().toISOString(),
       tipo: 'KILO_CHAT_REPLY',

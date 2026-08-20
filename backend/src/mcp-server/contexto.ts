@@ -48,15 +48,16 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
   const validator = projeto.validator;
   const eventoService = new EventoService(projeto.fileService, projeto.auditoria, validator);
   const stateMachineService = new StateMachineService(projeto.fileService, projeto.auditoria, validator);
+  const monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, validator);
   return {
     projeto,
     agente: new AgenteService(projeto.fileService, projeto.auditoria, validator),
     tarefa: new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
-    solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, validator, undefined, globalEventBus),
+    solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, validator, undefined, globalEventBus, monitoramento),
     criterio: new CriterioService(projeto.fileService, projeto.auditoria, validator),
     resultado: new ResultadoService(projeto.fileService, projeto.auditoria, validator),
     artefato: new ArtefatoService(projeto.fileService, projeto.auditoria, validator),
-    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService, globalEventBus),
+    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService, globalEventBus, monitoramento),
     pendencia: new PendenciaService(projeto.fileService, projeto.auditoria, validator),
     validacao: new ValidacaoService(projeto.fileService, projeto.auditoria, validator),
     conflito: new ConflitoService(projeto.fileService, projeto.auditoria, validator),
@@ -76,7 +77,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
       stateMachine: stateMachineService,
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, validator),
       backup: new BackupService(projeto.fileService, projeto.auditoria, validator, projeto.caminhoRaiz),
-      monitoramento: new MonitoramentoService(projeto.fileService, projeto.auditoria, validator),
+      monitoramento,
       fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
       instancia: new InstanciaService(projeto.fileService, projeto.auditoria, validator),
       orquestrador: new OrquestradorService(

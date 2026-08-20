@@ -2703,6 +2703,248 @@
         "aceitaEm": null,
         "concluidaEm": null
       }
+    },
+    {
+      "id": "HOF-2026-00104",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste integracao monitoramento",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:46:07.567Z",
+        "criacao": "2026-08-20T16:46:07.567Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00105",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste integracao monitoramento v2",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:47:27.912Z",
+        "criacao": "2026-08-20T16:47:27.912Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00106",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste integracao monitoramento v3",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:48:41.775Z",
+        "criacao": "2026-08-20T16:48:41.775Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00107",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste debug log",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:49:53.436Z",
+        "criacao": "2026-08-20T16:49:53.436Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00108",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste debug log v4",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:50:58.474Z",
+        "criacao": "2026-08-20T16:50:58.474Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00109",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste debug log v5",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:51:58.767Z",
+        "criacao": "2026-08-20T16:51:58.767Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00110",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste debug log v6",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:53:22.459Z",
+        "criacao": "2026-08-20T16:53:22.459Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00111",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste debug log v8",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:56:20.464Z",
+        "criacao": "2026-08-20T16:56:20.464Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00112",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste debug log v9",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T16:58:39.408Z",
+        "criacao": "2026-08-20T16:58:39.408Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00113",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste wake-up integracao",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T17:05:50.714Z",
+        "criacao": "2026-08-20T17:05:50.714Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "HOF-2026-00114",
+      "origem": "backend",
+      "destino": "frontend",
+      "tarefaId": null,
+      "resumo": "Teste sequence lock",
+      "concluido": [],
+      "pendente": [],
+      "artefatos": [],
+      "decisoes": [],
+      "alteracoes": [],
+      "riscos": [],
+      "bloqueios": [],
+      "observacoes": null,
+      "estado": "PENDENTE",
+      "datas": {
+        "criadaEm": "2026-08-20T17:21:53.578Z",
+        "criacao": "2026-08-20T17:21:53.578Z",
+        "aceitaEm": null,
+        "concluidaEm": null
+      }
     }
   ]
 }

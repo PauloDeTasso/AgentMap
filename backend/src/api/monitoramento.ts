@@ -56,7 +56,7 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
       console.log(`[KILO][HTTP_IN] tipo=${tipo} agenteId=${agenteId || emissor} tarefaId=${tarefaId}`);
     }
 
-    const result = monitoramento.adicionarMensagem(msg);
+    const result = await monitoramento.adicionarMensagem(msg);
     if (!result.sucesso) {
       if (tipo === 'KILO_CHAT' || tipo === 'KILO_REPLY' || tipo === 'KILO_RESULT' || tipo === 'KILO_CHAT_REPLY') {
         console.error(`[KILO][HTTP_FAIL] tipo=${tipo} erro=${result.erro}`);
@@ -104,7 +104,7 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
     if (!status) {
       return responder(res, { sucesso: false, erro: 'status é obrigatório', codigoErro: 'MISSING_FIELDS' }, 400);
     }
-    const result = monitoramento.atualizarStatusAgente(agenteId, status, dados);
+    const result = await monitoramento.atualizarStatusAgente(agenteId, status, dados);
     return responder(res, result, result.sucesso ? 200 : 400);
   }));
 

@@ -23,6 +23,7 @@ import { EventoService } from './EventoService';
 import { solicitacoesUri } from '../mcp-server/resources/uri-factory';
 import { EventBus } from '../mcp-server/events/event-bus';
 
+import { MonitoramentoService } from './MonitoramentoService';
 export class SolicitacaoService {
   private idGenerator: IdGenerator;
 
@@ -31,7 +32,8 @@ export class SolicitacaoService {
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
     private eventoService?: EventoService,
-    private eventBus?: EventBus
+    private eventBus?: EventBus,
+    private monitoramento?: MonitoramentoService
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -190,6 +192,17 @@ export class SolicitacaoService {
     );
     if (this.eventoService && solicitacao.agenteResponsavel.id) {
       this.eventoService.registrar({ tipo: 'SOLICITACAO_CRIADA', origem: solicitacao.agenteSolicitante.id, destino: solicitacao.agenteResponsavel.id, referenciaTipo: 'solicitacao', referenciaId: id, mensagem: `Nova solicitação de ${solicitacao.agenteSolicitante.id} para ${solicitacao.agenteResponsavel.id}: ${solicitacao.titulo}` });
+    }
+    if (this.monitoramento && solicitacao.agenteResponsavel.id) {
+      this.monitoramento.adicionarMensagem({
+        id: `MSG-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        tipo: 'SOLICITACAO_CRIADA',
+        emissor: solicitacao.agenteSolicitante.id,
+        agenteId: solicitacao.agenteSolicitante.id,
+        conteudo: `Nova solicitação de ${solicitacao.agenteSolicitante.id} para ${solicitacao.agenteResponsavel.id}: ${solicitacao.titulo}`,
+        dados: { solicitacaoId: id, prioridade: solicitacao.prioridade, alvoTipo: solicitacao.alvo.tipo, responsavel: solicitacao.agenteResponsavel.id }
+      }).catch(() => {});
     }
     if (this.eventBus && solicitacao.agenteResponsavel.id) {
       this.eventBus.publish({ uri: solicitacoesUri(solicitacao.agenteResponsavel.id), timestamp: Date.now(), reason: 'solicitacao_criada' });

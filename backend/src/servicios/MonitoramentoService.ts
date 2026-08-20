@@ -50,6 +50,7 @@ export class MonitoramentoService extends EventEmitter {
   private sequencePath = '.ia/contexto/monitoramento-sequence.json';
   private logsLimit = 500;
   private ultimoSequence: number = 0;
+  private sequenceLock: Promise<unknown> = Promise.resolve();
 
   constructor(
     private fs: FileService,
@@ -82,6 +83,15 @@ export class MonitoramentoService extends EventEmitter {
   private proximoSequence(): number {
     this.ultimoSequence += 1;
     return this.ultimoSequence;
+  }
+
+  private comLock<T>(fn: () => Promise<T>): Promise<T> {
+    const next = this.sequenceLock.then(() => fn()).catch((err) => {
+      this.sequenceLock = Promise.resolve();
+      throw err;
+    });
+    this.sequenceLock = next.catch(() => {});
+    return next;
   }
 
   private sanitizarConteudo(conteudo: string): string {
@@ -207,7 +217,7 @@ export class MonitoramentoService extends EventEmitter {
     return { sucesso: false, erro: 'escopo inválido', codigoErro: 'INVALID_SCOPE' };
   }
 
-  atualizarStatusAgente(
+  async atualizarStatusAgente(
     agenteId: string,
     status: StatusAgente,
     dados?: {
@@ -220,7 +230,7 @@ export class MonitoramentoService extends EventEmitter {
       acoes?: Array<{ label: string; comando: string; estilo?: string }>;
       motivo?: string;
     }
-  ): ResultadoOperacao<string> {
+  ): Promise<ResultadoOperacao<string>> {
     const config = this.carregarConfig();
     const statusPath = path.join(this.statusPath, `${agenteId}.json`);
 
@@ -259,7 +269,7 @@ export class MonitoramentoService extends EventEmitter {
         acoes: dados?.acoes,
         dados: dados
       };
-      this.adicionarMensagem(msg);
+      await this.adicionarMensagem(msg);
     }
 
     const msgStatus: MensagemMonitoramento = {
@@ -310,24 +320,26 @@ export class MonitoramentoService extends EventEmitter {
     return sanitizadas.slice(-limite).reverse();
   }
 
-  adicionarMensagem(msg: MensagemMonitoramento): ResultadoOperacao<{ id: string }> {
-    const msgs = this.carregarMensagens();
-    const sanitizado = { ...msg, conteudo: this.sanitizarConteudo(msg.conteudo || '') };
-    sanitizado.eventSequence = this.proximoSequence();
-    msgs.push(sanitizado);
-    const result = this.salvarMensagens(msgs);
-    if (!result.sucesso) {
-      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
-    }
+  async adicionarMensagem(msg: MensagemMonitoramento): Promise<ResultadoOperacao<{ id: string }>> {
+    return this.comLock(async () => {
+      const msgs = this.carregarMensagens();
+      const sanitizado = { ...msg, conteudo: this.sanitizarConteudo(msg.conteudo || '') };
+      sanitizado.eventSequence = this.proximoSequence();
+      msgs.push(sanitizado);
+      const result = this.salvarMensagens(msgs);
+      if (!result.sucesso) {
+        return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+      }
 
-    const seqResult = this.salvarSequence();
-    if (!seqResult.sucesso) {
-      console.error(`[Monitoramento] Falha ao salvar sequence: ${seqResult.erro}`);
-    }
+      const seqResult = this.salvarSequence();
+      if (!seqResult.sucesso) {
+        console.error(`[Monitoramento] Falha ao salvar sequence: ${seqResult.erro}`);
+      }
 
-    this.broadcast(sanitizado);
-    globalEventBus.publish({ uri: 'agentmap://monitoramento/mensagens', timestamp: Date.now(), reason: 'nova_mensagem' });
-    return { sucesso: true, dados: { id: sanitizado.id } };
+      this.broadcast(sanitizado);
+      globalEventBus.publish({ uri: 'agentmap://monitoramento/mensagens', timestamp: Date.now(), reason: 'nova_mensagem' });
+      return { sucesso: true, dados: { id: sanitizado.id } };
+    });
   }
 
   broadcast(mensagem: MensagemMonitoramento): void {
@@ -434,7 +446,7 @@ export class MonitoramentoService extends EventEmitter {
       conteudo: `Comando: ${comando}`,
       dados: payload
     };
-    this.adicionarMensagem(msg);
+    await this.adicionarMensagem(msg);
 
     return { sucesso: true, dados: { comando, payload, timestamp: msg.timestamp } };
   }

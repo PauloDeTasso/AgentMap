@@ -9,6 +9,7 @@ import { EventoService } from './EventoService';
 import { handoffsUri } from '../mcp-server/resources/uri-factory';
 import { EventBus } from '../mcp-server/events/event-bus';
 
+import { MonitoramentoService } from './MonitoramentoService';
 export class HandoffService {
   private idGenerator: IdGenerator;
 
@@ -17,7 +18,8 @@ export class HandoffService {
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
     private eventoService?: EventoService,
-    private eventBus?: EventBus
+    private eventBus?: EventBus,
+    private monitoramento?: MonitoramentoService
   ) {
     this.idGenerator = new IdGenerator(fs);
   }
@@ -117,6 +119,17 @@ export class HandoffService {
     if (this.eventoService) {
       this.eventoService.registrar({ tipo: 'HANDOFF_CRIADO', origem: handoff.origem, destino: handoff.destino, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Novo handoff de ${handoff.origem} para ${handoff.destino}` });
     }
+    if (this.monitoramento) {
+      this.monitoramento.adicionarMensagem({
+        id: `MSG-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        tipo: 'HANDOFF_CRIADO',
+        emissor: handoff.origem,
+        agenteId: handoff.origem,
+        conteudo: `Novo handoff de ${handoff.origem} para ${handoff.destino}: ${handoff.resumo || id}`,
+        dados: { handoffId: id, origem: handoff.origem, destino: handoff.destino }
+      }).catch(() => {});
+    }
     if (this.eventBus) {
       this.eventBus.publish({ uri: handoffsUri(handoff.destino), timestamp: Date.now(), reason: 'handoff_criado' });
     }
@@ -180,6 +193,18 @@ export class HandoffService {
       if (dados.estado === 'CONCLUIDO') {
         this.eventoService.registrar({ tipo: 'HANDOFF_CONCLUIDO', origem: atualizado.destino, destino: atualizado.origem, referenciaTipo: 'handoff', referenciaId: id, mensagem: `Handoff '${id}' concluido.` });
       }
+    }
+    if (this.monitoramento && dados.estado && dados.estado !== existente.dados.estado) {
+      const tipoMonitoramento = dados.estado === 'ACEITO' ? 'HANDOFF_ACEITO' : dados.estado === 'CONCLUIDO' ? 'HANDOFF_CONCLUIDO' : 'HANDOFF_ATUALIZADO';
+      this.monitoramento.adicionarMensagem({
+        id: `MSG-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        tipo: tipoMonitoramento,
+        emissor: atualizado.destino,
+        agenteId: atualizado.destino,
+        conteudo: `Handoff '${id}' ${dados.estado.toLowerCase()} por '${atualizado.destino}'.`,
+        dados: { handoffId: id, estado: dados.estado, origem: atualizado.origem, destino: atualizado.destino }
+      }).catch(() => {});
     }
     if (this.eventBus && dados.estado && dados.estado !== existente.dados.estado) {
       this.eventBus.publish({ uri: handoffsUri(atualizado.destino), timestamp: Date.now(), reason: `handoff_${dados.estado.toLowerCase()}` });

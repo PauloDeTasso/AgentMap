@@ -12,6 +12,10 @@ const TIPOS_RELEVANTES = new Set([
   'KILO_CHAT',
   'KILO_REPLY',
   'KILO_RESULT',
+  'HANDOFF_CRIADO',
+  'HANDOFF_ACEITO',
+  'HANDOFF_CONCLUIDO',
+  'SOLICITACAO_CRIADA',
 ]);
 
 registerTracedTool(mcpServer, 'agentmap_monitoramento_verificar_pendentes', {
@@ -55,8 +59,8 @@ registerTracedTool(mcpServer, 'agentmap_monitoramento_verificar_pendentes', {
     const todas = monitoramento.listarMensagens(limite * 2);
     const relevantes = todas.filter((m: any) => TIPOS_RELEVANTES.has(m.tipo));
     resultado = {
-      mensagens: relevantes.slice(-limite),
-      ultimoEventSequence: todas.length > 0 ? (todas[todas.length - 1].eventSequence || 0) : 0
+      mensagens: relevantes.slice(0, limite),
+      ultimoEventSequence: relevantes.length > 0 ? (relevantes[0].eventSequence || 0) : 0
     };
   }
 
