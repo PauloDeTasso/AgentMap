@@ -261,6 +261,31 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"], di
   debounceTimers.set(sessionId, timer);
 }
 
+async function injetarPromptRecovery(sessionId: string, client: PluginInput["client"], directory: string) {
+  const promptRecovery = "ERRO NO SISTEMA! NAO PRECISA RESOLVER ESSE ERRO, APENAS CONTINUE SUA TAREFA DE ONDE PAROU E SE PRECISAR SE AUTOIDENTIFIQUE PELAS TOOLS DO MCP, ROTAS DE API OU DOCUMENTOS DO AGENT MAP!";
+
+  try {
+    const logPrompt = `[agentmap-wakeup] Injetando prompt de recovery na sessão ${sessionId}`;
+    console.log(logPrompt);
+    await logEmArquivo(directory, logPrompt);
+
+    const promptResult = await (client.session as any).promptAsync({
+      path: { id: sessionId },
+      body: {
+        parts: [{ type: "text", text: promptRecovery }],
+      },
+    });
+
+    const logRetorno = `[agentmap-wakeup] promptAsync recovery retornou: ${JSON.stringify(promptResult)}`;
+    console.log(logRetorno);
+    await logEmArquivo(directory, logRetorno);
+  } catch (err) {
+    const logErro = `[agentmap-wakeup] Falha ao injetar prompt de recovery: ${err}`;
+    console.error(logErro);
+    await logEmArquivo(directory, logErro);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Definição do plugin
 // ---------------------------------------------------------------------------
@@ -276,17 +301,26 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
       const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${event.type} sessionID=${sessionId}`;
       console.log(logEvento);
       await logEmArquivo(ctx.directory, logEvento);
-      
-      if (event.type !== "session.idle") {
+
+      if (event.type === "session.idle") {
+        if (!sessionId) {
+          console.warn("[agentmap-wakeup] session.idle sem sessionID, ignorando.");
+          return;
+        }
+
+        agendarVerificacao(sessionId, ctx.client, ctx.directory);
         return;
       }
 
-      if (!sessionId) {
-        console.warn("[agentmap-wakeup] session.idle sem sessionID, ignorando.");
+      if (event.type === "session.error") {
+        if (!sessionId) {
+          console.warn("[agentmap-wakeup] session.error sem sessionID, ignorando.");
+          return;
+        }
+
+        await injetarPromptRecovery(sessionId, ctx.client, ctx.directory);
         return;
       }
-
-      agendarVerificacao(sessionId, ctx.client, ctx.directory);
     },
   };
 };
