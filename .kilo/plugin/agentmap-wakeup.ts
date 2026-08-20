@@ -20,6 +20,8 @@ import type { Plugin, PluginInput } from "@kilocode/plugin";
 const AGENTMAP_API_URL = (globalThis as any).process?.env?.AGENTMAP_API_URL || "http://localhost:3150";
 const AGENTMAP_API_KEY = (globalThis as any).process?.env?.AGENTMAP_API_KEY || "";
 const DEBOUNCE_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_DEBOUNCE_MS || "3000");
+const HEARTBEAT_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_MS || "2 * 60 * 1000");
+const HEARTBEAT_PROMPT = (globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_PROMPT || "Heartbeat do AgentMap: verifique o status das tarefas e atualize o progresso dos filhos se necessário.";
 
 const TIPOS_RELEVANTES = new Set([
   "KILO_CHAT_REPLY",
@@ -123,6 +125,7 @@ const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const sessoesComRecovery = new Set<string>();
 const RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
 const recoveryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const heartbeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 // ---------------------------------------------------------------------------
 // Consulta ao AgentMap
@@ -330,6 +333,69 @@ function isToolError(output: any): boolean {
   return /error|exception|failed|traceback|not recognized|não é reconhecido|command not found|code \d+|fatal|crash/.test(text);
 }
 
+async function injetarHeartbeat(sessionId: string, client: PluginInput["client"], directory: string) {
+  const log = `[agentmap-wakeup] heartbeat iniciado para session ${sessionId}`;
+  console.log(log);
+  await logEmArquivo(directory, log);
+
+  try {
+    const promptResult = await (client.session as any).promptAsync({
+      path: { id: sessionId },
+      body: {
+        parts: [{ type: "text", text: HEARTBEAT_PROMPT }],
+      },
+    });
+
+    const logRetorno = `[agentmap-wakeup] heartbeat retornou: ${JSON.stringify(promptResult)}`;
+    console.log(logRetorno);
+    await logEmArquivo(directory, logRetorno);
+  } catch (err) {
+    const logErro = `[agentmap-wakeup] Falha no heartbeat: ${err}`;
+    console.error(logErro);
+    await logEmArquivo(directory, logErro);
+  }
+}
+
+function iniciarHeartbeat(sessionId: string, client: PluginInput["client"], directory: string) {
+  const timerExistente = heartbeatTimers.get(sessionId);
+  if (timerExistente) clearTimeout(timerExistente);
+
+  const log = `[agentmap-wakeup] heartbeat agendado para session ${sessionId} a cada ${HEARTBEAT_INTERVAL_MS}ms`;
+  console.log(log);
+  await logEmArquivo(directory, log);
+
+  const timer = setInterval(async () => {
+    try {
+      const pendentes = await buscarMensagensPendentes();
+      if (pendentes.length === 0) {
+        await injetarHeartbeat(sessionId, client, directory);
+      } else {
+        const log = `[agentmap-wakeup] heartbeat skip: ${pendentes.length} mensagem(ns) pendente(s) para session ${sessionId}`;
+        console.log(log);
+        await logEmArquivo(directory, log);
+      }
+    } catch (err) {
+      const logErro = `[agentmap-wakeup] Falha no heartbeat cycle: ${err}`;
+      console.error(logErro);
+      await logEmArquivo(directory, logErro);
+    }
+  }, HEARTBEAT_INTERVAL_MS);
+
+  heartbeatTimers.set(sessionId, timer);
+}
+
+function pararHeartbeat(sessionId: string, directory: string) {
+  const timer = heartbeatTimers.get(sessionId);
+  if (timer) {
+    clearInterval(timer);
+    heartbeatTimers.delete(sessionId);
+  }
+
+  const log = `[agentmap-wakeup] heartbeat parado para session ${sessionId}`;
+  console.log(log);
+  await logEmArquivo(directory, log);
+}
+
 // ---------------------------------------------------------------------------
 // Definição do plugin
 // ---------------------------------------------------------------------------
@@ -357,6 +423,7 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
 
         agendarVerificacao(sessionId, ctx.client, ctx.directory);
+        iniciarHeartbeat(sessionId, ctx.client, ctx.directory);
         sessoesComRecovery.delete(sessionId);
         const timer = recoveryTimers.get(sessionId);
         if (timer) clearTimeout(timer);
@@ -375,6 +442,21 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
 
         await injetarPromptRecovery(sessionId, ctx.client, ctx.directory);
+        pararHeartbeat(sessionId, ctx.directory);
+        return;
+      }
+
+      if (event.type === "session.deleted") {
+        const logDeleted = `[agentmap-wakeup] session.deleted detectado na sessão ${sessionId}`;
+        console.log(logDeleted);
+        await logEmArquivo(ctx.directory, logDeleted);
+
+        if (!sessionId) {
+          console.warn("[agentmap-wakeup] session.deleted sem sessionID, ignorando.");
+          return;
+        }
+
+        pararHeartbeat(sessionId, ctx.directory);
         return;
       }
 
