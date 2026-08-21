@@ -890,7 +890,12 @@ O AgentMap se integra ao Kilo Code via **MCP local (STDIO)**. Essa configuraçã
   "mcp": {
     "agentmap": {
       "type": "local",
-      "command": ["cmd", "/c", "cd", "backend", "&&", "npx", "tsx", "src/mcp-server/index.ts"],
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        "Set-Location -LiteralPath 'G:\\PROJETOS\\WEB\\AgentMap\\backend'; npx tsx src/mcp-server/index.ts"
+      ],
       "environment": {
         "NODE_ENV": "production"
       },
@@ -899,10 +904,12 @@ O AgentMap se integra ao Kilo Code via **MCP local (STDIO)**. Essa configuraçã
     }
   },
   "plugin": [
-    "./.kilo/plugin/agentmap-wakeup.ts"
+    "G:\\PROJETOS\\WEB\\AgentMap\\.kilo\\plugin\\agentmap-wakeup.ts"
   ]
 }
 ```
+
+> **Nota Windows:** o comando usa `powershell -NoProfile -Command` com `Set-Location` para evitar problemas de caminho com espaços. O caminho do plugin deve ser absoluto para funcionar corretamente no Windows.
 
 Se o `kilo.jsonc` já existir, adicione apenas a chave `mcp.agentmap` e a lista `plugin` ao JSON existente.
 

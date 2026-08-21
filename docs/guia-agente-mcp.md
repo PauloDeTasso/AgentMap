@@ -400,6 +400,28 @@ Exemplo:
 
 O evento criado aparece em `GET /api/eventos` e pode ser consumido com `PUT /api/eventos/:id/consumir`.
 
+## Comportamento do Plugin Wake-up
+
+O plugin `.kilo/plugin/agentmap-wakeup.ts` inclui **rastreamento de atividade** para não interromper agentes ocupados:
+
+- **Janela de atividade:** 60 segundos
+- **Hooks monitorados:** `tool.execute.after` e `chat.message`
+- **Comportamento:** durante janela de atividade, heartbeats e verificações de wake-up são suprimidos
+- **Fallback:** se a sessão ficar ociosa por mais de 60s sem atividade, o plugin retoma o comportamento normal
+
+Isso evita que o plugin envie heartbeats ("Aviso do AgentMap...") enquanto o agente está trabalhando.
+
+## Comportamento de Tools Multi-parâmetro
+
+Tools MCP com múltiplos parâmetros obrigatórios funcionam corretamente no AgentMap:
+
+- **Formato de entrada:** objeto JSON único em `arguments`
+- **Exemplo:** `agentmap_projetos_criar` recebe `{ "nome": string, "caminhoParental": string, "descricao": string }`
+- **Validação:** Zod valida o objeto completo antes da execução
+- **Wrapper:** `registerTracedTool` em `backend/src/observability/tool-tracing.ts` repassa `args[0]` como `input` para o handler
+
+Não há limitação de número de parâmetros. O SDK MCP v1.30.0 e o wrapper do AgentMap suportam qualquer quantidade de campos no schema Zod.
+
 ## Autenticação
 
 O AgentMap roda localmente e não exige autenticação. As rotas públicas incluem:

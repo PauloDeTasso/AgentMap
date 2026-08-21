@@ -1,4 +1,4 @@
-import { mcpServer, toMcpResult, projetoService } from '../server';
+import { mcpServer, projetoService } from '../server';
 import { toMcpStructured, mcpError } from '../utils/helpers';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';

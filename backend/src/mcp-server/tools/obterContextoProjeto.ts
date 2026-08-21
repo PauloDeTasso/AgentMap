@@ -1,10 +1,11 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService } from '../server';
+import { mcpServer, projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaObterContextoProjeto } from '../schemas/validacao';
 import { mapearProjeto, mapearAgenteRegistro } from '../mapper/mapeadores';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import * as z from 'zod';
 import * as path from 'path';
 
@@ -16,7 +17,7 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_projeto', {
   async () => {
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
-      return toMcpResult(ctx);
+      return mcpError(ctx);
     }
 
     const { projeto, servicos } = ctx.dados;
@@ -83,6 +84,6 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_projeto', {
     };
 
     auditoria.registrarToolCall('agentmap_obter_contexto_projeto', projeto, {}, { sucesso: true, dados });
-    return toMcpData(dados);
+    return toMcpStructured(dados);
   }
 );

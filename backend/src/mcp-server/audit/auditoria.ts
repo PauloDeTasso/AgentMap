@@ -5,7 +5,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { mcpServer } from '../server';
 import { carregarContexto } from '../contexto';
-import { toMcpResult, toMcpData } from '../utils/helpers';
 
 export interface McpToolLog {
   toolName: string;

@@ -1,8 +1,9 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService } from '../server';
+import { mcpServer, projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaObterContextoTarefa } from '../schemas/validacao';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import * as z from 'zod';
 
 registerTracedTool(mcpServer, 'agentmap_obter_contexto_tarefa', {
@@ -15,7 +16,7 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_tarefa', {
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
-      return toMcpResult(ctx);
+      return mcpError(ctx);
     }
 
     const { projeto, servicos } = ctx.dados;
@@ -24,6 +25,7 @@ registerTracedTool(mcpServer, 'agentmap_obter_contexto_tarefa', {
     const resultado = await servicos.tarefa.montarContexto(tarefaId || '');
     auditoria.registrarToolCall('agentmap_obter_contexto_tarefa', projeto, { id: tarefaId }, resultado);
 
-    return toMcpData(resultado.dados);
+    if (!resultado.sucesso) return mcpError(resultado);
+    return toMcpStructured(resultado.dados);
   }
 );

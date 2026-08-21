@@ -10,6 +10,7 @@ Este documento lista as 131 tools MCP disponíveis para integração com agentes
 - **Argumentos:** objeto JSON único `arguments` no método MCP `tools/call`
 - **Projeto:** quase todas as tools exigem um projeto aberto no AgentMap
 - **Ambiente:** local, sem autenticação obrigatória
+- **Multi-parâmetros:** tools com múltiplos parâmetros obrigatórios funcionam corretamente; o SDK MCP e o wrapper `registerTracedTool` repassam o objeto `arguments` completo para validação Zod
 
 ## Catálogo completo
 

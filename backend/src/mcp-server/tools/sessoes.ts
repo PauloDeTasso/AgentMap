@@ -1,5 +1,5 @@
 import { mcpServer } from '../server';
-import { toMcpResult, toMcpData } from '../utils/helpers';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
@@ -11,13 +11,13 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_listar', {
   inputSchema: z.object({})
 }, async () => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = ctx.dados!.servicos.sessao.listar();
   auditoria.registrarToolCall('agentmap_sessoes_listar', projeto, {}, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_sessoes_obter', {
@@ -25,13 +25,13 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_obter', {
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = ctx.dados!.servicos.sessao.obter(String(id || ''));
   auditoria.registrarToolCall('agentmap_sessoes_obter', projeto, { id }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_sessoes_criar', {
@@ -39,13 +39,13 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_criar', {
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) })
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.sessao.iniciar(dados as any);
   auditoria.registrarToolCall('agentmap_sessoes_criar', projeto, { dados }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_sessoes_atualizar', {
@@ -53,13 +53,13 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_atualizar', {
   inputSchema: z.object({ id: z.string() }).passthrough()
 }, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.sessao.atualizar(String(id || ''), dados as any);
   auditoria.registrarToolCall('agentmap_sessoes_atualizar', projeto, { id, ...dados }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_sessoes_finalizar', {
@@ -67,13 +67,13 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_finalizar', {
   inputSchema: z.object({ id: z.string(), estadoFinal: z.string() })
 }, async ({ id, estadoFinal }: { id: string, estadoFinal: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.sessao.finalizar(String(id || ''), { estadoFinal: String(estadoFinal || '') });
   auditoria.registrarToolCall('agentmap_sessoes_finalizar', projeto, { id, estadoFinal }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_sessoes_excluir', {
@@ -81,11 +81,11 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_excluir', {
   inputSchema: z.object({ id: z.string() })
 }, async ({ id }: { id: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.sessao.excluir(String(id || ''));
   auditoria.registrarToolCall('agentmap_sessoes_excluir', projeto, { id }, resultado);
-  if (!resultado.sucesso) return toMcpResult(resultado);
-  return toMcpData(resultado.dados);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
 });

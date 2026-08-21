@@ -1,5 +1,5 @@
 import { mcpServer } from '../server';
-import { toMcpResult, toMcpData } from '../utils/helpers';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
@@ -20,13 +20,13 @@ registerTracedTool(mcpServer, 'agentmap_tarefas_prontas_para_worktree', {
   inputSchema: z.object({})
 }, async () => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const tarefasResult = ctx.dados!.servicos.tarefa.listar();
   if (!tarefasResult.sucesso || !tarefasResult.dados) {
     auditoria.registrarToolCall('agentmap_tarefas_prontas_para_worktree', projeto, {}, tarefasResult);
-    return toMcpResult(tarefasResult);
+    return mcpError(tarefasResult);
   }
 
   const prontas = tarefasResult.dados.filter((tarefa) => {
@@ -40,7 +40,7 @@ registerTracedTool(mcpServer, 'agentmap_tarefas_prontas_para_worktree', {
 
   const resultado = { sucesso: true, dados: prontas };
   auditoria.registrarToolCall('agentmap_tarefas_prontas_para_worktree', projeto, {}, resultado);
-  return toMcpData(prontas);
+  return toMcpStructured(prontas);
 });
 
 registerTracedTool(mcpServer, 'agentmap_verificar_dependencias_pendentes', {
@@ -48,21 +48,21 @@ registerTracedTool(mcpServer, 'agentmap_verificar_dependencias_pendentes', {
   inputSchema: z.object({ tarefaId: z.string() })
 }, async ({ tarefaId }: { tarefaId: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
   const tarefasResult = ctx.dados!.servicos.tarefa.listar();
   if (!tarefasResult.sucesso || !tarefasResult.dados) {
     auditoria.registrarToolCall('agentmap_verificar_dependencias_pendentes', projeto, { tarefaId }, tarefasResult);
-    return toMcpResult(tarefasResult);
+    return mcpError(tarefasResult);
   }
 
   const tarefa = tarefasResult.dados.find((t) => t.id === tarefaId);
   if (!tarefa) {
     const resultado = { sucesso: false, erro: 'Tarefa não encontrada', codigoErro: 'NOT_FOUND' };
     auditoria.registrarToolCall('agentmap_verificar_dependencias_pendentes', projeto, { tarefaId }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const pendentes: string[] = [];
@@ -86,7 +86,7 @@ registerTracedTool(mcpServer, 'agentmap_verificar_dependencias_pendentes', {
     }
   };
   auditoria.registrarToolCall('agentmap_verificar_dependencias_pendentes', projeto, { tarefaId }, resultado);
-  return toMcpData(resultado.dados);
+  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
@@ -97,7 +97,7 @@ registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
   })
 }, async ({ messageId, tarefaId }: { messageId: string; tarefaId: string }) => {
   const ctx = carregarContexto(projetoService);
-  if (!ctx.sucesso) return toMcpResult(ctx);
+  if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
@@ -106,14 +106,14 @@ registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
   if (jaProcessado) {
     const resultado = { sucesso: false, erro: `Mensagem duplicada: ${messageId}`, codigoErro: 'DUPLICATE_MESSAGE' };
     auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const tarefaResult = ctx.dados!.servicos.tarefa.obter(tarefaId);
   if (!tarefaResult.sucesso || !tarefaResult.dados) {
     const resultado = { sucesso: false, erro: 'Tarefa não encontrada', codigoErro: 'NOT_FOUND' };
     auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
-    return toMcpResult(resultado);
+    return mcpError(resultado);
   }
 
   const tarefa = tarefaResult.dados;
@@ -194,7 +194,7 @@ registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
     worktreePath
   });
   auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
-  return toMcpData(dados);
+  return toMcpStructured(dados);
 });
 
 function sanitizarBranch(branch: string): string {

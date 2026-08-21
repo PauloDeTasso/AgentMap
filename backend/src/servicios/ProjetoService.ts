@@ -217,12 +217,18 @@ export class ProjetoService {
       const config = configResult.dados;
       console.log('[ProjetoService.abrirProjeto] Config lida:', config.id, config.nome);
 
+      const caminhoRaizResolvido = path.resolve(caminhoRaiz);
+      const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
+      const ehProjetoSistema = caminhoRaizResolvido === gerenciadorResolvido;
+
       const fluxo = new FluxoService(fileService, auditoria);
-      const checklistResult = fluxo.validarChecklist();
-      if (checklistResult.sucesso && checklistResult.dados) {
-        const pendentes = fluxo.obterPendentes(checklistResult.dados);
-        if (pendentes.length > 0) {
-          return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+      if (!ehProjetoSistema) {
+        const checklistResult = fluxo.validarChecklist();
+        if (checklistResult.sucesso && checklistResult.dados) {
+          const pendentes = fluxo.obterPendentes(checklistResult.dados);
+          if (pendentes.length > 0) {
+            return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+          }
         }
       }
 
@@ -269,6 +275,10 @@ export class ProjetoService {
       console.error('[ProjetoService.abrirProjeto] Stack:', err.stack);
       return { sucesso: false, erro: 'Erro interno ao abrir projeto: ' + err.message, codigoErro: 'INTERNAL_ERROR' };
     }
+  }
+
+  abrirProjetoSistema(): ResultadoOperacao<ProjetoAberto> {
+    return this.abrirProjeto(path.resolve(GERENCIADOR_DIR));
   }
 
   fecharProjeto(id: string): ResultadoOperacao<boolean> {

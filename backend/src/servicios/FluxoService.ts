@@ -9,7 +9,6 @@ export interface ChecklistFluxo {
   pastaTarefasExiste: boolean;
   pastaDependenciasExiste: boolean;
   peloMenosUmContrato: boolean;
-  peloMenosUmaTarefa: boolean;
   tarefasSemDependenciasCirculares: boolean;
 }
 
@@ -23,7 +22,6 @@ export class FluxoService {
       pastaTarefasExiste: this.existeDiretorio('.ia/tarefas'),
       pastaDependenciasExiste: this.existeDiretorio('.ia/dependencias'),
       peloMenosUmContrato: this.contarArquivos('.ia/contratos') > 0,
-      peloMenosUmaTarefa: this.contemTarefas(),
       tarefasSemDependenciasCirculares: !this.existeDependenciaCircular()
     };
 
@@ -45,7 +43,6 @@ export class FluxoService {
     if (!checklist.pastaTarefasExiste) pendentes.push('Pasta .ia/tarefas não encontrada');
     if (!checklist.pastaDependenciasExiste) pendentes.push('Pasta .ia/dependencias não encontrada');
     if (!checklist.peloMenosUmContrato) pendentes.push('Nenhum contrato registrado');
-    if (!checklist.peloMenosUmaTarefa) pendentes.push('Nenhuma tarefa registrada');
     if (!checklist.tarefasSemDependenciasCirculares) pendentes.push('Dependências circulares detectadas');
     return pendentes;
   }
@@ -64,13 +61,6 @@ export class FluxoService {
     const result = this.fs.listar(caminhoRelativo);
     if (!result.sucesso || !Array.isArray(result.dados)) return 0;
     return result.dados.filter((item: any) => item && item.tipo === 'arquivo').length;
-  }
-
-  private contemTarefas(): boolean {
-    const result = this.fs.lerJson<{ tarefas?: any[] }>(path.win32.join('.ia', 'tarefas', 'tarefas.json'));
-    if (!result.sucesso || !result.dados) return false;
-    const tarefas = result.dados.tarefas || result.dados;
-    return Array.isArray(tarefas) && tarefas.length > 0;
   }
 
   private existeDependenciaCircular(): boolean {

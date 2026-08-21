@@ -1,10 +1,11 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from '../server';
+import { mcpServer, projetoService, getMcpConfig } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaLerTrechoArquivo } from '../schemas/validacao';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { PathTraversalError } from '../../seguranca/paths';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import * as z from 'zod';
 
 interface ArquivoComLinhas {
@@ -29,7 +30,7 @@ registerTracedTool(mcpServer, 'agentmap_ler_trecho_arquivo', {
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
-      return toMcpResult(ctx);
+      return mcpError(ctx);
     }
 
     const { projeto } = ctx.dados;
@@ -44,7 +45,7 @@ registerTracedTool(mcpServer, 'agentmap_ler_trecho_arquivo', {
       if (!readResult.sucesso || !readResult.dados) {
         const result = readResult;
         auditoria.registrarToolCall('agentmap_ler_trecho_arquivo', projeto, { caminho, linhaInicio, linhaFim, limite }, result);
-        return toMcpResult(result);
+        return mcpError(result);
       }
 
       const content = readResult.dados;
@@ -82,11 +83,11 @@ registerTracedTool(mcpServer, 'agentmap_ler_trecho_arquivo', {
       };
 
       auditoria.registrarToolCall('agentmap_ler_trecho_arquivo', projeto, { caminho, linhaInicio, linhaFim, limite }, { sucesso: true, dados });
-      return toMcpData(dados);
+      return toMcpStructured(dados);
     } catch (e: any) {
       const result = { sucesso: false, erro: e.message || 'Caminho invalido', codigoErro: 'PATH_TRAVERSAL' };
       auditoria.registrarToolCall('agentmap_ler_trecho_arquivo', projeto, { caminho, linhaInicio, linhaFim, limite }, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
   }
 );

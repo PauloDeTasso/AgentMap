@@ -20,8 +20,8 @@ import type { Plugin, PluginInput } from "@kilocode/plugin";
 const AGENTMAP_API_URL = (globalThis as any).process?.env?.AGENTMAP_API_URL || "http://localhost:3150";
 const AGENTMAP_API_KEY = (globalThis as any).process?.env?.AGENTMAP_API_KEY || "";
 const DEBOUNCE_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_DEBOUNCE_MS || "3000");
-const HEARTBEAT_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_MS || "2 * 60 * 1000");
-const HEARTBEAT_PROMPT = (globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_PROMPT || "Heartbeat do AgentMap: verifique o status das tarefas e atualize o progresso dos filhos se necessário.";
+const HEARTBEAT_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_MS || String(2 * 60 * 1000));
+const HEARTBEAT_PROMPT = (globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_PROMPT || "Aviso do AgentMap: verifique o status das tarefas no agentmap e verique as que sao para voce, se necessario se autoidentifique-se e se atualize do seu progresso ou tarefas se necessário, reporte o que precisa se ainda nao foi reportado.";
 
 const TIPOS_RELEVANTES = new Set([
   "KILO_CHAT_REPLY",
@@ -126,6 +126,11 @@ const sessoesComRecovery = new Set<string>();
 const RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
 const recoveryTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const heartbeatTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const sessoesInterrompidas = new Set<string>();
+const INTERRUPT_CLEANUP_MS = 5 * 60 * 1000;
+const interruptTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const ATIVIDADE_MAX_MS = 60_000;
+const atividadeRecente = new Map<string, number>();
 
 // ---------------------------------------------------------------------------
 // Consulta ao AgentMap
@@ -220,6 +225,12 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"], di
   const timer = setTimeout(async () => {
     debounceTimers.delete(sessionId);
     try {
+      if (estaOcupado(sessionId)) {
+        const logOcupado = `[agentmap-wakeup] Verificacao suprimida (ocupado): sessao ${sessionId}`;
+        console.log(logOcupado);
+        await logEmArquivo(directory, logOcupado);
+        return;
+      }
       const pendentes = await buscarMensagensPendentes();
       if (pendentes.length === 0) {
         const logVazio = `[agentmap-wakeup] Nenhuma mensagem pendente para session ${sessionId}`;
@@ -268,34 +279,15 @@ function agendarVerificacao(sessionId: string, client: PluginInput["client"], di
 }
 
 async function injetarPromptRecovery(sessionId: string, client: PluginInput["client"], directory: string) {
-  const promptRecovery = `ERRO NO SISTEMA!
-Não precisa resolver esse erro agora. Apenas:
-1. Continue sua tarefa de onde parou.
-2. Se precisar se autoidentificar, use as tools do MCP, rotas de API ou documentos do Agent Map.`;
-
-  const logInicio = `[agentmap-wakeup] session.error detectado na sessão ${sessionId} — iniciando recovery`;
-  console.error(logInicio);
-  await logEmArquivo(directory, logInicio);
+  const promptRecovery = "Ocorreu um erro no sistema. Nao tente resolver agora. Apenas continue sua tarefa de onde parou e, se precisar se autoidentificar, use as tools do MCP, rotas de API ou documentos do Agent Map.";
 
   try {
-    const logPrompt = `[agentmap-wakeup] Injetando prompt de recovery na sessão ${sessionId}`;
-    console.log(logPrompt);
-    await logEmArquivo(directory, logPrompt);
-
-    const promptResult = await (client.session as any).promptAsync({
+    await (client.session as any).promptAsync({
       path: { id: sessionId },
       body: {
         parts: [{ type: "text", text: promptRecovery }],
       },
     });
-
-    const logRetorno = `[agentmap-wakeup] promptAsync recovery retornou: ${JSON.stringify(promptResult)}`;
-    console.log(logRetorno);
-    await logEmArquivo(directory, logRetorno);
-
-    const logSucesso = `[agentmap-wakeup] Recovery injetado com sucesso na sessão ${sessionId} às ${new Date().toISOString()}`;
-    console.log(logSucesso);
-    await logEmArquivo(directory, logSucesso);
 
     sessoesComRecovery.add(sessionId);
     const timerExistente = recoveryTimers.get(sessionId);
@@ -307,10 +299,8 @@ Não precisa resolver esse erro agora. Apenas:
         recoveryTimers.delete(sessionId);
       }, RECOVERY_COOLDOWN_MS)
     );
-  } catch (err) {
-    const logErro = `[agentmap-wakeup] Falha ao injetar prompt de recovery: ${err}`;
-    console.error(logErro);
-    await logEmArquivo(directory, logErro);
+  } catch {
+    // silencioso — se falhar, o proximo session.error tentara de novo
   }
 }
 
@@ -333,7 +323,66 @@ function isToolError(output: any): boolean {
   return /error|exception|failed|traceback|not recognized|não é reconhecido|command not found|code \d+|fatal|crash/.test(text);
 }
 
+function marcarAtividade(sessionId: string) {
+  if (!sessionId) return;
+  const agora = Date.now();
+  atividadeRecente.set(sessionId, agora);
+  const log = `[agentmap-wakeup] Atividade registrada para ${sessionId} em ${new Date(agora).toISOString()}`;
+  console.log(log);
+}
+
+function estaOcupado(sessionId: string): boolean {
+  if (!sessionId) return false;
+  const ultima = atividadeRecente.get(sessionId);
+  const agora = Date.now();
+  const log = `[agentmap-wakeup] estaOcupado(${sessionId}) => ultima=${ultima ? new Date(ultima).toISOString() : "nunca"}, agora=${new Date(agora).toISOString()}, delta=${ultima ? agora - ultima : "n/a"}ms => ${ultima ? agora - ultima < ATIVIDADE_MAX_MS : false}`;
+  console.log(log);
+  if (ultima === undefined) return false;
+  return agora - ultima < ATIVIDADE_MAX_MS;
+}
+
+async function temTrabalhoPendente(): Promise<boolean> {
+  try {
+    const url = new URL("/api/estado-projeto", AGENTMAP_API_URL);
+    const res = await fetch(url, {
+      headers: AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : undefined,
+    });
+
+    if (!res.ok) return true;
+
+    const body = (await res.json()) as Record<string, unknown>;
+    const dados = (body?.dados || body) as Record<string, unknown> | undefined;
+    if (!dados) return true;
+
+    const tarefas = (dados.tarefas || {}) as Record<string, number>;
+    const temTarefa = Number(tarefas.pendentes || 0) > 0 || Number(tarefas.emExecucao || 0) > 0 || Number(tarefas.bloqueadas || 0) > 0;
+
+    const solicitacoes = (dados.solicitacoes || {}) as Record<string, number>;
+    const temSolicitacao = Number(solicitacoes.pendentes || 0) > 0;
+
+    const handoffs = (dados.handoffs || {}) as Record<string, number>;
+    const temHandoff = Number(handoffs.pendentes || 0) > 0;
+
+    const bloqueios = Array.isArray(dados.bloqueios) ? dados.bloqueios : [];
+    const temBloqueio = bloqueios.some((b: any) => b.estado === "ATIVO");
+
+    const validacoes = (dados.validacoes || {}) as Record<string, number>;
+    const temValidacao = Number(validacoes.pendentes || 0) > 0;
+
+    return temTarefa || temSolicitacao || temHandoff || temBloqueio || temValidacao;
+  } catch {
+    return true;
+  }
+}
+
 async function injetarHeartbeat(sessionId: string, client: PluginInput["client"], directory: string) {
+  if (estaOcupado(sessionId)) {
+    const logOcupado = `[agentmap-wakeup] heartbeat suprimido (ocupado): sessao ${sessionId}`;
+    console.log(logOcupado);
+    await logEmArquivo(directory, logOcupado);
+    return;
+  }
+
   const log = `[agentmap-wakeup] heartbeat iniciado para session ${sessionId}`;
   console.log(log);
   await logEmArquivo(directory, log);
@@ -355,10 +404,9 @@ async function injetarHeartbeat(sessionId: string, client: PluginInput["client"]
     await logEmArquivo(directory, logErro);
   }
 }
-
 async function iniciarHeartbeat(sessionId: string, client: PluginInput["client"], directory: string) {
   const timerExistente = heartbeatTimers.get(sessionId);
-  if (timerExistente) clearTimeout(timerExistente);
+  if (timerExistente) clearInterval(timerExistente);
 
   const log = `[agentmap-wakeup] heartbeat agendado para session ${sessionId} a cada ${HEARTBEAT_INTERVAL_MS}ms`;
   console.log(log);
@@ -367,13 +415,23 @@ async function iniciarHeartbeat(sessionId: string, client: PluginInput["client"]
   const timer = setInterval(async () => {
     try {
       const pendentes = await buscarMensagensPendentes();
-      if (pendentes.length === 0) {
-        await injetarHeartbeat(sessionId, client, directory);
-      } else {
+      if (pendentes.length > 0) {
         const log = `[agentmap-wakeup] heartbeat skip: ${pendentes.length} mensagem(ns) pendente(s) para session ${sessionId}`;
         console.log(log);
         await logEmArquivo(directory, log);
+        return;
       }
+
+      const trabalho = await temTrabalhoPendente();
+      if (!trabalho) {
+        const log = `[agentmap-wakeup] heartbeat parado: sem trabalho pendente para session ${sessionId}`;
+        console.log(log);
+        await logEmArquivo(directory, log);
+        pararHeartbeat(sessionId, directory);
+        return;
+      }
+
+      await injetarHeartbeat(sessionId, client, directory);
     } catch (err) {
       const logErro = `[agentmap-wakeup] Falha no heartbeat cycle: ${err}`;
       console.error(logErro);
@@ -383,7 +441,6 @@ async function iniciarHeartbeat(sessionId: string, client: PluginInput["client"]
 
   heartbeatTimers.set(sessionId, timer);
 }
-
 async function pararHeartbeat(sessionId: string, directory: string) {
   const timer = heartbeatTimers.get(sessionId);
   if (timer) {
@@ -407,11 +464,16 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
 
   return {
     event: async ({ event }) => {
-      const sessionId: string | undefined = (event as any).properties?.sessionID;
+      const sessionId: string | undefined =
+        (event as any).properties?.sessionID || (event as any).sessionID;
       const eventType = (event as any).type as string;
-      const logEvento = `[agentmap-wakeup] EVENTO RECEBIDO tipo=${eventType} sessionID=${sessionId} raw=${JSON.stringify(event)}`;
+
+      const logEvento = `[agentmap-wakeup] Evento recebido: type=${eventType}, sessionID=${sessionId}, props=${JSON.stringify((event as any).properties || {}).slice(0, 200)}`;
       console.log(logEvento);
-      await logEmArquivo(ctx.directory, logEvento);
+
+      if (sessionId && eventType !== "session.idle") {
+        marcarAtividade(sessionId);
+      }
 
       if (eventType === "session.idle") {
         const logIdle = `[agentmap-wakeup] session.idle detectado na sessão ${sessionId}`;
@@ -423,8 +485,13 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
           return;
         }
 
+        sessoesInterrompidas.delete(sessionId);
+        const timerInterrupcao = interruptTimers.get(sessionId);
+        if (timerInterrupcao) clearTimeout(timerInterrupcao);
+        interruptTimers.delete(sessionId);
+
         agendarVerificacao(sessionId, ctx.client, ctx.directory);
-        await iniciarHeartbeat(sessionId, ctx.client, ctx.directory);
+        iniciarHeartbeat(sessionId, ctx.client, ctx.directory);
         sessoesComRecovery.delete(sessionId);
         const timer = recoveryTimers.get(sessionId);
         if (timer) clearTimeout(timer);
@@ -432,7 +499,53 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         return;
       }
 
+      if (eventType === "session.next.interrupt.requested") {
+        const sid = typeof (event as any).properties?.sessionID === "string"
+          ? (event as any).properties.sessionID
+          : sessionId;
+        if (!sid) {
+          console.warn("[agentmap-wakeup] session.next.interrupt.requested sem sessionID, ignorando.");
+          return;
+        }
+
+        sessoesInterrompidas.add(sid);
+        const logInterrupcao = `[agentmap-wakeup] Interrupção (stop) detectada na sessão ${sid} — recuperação suprimida.`;
+        console.log(logInterrupcao);
+        await logEmArquivo(ctx.directory, logInterrupcao);
+
+        const timerExistente = interruptTimers.get(sid);
+        if (timerExistente) clearTimeout(timerExistente);
+        interruptTimers.set(
+          sid,
+          setTimeout(() => {
+            sessoesInterrompidas.delete(sid);
+            interruptTimers.delete(sid);
+          }, INTERRUPT_CLEANUP_MS)
+        );
+
+        return;
+      }
+
       if (eventType === "session.error") {
+        const nomeErro = typeof (event as any)?.properties?.error?.name === "string"
+          ? (event as any).properties.error.name
+          : "";
+        const mensagemErro = typeof (event as any)?.properties?.error?.data?.message === "string"
+          ? (event as any).properties.error.data.message
+          : "";
+
+        const ehInterrupcaoUsuario =
+          sessoesInterrompidas.has(sessionId || "") ||
+          nomeErro === "MessageAbortedError" ||
+          /abort|cancel|interrompid|interrupt|stopped|user/i.test(`${nomeErro} ${mensagemErro}`);
+
+        if (ehInterrupcaoUsuario) {
+          const logInterrupcao = `[agentmap-wakeup] session.error suprimido (interrupção do usuário: ${nomeErro || "desconhecido"}) na sessão ${sessionId}.`;
+          console.log(logInterrupcao);
+          await logEmArquivo(ctx.directory, logInterrupcao);
+          return;
+        }
+
         const logError = `[agentmap-wakeup] session.error detectado na sessão ${sessionId}`;
         console.error(logError);
         await logEmArquivo(ctx.directory, logError);
@@ -446,57 +559,16 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         await pararHeartbeat(sessionId, ctx.directory);
         return;
       }
-
-      if (eventType === "session.deleted") {
-        const logDeleted = `[agentmap-wakeup] session.deleted detectado na sessão ${sessionId}`;
-        console.log(logDeleted);
-        await logEmArquivo(ctx.directory, logDeleted);
-
-        if (!sessionId) {
-          console.warn("[agentmap-wakeup] session.deleted sem sessionID, ignorando.");
-          return;
-        }
-
-        await pararHeartbeat(sessionId, ctx.directory);
-        return;
-      }
-
-      if (eventType === "tool.execute.before") {
-        const toolName = (event as any).properties?.input?.tool || (event as any).properties?.tool || "unknown";
-        const logToolBefore = `[agentmap-wakeup] tool.execute.before sessão=${sessionId} tool=${toolName}`;
-        console.log(logToolBefore);
-        await logEmArquivo(ctx.directory, logToolBefore);
-        return;
-      }
-
-      if (eventType === "tool.execute.after") {
-        const toolName = (event as any).properties?.input?.tool || (event as any).properties?.tool || "unknown";
-        const toolOutput = (event as any).properties?.output || (event as any).properties?.result || {};
-        const logToolAfter = `[agentmap-wakeup] tool.execute.after sessão=${sessionId} tool=${toolName} output=${JSON.stringify(toolOutput)}`;
-        console.log(logToolAfter);
-        await logEmArquivo(ctx.directory, logToolAfter);
-
-        if (!sessionId) {
-          console.warn("[agentmap-wakeup] tool.execute.after sem sessionID, ignorando.");
-          return;
-        }
-
-        if (sessoesComRecovery.has(sessionId)) {
-          const logCooldown = `[agentmap-wakeup] Sessão ${sessionId} já recebeu recovery recentemente; ignorando tool.execute.after`;
-          console.log(logCooldown);
-          await logEmArquivo(ctx.directory, logCooldown);
-          return;
-        }
-
-        if (isToolError(toolOutput)) {
-          const logToolError = `[agentmap-wakeup] Erro detectado em tool=${toolName} na sessão ${sessionId}`;
-          console.error(logToolError);
-          await logEmArquivo(ctx.directory, logToolError);
-          await injetarPromptRecovery(sessionId, ctx.client, ctx.directory);
-        }
-
-        return;
-      }
+    },
+    "tool.execute.after": async (input) => {
+      const logTool = `[agentmap-wakeup] tool.execute.after: sessionID=${input.sessionID}, tool=${input.tool}`;
+      console.log(logTool);
+      if (input.sessionID) marcarAtividade(input.sessionID);
+    },
+    "chat.message": async (input) => {
+      const logChat = `[agentmap-wakeup] chat.message: sessionID=${input.sessionID}`;
+      console.log(logChat);
+      if (input.sessionID) marcarAtividade(input.sessionID);
     },
   };
 };

@@ -37,6 +37,8 @@ import { KiloDiscoveryService } from 'servicios/KiloDiscoveryService';
 import { KiloReconciliationService } from 'servicios/KiloReconciliationService';
 import { TaskContextBuilder } from 'servicios/TaskContextBuilder';
 import { globalEventBus } from './events/event-bus';
+import { GERENCIADOR_DIR } from 'config';
+import * as path from 'path';
 
 export interface ProjetoContext {
   projetoId: string;
@@ -105,11 +107,32 @@ export function carregarContexto(projetoService: ProjetoService): ResultadoOpera
   }
   const projeto = resultado.dados;
   if (!projeto) {
-    return {
-      sucesso: false,
-      erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.',
-      codigoErro: 'NO_PROJECT_OPEN',
-    };
+    try {
+      const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
+      const fallback = projetoService.abrirProjeto(gerenciadorResolvido);
+      if (!fallback.sucesso || !fallback.dados) {
+        return {
+          sucesso: false,
+          erro: 'Nenhum projeto aberto e fallback para o AgentMap falhou.',
+          codigoErro: 'NO_PROJECT_OPEN',
+        };
+      }
+      const servicos = montarServicos(fallback.dados);
+      return {
+        sucesso: true,
+        dados: {
+          projetoId: fallback.dados.id,
+          projeto: fallback.dados,
+          servicos,
+        },
+      };
+    } catch (e) {
+      return {
+        sucesso: false,
+        erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.',
+        codigoErro: 'NO_PROJECT_OPEN',
+      };
+    }
   }
 
   const servicos = montarServicos(projeto);

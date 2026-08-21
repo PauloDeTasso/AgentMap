@@ -1,8 +1,11 @@
 import { ResultadoOperacao } from '../../tipos';
 
 export function safeStringify(obj: unknown): string {
+  if (obj === undefined || obj === null) {
+    return 'null';
+  }
   const seen = new WeakSet();
-  return JSON.stringify(
+  const result = JSON.stringify(
     obj,
     (key, value) => {
       if (typeof value === 'object' && value !== null) {
@@ -15,6 +18,7 @@ export function safeStringify(obj: unknown): string {
     },
     2
   );
+  return result === undefined ? 'null' : result;
 }
 
 export type McpContent = {
@@ -23,67 +27,27 @@ export type McpContent = {
   isError?: boolean;
 };
 
-export function toMcpResult<T>(result: ResultadoOperacao<T>): McpContent {
-  if (!result.sucesso) {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: safeStringify({
-            sucesso: false,
-            codigo: result.codigoErro || 'UNKNOWN_ERROR',
-            mensagem: result.erro || 'Erro desconhecido',
-            detalhes: {}
-          })
-        }
-      ],
-      isError: true
-    };
-  }
-  const dadosStr = safeStringify({ sucesso: true, dados: result.dados });
-  let structured: Record<string, unknown> | undefined;
-  try {
-    const parsed = JSON.parse(dadosStr);
-    structured = parsed.dados ?? undefined;
-  } catch {
-    structured = undefined;
+export function toMcpStructured(dados: unknown): { content: Array<{ type: 'text'; text: string }>; structuredContent: Record<string, unknown> } {
+  let structured: Record<string, unknown>;
+  if (Array.isArray(dados)) {
+    structured = { data: dados };
+  } else if (dados !== null && typeof dados === 'object') {
+    structured = dados as Record<string, unknown>;
+  } else {
+    structured = { data: dados };
   }
   return {
     content: [
       {
         type: 'text',
-        text: dadosStr
+        text: safeStringify(dados)
       }
     ],
     structuredContent: structured
   };
 }
 
-export function toMcpData(dados: unknown): McpContent {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: safeStringify(dados)
-      }
-    ],
-    structuredContent: dados as Record<string, unknown>
-  };
-}
-
-export function toMcpStructured(dados: unknown): { content: Array<{ type: 'text'; text: string }>; structuredContent: Record<string, unknown> } {
-  return {
-    content: [
-      {
-        type: 'text',
-        text: safeStringify(dados)
-      }
-    ],
-    structuredContent: (Array.isArray(dados) ? { data: dados } : (dados as Record<string, unknown>))
-  };
-}
-
-export function mcpError(resultado: ResultadoOperacao<any>): { content: Array<{ type: 'text'; text: string }>; isError: boolean } {
+export function mcpError(resultado: ResultadoOperacao<any>): { content: Array<{ type: 'text'; text: string }>; structuredContent: Record<string, unknown>; isError: boolean } {
   const envelope = {
     sucesso: false,
     codigo: resultado.codigoErro || 'UNKNOWN_ERROR',
@@ -96,6 +60,7 @@ export function mcpError(resultado: ResultadoOperacao<any>): { content: Array<{ 
         text: safeStringify(envelope)
       }
     ],
+    structuredContent: envelope,
     isError: true
   };
 }

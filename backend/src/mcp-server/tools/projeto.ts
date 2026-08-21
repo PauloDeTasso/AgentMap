@@ -26,9 +26,12 @@ registerTracedTool(mcpServer, 'agentmap_projetos_criar', {
     nome: z.string(),
     caminhoParental: z.string(),
     descricao: z.string()
-  }),
+  }).passthrough(),
   outputSchema: z.string()
-}, async ({ nome, caminhoParental, descricao }: { nome: string; caminhoParental: string; descricao: string }) => {
+}, async (input: any) => {
+  const nome = input?.nome ?? input?.dados?.nome;
+  const caminhoParental = input?.caminhoParental ?? input?.dados?.caminhoParental;
+  const descricao = input?.descricao ?? input?.dados?.descricao;
   const resultado = projetoService.criarProjeto(nome, caminhoParental, descricao);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);

@@ -52,9 +52,12 @@ registerTracedTool(mcpServer, 'agentmap_contatos_obter', {
 registerTracedTool(mcpServer, 'agentmap_contatos_criar', {
   title: 'Criar Contato',
   description: 'Cria um novo contato.',
-  inputSchema: SchemaContatoCriar,
+  inputSchema: SchemaContatoCriar.passthrough(),
   outputSchema: contatoSchema
-}, async ({ nome, email, telefone }: { nome: string; email: string; telefone: string }) => {
+}, async (input: any) => {
+  const nome = input?.nome ?? input?.dados?.nome;
+  const email = input?.email ?? input?.dados?.email;
+  const telefone = input?.telefone ?? input?.dados?.telefone;
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;

@@ -1,9 +1,10 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from '../server';
+import { mcpServer, projetoService, getMcpConfig } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaBuscarConhecimento } from '../schemas/validacao';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import * as path from 'path';
 
 interface ConhecimentoHit {
@@ -28,7 +29,7 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
-      return toMcpResult(ctx);
+      return mcpError(ctx);
     }
 
     const { projeto } = ctx.dados;
@@ -41,7 +42,7 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
     if (!termoLower || termoLower.length < 2) {
       const result = { sucesso: false, erro: 'termo deve ter pelo menos 2 caracteres', codigoErro: 'INVALID_INPUT' };
       auditoria.registrarToolCall('agentmap_buscar_conhecimento', projeto, { termo, limite, incluirProjetos }, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
 
     const hits: ConhecimentoHit[] = [];
@@ -195,11 +196,11 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
       };
 
       auditoria.registrarToolCall('agentmap_buscar_conhecimento', projeto, { termo, limite, incluirProjetos }, { sucesso: true, dados });
-      return toMcpData(dados);
+      return toMcpStructured(dados);
     } catch (e: any) {
       const result = { sucesso: false, erro: e.message || 'Erro ao buscar conhecimento', codigoErro: 'PATH_TRAVERSAL' };
       auditoria.registrarToolCall('agentmap_buscar_conhecimento', projeto, { termo, limite, incluirProjetos }, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
   }
 );

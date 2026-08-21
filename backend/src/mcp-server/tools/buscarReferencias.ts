@@ -1,10 +1,11 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from '../server';
+import { mcpServer, projetoService, getMcpConfig } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaBuscarReferencias } from '../schemas/validacao';
 import { buscarTermoEmArquivos, SearchHit } from '../utils/search';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 
 registerTracedTool(mcpServer, 'agentmap_buscar_referencias', {
   description:
@@ -20,7 +21,7 @@ registerTracedTool(mcpServer, 'agentmap_buscar_referencias', {
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
-      return toMcpResult(ctx);
+      return mcpError(ctx);
     }
 
     const { projeto } = ctx.dados;
@@ -36,7 +37,7 @@ registerTracedTool(mcpServer, 'agentmap_buscar_referencias', {
       if (!simbolo || simbolo.trim().length < 2) {
         const result = { sucesso: false, erro: 'simbolo deve ter pelo menos 2 caracteres', codigoErro: 'INVALID_INPUT' };
         auditoria.registrarToolCall('agentmap_buscar_referencias', projeto, { simbolo, diretorio, limite }, result);
-        return toMcpResult(result);
+        return mcpError(result);
       }
 
       const hits = await buscarTermoEmArquivos(
@@ -54,11 +55,11 @@ registerTracedTool(mcpServer, 'agentmap_buscar_referencias', {
       };
 
       auditoria.registrarToolCall('agentmap_buscar_referencias', projeto, { simbolo, diretorio, limite }, { sucesso: true, dados });
-      return toMcpData(dados);
+      return toMcpStructured(dados);
     } catch (e: any) {
       const result = { sucesso: false, erro: e.message || 'Diretório inválido', codigoErro: 'PATH_TRAVERSAL' };
       auditoria.registrarToolCall('agentmap_buscar_referencias', projeto, { simbolo, diretorio, limite }, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
   }
 );

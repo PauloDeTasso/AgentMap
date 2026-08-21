@@ -1,10 +1,11 @@
-import { mcpServer, toMcpResult, toMcpData, projetoService, getMcpConfig } from '../server';
+import { mcpServer, projetoService, getMcpConfig } from '../server';
 import { carregarContexto } from '../contexto';
 import { SchemaBuscarSimbolo } from '../schemas/validacao';
 import { buscarSimboloDefinicoes, SearchHit } from '../utils/search';
 import { PathValidator, createPathValidator, DEFAULT_PATH_VALIDATOR_OPTIONS } from '../security/pathValidator';
 import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
+import { toMcpStructured, mcpError } from '../utils/helpers';
 import * as z from 'zod';
 
 registerTracedTool(mcpServer, 'agentmap_buscar_simbolo', {
@@ -22,14 +23,14 @@ registerTracedTool(mcpServer, 'agentmap_buscar_simbolo', {
 
     const ctx = carregarContexto(projetoService);
     if (!ctx.sucesso || !ctx.dados) {
-      return toMcpResult(ctx);
+      return mcpError(ctx);
     }
 
     if (!simbolo || simbolo.trim().length < 1) {
       const result = { sucesso: false, erro: 'simbolo deve ter pelo menos 1 caractere', codigoErro: 'INVALID_INPUT' };
       const auditoria = createMcpAuditoria(ctx.dados.projeto.auditoria);
       auditoria.registrarToolCall('agentmap_buscar_simbolo', ctx.dados.projeto, { simbolo, tipo, diretorio, limite }, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
 
     const { projeto } = ctx.dados;
@@ -58,12 +59,12 @@ registerTracedTool(mcpServer, 'agentmap_buscar_simbolo', {
       };
 
       auditoria.registrarToolCall('agentmap_buscar_simbolo', projeto, { simbolo, tipo, diretorio, limite }, { sucesso: true, dados });
-      return toMcpData(dados);
+      return toMcpStructured(dados);
     } catch (e: any) {
       const result = { sucesso: false, erro: e.message || 'Diretório inválido', codigoErro: 'PATH_TRAVERSAL' };
       const auditoria = createMcpAuditoria(projeto.auditoria);
       auditoria.registrarToolCall('agentmap_buscar_simbolo', projeto, { simbolo, tipo, diretorio, limite }, result);
-      return toMcpResult(result);
+      return mcpError(result);
     }
   }
 );

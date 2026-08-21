@@ -93,10 +93,17 @@ export function registerTracedTool(
   name: string,
   schema: any,
   handler: (...args: any[]) => Promise<any>,
-  options?: ToolTraceOptions,
+  options?: ToolTraceOptions
 ): void {
-  server.registerTool(name, schema, async (...args: any[]) => {
-    const input = args[0] || {};
+  const sanitizedSchema = { ...schema };
+  delete sanitizedSchema.outputSchema;
+  server.registerTool(name, sanitizedSchema, async (...args: any[]) => {
+    const receivedArgs = args;
+    let input = receivedArgs[0] ?? {};
+    if (input && typeof input === 'object' && 'dados' in input && input.dados && typeof input.dados === 'object') {
+      input = { ...input.dados };
+    }
+    console.error(`[tool-tracing] tool=${name} argsCount=${receivedArgs.length} input=${JSON.stringify(input)}`);
     const agentId = options?.agentId || (options?.extractAgentId ? options.extractAgentId(input) : undefined);
     return executeToolWithTracing(
       {
@@ -105,7 +112,7 @@ export function registerTracedTool(
         toolCallId: options?.toolCallId,
         toolType: TOOL_TYPE_FUNCTION,
       },
-      () => handler(...args)
+      () => handler(input)
     );
   });
 }

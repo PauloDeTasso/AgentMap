@@ -2,7 +2,21 @@
   "$schema": "https://app.kilo.ai/config.json",
   "mcp": {
     "agentmap": {
-      "enabled": true
+      "enabled": true,
+      "type": "local",
+      "command": [
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        "Set-Location -LiteralPath 'G:\\PROJETOS\\WEB\\AgentMap\\backend'; npx tsx src/mcp-server/index.ts"
+      ],
+      "environment": {
+        "NODE_ENV": "production"
+      },
+      "timeout": 30000
     }
-  }
+  },
+  "plugin": [
+    "G:\\PROJETOS\\WEB\\AgentMap\\.kilo\\plugin\\agentmap-wakeup.ts"
+  ]
 }
