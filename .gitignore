@@ -108,6 +108,10 @@ config.local.json
 local/
 dados-locais/
 
+# Kilo local plugin artifacts
+
+.kilo/plugin/*.md
+
 # ==========================================
 
 # BANCO DE DADOS LOCAL
@@ -161,6 +165,7 @@ tmp/
 .ia/auditoria/
 .ia/contexto/mensagens-monitoramento.json
 .ia/contexto/status/
+.ia/
 
 backend/testes-e2e/
 
@@ -264,6 +269,10 @@ test-results/
 test-output/
 
 .playwright-mcp/
+
+# Embedded/external docs repos
+
+docs/KILO CODE/
 
 # ==========================================
 
