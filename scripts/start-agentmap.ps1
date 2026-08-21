@@ -6,105 +6,84 @@ param(
 if ($Help) {
     Write-Host "AgentMap Starter"
     Write-Host "Usage: .\start-agentmap.ps1 [-Silent]"
-    Write-Host "Starts both the AgentMap backend (port 3150) and MCP server."
+    Write-Host "Starts the AgentMap backend on port 3150 and opens the browser."
     exit 0
 }
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backendDir = Join-Path $root "..\backend"
-$backendDir = Resolve-Path $backendDir
+if (Test-Path $backendDir) { $backendDir = (Resolve-Path $backendDir).Path }
+
+$port = 3150
+$healthUrl = "http://localhost:$port/api/status"
+$appUrl = "http://localhost:$port/index.html"
 
 if (-not $Silent) {
-    Write-Host "=== AgentMap Starter ===" -ForegroundColor Cyan
+    Write-Host "=== AgentMap - Iniciando Servidor ===" -ForegroundColor Cyan
     Write-Host ""
 }
 
+# 1) Stop existing processes
+if (-not $Silent) { Write-Host "[1/4] Parando processos anteriores..." -ForegroundColor Yellow }
+& "$root\stop-agentmap.ps1" -Silent >$null 2>&1
+Start-Sleep -Seconds 2
+
+# 2) Verify backend directory
 if (-not (Test-Path $backendDir)) {
-    if (-not $Silent) {
-        Write-Host "ERROR: Backend directory not found at $backendDir" -ForegroundColor Red
-    }
+    Write-Host "ERRO: Backend directory not found: $backendDir" -ForegroundColor Red
     exit 1
 }
 
 if (-not (Test-Path (Join-Path $backendDir "node_modules"))) {
-    if (-not $Silent) {
-        Write-Host "WARNING: node_modules not found. Running npm install..." -ForegroundColor Yellow
-    }
-    Set-Location $backendDir
+    if (-not $Silent) { Write-Host "WARNING: node_modules not found. Running npm install..." -ForegroundColor Yellow }
+    Push-Location $backendDir
     npm install
+    Pop-Location
     if ($LASTEXITCODE -ne 0) {
-        if (-not $Silent) {
-            Write-Host "ERROR: npm install failed" -ForegroundColor Red
-        }
+        Write-Host "ERRO: npm install falhou." -ForegroundColor Red
         exit 1
     }
 }
 
-if (-not $Silent) {
-    Write-Host "Stopping existing AgentMap processes..." -ForegroundColor Yellow
-}
-$stopScript = Join-Path $root "stop-agentmap.ps1"
-if (Test-Path $stopScript) {
-    & $stopScript -Silent
-    Start-Sleep -Seconds 2
-}
+# 3) Start backend
+if (-not $Silent) { Write-Host "[2/4] Iniciando backend (npm run dev)..." -ForegroundColor Green }
+Push-Location $backendDir
+Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run dev" -WorkingDirectory $backendDir -WindowStyle Normal
+Pop-Location
 
-$logsDir = Join-Path $root "..\logs"
-if (-not (Test-Path $logsDir)) {
-    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
-}
+# 4) Wait for server to be ready
+if (-not $Silent) { Write-Host "[3/4] Aguardando servidor iniciar..." -ForegroundColor Yellow }
 
-if (-not $Silent) {
-    Write-Host "Starting backend server on http://localhost:3150" -ForegroundColor Green
-}
-
-$backendLog = Join-Path $logsDir "backend.log"
-$mcpLog = Join-Path $logsDir "mcp.log"
-
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run dev > `"$backendLog`" 2>&1" -WorkingDirectory $backendDir -WindowStyle Normal
-
-if (-not $Silent) {
-    Write-Host "Waiting for backend to start..." -ForegroundColor Yellow
-}
-$maxRetries = 30
-$retry = 0
-while ($retry -lt $maxRetries) {
+$maxTries = 60
+$ready = $false
+for ($i = 0; $i -lt $maxTries; $i++) {
     try {
-        $response = Invoke-WebRequest -Uri "http://localhost:3150/api/status" -Method GET -UseBasicParsing -TimeoutSec 2
-        if ($response.StatusCode -eq 200) {
-            if (-not $Silent) {
-                Write-Host "Backend started successfully!" -ForegroundColor Green
-            }
+        $r = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 2
+        if ($r.StatusCode -eq 200) {
+            $ready = $true
             break
         }
-    } catch {
-        Start-Sleep -Seconds 1
-        $retry++
-    }
-}
-
-if ($retry -ge $maxRetries) {
-    if (-not $Silent) {
-        Write-Host "WARNING: Backend did not respond within timeout, but process may still be starting..." -ForegroundColor Yellow
-    }
-}
-
-if (-not $Silent) {
-    Write-Host "Starting MCP server..." -ForegroundColor Green
-}
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "npm run mcp >> `"$mcpLog`" 2>&1" -WorkingDirectory $backendDir -WindowStyle Normal
-
-if (-not $Silent) {
-    Write-Host ""
-    Write-Host "=== AgentMap Started ===" -ForegroundColor Green
-    Write-Host "Backend:  http://localhost:3150" -ForegroundColor Cyan
-    Write-Host "MCP:      stdio (connected to Kilo)" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "To stop: Run .\scripts\stop-agentmap.ps1" -ForegroundColor Yellow
-}
-
-if (-not $Silent) {
+    } catch {}
     Start-Sleep -Seconds 2
-    Start-Process "http://localhost:3150/index.html"
 }
+
+if (-not $ready) {
+    Write-Host "ERRO: Servidor nao respondeu apos $maxTries tentativas." -ForegroundColor Red
+    exit 1
+}
+
+# 5) Open browser
+if (-not $Silent) {
+    Write-Host "[4/4] Abrindo navegador..." -ForegroundColor Green
+    Start-Sleep -Seconds 1
+    Start-Process $appUrl
+    Write-Host ""
+    Write-Host "=== AgentMap iniciado com sucesso! ===" -ForegroundColor Green
+    Write-Host "  Backend:  http://localhost:$port" -ForegroundColor Cyan
+    Write-Host "  App:      $appUrl" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Para parar: .\scripts\stop-agentmap.bat" -ForegroundColor Yellow
+}
+
+exit 0

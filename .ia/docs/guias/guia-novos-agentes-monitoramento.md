@@ -108,9 +108,9 @@ Atualize `.ia/configuracao/agentes-config.json` com seu sessionId:
 
 ---
 
-## 3. Como Testar a Conexão
+## 3. Como [REMOVIDO]ar a Conexão
 
-### Passo 1: Envie um Prompt de Teste
+### Passo 1: Envie um Prompt de [REMOVIDO]e
 
 Crie `.ia/outbox/novo-agente/prompt.md`:
 
@@ -220,7 +220,7 @@ TAREFA_FINALIZADA: Implementacao concluida
 - [ ] Adicionar configuração em `agentes-config.json`
 - [ ] Criar diretório workspace e pasta `.ia/outbox/{agenteId}/`
 - [ ] Obter sessionId via Agent Manager
-- [ ] Testar handoff via `agentmap_handoffs_criar`
+- [ ] [REMOVIDO]ar handoff via `agentmap_handoffs_criar`
 - [ ] Reportar status inicial via `agentmap_sessoes_criar`
 - [ ] Conectar ao WebSocket `/ws/monitoramento`
 - [ ] Enviar primeira mensagem no chat

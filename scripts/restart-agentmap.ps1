@@ -5,26 +5,26 @@ param(
 if ($Help) {
     Write-Host "AgentMap Restarter"
     Write-Host "Usage: .\restart-agentmap.ps1"
-    Write-Host "Stops and then starts the AgentMap backend and MCP server."
+    Write-Host "Stops and then starts the AgentMap backend."
     exit 0
 }
 
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$stopScript = Join-Path $root "stop-agentmap.ps1"
-$startScript = Join-Path $root "start-agentmap.ps1"
 
-Write-Host "=== AgentMap Restarter ===" -ForegroundColor Cyan
+Write-Host "=== AgentMap - Reiniciando ===" -ForegroundColor Cyan
 Write-Host ""
 
-# Stop
-Write-Host "Step 1: Stopping AgentMap..." -ForegroundColor Yellow
-& $stopScript
+# Step 1: Stop
+Write-Host "Step 1/2: Parando AgentMap..." -ForegroundColor Yellow
+& "$root\stop-agentmap.ps1"
 
-# Wait a bit for processes to fully terminate
+# Wait for processes to fully terminate
 Start-Sleep -Seconds 2
 
-# Start
+# Step 2: Start
 Write-Host ""
-Write-Host "Step 2: Starting AgentMap..." -ForegroundColor Yellow
-& $startScript
+Write-Host "Step 2/2: Iniciando AgentMap..." -ForegroundColor Yellow
+& "$root\start-agentmap.ps1"
+
+exit $LASTEXITCODE

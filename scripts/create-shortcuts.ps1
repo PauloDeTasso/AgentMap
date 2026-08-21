@@ -20,9 +20,9 @@ if (-not $Desktop) {
 }
 
 $shortcuts = @(
-    @{ Name = "AgentMap - Start.lnk"; Target = "start-agentmap.bat";  Desc = "Start AgentMap Backend + MCP" },
-    @{ Name = "AgentMap - Stop.lnk";    Target = "stop-agentmap.bat";   Desc = "Stop AgentMap Backend + MCP" },
-    @{ Name = "AgentMap - Restart.lnk"; Target = "restart-agentmap.bat"; Desc = "Restart AgentMap Backend + MCP" }
+    @{ Name = "AgentMap - Start.lnk";    Target = "start-agentmap.bat";    Desc = "Iniciar AgentMap Backend + MCP" },
+    @{ Name = "AgentMap - Stop.lnk";     Target = "stop-agentmap.bat";     Desc = "Parar todos os processos do AgentMap" },
+    @{ Name = "AgentMap - Restart.lnk";  Target = "restart-agentmap.bat";  Desc = "Reiniciar AgentMap Backend" }
 )
 
 $WshShell = New-Object -ComObject WScript.Shell
@@ -51,6 +51,6 @@ foreach ($sc in $shortcuts) {
 
 Write-Host ""
 Write-Host "Shortcuts created on Desktop: $created/$($shortcuts.Count)" -ForegroundColor Green
-Write-Host "  - AgentMap - Start.lnk    (Inicia backend + MCP)"
+Write-Host "  - AgentMap - Start.lnk    (Inicia o servidor)"
 Write-Host "  - AgentMap - Stop.lnk     (Para todos os processos)"
 Write-Host "  - AgentMap - Restart.lnk  (Para e reinicia)"

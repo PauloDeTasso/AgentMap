@@ -421,7 +421,7 @@ O Agent Manager é a interface para gerenciar sessões de agente e worktrees.
 - **Tools MCP** em `backend/src/mcp-server/tools/`
 - **Nomes de arquivo:** camelCase para services, kebab-case para ferramentas
 - **Commits:** mensagens imperativas, em português ou inglês
-- **Testes:** arquivos `*.test.ts` na mesma pasta do código
+- **[REMOVIDO]es:** arquivos `*.test.ts` na mesma pasta do código
 
 ### 5.3 Convenções de Dados
 - **IDs:** formato `TAR-2026-00001`, `AGT-001`, `PROJ-001`
@@ -479,7 +479,7 @@ git branch --show-current
 - Execute `npm run build` e leia o erro
 - Erros comuns: imports quebrados, tipos duplicados, arquivos mortos
 
-### 7.3 Testes falhando
+### 7.3 [REMOVIDO]es falhando
 - Alguns testes de código deprecated são pulados (`.skip`)
 - Verifique se não está testando funcionalidade removida
 - Execute `npm test -- --testNamePattern="nome"` para teste específico

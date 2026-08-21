@@ -53,7 +53,7 @@ curl -X POST http://localhost:3150/api/monitoramento/modo \
 
 | Modo | Aprovação | Auto-execute | Quando usar |
 |------|-----------|--------------|-------------|
-| **AUTOMÁTICO** | Nunca | Todas | Testes, deploys simples |
+| **AUTOMÁTICO** | Nunca | Todas | [REMOVIDO]es, deploys simples |
 | **HÍBRIDO** | Apenas críticas | Não-críticas | Uso diário normal |
 | **MANUAL** | Sempre | Nenhuma | Ações destrutivas, alta segurança |
 
