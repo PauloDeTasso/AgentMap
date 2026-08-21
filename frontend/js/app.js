@@ -405,12 +405,12 @@ async function mostrarListaProjetosExistentes() {
     return;
   }
   let html = '<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">';
-  for (const p of projetos) {
-    const caminho = p.caminhoRaiz || p.caminho || '';
-    const isSystem = isProjetoAgentMap(caminho);
-    const deleteBtn = isSystem
-      ? `<button class="btn btn--small btn--danger" onclick="showToast('O projeto AgentMap não pode ser excluído.', 'erro')">Excluir</button>`
-      : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`;
+   for (const p of projetos) {
+     const caminho = p.caminhoRaiz || p.caminho || '';
+     const isSystem = isProjetoAgentMap(caminho);
+     const deleteBtn = isSystem
+       ? ''
+       : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`;
     html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--radius);">
       <div><strong>${escapeHtml(p.nome || '')}</strong><br><small style="color:var(--text-muted);">${escapeHtml(caminho)}</small></div>
       <div style="display:flex;gap:8px;">
@@ -832,7 +832,7 @@ async function renderizarProjetos(el) {
       const isSystem = isProjetoAgentMap(caminho);
       const badge = isAtual ? ' <span class="badge badge--ativo">ATUAL</span>' : '';
       const deleteBtn = isSystem
-        ? `<button class="btn btn--small btn--danger" onclick="showToast('O projeto AgentMap não pode ser excluído.', 'erro')">Excluir</button>`
+        ? ''
         : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`;
       tr.innerHTML = `<td>${escapeHtml(p.nome || '')}${badge}</td><td>${escapeHtml(caminho)}</td>
         <td>
@@ -914,9 +914,9 @@ window.verProjeto = async function(id) {
        <div>
         <button class="btn btn--small" onclick="abrirProjeto('${escapeAttr(proj.id)}')">Abrir</button>
         <button class="btn btn--small" onclick="editarProjeto('${escapeAttr(proj.id)}')">Editar</button>
-        ${isSystem
-          ? `<button class="btn btn--small btn--danger" onclick="showToast('O projeto AgentMap não pode ser excluído.', 'erro')">Excluir</button>`
-          : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(proj.id)}', '${escapeAttr((proj.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`
+         ${isSystem
+           ? ''
+           : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(proj.id)}', '${escapeAttr((proj.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`
         }
       </div>
     </div>`;

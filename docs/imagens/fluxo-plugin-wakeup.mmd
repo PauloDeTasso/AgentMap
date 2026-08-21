@@ -1,0 +1,103 @@
+flowchart TD
+    Start([Plugin carregado]) --> Register[Registra 3 hooks]
+    Register --> H1[hook: event]
+    Register --> H2[hook: tool.execute.after]
+    Register --> H3[hook: chat.message]
+
+    H2 --> TA[Evento tool.execute.after]
+    TA --> MarcarAtividadeTool[marcarAtividade]
+    MarcarAtividadeTool --> FimTA([fim tool])
+
+    H3 --> CM[Evento chat.message]
+    CM --> MarcarAtividadeChat[marcarAtividade]
+    MarcarAtividadeChat --> FimCM([fim chat])
+
+    H1 --> EventRecebido[Evento recebido]
+    EventRecebido --> ExtrairIDs[Extrai sessionId e eventType]
+    ExtrairIDs --> ChecarTipoEvento{Que tipo?}
+
+    ChecarTipoEvento -->|session.idle| IdleDetectado[session.idle]
+    IdleDetectado --> ValidarSessionId{sessionId existe?}
+    ValidarSessionId -->|nao| IgnorarIdle[Ignora - sem sessionId]
+    ValidarSessionId -->|sim| LimparInterrupcoes[Cancela timer de interrupcao]
+    LimparInterrupcoes --> LimparRecovery[Cancela timer de recovery]
+    LimparRecovery --> AgendarVerificacao[Agenda verificacao em 3s]
+    AgendarVerificacao --> IniciarHeartbeat[Inicia heartbeat a cada 2min]
+    IniciarHeartbeat --> LimparRecoveryFlag[Remove sessao do set de recovery]
+    LimparRecoveryFlag --> FimIdle([fim session.idle])
+
+    ChecarTipoEvento -->|session.next.interrupt.requested| InterruptDetectado[Interrupcao detectada]
+    InterruptDetectado --> MarcarInterrompida[Adiciona em sessoesInterrompidas]
+    MarcarInterrompida --> AgendarLimpezaInterrupcao[Agenda limpeza em 5min]
+    AgendarLimpezaInterrupcao --> FimInterrupt([fim interrupt])
+
+    ChecarTipoEvento -->|session.error| ErrorDetectado[session.error]
+    ErrorDetectado --> ExtrairDetalhesErro[Extrai nome do erro]
+    ExtrairDetalhesErro --> ChecarInterrupcao{E interrupcao do usuario?}
+    ChecarInterrupcao -->|sim| SuprimirError[Suprime erro]
+    SuprimirError --> FimErrorSuprimido([fim error suprimido])
+    ChecarInterrupcao -->|nao| ValidarSessionIdError{sessionId existe?}
+    ValidarSessionIdError -->|nao| IgnorarError[Ignora - sem sessionId]
+    ValidarSessionIdError -->|sim| PararHeartbeatError[Para heartbeat]
+    PararHeartbeatError --> InjetarRecovery[Injeta prompt de recovery]
+    InjetarRecovery --> FimError([fim error])
+
+    AgendarVerificacao --> Timer3s[TIMER: Espera 3s debounce]
+    Timer3s --> ExecutarAposDebounce{Executa apos 3s}
+    ExecutarAposDebounce --> ChecarOcupadoAgora{estaOcupado?}
+
+    ChecarOcupadoAgora -->|SIM| AbortaVerificacao[ABORTA: Suprime verificacao]
+    AbortaVerificacao --> FimAborta([fim])
+
+    ChecarOcupadoAgora -->|NAO| BuscarMensagens[buscarMensagensPendentes\nGET /api/monitoramento/mensagens]
+    BuscarMensagens --> TemMensagens{Ha mensagens novas?}
+
+    TemMensagens -->|NAO| LogSemMensagens[Log: Nenhuma mensagem pendente]
+    LogSemMensagens --> FimSemMensagens([fim])
+
+    TemMensagens -->|SIM| MontarResumo[montarResumo]
+    MontarResumo --> InjetarPromptWakeup[Injeta prompt via promptAsync]
+    InjetarPromptWakeup --> AtualizarCursor[Atualiza ultimoEventSequenceProcessado]
+    AtualizarCursor --> LogSucesso[Log: Wake-up enviado]
+    LogSucesso --> FimSucesso([fim wake-up enviado])
+
+    IniciarHeartbeat --> Timer2min[TIMER: Intervalo de 2min]
+    Timer2min --> CicloHeartbeat[Ciclo de heartbeat]
+    CicloHeartbeat --> BuscarMensagensHB[buscarMensagensPendentes]
+    BuscarMensagensHB --> TemMensagensHB{Ha mensagens pendentes?}
+
+    TemMensagensHB -->|SIM| SkipHB[Log: heartbeat skip]
+    SkipHB --> AguardaProximoCiclo[Aguarda proximo ciclo]
+    AguardaProximoCiclo --> CicloHeartbeat
+
+    TemMensagensHB -->|NAO| ChecarTrabalhoPendente[temTrabalhoPendente\nGET /api/estado-projeto]
+    ChecarTrabalhoPendente --> TemTrabalho{Ha trabalho pendente?}
+
+    TemTrabalho -->|NAO| PararHB[Para heartbeat permanentemente]
+    PararHB --> FimParado([heartbeat parado])
+
+    TemTrabalho -->|SIM| ChecarOcupadoHB{estaOcupado?}
+    ChecarOcupadoHB -->|SIM| SuppressHB[Log: heartbeat suprimido]
+    SuppressHB --> AguardaProximoCiclo
+
+    ChecarOcupadoHB -->|NAO| InjetarHB[injetarHeartbeat\nEnvia prompt fixo]
+    InjetarHB --> AguardaProximoCiclo
+
+    MarcarAtividadeTool --> AtividadeMap["atividadeRecente[sessionId] = Date.now()"]
+    MarcarAtividadeChat --> AtividadeMap
+    AtividadeMap --> LogAtividade[Log: Atividade registrada]
+
+    ChecarOcupadoAgora -.-> FuncaoOcupado["estaOcupado: agora - ultimaAtividade < 60000ms"]
+    ChecarOcupadoHB -.-> FuncaoOcupado
+
+    classDef decisao fill:#ff9800,stroke:#e65100,color:#000,stroke-width:2px
+    classDef processo fill:#2196f3,stroke:#0d47a1,color:#fff,stroke-width:2px
+    classDef terminal fill:#4caf50,stroke:#1b5e20,color:#fff,stroke-width:2px
+    classDef sucesso fill:#8bc34a,stroke:#33691e,color:#000,stroke-width:2px
+    classDef erro fill:#f44336,stroke:#b71c1c,color:#fff,stroke-width:2px
+
+    class ChecarTipoEvento,ExecutarAposDebounce,ChecarOcupadoAgora,TemMensagens,TemMensagensHB,TemTrabalho,ChecarOcupadoHB,ValidarSessionId,ValidarSessionIdError,ChecarInterrupcao decisao
+    class AgendarVerificacao,BuscarMensagens,MontarResumo,InjetarPromptWakeup,AtualizarCursor,IniciarHeartbeat,BuscarMensagensHB,ChecarTrabalhoPendente,InjetarHB,InjetarRecovery,PararHeartbeatError,MarcarAtividadeTool,MarcarAtividadeChat,MarcarInterrompida processo
+    class FimIdle,FimInterrupt,FimErrorSuprimido,FimError,FimAborta,FimSemMensagens,FimSucesso,FimParado,AguardaProximoCiclo terminal
+    class LogSucesso,SkipHB,SuppressHB,PararHB sucesso
+    class SuprimirError,IgnorarIdle,IgnorarError erro
