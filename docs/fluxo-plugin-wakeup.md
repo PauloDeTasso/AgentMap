@@ -1,6 +1,6 @@
 # Fluxo do Plugin `agentmap-wakeup.ts`
 
-![Fluxo do Plugin agentmap-wakeup](imagens/fluxo-plugin-wakeup.svg)
+<img src="imagens/fluxo-plugin-wakeup.png" alt="Fluxo do Plugin agentmap-wakeup" style="max-width: 100%; height: auto;">
 
 ```mermaid
 flowchart TD
