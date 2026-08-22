@@ -165,6 +165,10 @@ class ApiClient {
     return this.request(`/tarefas/${id}`, { method: 'DELETE' });
   }
 
+  async excluirTodosTarefas() {
+    return this.request(`/tarefas`, { method: 'DELETE' });
+  }
+
   async mudarEstado(tarefaId, estado) {
     return this.request(`/tarefas/${tarefaId}/estado`, {
       method: 'POST',
@@ -239,6 +243,10 @@ class ApiClient {
     return this.request(`/contratos/${id}`, { method: 'DELETE' });
   }
 
+  async excluirTodosContratos() {
+    return this.request(`/contratos`, { method: 'DELETE' });
+  }
+
   async getContratoDependentes(id) {
     return this.request(`/contratos/${id}/dependentes`);
   }
@@ -273,6 +281,10 @@ class ApiClient {
     return this.request(`/solicitacoes/${id}`, {
       method: 'DELETE'
     });
+  }
+
+  async excluirTodosSolicitacoes() {
+    return this.request(`/solicitacoes`, { method: 'DELETE' });
   }
 
   async aprovarSolicitacao(id, agenteId, observacao = null) {
@@ -409,6 +421,10 @@ class ApiClient {
 
   async excluirHandoff(id) {
     return this.request(`/handoffs/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosHandoffs() {
+    return this.request(`/handoffs`, { method: 'DELETE' });
   }
 
   async getPendencias(tarefaId = null) {

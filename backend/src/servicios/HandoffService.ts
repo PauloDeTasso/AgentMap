@@ -213,15 +213,32 @@ export class HandoffService {
     return { sucesso: true, dados: atualizado };
   }
 
-  async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
-    const registryResult = this.carregarRegistry();
-    if (!registryResult.sucesso || !registryResult.dados) {
-      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
-    }
-    registryResult.dados.handoffs = registryResult.dados.handoffs.filter((h) => h.id !== id);
-    this.salvarRegistry(registryResult.dados);
-    this.fs.excluir(this.getHandoffPath(id), { backup: true });
-    return { sucesso: true, dados: true };
-  }
-}
+   async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
+     const registryResult = this.carregarRegistry();
+     if (!registryResult.sucesso || !registryResult.dados) {
+       return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+     }
+     registryResult.dados.handoffs = registryResult.dados.handoffs.filter((h) => h.id !== id);
+     this.salvarRegistry(registryResult.dados);
+     this.fs.excluir(this.getHandoffPath(id), { backup: true });
+     return { sucesso: true, dados: true };
+   }
+
+   async excluirTodos(): Promise<ResultadoOperacao<number>> {
+     const registryResult = this.carregarRegistry();
+     if (!registryResult.sucesso || !registryResult.dados) {
+       return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+     }
+     const handoffs = [...registryResult.dados.handoffs];
+     let removidos = 0;
+     for (const h of handoffs) {
+       this.fs.excluir(this.getHandoffPath(h.id), { backup: true });
+       removidos++;
+     }
+     registryResult.dados.handoffs = [];
+     this.salvarRegistry(registryResult.dados);
+     this.auditoria.registrar('HANDOFFS_EXCLUIDOS', `${removidos} handoffs excluídos.`, {});
+     return { sucesso: true, dados: removidos };
+   }
+ }
 

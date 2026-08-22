@@ -38,5 +38,9 @@ export function criarTarefaRouter(): Router {
     return responder(res, await req.servicos!.tarefa.excluir(req.params.id));
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, await req.servicos!.tarefa.excluirTodos());
+  }));
+
   return router;
 }

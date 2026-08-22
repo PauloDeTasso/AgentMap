@@ -1031,6 +1031,70 @@ window.excluirTodosProjetos = async function() {
   }
 };
 
+window.excluirTodosTarefas = async function() {
+  if (!confirm('Excluir TODAS as tarefas? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosTarefas();
+    if (res.sucesso) {
+      const removidos = typeof res.dados === 'number' ? res.dados : 0;
+      showToast(`${removidos} tarefa(s) excluída(s).`, 'sucesso');
+      carregarPainel('tarefas');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirTodosContratos = async function() {
+  if (!confirm('Excluir TODOS os contratos? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosContratos();
+    if (res.sucesso) {
+      const removidos = typeof res.dados === 'number' ? res.dados : 0;
+      showToast(`${removidos} contrato(s) excluído(s).`, 'sucesso');
+      carregarPainel('contratos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirTodosSolicitacoes = async function() {
+  if (!confirm('Excluir TODAS as solicitações? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosSolicitacoes();
+    if (res.sucesso) {
+      const removidos = typeof res.dados === 'number' ? res.dados : 0;
+      showToast(`${removidos} solicitação(ões) excluída(s).`, 'sucesso');
+      carregarPainel('solicitacoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirTodosHandoffs = async function() {
+  if (!confirm('Excluir TODAS as transferências? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosHandoffs();
+    if (res.sucesso) {
+      const removidos = typeof res.dados === 'number' ? res.dados : 0;
+      showToast(`${removidos} transferência(s) excluída(s).`, 'sucesso');
+      carregarPainel('handoffs');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
 async function renderizarAgentes(el) {
   console.log('[renderizarAgentes] renderizando, agentes em estado:', estado.agentes.length);
   try {
@@ -1074,7 +1138,10 @@ async function renderizarTarefas(el) {
     const tarefas = res.dados;
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Tarefas (${tarefas.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
+        ${tarefas.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosTarefas()">Excluir Todos</button>` : ''}
+      </div>
     </div>`;
     if (tarefas.length === 0) {
       el.innerHTML += '<p class="painel-vazio">Nenhuma tarefa cadastrada.</p>';
@@ -1109,7 +1176,10 @@ async function renderizarContratos(el) {
     const contratos = res.dados.contratos || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Contratos (${contratos.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModalContrato()">+ Novo Contrato</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalContrato()">+ Novo Contrato</button>
+        ${contratos.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosContratos()">Excluir Todos</button>` : ''}
+      </div>
     </div>`;
     if (contratos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum contrato cadastrado.</p>'; return; }
     const table = document.createElement('table');
@@ -1152,7 +1222,10 @@ async function renderizarSolicitacoes(el) {
 
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
       <h3 style="margin:0;">Solicitações de Alteração (${solicitacoes.length} de ${todas.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModalSolicitacao()">+ Nova Solicitação</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalSolicitacao()">+ Nova Solicitação</button>
+        ${todas.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosSolicitacoes()">Excluir Todos</button>` : ''}
+      </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;padding:8px;background:#1a1a2e;border-radius:6px;">
       <input class="form__input" type="text" id="filtro-agente-id" placeholder="ID do agente (ex: AGENTE-01)" style="max-width:200px;" value="${escapeAttr(estado.filtroAgenteSolicitacoes?.agenteId || '')}" />
@@ -1490,7 +1563,10 @@ async function renderizarHandoffs(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🤝 Transferências (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-handoff')">+ Nova Transferência</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-handoff')">+ Nova Transferência</button>
+        ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosHandoffs()">Excluir Todos</button>` : ''}
+      </div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma transferência registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1502,7 +1578,9 @@ async function renderizarHandoffs(el) {
       const badgeClass = h.estado === 'PENDENTE' ? 'badge--ativo' : h.estado === 'CONCLUIDO' ? 'badge--ativo' : 'badge--inativo';
       tr.innerHTML = `<td>${escapeHtml(h.id)}</td><td>${escapeHtml(h.origem)}</td><td>${escapeHtml(h.destino)}</td><td>${escapeHtml(h.tarefaId || '')}</td><td>${escapeHtml(h.resumo)}</td>
         <td><span class="badge ${badgeClass}">${escapeHtml(h.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verHandoff('${escapeAttr(h.id)}')">Ver</button></td>`;
+        <td><button class="btn btn--small" onclick="verHandoff('${escapeAttr(h.id)}')">Ver</button>
+        <button class="btn btn--small" onclick="editarHandoff('${escapeAttr(h.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirHandoff('${escapeAttr(h.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -2704,6 +2782,58 @@ window.excluirSolicitacao = async function(id) {
     await renderizarSolicitacoes($('painel-atividade'));
   } catch (err) {
     showToast(err?.message || err, 'erro');
+  }
+};
+
+window.verHandoff = async function(id) {
+  try {
+    const res = await api.getHandoff(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const h = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(h.id)} — Transferência</h3>
+      <p><strong>Origem:</strong> ${escapeHtml(h.origem)}</p>
+      <p><strong>Destino:</strong> ${escapeHtml(h.destino)}</p>
+      <p><strong>Tarefa:</strong> ${escapeHtml(h.tarefaId || 'N/A')}</p>
+      <p><strong>Resumo:</strong> ${escapeHtml(h.resumo)}</p>
+      <p><strong>Estado:</strong> <span class="badge badge--${h.estado === 'PENDENTE' ? 'ativo' : h.estado === 'CONCLUIDO' ? 'ativo' : 'inativo'}">${escapeHtml(h.estado)}</span></p>
+      <p><strong>Concluído:</strong> ${(h.concluido || []).join(', ') || 'N/A'}</p>
+      <p><strong>Pendente:</strong> ${(h.pendente || []).join(', ') || 'N/A'}</p>
+      <p><strong>Criada em:</strong> ${h.datas?.criacao ? formatDate(h.datas.criacao) : '-'}</p>
+      ${h.observacoes ? `<p><strong>Observações:</strong> ${escapeHtml(h.observacoes)}</p>` : ''}
+    </div>`;
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    el.innerHTML = '';
+    el.appendChild(container);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarHandoff = async function(id) {
+  try {
+    const res = await api.getHandoff(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    showToast('Edição de transferência não implementada no frontend.', 'info');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirHandoff = async function(id) {
+  if (!confirm(`Excluir transferência "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirHandoff(id);
+    if (res.sucesso) {
+      showToast('Transferência excluída!', 'sucesso');
+      carregarPainel('handoffs');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
   }
 };
 

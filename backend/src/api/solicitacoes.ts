@@ -52,5 +52,9 @@ export function criarSolicitacaoRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, await req.servicos!.solicitacao.excluirTodos());
+  }));
+
   return router;
 }

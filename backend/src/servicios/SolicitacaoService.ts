@@ -259,27 +259,44 @@ export class SolicitacaoService {
     return { sucesso: true, dados: atualizada };
   }
 
-  async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
-    console.log('[SolicitacaoService.excluir] id=' + id);
+   async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
+     console.log('[SolicitacaoService.excluir] id=' + id);
 
-    const existente = this.obter(id);
-    if (!existente.sucesso || !existente.dados) {
-      return { sucesso: false, erro: existente.erro, codigoErro: existente.codigoErro };
-    }
+     const existente = this.obter(id);
+     if (!existente.sucesso || !existente.dados) {
+       return { sucesso: false, erro: existente.erro, codigoErro: existente.codigoErro };
+     }
 
-    const registryResult = this.carregarRegistry();
-    if (!registryResult.sucesso || !registryResult.dados) {
-      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
-    }
-    registryResult.dados.solicitacoes = registryResult.dados.solicitacoes.filter((s) => s.id !== id);
-    this.salvarRegistry(registryResult.dados);
-    this.fs.excluir(this.getSolicitacaoPath(id), { backup: true });
-    this.registrarHistorico(id, 'SOLICITACAO_EXCLUIDA');
+     const registryResult = this.carregarRegistry();
+     if (!registryResult.sucesso || !registryResult.dados) {
+       return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+     }
+     registryResult.dados.solicitacoes = registryResult.dados.solicitacoes.filter((s) => s.id !== id);
+     this.salvarRegistry(registryResult.dados);
+     this.fs.excluir(this.getSolicitacaoPath(id), { backup: true });
+     this.registrarHistorico(id, 'SOLICITACAO_EXCLUIDA');
 
-    this.auditoria.registrar('SOLICITACAO_EXCLUIDA', `Solicitação '${id}' excluída.`, { solicitacaoId: id });
-    console.log('[SolicitacaoService.excluir] SUCESSO');
-    return { sucesso: true, dados: true };
-  }
+     this.auditoria.registrar('SOLICITACAO_EXCLUIDA', `Solicitação '${id}' excluída.`, { solicitacaoId: id });
+     console.log('[SolicitacaoService.excluir] SUCESSO');
+     return { sucesso: true, dados: true };
+   }
+
+   async excluirTodos(): Promise<ResultadoOperacao<number>> {
+     const registryResult = this.carregarRegistry();
+     if (!registryResult.sucesso || !registryResult.dados) {
+       return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+     }
+     const solicitacoes = [...registryResult.dados.solicitacoes];
+     let removidos = 0;
+     for (const s of solicitacoes) {
+       this.fs.excluir(this.getSolicitacaoPath(s.id), { backup: true });
+       removidos++;
+     }
+     registryResult.dados.solicitacoes = [];
+     this.salvarRegistry(registryResult.dados);
+     this.auditoria.registrar('SOLICITACOES_EXCLUIDAS', `${removidos} solicitações excluídas.`, {});
+     return { sucesso: true, dados: removidos };
+   }
 
   async aprovar(id: string, agenteId: string, observacao?: string): Promise<ResultadoOperacao<SolicitacaoAlteracao>> {
     const result = await this.atualizar(id, {

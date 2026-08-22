@@ -225,38 +225,71 @@ export class TarefaService {
    }
 
    async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
-     const result = this.obter(id);
-     if (!result.sucesso || !result.dados) {
-       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
-     }
-     const tarefa = result.dados;
-     const dir = this.getDirPorEstado(tarefa.estado);
-     const registryResult = this.fs.lerJson<TarefasRegistry>(
-       path.win32.join('.ia', 'tarefas', 'tarefas.json')
-     );
-     if (!registryResult.sucesso || !registryResult.dados) {
-       return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
-     }
-     const registry = registryResult.dados;
-     registry.tarefas = registry.tarefas.filter((t) => t.id !== id);
-     registry.estatisticas = this.calcularEstatisticas(registry.tarefas);
-     const regResult = this.fs.escreverJson(
-       path.win32.join('.ia', 'tarefas', 'tarefas.json'),
-       registry
-     );
-     if (!regResult.sucesso) {
-       return { sucesso: false, erro: regResult.erro, codigoErro: regResult.codigoErro };
-     }
-      const arquivoResult = this.fs.excluir(
-        path.win32.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
-        { backup: true }
+      const result = this.obter(id);
+      if (!result.sucesso || !result.dados) {
+        return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+      }
+      const tarefa = result.dados;
+      const dir = this.getDirPorEstado(tarefa.estado);
+      const registryResult = this.fs.lerJson<TarefasRegistry>(
+        path.win32.join('.ia', 'tarefas', 'tarefas.json')
       );
-     if (!arquivoResult.sucesso) {
-       return { sucesso: false, erro: arquivoResult.erro, codigoErro: arquivoResult.codigoErro };
-     }
-     this.auditoria.registrar('TAREFA_EXCLUIDA', `Tarefa '${tarefa.id}' excluída.`, { tarefaId: tarefa.id });
-     return { sucesso: true, dados: true };
-   }
+      if (!registryResult.sucesso || !registryResult.dados) {
+        return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+      }
+      const registry = registryResult.dados;
+      registry.tarefas = registry.tarefas.filter((t) => t.id !== id);
+      registry.estatisticas = this.calcularEstatisticas(registry.tarefas);
+      const regResult = this.fs.escreverJson(
+        path.win32.join('.ia', 'tarefas', 'tarefas.json'),
+        registry
+      );
+      if (!regResult.sucesso) {
+        return { sucesso: false, erro: regResult.erro, codigoErro: regResult.codigoErro };
+      }
+       const arquivoResult = this.fs.excluir(
+         path.win32.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
+         { backup: true }
+       );
+      if (!arquivoResult.sucesso) {
+        return { sucesso: false, erro: arquivoResult.erro, codigoErro: arquivoResult.codigoErro };
+      }
+      this.auditoria.registrar('TAREFA_EXCLUIDA', `Tarefa '${tarefa.id}' excluída.`, { tarefaId: tarefa.id });
+      return { sucesso: true, dados: true };
+    }
+
+   async excluirTodos(): Promise<ResultadoOperacao<number>> {
+      const registryResult = this.fs.lerJson<TarefasRegistry>(
+        path.win32.join('.ia', 'tarefas', 'tarefas.json')
+      );
+      if (!registryResult.sucesso || !registryResult.dados) {
+        return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+      }
+      const registry = registryResult.dados;
+      const tarefas = [...registry.tarefas];
+      let removidos = 0;
+      for (const tarefa of tarefas) {
+        const dir = this.getDirPorEstado(tarefa.estado);
+        const fileResult = this.fs.excluir(
+          path.win32.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
+          { backup: true }
+        );
+        if (fileResult.sucesso) {
+          removidos++;
+        }
+      }
+      registry.tarefas = [];
+      registry.estatisticas = this.calcularEstatisticas([]);
+      const regResult = this.fs.escreverJson(
+        path.win32.join('.ia', 'tarefas', 'tarefas.json'),
+        registry
+      );
+      if (!regResult.sucesso) {
+        return { sucesso: false, erro: regResult.erro, codigoErro: regResult.codigoErro };
+      }
+      this.auditoria.registrar('TAREFAS_EXCLUIDAS', `${removidos} tarefas excluídas.`, {});
+      return { sucesso: true, dados: removidos };
+    }
 
    atualizar(id: string, dados: Partial<Tarefa>): ResultadoOperacao<Tarefa> {
       const result = this.obter(id);

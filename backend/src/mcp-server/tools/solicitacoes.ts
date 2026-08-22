@@ -201,6 +201,25 @@ registerTracedTool(mcpServer, 'agentmap_solicitacoes_excluir', {
   return toMcpStructured(resultado.dados);
 });
 
+registerTracedTool(mcpServer, 'agentmap_solicitacoes_excluir_todos', {
+  title: 'Excluir Todas as Solicitacoes',
+  description: 'Exclui todas as solicitacoes de alteracao do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.solicitacao.excluirTodos();
+  auditoria.registrarToolCall('agentmap_solicitacoes_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
 registerTracedTool(mcpServer, 'agentmap_solicitacoes_historico', {
   title: 'Historico da Solicitacao',
   description: 'Lista o historico de eventos de uma solicitacao.',
