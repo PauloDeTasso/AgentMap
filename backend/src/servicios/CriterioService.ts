@@ -109,5 +109,50 @@ export class CriterioService {
     this.fs.excluir(this.getCriterioPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async atualizar(id: string, dados: Partial<CriterioAceitacao>): Promise<ResultadoOperacao<CriterioAceitacao>> {
+    const existente = this.obter(id);
+    if (!existente.sucesso || !existente.dados) {
+      return { sucesso: false, erro: existente.erro, codigoErro: existente.codigoErro };
+    }
+    const atualizado: CriterioAceitacao = { ...existente.dados, ...dados };
+
+    const validation = this.validator.validar('criterio-aceitacao', atualizado);
+    if (!validation.valido) {
+      return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
+    }
+
+    const fileResult = this.fs.escreverJson(this.getCriterioPath(id), atualizado, { backup: true });
+    if (!fileResult.sucesso) {
+      return { sucesso: false, erro: fileResult.erro, codigoErro: fileResult.codigoErro };
+    }
+
+    const registryResult = this.carregarRegistry();
+    if (registryResult.sucesso && registryResult.dados) {
+      const idx = registryResult.dados.criterios.findIndex((c) => c.id === id);
+      if (idx >= 0) {
+        registryResult.dados.criterios[idx] = atualizado;
+        this.salvarRegistry(registryResult.dados);
+      }
+    }
+    this.auditoria.registrar('CRITERIO_ATUALIZADO', `Critério '${id}' atualizado.`, { criterioId: id });
+    return { sucesso: true, dados: atualizado };
+  }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    }
+    const criterios = registryResult.dados.criterios;
+    let removidos = 0;
+    for (const c of criterios) {
+      this.fs.excluir(this.getCriterioPath(c.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ criterios: [] });
+    this.auditoria.registrar('CRITERIOS_EXCLUIDOS', `Todos os critérios (${removidos}) foram removidos.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

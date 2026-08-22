@@ -102,3 +102,20 @@ registerTracedTool(mcpServer, 'agentmap_bloqueios_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_bloqueios_atualizar', {
+  title: 'Atualizar Bloqueio',
+  description: 'Atualiza um bloqueio existente.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: bloqueioSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.bloqueio.atualizar(String(id || ''), dados, projeto.id);
+  auditoria.registrarToolCall('agentmap_bloqueios_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

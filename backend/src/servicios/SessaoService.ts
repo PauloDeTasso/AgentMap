@@ -118,5 +118,19 @@ export class SessaoService {
     this.fs.excluir(this.getSessaoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const sessoes = registryResult.dados.sessoes;
+    let removidos = 0;
+    for (const s of sessoes) {
+      this.fs.excluir(this.getSessaoPath(s.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ sessoes: [] });
+    this.auditoria.registrar('SESSOES_EXCLUIDAS', `Todas as sessões (${removidos}) foram removidas.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { createApp } from '../src/app';
 import { ProjetoService } from '../src/servicios/ProjetoService';
+import { MonitoramentoService } from '../src/servicios/MonitoramentoService';
 import { SchemaValidator } from '../src/validacao/SchemaValidator';
 import { loadSettings } from '../src/config';
 
@@ -180,7 +181,18 @@ describe.skip('Orquestrador API — testes de integração', () => {
 
   const settings = loadSettings();
   const PORTA = 3151;
-  const app = createApp();
+  const fsMock = {
+    lerJson: (p: string) => {
+      if (p.includes('monitoramento.json')) return { sucesso: true, dados: { modoGlobal: 'MANUAL', ultimaAtualizacao: new Date().toISOString(), timeoutHeartbeat: 30000 } };
+      if (p.includes('mensagens-monitoramento.json')) return { sucesso: true, dados: [] };
+      if (p.includes('monitoramento-sequence.json')) return { sucesso: true, dados: { ultimoSequence: 0 } };
+      return { sucesso: true, dados: {} };
+    },
+    escreverJson: () => ({ sucesso: true }),
+    excluir: () => ({ sucesso: true })
+  };
+  const monitoramento = new MonitoramentoService(fsMock as any, null as any, null as any);
+  const app = createApp(monitoramento);
   const server = app.listen(PORTA, async () => {
     const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
     const validator = new SchemaValidator(esquemasPath);

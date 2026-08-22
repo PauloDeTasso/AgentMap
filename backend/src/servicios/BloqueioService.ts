@@ -125,5 +125,34 @@ export class BloqueioService {
     this.salvarRegistry(registryResult.dados);
     return { sucesso: true, dados: true };
   }
+
+  async atualizar(id: string, dados: Partial<Bloqueio>, projetoId?: string): Promise<ResultadoOperacao<Bloqueio>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const idx = registryResult.dados.bloqueios.findIndex((b) => b.id === id);
+    if (idx === -1) return { sucesso: false, erro: 'Bloqueio não encontrado', codigoErro: 'NOT_FOUND' };
+
+    const atualizado: Bloqueio = { ...registryResult.dados.bloqueios[idx], ...dados, id };
+
+    const validation = this.validator.validar('bloqueio', atualizado);
+    if (!validation.valido) return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
+
+    registryResult.dados.bloqueios[idx] = atualizado;
+    this.salvarRegistry(registryResult.dados);
+    this.auditoria.registrar('BLOQUEIO_ATUALIZADO', `Bloqueio '${id}' atualizado.`, { bloqueioId: id });
+    if (this.eventBus && projetoId) {
+      this.eventBus.publish({ uri: bloqueiosUri(projetoId), timestamp: Date.now(), reason: 'bloqueio_atualizado' });
+    }
+    return { sucesso: true, dados: atualizado };
+  }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const removidos = registryResult.dados.bloqueios.length;
+    this.salvarRegistry({ bloqueios: [] });
+    this.auditoria.registrar('BLOQUEIOS_EXCLUIDOS', `Todos os bloqueios (${removidos}) foram removidos.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

@@ -53,5 +53,15 @@ export function criarSessaoRouter(): Router {
     return responder(res, result);
   }));
 
+  router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.sessao.atualizar(req.params.id, req.body);
+    return responder(res, result, result.sucesso ? 200 : 400);
+  }));
+
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.sessao.excluirTodos();
+    return responder(res, result);
+  }));
+
   return router;
 }
