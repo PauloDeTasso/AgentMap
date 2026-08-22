@@ -52,12 +52,9 @@ registerTracedTool(mcpServer, 'agentmap_contatos_obter', {
 registerTracedTool(mcpServer, 'agentmap_contatos_criar', {
   title: 'Criar Contato',
   description: 'Cria um novo contato.',
-  inputSchema: SchemaContatoCriar.passthrough(),
+  inputSchema: SchemaContatoCriar,
   outputSchema: contatoSchema
-}, async (input: any) => {
-  const nome = input?.nome ?? input?.dados?.nome;
-  const email = input?.email ?? input?.dados?.email;
-  const telefone = input?.telefone ?? input?.dados?.telefone;
+}, async ({ nome, email, telefone }: { nome: string; email: string; telefone: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
@@ -99,6 +96,23 @@ registerTracedTool(mcpServer, 'agentmap_contatos_excluir', {
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.contato.excluir(String(id || ''));
   auditoria.registrarToolCall('agentmap_contatos_excluir', projeto, { id }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
+registerTracedTool(mcpServer, 'agentmap_contatos_excluir_todos', {
+  title: 'Excluir Todos os Contatos',
+  description: 'Exclui todos os contatos do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: { destructiveHint: true }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.contato.excluirTodos();
+  auditoria.registrarToolCall('agentmap_contatos_excluir_todos', projeto, {}, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

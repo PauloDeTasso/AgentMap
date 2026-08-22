@@ -34,5 +34,9 @@ export function criarInstanciaRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, await req.servicos!.instancia.excluirTodos());
+  }));
+
   return router;
 }

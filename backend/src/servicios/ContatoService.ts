@@ -147,5 +147,17 @@ export class ContatoService {
     this.auditoria.registrar('CONTATO_EXCLUIDO', `Contato ${id} excluído`, { contatoId: id });
     return { sucesso: true, dados: null };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const listResult = await this.listar();
+    if (!listResult.sucesso || !listResult.dados) return { sucesso: false, erro: listResult.erro, codigoErro: listResult.codigoErro };
+    let count = 0;
+    for (const item of listResult.dados) {
+      const result = await this.excluir(item.id);
+      if (result.sucesso) count++;
+    }
+    this.auditoria.registrar('CONTATOS_EXCLUIDOS', `Todos os contatos foram removidos. Total: ${count}`, { total: count });
+    return { sucesso: true, dados: count };
+  }
 }
 

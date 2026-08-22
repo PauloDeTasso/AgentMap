@@ -1,4 +1,4 @@
-﻿import { mcpServer } from '../server';
+import { mcpServer } from '../server';
 import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
@@ -62,7 +62,7 @@ registerTracedTool(mcpServer, 'agentmap_validacoes_criar', {
   description: 'Cria uma validacao.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
   outputSchema: validacaoSchema
-}, async (dados: Record<string, unknown>) => {
+}, async ({ dados }: { dados: Record<string, unknown> }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
@@ -86,6 +86,40 @@ registerTracedTool(mcpServer, 'agentmap_validacoes_excluir', {
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const resultado = await ctx.dados!.servicos.validacao.excluir(String(id || ''));
   auditoria.registrarToolCall('agentmap_validacoes_excluir', projeto, { id }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
+registerTracedTool(mcpServer, 'agentmap_validacoes_atualizar', {
+  title: 'Atualizar Validacao',
+  description: 'Atualiza uma validacao.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: validacaoSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.validacao.atualizar(String(id || ''), dados as any);
+  auditoria.registrarToolCall('agentmap_validacoes_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
+registerTracedTool(mcpServer, 'agentmap_validacoes_excluir_todos', {
+  title: 'Excluir Todas as Validacoes',
+  description: 'Exclui todas as validacoes do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: { destructiveHint: true }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.validacao.excluirTodos();
+  auditoria.registrarToolCall('agentmap_validacoes_excluir_todos', projeto, {}, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

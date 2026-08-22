@@ -328,6 +328,26 @@ class ApiClient {
     return this.request(`/projetos/todos`, { method: 'DELETE' });
   }
 
+  async excluirTodosProjetos() {
+    return this.removerTodosProjetos();
+  }
+
+  async excluirTodosArquivos() {
+    return this.request('/arquivos', { method: 'DELETE' });
+  }
+
+  async excluirTodosPendencias() {
+    return this.request('/pendencias', { method: 'DELETE' });
+  }
+
+  async excluirTodosValidacoes() {
+    return this.request('/validacoes', { method: 'DELETE' });
+  }
+
+  async excluirTodosConflitos() {
+    return this.request('/conflitos', { method: 'DELETE' });
+  }
+
   async atualizarConfiguracao(id, config) {
     return this.request(`/projetos/${id}/configuracao`, {
       method: 'PUT',

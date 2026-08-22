@@ -191,6 +191,18 @@ export class InstanciaService {
     this.auditoria.registrar('INSTANCIA_EXCLUIDA', `Instância '${instancia.instanciaId}' excluída.`, { instanciaId: instancia.instanciaId });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const listResult = this.listar();
+    if (!listResult.sucesso || !listResult.dados) return { sucesso: false, erro: listResult.erro, codigoErro: listResult.codigoErro };
+    let count = 0;
+    for (const item of listResult.dados) {
+      const result = await this.excluir(item.id);
+      if (result.sucesso) count++;
+    }
+    this.auditoria.registrar('INSTANCIAS_EXCLUIDAS', `Todas as instâncias foram removidas. Total: ${count}`, { total: count });
+    return { sucesso: true, dados: count };
+  }
 }
 
 

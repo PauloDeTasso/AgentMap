@@ -30,5 +30,9 @@ export function criarContatoRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, await req.servicos!.contato.excluirTodos());
+  }));
+
   return router;
 }

@@ -40,5 +40,9 @@ export function criarValidacaoRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, await req.servicos!.validacao.excluirTodos());
+  }));
+
   return router;
 }

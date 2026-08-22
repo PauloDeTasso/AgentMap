@@ -173,7 +173,11 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
   }));
 
   router.delete('/todos', asyncHandler(async (_req: Request, res: Response) => {
-    return responder(res, projetoService.removerTodosProjetos());
+    return responder(res, projetoService.excluirTodos());
+  }));
+
+  router.delete('/', asyncHandler(async (_req: Request, res: Response) => {
+    return responder(res, projetoService.excluirTodos());
   }));
 
   router.get('/:id/configuracao', asyncHandler(async (req: Request, res: Response) => {

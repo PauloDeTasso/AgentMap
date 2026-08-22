@@ -1277,6 +1277,7 @@ async function renderizarArquivos(el) {
         <button class="btn btn--small btn--ghost" onclick="navegarPasta('.')">Raiz</button>
         <button class="btn btn--small btn--success" onclick="showModal('modal-novo-arquivo')"> Novo Arquivo</button>
         <button class="btn btn--small btn--ghost" data-path="${escapeAttr(pastaAtual)}" onclick="abrirPastaExplorer(this.getAttribute('data-path'))">📂 Explorar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirTodosArquivos()">Excluir Todos</button>
       </div>
     </div><ul class="file-list">`;
     for (const f of res.dados) {
@@ -1585,7 +1586,7 @@ async function renderizarValidacoes(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔒 Validações (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-validacao')">+ Nova Validação</button>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-validacao')">+ Nova Validação</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosValidacoes()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma validação registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1613,7 +1614,7 @@ async function renderizarPendencias(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">⏳ Pendências (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-pendencia')">+ Nova Pendência</button>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-pendencia')">+ Nova Pendência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosPendencias()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma pendência registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1641,7 +1642,7 @@ async function renderizarConflitos(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">⚡ Conflitos (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-conflito')">+ Novo Conflito</button>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-conflito')">+ Novo Conflito</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosConflitos()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum conflito registrado.</p>'; return; }
     const table = document.createElement('table');
@@ -5075,3 +5076,59 @@ window.abrirModalCriterio = function(criterio = null) {
     titulo.textContent = 'Novo Criterio';
     $('criterio-id').value = '';
     
+window.excluirTodosArquivos = async function() {
+  if (!confirm('Excluir TODOS os arquivos? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosArquivos();
+    if (res.sucesso) {
+      showToast('Todos os arquivos foram excluídos!', 'sucesso');
+      await carregarPainel('arquivos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+window.excluirTodosValidacoes = async function() {
+  if (!confirm('Excluir TODAS as validações? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosValidacoes();
+    if (res.sucesso) {
+      showToast('Todas as validações foram excluídas!', 'sucesso');
+      await carregarPainel('validacoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+window.excluirTodosPendencias = async function() {
+  if (!confirm('Excluir TODAS as pendências? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosPendencias();
+    if (res.sucesso) {
+      showToast('Todas as pendências foram excluídas!', 'sucesso');
+      await carregarPainel('pendencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+window.excluirTodosConflitos = async function() {
+  if (!confirm('Excluir TODOS os conflitos? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosConflitos();
+    if (res.sucesso) {
+      showToast('Todos os conflitos foram excluídos!', 'sucesso');
+      await carregarPainel('conflitos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};

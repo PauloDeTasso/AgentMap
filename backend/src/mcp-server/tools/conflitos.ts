@@ -6,18 +6,18 @@ import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
-const pendenciaSchema = z.object({
+const conflitoSchema = z.object({
   id: z.string(),
   titulo: z.string(),
   descricao: z.string(),
+  tipo: z.string(),
+  severidade: z.string(),
   tarefaId: z.string().nullable(),
   agenteId: z.string().nullable(),
-  tipo: z.string(),
-  prioridade: z.string(),
-  estado: z.string(),
-  origem: z.string(),
-  referenciaId: z.string().nullable(),
+  referencias: z.array(z.string()),
+  origem: z.string().nullable(),
   resolucao: z.string().nullable(),
+  estado: z.string(),
   datas: z.object({
     criadaEm: z.string().nullable(),
     atualizadaEm: z.string().nullable(),
@@ -25,93 +25,93 @@ const pendenciaSchema = z.object({
   })
 }).passthrough();
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_listar', {
-  title: 'Listar Pendencias',
-  description: 'Lista pendencias.',
-  inputSchema: z.object({ tarefaId: z.string().optional() }),
-  outputSchema: z.array(pendenciaSchema),
+registerTracedTool(mcpServer, 'agentmap_conflitos_listar', {
+  title: 'Listar Conflitos',
+  description: 'Lista conflitos.',
+  inputSchema: z.object({}),
+  outputSchema: z.array(conflitoSchema),
   annotations: { readOnlyHint: true }
-}, async ({ tarefaId }: { tarefaId?: string }) => {
+}, async () => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = tarefaId ? ctx.dados!.servicos.pendencia.listarPorTarefa(String(tarefaId || '')) : ctx.dados!.servicos.pendencia.listar();
-  auditoria.registrarToolCall('agentmap_pendencias_listar', projeto, { tarefaId }, resultado);
+  const resultado = ctx.dados!.servicos.conflito.listar();
+  auditoria.registrarToolCall('agentmap_conflitos_listar', projeto, {}, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_obter', {
-  title: 'Obter Pendencia',
-  description: 'Obtem uma pendencia.',
+registerTracedTool(mcpServer, 'agentmap_conflitos_obter', {
+  title: 'Obter Conflito',
+  description: 'Obtem um conflito.',
   inputSchema: z.object({ id: z.string() }),
-  outputSchema: pendenciaSchema,
+  outputSchema: conflitoSchema,
   annotations: { readOnlyHint: true }
 }, async ({ id }: { id: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.pendencia.obter(String(id || ''));
-  auditoria.registrarToolCall('agentmap_pendencias_obter', projeto, { id }, resultado);
+  const resultado = ctx.dados!.servicos.conflito.obter(String(id || ''));
+  auditoria.registrarToolCall('agentmap_conflitos_obter', projeto, { id }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_criar', {
-  title: 'Criar Pendencia',
-  description: 'Cria uma pendencia.',
+registerTracedTool(mcpServer, 'agentmap_conflitos_criar', {
+  title: 'Criar Conflito',
+  description: 'Cria um conflito.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
-  outputSchema: pendenciaSchema
+  outputSchema: conflitoSchema
 }, async ({ dados }: { dados: Record<string, unknown> }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.pendencia.criar(dados);
-  auditoria.registrarToolCall('agentmap_pendencias_criar', projeto, { dados }, resultado);
+  const resultado = await ctx.dados!.servicos.conflito.criar(dados);
+  auditoria.registrarToolCall('agentmap_conflitos_criar', projeto, { dados }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_atualizar', {
-  title: 'Atualizar Pendencia',
-  description: 'Atualiza uma pendencia.',
+registerTracedTool(mcpServer, 'agentmap_conflitos_atualizar', {
+  title: 'Atualizar Conflito',
+  description: 'Atualiza um conflito.',
   inputSchema: z.object({ id: z.string() }).passthrough(),
-  outputSchema: pendenciaSchema,
+  outputSchema: conflitoSchema,
   annotations: { idempotentHint: true }
 }, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.pendencia.atualizar(String(id || ''), dados);
-  auditoria.registrarToolCall('agentmap_pendencias_atualizar', projeto, { id, ...dados }, resultado);
+  const resultado = await ctx.dados!.servicos.conflito.atualizar(String(id || ''), dados as any);
+  auditoria.registrarToolCall('agentmap_conflitos_atualizar', projeto, { id, ...dados }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_resolver', {
-  title: 'Resolver Pendencia',
-  description: 'Resolve uma pendencia.',
+registerTracedTool(mcpServer, 'agentmap_conflitos_resolver', {
+  title: 'Resolver Conflito',
+  description: 'Resolve um conflito.',
   inputSchema: z.object({ id: z.string(), resolucao: z.string() }),
-  outputSchema: pendenciaSchema,
+  outputSchema: conflitoSchema,
   annotations: { idempotentHint: true }
 }, async ({ id, resolucao }: { id: string, resolucao: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.pendencia.resolver(String(id || ''), String(resolucao || ''));
-  auditoria.registrarToolCall('agentmap_pendencias_resolver', projeto, { id, resolucao }, resultado);
+  const resultado = await ctx.dados!.servicos.conflito.resolver(String(id || ''), String(resolucao || ''));
+  auditoria.registrarToolCall('agentmap_conflitos_resolver', projeto, { id, resolucao }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_excluir', {
-  title: 'Excluir Pendencia',
-  description: 'Exclui uma pendencia.',
+registerTracedTool(mcpServer, 'agentmap_conflitos_excluir', {
+  title: 'Excluir Conflito',
+  description: 'Exclui um conflito.',
   inputSchema: z.object({ id: z.string() }),
   outputSchema: z.boolean(),
   annotations: { destructiveHint: true }
@@ -120,15 +120,15 @@ registerTracedTool(mcpServer, 'agentmap_pendencias_excluir', {
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.pendencia.excluir(String(id || ''));
-  auditoria.registrarToolCall('agentmap_pendencias_excluir', projeto, { id }, resultado);
+  const resultado = await ctx.dados!.servicos.conflito.excluir(String(id || ''));
+  auditoria.registrarToolCall('agentmap_conflitos_excluir', projeto, { id }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
 
-registerTracedTool(mcpServer, 'agentmap_pendencias_excluir_todos', {
-  title: 'Excluir Todas as Pendencias',
-  description: 'Exclui todas as pendencias do projeto.',
+registerTracedTool(mcpServer, 'agentmap_conflitos_excluir_todos', {
+  title: 'Excluir Todos os Conflitos',
+  description: 'Exclui todos os conflitos do projeto.',
   inputSchema: z.object({}),
   outputSchema: z.number(),
   annotations: { destructiveHint: true }
@@ -137,8 +137,8 @@ registerTracedTool(mcpServer, 'agentmap_pendencias_excluir_todos', {
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = await ctx.dados!.servicos.pendencia.excluirTodos();
-  auditoria.registrarToolCall('agentmap_pendencias_excluir_todos', projeto, {}, resultado);
+  const resultado = await ctx.dados!.servicos.conflito.excluirTodos();
+  auditoria.registrarToolCall('agentmap_conflitos_excluir_todos', projeto, {}, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

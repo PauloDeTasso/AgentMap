@@ -125,5 +125,17 @@ export class ConflitoService {
     this.fs.excluir(this.getConflitoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const listResult = this.listar();
+    if (!listResult.sucesso || !listResult.dados) return { sucesso: false, erro: listResult.erro, codigoErro: listResult.codigoErro };
+    let count = 0;
+    for (const item of listResult.dados) {
+      const result = await this.excluir(item.id);
+      if (result.sucesso) count++;
+    }
+    this.auditoria.registrar('CONFLITOS_EXCLUIDOS', `Todos os conflitos foram removidos. Total: ${count}`, { total: count });
+    return { sucesso: true, dados: count };
+  }
 }
 

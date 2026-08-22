@@ -127,5 +127,17 @@ export class ValidacaoService {
     this.fs.excluir(this.getValidacaoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const listResult = this.listar();
+    if (!listResult.sucesso || !listResult.dados) return { sucesso: false, erro: listResult.erro, codigoErro: listResult.codigoErro };
+    let count = 0;
+    for (const item of listResult.dados) {
+      const result = await this.excluir(item.id);
+      if (result.sucesso) count++;
+    }
+    this.auditoria.registrar('VALIDACOES_EXCLUIDAS', `Todas as validações foram removidas. Total: ${count}`, { total: count });
+    return { sucesso: true, dados: count };
+  }
 }
 

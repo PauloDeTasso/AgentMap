@@ -93,3 +93,29 @@ registerTracedTool(mcpServer, 'agentmap_arquivos_excluir', {
     return mcpError(result);
   }
 });
+
+registerTracedTool(mcpServer, 'agentmap_arquivos_excluir_todos', {
+  title: 'Excluir Todos os Arquivos',
+  description: 'Exclui todos os arquivos de um diretorio do projeto.',
+  inputSchema: z.object({ caminho: z.string().optional() }),
+  outputSchema: z.string(),
+  annotations: { destructiveHint: true }
+}, async ({ caminho }: { caminho?: string }) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
+  const rel = String(caminho || '.');
+  try {
+    const validated = pathValidator.validate(rel);
+    const resultado = ctx.dados!.projeto.fileService.excluir(validated.caminhoRelativo, { backup: true });
+    auditoria.registrarToolCall('agentmap_arquivos_excluir_todos', projeto, { caminho }, resultado);
+    if (!resultado.sucesso) return mcpError(resultado);
+    return toMcpStructured(resultado.dados);
+  } catch (e: any) {
+    const result = { sucesso: false, erro: e.message || 'Caminho invalido', codigoErro: 'PATH_TRAVERSAL' };
+    auditoria.registrarToolCall('agentmap_arquivos_excluir_todos', projeto, { caminho }, result);
+    return mcpError(result);
+  }
+});

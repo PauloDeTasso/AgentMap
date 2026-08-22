@@ -19,6 +19,7 @@ import './aprendizados';
 import './validacoes';
 import './contatos';
 import './arquivos';
+import './conflitos';
 import './auditoria';
 import './eventos';
 import './workflows';

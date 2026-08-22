@@ -350,6 +350,10 @@ export class ProjetoService {
     return { sucesso: true, dados: removidos };
   }
 
+  excluirTodos(): ResultadoOperacao<number> {
+    return this.removerTodosProjetos();
+  }
+
   private limparReferenciasProjeto(id: string, nome: string, caminhoRaiz: string): void {
     const agentMapDir = GERENCIADOR_DIR;
     const targets = [
