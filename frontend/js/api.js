@@ -775,12 +775,12 @@ class ApiClient {
   async excluirTodosBloqueios() {
     return this.request('/bloqueios', { method: 'DELETE' });
   }
+
+  async resolverBloqueio(id, resolucao) {
+    return this.request(`/bloqueios/${id}/resolver`, { method: 'PUT', body: JSON.stringify({ resolucao }) });
+  }
 }
 
 const api = new ApiClient();
 
-export { api 
-  async resolverBloqueio(id, resolucao) {
-    return this.request(`/bloqueios/${id}/resolver`, { method: 'PUT', body: JSON.stringify({ resolucao }) });
-  }
-};
+export { api };

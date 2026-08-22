@@ -2076,7 +2076,7 @@ $('form-criar-arquivo').addEventListener('submit', async function(e) {
   }
 });
 
-$('btn-cancelar-novo-arquivo').addEventListener('click', () => hideModal('modal-novo-arquivo'));
+$('btn-cancelar-novo-arquivo')?.addEventListener('click', () => hideModal('modal-novo-arquivo'));
 
 window.abrirAgente = async function(id) {
   try {
@@ -3032,7 +3032,7 @@ $('form-resultado').addEventListener('submit', async function(e) {
   }
 });
 
-$('btn-cancelar-resultado').addEventListener('click', () => hideModal('modal-resultado'));
+$('btn-cancelar-resultado')?.addEventListener('click', () => hideModal('modal-resultado'));
 
 $('form-reserva').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -3067,7 +3067,7 @@ $('form-reserva').addEventListener('submit', async function(e) {
   }
 });
 
-$('btn-cancelar-reserva').addEventListener('click', () => hideModal('modal-reserva'));
+$('btn-cancelar-reserva')?.addEventListener('click', () => hideModal('modal-reserva'));
 
 $('form-decisao').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -3104,7 +3104,7 @@ $('form-decisao').addEventListener('submit', async function(e) {
   }
 });
 
-$('btn-cancelar-decisao').addEventListener('click', () => hideModal('modal-decisao'));
+$('btn-cancelar-decisao')?.addEventListener('click', () => hideModal('modal-decisao'));
 
 $('form-risco').addEventListener('submit', async function(e) {
   e.preventDefault();
@@ -3144,7 +3144,7 @@ $('form-risco').addEventListener('submit', async function(e) {
   }
 });
 
-$('btn-cancelar-risco').addEventListener('click', () => hideModal('modal-risco'));
+$('btn-cancelar-risco')?.addEventListener('click', () => hideModal('modal-risco'));
 
 // Agent form handlers
 $('form-agente').addEventListener('submit', async function(e) {
@@ -3209,7 +3209,7 @@ $('form-agente').addEventListener('submit', async function(e) {
   }
 });
 
-$('btn-cancelar-agente').addEventListener('click', () => hideModal('modal-agente'));
+$('btn-cancelar-agente')?.addEventListener('click', () => hideModal('modal-agente'));
 
 function coletarDadosAgente() {
   const dados = {
@@ -4075,16 +4075,6 @@ window.abrirModalDependencia = function(dependencia = null) {
   showModal('modal-dependencia');
 };
 
-window.editarDependencia = async function(id) {
-  try {
-    const res = await api.getDependencia(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    abrirModalDependencia(res.dados);
-  } catch (err) {
-    showToast(err?.message || 'Erro', 'erro');
-  }
-};
-
 window.excluirDependencia = async function(id) {
   if (!confirm(`Excluir dependência "${id}"? Esta ação não pode ser revertida.`)) return;
   try {
@@ -4459,23 +4449,6 @@ window.excluirTodosResponsabilidades = async function() {
   } catch (err) {
     showToast(err?.message || 'Erro ao excluir responsabilidades', 'erro');
   }
-};
-
-$('form-dependencia').reset();
-  $('dependencia-id').value = '';
-  if (dependencia) {
-    $('dependencia-id').value = dependencia.id;
-    $('dependencia-fonte-id').value = dependencia.fonteId || '';
-    $('dependencia-fonte-tipo').value = dependencia.fonteTipo || '';
-    $('dependencia-destino-id').value = dependencia.destinoId || '';
-    $('dependencia-destino-tipo').value = dependencia.destinoTipo || '';
-    $('dependencia-tipo').value = dependencia.tipo || 'FIM_INICIO';
-    $('dependencia-estado').value = dependencia.estado || 'ATIVA';
-    $('titulo-dependencia').textContent = `Editar: ${escapeHtml(dependencia.id)}`;
-  } else {
-    $('titulo-dependencia').textContent = 'Nova Dependência';
-  }
-  showModal('modal-dependencia');
 };
 
 window.editarDependencia = async function(id) {
@@ -4998,14 +4971,7 @@ window.excluirContrato = async function(id) {
     }
   });
 
-$('btn-cancelar-tarefa').addEventListener('click', () => hideModal('modal-tarefa'));
-
-// Agent form handlers
-
-$('form-sessao').reset();
-  }
-  showModal('modal-sessao');
-};
+$('btn-cancelar-tarefa')?.addEventListener('click', () => hideModal('modal-tarefa'));
 
 window.editarSessao = async function(id) {
   try {
@@ -5075,7 +5041,9 @@ window.abrirModalCriterio = function(criterio = null) {
   } else {
     titulo.textContent = 'Novo Criterio';
     $('criterio-id').value = '';
-    
+  }
+};
+
 window.excluirTodosArquivos = async function() {
   if (!confirm('Excluir TODOS os arquivos? Esta ação não pode ser revertida.')) return;
   try {
@@ -5132,3 +5100,5 @@ window.excluirTodosConflitos = async function() {
     showToast(err?.message || 'Erro', 'erro');
   }
 };
+
+init();

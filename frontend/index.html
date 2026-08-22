@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gerenciador Local de Agentes de IA</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -889,7 +890,7 @@
          </div>
          <div class="form__acoes">
            <button class="btn btn--primario" type="submit">Salvar</button>
-           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-resultado')">Cancelar</button>
+            <button class="btn btn--ghost" type="button" id="btn-cancelar-resultado" onclick="hideModal('modal-resultado')">Cancelar</button>
          </div>
        </form>
      </div>
@@ -932,7 +933,7 @@
          </div>
          <div class="form__acoes">
            <button class="btn btn--primario" type="submit">Salvar</button>
-           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-reserva')">Cancelar</button>
+            <button class="btn btn--ghost" type="button" id="btn-cancelar-reserva" onclick="hideModal('modal-reserva')">Cancelar</button>
          </div>
        </form>
      </div>
@@ -980,7 +981,7 @@
          </div>
          <div class="form__acoes">
            <button class="btn btn--primario" type="submit">Salvar</button>
-           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-decisao')">Cancelar</button>
+            <button class="btn btn--ghost" type="button" id="btn-cancelar-decisao" onclick="hideModal('modal-decisao')">Cancelar</button>
          </div>
        </form>
      </div>
@@ -1053,7 +1054,7 @@
          </div>
          <div class="form__acoes">
            <button class="btn btn--primario" type="submit">Salvar</button>
-           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-risco')">Cancelar</button>
+            <button class="btn btn--ghost" type="button" id="btn-cancelar-risco" onclick="hideModal('modal-risco')">Cancelar</button>
          </div>
        </form>
      </div>
@@ -1293,6 +1294,6 @@
     </div>
   </div>
 
-   <script src="js/app.js?v=20260817-projetos" type="module"></script>
+   <script src="js/app.js?v=20260822-fix" type="module"></script>
 </body>
 </html>
