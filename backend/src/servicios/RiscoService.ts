@@ -96,5 +96,19 @@ export class RiscoService {
     this.fs.excluir(this.getRiscoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<boolean>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    }
+    const itens = registryResult.dados.riscos;
+    for (const item of itens) {
+      this.fs.excluir(this.getRiscoPath(item.id), { backup: true });
+    }
+    this.salvarRegistry({ riscos: [] });
+    this.auditoria.registrar('RISCOS_EXCLUIDOS', `${itens.length} risco(s) excluído(s).`, { quantidade: itens.length });
+    return { sucesso: true, dados: true };
+  }
 }
 

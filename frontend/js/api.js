@@ -369,6 +369,10 @@ class ApiClient {
     return this.request(`/resultados/${id}`, { method: 'DELETE' });
   }
 
+  async excluirTodosResultados() {
+    return this.request(`/resultados`, { method: 'DELETE' });
+  }
+
   async getArtefatos(tarefaId = null) {
     const suffix = tarefaId ? `?tarefaId=${encodeURIComponent(tarefaId)}` : '';
     return this.request(`/artefatos${suffix}`);
@@ -497,8 +501,16 @@ class ApiClient {
     return this.request(`/reservas/${id}/liberar`, { method: 'PUT' });
   }
 
+  async atualizarReserva(id, dados) {
+    return this.request(`/reservas/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirReserva(id) {
     return this.request(`/reservas/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosReservas() {
+    return this.request(`/reservas`, { method: 'DELETE' });
   }
 
   async getSessoes() {
@@ -608,20 +620,52 @@ class ApiClient {
     return this.request('/decisoes');
   }
 
-  async getRiscos() {
-    return this.request('/riscos');
-  }
-
-  async getBloqueios() {
-    return this.request('/bloqueios');
+  async getDecisao(id) {
+    return this.request(`/decisoes/${id}`);
   }
 
   async criarDecisao(dados) {
     return this.request('/decisoes', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarDecisao(id, dados) {
+    return this.request(`/decisoes/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirDecisao(id) {
+    return this.request(`/decisoes/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosDecisoes() {
+    return this.request(`/decisoes`, { method: 'DELETE' });
+  }
+
+  async getRiscos() {
+    return this.request('/riscos');
+  }
+
+  async getRisco(id) {
+    return this.request(`/riscos/${id}`);
+  }
+
+  async getBloqueios() {
+    return this.request('/bloqueios');
+  }
+
   async criarRisco(dados) {
     return this.request('/riscos', { method: 'POST', body: JSON.stringify(dados) });
+  }
+
+  async atualizarRisco(id, dados) {
+    return this.request(`/riscos/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirRisco(id) {
+    return this.request(`/riscos/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosRiscos() {
+    return this.request(`/riscos`, { method: 'DELETE' });
   }
 
   async criarBloqueio(dados) {

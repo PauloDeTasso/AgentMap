@@ -30,5 +30,10 @@ export function criarRiscoRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.risco.excluirTodos();
+    return responder(res, result);
+  }));
+
   return router;
 }

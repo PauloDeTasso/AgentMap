@@ -77,3 +77,37 @@ registerTracedTool(mcpServer, 'agentmap_resultados_criar', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_resultados_atualizar', {
+  title: 'Atualizar Resultado',
+  description: 'Atualiza um resultado.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: resultadoSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.resultado.atualizar(String(id || ''), dados as any);
+  auditoria.registrarToolCall('agentmap_resultados_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
+registerTracedTool(mcpServer, 'agentmap_resultados_excluir', {
+  title: 'Excluir Resultado',
+  description: 'Exclui um resultado.',
+  inputSchema: z.object({ id: z.string() }),
+  outputSchema: z.boolean(),
+  annotations: { destructiveHint: true }
+}, async ({ id }: { id: string }) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.resultado.excluir(String(id || ''));
+  auditoria.registrarToolCall('agentmap_resultados_excluir', projeto, { id }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
