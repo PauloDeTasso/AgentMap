@@ -1,13 +1,13 @@
 {
   "id": "TAR-2026-00005",
-  "titulo": "Atualizar docs comunicacao e protocolo com teste bidirecional",
-  "descricao": "Documentar teste bidirecional real e plugin wake-up oficial",
-  "objetivo": "Atualizar docs/comunicacao-agentmap-kilo.md e documentos/protocolo-agentes.md: incluir o teste bidirecional realizado (pergunta sobre frontend/backend), documentar o plugin .kilo/plugin/agentmap-wakeup.ts como solucao oficial de wake-up (substituindo Gate -1/0), e registrar o flow completo: session.idle -> polling AgentMap -> promptAsync. Adicionar seccao de testes realizados.",
-  "tipo": "documentacao",
+  "titulo": "Auditoria: Reservas e Bloqueios",
+  "descricao": "Voce e o agente Infraestrutura responsavel pela auditoria de alocacoes e impedimentos. Use as tools MCP. Autoidentifique-se como Infraestrutura. Reporte via agentmap_resultados_criar. Nao altere estados.",
+  "objetivo": "Identificar alocacoes e impedimentos obsoletos",
+  "tipo": "auditoria",
   "estado": "RASCUNHO",
-  "prioridade": "ALTA",
-  "agenteResponsavel": "docs-comm-01",
-  "dominio": "documentacao",
+  "prioridade": "MEDIA",
+  "agenteResponsavel": "infraestrutura",
+  "dominio": "infraestrutura",
   "ambiente": "desenvolvimento",
   "dependencias": [],
   "contratosObrigatorios": [],
@@ -16,19 +16,21 @@
   "arquivosProibidos": [],
   "contextoNecessario": [],
   "criteriosAceitacao": [
-    "comunicacao-agentmap-kilo.md documenta o teste real realizado",
-    "protocolo-agentes.md inclui referencia ao plugin wake-up"
+    "Registros obsoletos identificados",
+    "Relatorio gerado"
   ],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [],
-  "condicoesDeParada": [],
-  "criteriosConclusao": [],
-  "tags": [
-    "wake-up",
-    "comunicacao",
-    "docs"
+  "restricoes": [
+    "Nao alterar dados diretamente"
   ],
+  "condicoesDeParada": [
+    "Relatorio concluido"
+  ],
+  "criteriosConclusao": [
+    "Resultado registrado via agentmap_resultados_criar"
+  ],
+  "tags": [],
   "resultado": {
     "resumo": "",
     "arquivosAlterados": [],
@@ -47,11 +49,11 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-18T22:48:34.899Z",
-    "criadoEm": "2026-08-18T22:48:34.899Z",
+    "criacao": "2026-08-22T01:52:18.068Z",
+    "criadoEm": "2026-08-22T01:52:18.068Z",
     "inicio": null,
-    "ultimaAtualizacao": "2026-08-18T22:48:34.899Z",
-    "atualizadaEm": "2026-08-18T22:48:34.899Z",
+    "ultimaAtualizacao": "2026-08-22T01:52:18.068Z",
+    "atualizadaEm": "2026-08-22T01:52:18.068Z",
     "conclusao": null
   }
 }

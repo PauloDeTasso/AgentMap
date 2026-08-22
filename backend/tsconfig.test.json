@@ -1,8 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@kilocode/plugin": ["src/types/@kilocode/plugin"]
+    }
   },
-  "include": ["src/**/*.ts", "testes/**/*.ts"],
+  "include": ["src/**/*.ts", "testes/**/*.ts", ".kilo/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

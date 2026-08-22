@@ -23,7 +23,8 @@ module.exports = {
     '^observability$': '<rootDir>/src/observability',
     '^observability/(.*)$': '<rootDir>/src/observability/$1',
     '^websocket$': '<rootDir>/src/websocket',
-    '^websocket/(.*)$': '<rootDir>/src/websocket/$1'
+    '^websocket/(.*)$': '<rootDir>/src/websocket/$1',
+    '^@kilocode/plugin$': '<rootDir>/testes/__mocks__/kilocode-plugin.ts'
   },
   collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
   coverageThreshold: {

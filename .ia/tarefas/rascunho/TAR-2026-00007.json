@@ -1,13 +1,13 @@
 {
   "id": "TAR-2026-00007",
-  "titulo": "Atualizar README e docs raiz com wake-up e comunicacao",
-  "descricao": "Documentar wake-up em READMEs e docs raiz",
-  "objetivo": "Atualizar README.md, SECURITY.md, AGENTS.md, e2e/README.md, banco/README.md, e kilo.jsonc com: documentacao do plugin agentmap-wakeup.ts no .kilo/plugin/, flow de comunicacao bidirecional, secao sobre wake-up automatico de sessoes ociosas via session.idle, e atualizacao do contador de tools MCP. Adicionar seccao sobre comunicacao Agent Manager HTTP no README.",
-  "tipo": "documentacao",
+  "titulo": "Auditoria: Tarefas, Transferencias e Resultados",
+  "descricao": "Voce e o agente Orquestrador responsavel pela auditoria de execucao e entrega. Use as tools MCP. Autoidentifique-se como Orquestrador. Reporte via agentmap_resultados_criar. Nao altere estados.",
+  "objetivo": "Identificar tarefas, transferencias e resultados obsoletos",
+  "tipo": "auditoria",
   "estado": "RASCUNHO",
   "prioridade": "ALTA",
-  "agenteResponsavel": "docs-root-01",
-  "dominio": "documentacao",
+  "agenteResponsavel": "orquestrador",
+  "dominio": "orquestracao",
   "ambiente": "desenvolvimento",
   "dependencias": [],
   "contratosObrigatorios": [],
@@ -16,19 +16,21 @@
   "arquivosProibidos": [],
   "contextoNecessario": [],
   "criteriosAceitacao": [
-    "README.md tem seccao wake-up plugin",
-    "kilo.jsonc configurado com plugin referenciado"
+    "Registros obsoletos identificados",
+    "Relatorio gerado"
   ],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [],
-  "condicoesDeParada": [],
-  "criteriosConclusao": [],
-  "tags": [
-    "wake-up",
-    "readme",
-    "docs"
+  "restricoes": [
+    "Nao alterar dados diretamente"
   ],
+  "condicoesDeParada": [
+    "Relatorio concluido"
+  ],
+  "criteriosConclusao": [
+    "Resultado registrado via agentmap_resultados_criar"
+  ],
+  "tags": [],
   "resultado": {
     "resumo": "",
     "arquivosAlterados": [],
@@ -47,11 +49,11 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-18T22:48:46.136Z",
-    "criadoEm": "2026-08-18T22:48:46.136Z",
+    "criacao": "2026-08-22T01:52:35.850Z",
+    "criadoEm": "2026-08-22T01:52:35.850Z",
     "inicio": null,
-    "ultimaAtualizacao": "2026-08-18T22:48:46.136Z",
-    "atualizadaEm": "2026-08-18T22:48:46.136Z",
+    "ultimaAtualizacao": "2026-08-22T01:52:35.850Z",
+    "atualizadaEm": "2026-08-22T01:52:35.850Z",
     "conclusao": null
   }
 }

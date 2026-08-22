@@ -1,13 +1,13 @@
 {
   "id": "TAR-2026-00006",
-  "titulo": "Atualizar docs protocolo e solicitacao com wake-up",
-  "descricao": "Documentar protocolo de wake-up em docs de protocolo e processos",
-  "objetivo": "Atualizar docs/protocolo-mcp.md e documentos/solicitacao-alteracao-guia.md com referencias ao mecanismo de wake-up, aos tipos de mensagem KILO_CHAT/KILO_REPLY/KILO_RESULT/WAKEUP_PARENT, e ao polling incremental via eventSequence. Adicionar seccao sobre plugin Kilo e comunicacao via HTTP.",
-  "tipo": "documentacao",
+  "titulo": "Auditoria: Validacoes, Contratos, Riscos e Auditoria",
+  "descricao": "Voce e o agente Revisor responsavel pela auditoria de conformidade e qualidade. Use as tools MCP. Autoidentifique-se como Revisor. Reporte via agentmap_resultados_criar. Nao altere registros.",
+  "objetivo": "Identificar registros obsoletos de conformidade",
+  "tipo": "auditoria",
   "estado": "CONCLUIDA",
   "prioridade": "ALTA",
-  "agenteResponsavel": "docs-proc-01",
-  "dominio": "documentacao",
+  "agenteResponsavel": "revisor",
+  "dominio": "revisao",
   "ambiente": "desenvolvimento",
   "dependencias": [],
   "contratosObrigatorios": [],
@@ -16,19 +16,21 @@
   "arquivosProibidos": [],
   "contextoNecessario": [],
   "criteriosAceitacao": [
-    "protocolo-mcp.md inclui seccao wake-up",
-    "solicitacao-alteracao-guia.md referencia comunicacao Kilo"
+    "Registros obsoletos identificados",
+    "Relatorio gerado"
   ],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [],
-  "condicoesDeParada": [],
-  "criteriosConclusao": [],
-  "tags": [
-    "wake-up",
-    "protocolo",
-    "docs"
+  "restricoes": [
+    "Nao alterar dados diretamente"
   ],
+  "condicoesDeParada": [
+    "Relatorio concluido"
+  ],
+  "criteriosConclusao": [
+    "Resultado registrado via agentmap_resultados_criar"
+  ],
+  "tags": [],
   "resultado": {
     "resumo": "",
     "arquivosAlterados": [],
@@ -47,11 +49,13 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-18T22:48:41.030Z",
-    "criadoEm": "2026-08-18T22:48:41.030Z",
-    "inicio": "2026-08-18T22:49:23.334Z",
-    "ultimaAtualizacao": "2026-08-18T23:07:37.129Z",
-    "atualizadaEm": "2026-08-18T22:48:41.030Z",
-    "conclusao": "2026-08-18T23:07:37.129Z"
-  }
+    "criacao": "2026-08-22T01:52:35.813Z",
+    "criadoEm": "2026-08-22T01:52:35.813Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-22T03:03:16.186Z",
+    "atualizadaEm": "2026-08-22T03:03:16.186Z",
+    "conclusao": "2026-08-22T03:03:16.153Z"
+  },
+  "inicio": "2026-08-22T01:52:35.813Z",
+  "conclusao": "2026-08-22T02:00:00.000Z"
 }

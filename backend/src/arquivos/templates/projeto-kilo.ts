@@ -62,6 +62,9 @@ export const AGENTMAP_WAKEUP_PLUGIN_TS = `// .kilo/plugin/agentmap-wakeup.ts
 // Plugin oficial do Kilo Code para wake-up automático via AgentMap.
 // Roda DENTRO do processo do Kilo Code e consulta http://localhost:3150
 // para acordar a sessão quando houver eventos pendentes.
+//
+// Arquitetura: máquina de estados por sessão com cursor isolado por
+// \`projectId:sessionId\` e exclusão de sessoes-filhas do wake-up.
 
 import type { Plugin, PluginInput } from "@kilocode/plugin";
 
@@ -69,21 +72,77 @@ const AGENTMAP_API_URL = process.env.AGENTMAP_API_URL || "http://localhost:3150"
 const AGENTMAP_API_KEY = process.env.AGENTMAP_API_KEY || "";
 const DEBOUNCE_MS = Number(process.env.AGENTMAP_WAKEUP_DEBOUNCE_MS) || 3000;
 
-let ultimoEventSequenceProcessado = 0;
-const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const TIPOS_RELEVANTES = new Set([
+  "KILO_CHAT_REPLY","KILO_REPLY","KILO_RESULT","KILO_CHAT","WAKEUP_PARENT",
+  "HANDOFF_CRIADO","HANDOFF_ACEITO","HANDOFF_CONCLUIDO",
+  "SOLICITACAO_CRIADA","SOLICITACAO_APROVADA","SOLICITACAO_REJEITADA",
+  "SOLICITACAO_EXCLUIDA","SOLICITACAO_ALTERADA",
+  "TAREFA_CRIADA","TAREFA_ATRIBUIDA","TAREFA_INICIADA","TAREFA_CONCLUIDA",
+  "TAREFA_CANCELADA","TAREFA_BLOQUEADA","TAREFA_DESBLOQUEADA",
+  "TAREFA_ESTADO_ALTERADO","TAREFA_EXCLUIDA","TAREFA_RECONCILIADA",
+  "BLOQUEIO_CRIADO","BLOQUEIO_RESOLVIDO","CONFLITO_CRIADO","CONFLITO_RESOLVIDO",
+  "RESULTADO_REGISTRADO","ARTEFATO_CRIADO","VALIDACAO_INICIADA","VALIDACAO_CONCLUIDA",
+  "RESERVA_CRIADA","RESERVA_LIBERADA","SESSAO_INICIADA","SESSAO_FINALIZADA",
+  "CHECKPOINT_CRIADO","APRENDIZADO_REGISTRADO","PENDENCIA_CRIADA","PENDENCIA_RESOLVIDA",
+  "DEPENDENCIA_CRIADA","DECISAO_CRIADA","DECISAO_ATUALIZADA",
+  "RISCO_CRIADO","RISCO_ATUALIZADO","RESPONSABILIDADE_REGISTRADA",
+  "ARQUIVO_ALTERADO","ARQUIVO_EXCLUIDO","APROVACAO_SOLICITADA",
+  "APROVACAO_CONCEDIDA","APROVACAO_REJEITADA","IMPLANTACAO_REALIZADA",
+  "SEGURANCA_VIOLACAO","BACKUP_CRIADO","CONTRATO_CRIADO","CONTRATO_ALTERADO",
+  "CONTRATO_EXCLUIDO","CONTRATO_VALIDADO","CONTRATO_INVALIDO",
+  "TESTE_EXECUTADO","REVISAO_REALIZADA","MODO_GLOBAL_ALTERADO",
+  "MODO_AGENTE_ALTERADO","STATUS_AGENTE_ATUALIZADO","MODO_AUTONOMIA_ALTERADO",
+  "INSTANCIA_REGISTRADA","INSTANCIA_CONECTADA","INSTANCIA_DESCONECTADA",
+  "INSTANCIA_ERRO","INSTANCIA_ATUALIZADA","INSTANCIA_EXCLUIDA",
+  "PROJETO_CRIADO","PROJETO_ABERTO","AGENTE_CRIADO","AGENTE_ATUALIZADO",
+  "AGENTE_EXCLUIDO","INTERVENCAO_MANUAL","REGRAS_RESPEITADAS",
+  "CONTATO_CRIADO","CONTATO_ATUALIZADO","CONTATO_EXCLUIDO",
+  "EVENTO_CRIADO","EVENTO_CONSUMIDO","BROADCAST_ANUNCIO",
+  "INTEGRIDADE_VERIFICADA","INTEGRIDADE_FALHA","COMANDO_USUARIO",
+  "INTERVENCAO_USUARIO","MODO_ALTERADO","AGENTE_STATUS_ALTERADO","ATUALIZAR_STATUS",
+]);
 
-interface MensagemPendente {
-  id: string;
-  agenteOrigem?: string;
-  resumo?: string;
-  eventSequence?: number;
+interface EstadoSessao {
+  sessionId: string;
+  projectId: string;
+  isChildSession: boolean;
+  status: string;
+  cursorEventSequence: number;
+  debounceTimer: ReturnType<typeof setTimeout> | null;
+  recoveryAtivo: boolean;
+  recoveryTimer: ReturnType<typeof setTimeout> | null;
+  operacaoEmAndamento: string;
 }
 
-async function buscarMensagensPendentes(): Promise<MensagemPendente[]> {
+const sessoes = new Map<string, EstadoSessao>();
+
+function chaveSessao(projectId: string, sessionId: string) {
+  return projectId + ":" + sessionId;
+}
+
+function obterOuCriarEstado(projectId: string, sessionId: string): EstadoSessao {
+  const key = chaveSessao(projectId, sessionId);
+  let estado = sessoes.get(key);
+  if (!estado) {
+    estado = {
+      sessionId, projectId, isChildSession: false, status: "unknown",
+      cursorEventSequence: 0, debounceTimer: null, recoveryAtivo: false,
+      recoveryTimer: null, operacaoEmAndamento: "idle",
+    };
+    sessoes.set(key, estado);
+  }
+  return estado;
+}
+
+function estaOcupado(estado: EstadoSessao): boolean {
+  return estado.status === "busy" || estado.status === "retry";
+}
+
+async function buscarMensagensPendentes(estado: EstadoSessao): Promise<any[]> {
   const url = new URL("/api/monitoramento/mensagens", AGENTMAP_API_URL);
   url.searchParams.set("limite", "50");
-  if (ultimoEventSequenceProcessado > 0) {
-    url.searchParams.set("after", String(ultimoEventSequenceProcessado));
+  if (estado.cursorEventSequence > 0) {
+    url.searchParams.set("after", String(estado.cursorEventSequence));
   }
 
   const res = await fetch(url, {
@@ -91,86 +150,185 @@ async function buscarMensagensPendentes(): Promise<MensagemPendente[]> {
   });
 
   if (!res.ok) {
-    console.error(\`[agentmap-wakeup] AgentMap respondeu \${res.status} em \${url}\`);
+    console.error("[agentmap-wakeup] AgentMap respondeu " + res.status);
     return [];
   }
 
   const body = await res.json();
-  const mensagens: MensagemPendente[] = Array.isArray(body?.dados)
-    ? body.dados
-    : Array.isArray(body?.mensagens)
-      ? body.mensagens
-      : [];
+  const raw = Array.isArray(body?.dados) ? body.dados : Array.isArray(body?.mensagens) ? body.mensagens : [];
 
-  return mensagens.filter(
-    (m) => typeof m.eventSequence === "number" && m.eventSequence > ultimoEventSequenceProcessado
-  );
+  const mensagens = raw.filter((item: any) => {
+    const obj = item;
+    return typeof obj.eventSequence === "number" && TIPOS_RELEVANTES.has(obj.tipo || "");
+  });
+
+  const novas = mensagens.filter((m: any) => m.eventSequence > estado.cursorEventSequence);
+  if (novas.length > 0) {
+    estado.cursorEventSequence = Math.max(estado.cursorEventSequence, ...novas.map((m: any) => m.eventSequence || 0));
+  }
+
+  return novas;
 }
 
-function montarResumo(mensagens: MensagemPendente[]): string {
-  const linhas = mensagens.map(
-    (m) => \`- [\${m.agenteOrigem || "agente"}] \${m.resumo || m.id}\`
-  );
-  return (
-    \`Novas atualizações no AgentMap enquanto você estava ocioso:\\n\` +
-    linhas.join("\\n") +
-    \`\\n\\nConsulte o AgentMap para os detalhes completos antes de prosseguir.\`
-  );
+function montarResumo(mensagens: any[]): string {
+  const linhas = mensagens.map((m) => "- [" + (m.agenteOrigem || m.emissor || "agente") + "] " + (m.resumo || m.conteudo || m.id));
+  return "Novas atualizações no AgentMap enquanto você estava ocioso:\n" + linhas.join("\n") + "\n\nConsulte o AgentMap para os detalhes completos antes de prosseguir.";
 }
 
-function agendarVerificacao(sessionId: string, client: PluginInput["client"]) {
-  const timerExistente = debounceTimers.get(sessionId);
-  if (timerExistente) clearTimeout(timerExistente);
+function agendarVerificacao(projectId: string, sessionId: string, client: PluginInput["client"]) {
+  const estado = obterOuCriarEstado(projectId, sessionId);
+  if (estado.debounceTimer) clearTimeout(estado.debounceTimer);
 
-  const timer = setTimeout(async () => {
-    debounceTimers.delete(sessionId);
+  estado.debounceTimer = setTimeout(async () => {
+    estado.debounceTimer = null;
+    if (estaOcupado(estado)) {
+      console.log("[agentmap-wakeup] Verificacao suprimida (ocupado): " + sessionId);
+      return;
+    }
+    const pendentes = await buscarMensagensPendentes(estado);
+    if (pendentes.length === 0) return;
+
+    const resumo = montarResumo(pendentes);
+    if (estado.operacaoEmAndamento !== "idle") return;
+    estado.operacaoEmAndamento = "wakeup";
+
     try {
-      const pendentes = await buscarMensagensPendentes();
-      if (pendentes.length === 0) return;
-
-      const resumo = montarResumo(pendentes);
-
-      await client.session.promptAsync({
-        path: { id: sessionId },
-        body: {
-          parts: [{ type: "text", text: resumo }],
-        },
-      });
-
-      ultimoEventSequenceProcessado = Math.max(
-        ultimoEventSequenceProcessado,
-        ...pendentes.map((m) => m.eventSequence || 0)
-      );
-
-      console.log(
-        \`[agentmap-wakeup] Wake-up enviado para sessão \${sessionId} (\${pendentes.length} mensagem(ns))\`
-      );
+      const metodo = client.session;
+      const chamar = typeof metodo.prompt === "function" ? metodo.prompt : typeof metodo.promptAsync === "function" ? metodo.promptAsync : null;
+      if (chamar) {
+        await chamar({ path: { id: sessionId }, body: { parts: [{ type: "text", text: resumo }] } });
+      }
     } catch (err) {
-      console.error("[agentmap-wakeup] Falha ao processar wake-up:", err);
+      console.error("[agentmap-wakeup] Falha no wake-up:", err);
+    } finally {
+      estado.operacaoEmAndamento = "idle";
     }
   }, DEBOUNCE_MS);
+}
 
-  debounceTimers.set(sessionId, timer);
+function extrairParentId(event: any): string | null {
+  const data = event?.properties?.data || event?.data || {};
+  const parentId = data?.parentID || event?.properties?.parentID;
+  return typeof parentId === "string" ? parentId : null;
 }
 
 const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
-  console.log(
-    \`[agentmap-wakeup] Plugin carregado — diretório: \${ctx.directory}, AgentMap: \${AGENTMAP_API_URL}\`
-  );
+  const projectId = ctx.project?.id || ctx.directory;
+  console.log("[agentmap-wakeup] Plugin carregado — diretorio: " + ctx.directory + ", projeto: " + projectId);
 
   return {
     event: async ({ event }) => {
-      if (event.type !== "session.idle") return;
+      const sessionId: string | undefined = (event as any).properties?.sessionID || (event as any).sessionID;
+      const eventType = (event as any).type;
 
-      const sessionId: string | undefined = event.properties?.sessionID;
+      if (!sessionId) return;
 
-      if (!sessionId) {
-        console.warn("[agentmap-wakeup] session.idle sem sessionID, ignorando.");
+      const estado = obterOuCriarEstado(projectId, sessionId);
+
+      if (eventType === "session.created") {
+        const parentId = extrairParentId(event);
+        if (parentId) {
+          estado.parentId = parentId;
+          estado.isChildSession = true;
+          console.log("[agentmap-wakeup] Sessao-filha detectada: " + sessionId);
+        }
         return;
       }
 
-      agendarVerificacao(sessionId, ctx.client);
+      if (eventType === "session.updated") {
+        const parentId = extrairParentId(event);
+        if (parentId && !estado.parentId) {
+          estado.parentId = parentId;
+          estado.isChildSession = true;
+          console.log("[agentmap-wakeup] Sessao-filha detectada via updated: " + sessionId);
+        }
+        return;
+      }
+
+      if (eventType === "session.status") {
+        const status = typeof (event as any)?.properties?.status === "string"
+          ? (event as any).properties.status
+          : typeof (event as any)?.data?.status === "string"
+            ? (event as any).data.status
+            : "unknown";
+        if (status === "idle" || status === "busy" || status === "retry") {
+          estado.status = status;
+        }
+        if (estado.status === "idle" && estado.operacaoEmAndamento !== "idle") {
+          estado.operacaoEmAndamento = "idle";
+        }
+        return;
+      }
+
+      if (eventType === "session.idle") {
+        if (estado.isChildSession) {
+          console.log("[agentmap-wakeup] session.idle suprimido (sessao-filha): " + sessionId);
+          return;
+        }
+        estado.status = "idle";
+        estado.operacaoEmAndamento = "idle";
+        agendarVerificacao(projectId, sessionId, ctx.client);
+        return;
+      }
+
+      if (eventType === "session.next.interrupt.requested") {
+        console.log("[agentmap-wakeup] Interrupcao detectada: " + sessionId);
+        return;
+      }
+
+      if (eventType === "session.error") {
+        const nomeErro = typeof (event as any)?.properties?.error?.name === "string"
+          ? (event as any).properties.error.name
+          : "";
+        const mensagemErro = typeof (event as any)?.properties?.error?.data?.message === "string"
+          ? (event as any).properties.error.data.message
+          : "";
+        const ehInterrupcao = nomeErro === "MessageAbortedError" || /abort|cancel|interrompid|interrupt|stopped|user/i.test(nomeErro + " " + mensagemErro);
+        if (ehInterrupcao) {
+          console.log("[agentmap-wakeup] session.error suprimido (interrupcao): " + sessionId);
+          return;
+        }
+
+        if (estado.recoveryAtivo) {
+          console.log("[agentmap-wakeup] Recovery suprimido (cooldown ativo): " + sessionId);
+          return;
+        }
+
+        const promptRecovery = "Ocorreu um erro no sistema. Nao tente resolver agora. Apenas continue sua tarefa de onde parou.";
+        estado.operacaoEmAndamento = "recovery";
+        try {
+          const metodo = client.session;
+          const chamar = typeof metodo.prompt === "function" ? metodo.prompt : typeof metodo.promptAsync === "function" ? metodo.promptAsync : null;
+          if (chamar) {
+            await chamar({ path: { id: sessionId }, body: { parts: [{ type: "text", text: promptRecovery }] } });
+          }
+          estado.recoveryAtivo = true;
+          estado.recoveryTimer = setTimeout(() => {
+            estado.recoveryAtivo = false;
+            estado.recoveryTimer = null;
+          }, 300000);
+        } catch (err) {
+          console.error("[agentmap-wakeup] Falha no recovery:", err);
+        } finally {
+          estado.operacaoEmAndamento = "idle";
+        }
+        return;
+      }
+
+      if (eventType === "session.deleted") {
+        const key = chaveSessao(projectId, sessionId);
+        const e = sessoes.get(key);
+        if (e) {
+          if (e.debounceTimer) clearTimeout(e.debounceTimer);
+          if (e.recoveryTimer) clearTimeout(e.recoveryTimer);
+          if (e.heartbeatTimer) clearInterval(e.heartbeatTimer);
+          sessoes.delete(key);
+        }
+        return;
+      }
     },
+    "tool.execute.after": async () => {},
+    "chat.message": async () => {},
   };
 };
 

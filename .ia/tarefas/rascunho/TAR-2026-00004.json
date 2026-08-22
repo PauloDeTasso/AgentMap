@@ -1,13 +1,13 @@
 {
   "id": "TAR-2026-00004",
-  "titulo": "Atualizar guias de agente com fluxo wake-up e comunicacao",
-  "descricao": "Documentar flow bidirecional e polling incremental no guia de agentes",
-  "objetivo": "Atualizar docs/guia-agente-mcp.md e backend/src/mcp-server/resources/guia-eficacia.md: adicionar o fluxo de comunicacao bidirecional KILO_CHAT -> KILO_REPLY -> KILO_RESULT como padrao recomendado, documentar uso da tool agentmap_monitoramento_verificar_pendentes com aposEventSequence para wakeup parent, e incluir exemplos de curl para envio e recepcao de mensagens via POST/GET HTTP.",
-  "tipo": "documentacao",
+  "titulo": "Auditoria: Arquivos e Agentes",
+  "descricao": "Voce e o agente Frontend responsavel pela auditoria de assets e perfis. Use agentmap_arquivos_listar, agentmap_arquivos_ler e explore .ia/agentes/. Autoidentifique-se como Frontend. Reporte via agentmap_resultados_criar. Nao exclua arquivos.",
+  "objetivo": "Identificar arquivos orfaos e perfis desatualizados",
+  "tipo": "auditoria",
   "estado": "RASCUNHO",
-  "prioridade": "ALTA",
-  "agenteResponsavel": "docs-guia-01",
-  "dominio": "documentacao",
+  "prioridade": "MEDIA",
+  "agenteResponsavel": "frontend",
+  "dominio": "frontend",
   "ambiente": "desenvolvimento",
   "dependencias": [],
   "contratosObrigatorios": [],
@@ -16,19 +16,21 @@
   "arquivosProibidos": [],
   "contextoNecessario": [],
   "criteriosAceitacao": [
-    "guia-agente-mcp.md tem fluxo KILO_CHAT-KILO_REPLY-KILO_RESULT",
-    "guia-eficacia.md referencia o flow bidirecional"
+    "Registros obsoletos identificados",
+    "Relatorio gerado"
   ],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [],
-  "condicoesDeParada": [],
-  "criteriosConclusao": [],
-  "tags": [
-    "wake-up",
-    "guia",
-    "docs"
+  "restricoes": [
+    "Nao alterar dados diretamente"
   ],
+  "condicoesDeParada": [
+    "Relatorio concluido"
+  ],
+  "criteriosConclusao": [
+    "Resultado registrado via agentmap_resultados_criar"
+  ],
+  "tags": [],
   "resultado": {
     "resumo": "",
     "arquivosAlterados": [],
@@ -47,11 +49,11 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-18T22:48:29.156Z",
-    "criadoEm": "2026-08-18T22:48:29.156Z",
+    "criacao": "2026-08-22T01:52:18.035Z",
+    "criadoEm": "2026-08-22T01:52:18.035Z",
     "inicio": null,
-    "ultimaAtualizacao": "2026-08-18T22:48:29.156Z",
-    "atualizadaEm": "2026-08-18T22:48:29.156Z",
+    "ultimaAtualizacao": "2026-08-22T01:52:18.035Z",
+    "atualizadaEm": "2026-08-22T01:52:18.035Z",
     "conclusao": null
   }
 }

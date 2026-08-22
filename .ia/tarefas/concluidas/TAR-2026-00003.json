@@ -1,57 +1,97 @@
-{
-  "id": "TAR-2026-00003",
-  "titulo": "Atualizar API reference e tools MCP com monitoramento wake-up",
-  "descricao": "Documentar endpoints de monitoramento Kilo + polling eventSequence",
-  "objetivo": "Atualizar docs/api-reference.md e docs/referencia-tools-mcp.md: incluir endpoints GET /api/monitoramento/kilo/receive-chat, GET /api/monitoramento/mensagens?after=N&agenteId=X, POST /api/monitoramento/mensagens, e documentar a tool agentmap_monitoramento_verificar_pendentes com polling incremental via aposEventSequence/eventSequence. Adicionar WAKEUP_PARENT aos tipos de mensagem e documentar a tool agentmap_monitoramento_verificar_pendentes em referencia-tools-mcp.md.",
-  "tipo": "documentacao",
-  "estado": "CONCLUIDA",
-  "prioridade": "ALTA",
-  "agenteResponsavel": "docs-api-01",
-  "dominio": "documentacao",
-  "ambiente": "desenvolvimento",
-  "dependencias": [],
-  "contratosObrigatorios": [],
-  "procedimentosObrigatorios": [],
-  "arquivosPermitidos": [],
-  "arquivosProibidos": [],
-  "contextoNecessario": [],
-  "criteriosAceitacao": [
-    "api-reference.md inclui receive-chat e after param",
-    "referencia-tools-mcp.md lista monitoramento-wakeup tool completa"
-  ],
-  "testesObrigatorios": [],
-  "riscos": [],
-  "restricoes": [],
-  "condicoesDeParada": [],
-  "criteriosConclusao": [],
-  "tags": [
-    "wake-up",
-    "api",
-    "docs"
-  ],
-  "resultado": {
-    "resumo": "",
-    "arquivosAlterados": [],
-    "testesExecutados": [],
-    "testesAprovados": [],
-    "riscosEncontrados": [],
-    "pendencias": [],
-    "observacoes": "",
-    "commit": ""
-  },
-  "aprovacao": {
-    "necessaria": false,
-    "estado": "nao_solicitada",
-    "aprovador": "",
-    "data": null,
-    "observacao": ""
-  },
-  "datas": {
-    "criacao": "2026-08-18T22:48:23.876Z",
-    "criadoEm": "2026-08-18T22:48:23.876Z",
-    "inicio": "2026-08-18T22:49:20.693Z",
-    "ultimaAtualizacao": "2026-08-18T23:07:33.294Z",
-    "atualizadaEm": "2026-08-18T22:48:23.876Z",
-    "conclusao": "2026-08-18T23:07:33.294Z"
-  }
+﻿{
+    "arquivosProibidos":  [
+
+                          ],
+    "restricoes":  [
+                       "Nao alterar dados diretamente"
+                   ],
+    "resultado":  {
+                      "commit":  "",
+                      "pendencias":  [
+                                         "Definir politica de uso para modulos vazios"
+                                     ],
+                      "resumo":  "Auditoria de Projetos, Dependencias, Responsabilidades e Marcos concluida. Modulos de dependencias, responsabilidades e checkpoints estao vazios. Apenas 2 projetos cadastrados (AgentMap Sistema e Test). Nenhum registro obsoleto encontrado, mas modulos estao subutilizados.",
+                      "testesAprovados":  [
+                                              "Consulta de projetos OK",
+                                              "Consulta de dependencias OK",
+                                              "Consulta de responsabilidades OK",
+                                              "Consulta de checkpoints OK"
+                                          ],
+                      "testesExecutados":  [
+                                               "agentmap_projetos_listar",
+                                               "agentmap_dependencias_listar",
+                                               "agentmap_responsabilidades_listar",
+                                               "agentmap_checkpoints_listar",
+                                               "agentmap_obter_arquitetura"
+                                           ],
+                      "arquivosAlterados":  [
+
+                                            ],
+                      "riscosEncontrados":  [
+                                                "Modulos de dependencias, responsabilidades e checkpoints estao vazios/subutilizados"
+                                            ],
+                      "observacoes":  "Autoidentificacao: Banco. Nenhum dado foi alterado."
+                  },
+    "riscos":  [
+
+               ],
+    "dependencias":  [
+
+                     ],
+    "ambiente":  "desenvolvimento",
+    "titulo":  "Auditoria: Projetos, Dependencias, Responsabilidades e Marcos",
+    "aprovacao":  {
+                      "observacao":  "",
+                      "aprovador":  "",
+                      "necessaria":  false,
+                      "data":  null,
+                      "estado":  "nao_solicitada"
+                  },
+    "arquivosPermitidos":  [
+
+                           ],
+    "tags":  [
+
+             ],
+    "tipo":  "auditoria",
+    "contextoNecessario":  [
+
+                           ],
+    "inicio":  "2026-08-22T01:52:17.991Z",
+    "id":  "TAR-2026-00003",
+    "estado":  "CONCLUIDA",
+    "criteriosAceitacao":  [
+                               "Registros obsoletos identificados",
+                               "Relatorio gerado"
+                           ],
+    "objetivo":  "Identificar registros antigos, orfaos ou nao utilizados",
+    "datas":  {
+                  "ultimaAtualizacao":  "2026-08-22T09:18:01.189Z",
+                  "atualizadaEm":  "2026-08-22T09:18:01.189Z",
+                  "criacao":  "2026-08-22T01:52:17.991Z",
+                  "conclusao":  "2026-08-22T09:18:01.189Z",
+                  "inicio":  null,
+                  "criadoEm":  "2026-08-22T01:52:17.991Z"
+              },
+    "dominio":  "banco",
+    "testesObrigatorios":  [
+
+                           ],
+    "descricao":  "Voce e o agente Banco de Dados responsavel pela auditoria de estruturas relacionais e vinculos. Use as tools MCP, API e arquivos JSON do projeto. Autoidentifique-se como Banco. Reporte via agentmap_resultados_criar. Nao altere dados.",
+    "prioridade":  "ALTA",
+    "ultimaAtualizacao":  "2026-08-22T09:18:01.189Z",
+    "agenteResponsavel":  "banco",
+    "criteriosConclusao":  [
+                               "Resultado registrado via agentmap_resultados_criar"
+                           ],
+    "condicoesDeParada":  [
+                              "Relatorio concluido"
+                          ],
+    "conclusao":  "2026-08-22T09:18:01.189Z",
+    "contratosObrigatorios":  [
+
+                              ],
+    "procedimentosObrigatorios":  [
+
+                                  ]
 }

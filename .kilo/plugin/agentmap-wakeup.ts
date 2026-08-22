@@ -21,7 +21,7 @@ const AGENTMAP_API_URL = (globalThis as any).process?.env?.AGENTMAP_API_URL || "
 const AGENTMAP_API_KEY = (globalThis as any).process?.env?.AGENTMAP_API_KEY || "";
 const DEBOUNCE_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_DEBOUNCE_MS || "3000");
 const HEARTBEAT_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_MS || String(2 * 60 * 1000));
-const HEARTBEAT_PROMPT = (globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_PROMPT || "Aviso do AgentMap: verifique o status das tarefas no agentmap e verique as que sao para voce, se necessario se autoidentifique-se e se atualize do seu progresso ou tarefas se necessário, reporte o que precisa se ainda nao foi reportado.";
+const HEARTBEAT_PROMPT = (globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEARTBEAT_PROMPT || "";
 const RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
 const INTERRUPT_CLEANUP_MS = 5 * 60 * 1000;
 const CONFIRM_TIMEOUT_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_CONFIRM_MS || "10000");
@@ -87,6 +87,61 @@ interface MensagemPendente {
   conteudo?: string;
   eventSequence?: number;
   tipo?: string;
+}
+
+// Tipos para resposta do AgentMap /api/estado-projeto
+interface EstatisticasItem {
+  pendentes: number;
+  concluidas?: number;
+  emExecucao?: number;
+  bloqueadas?: number;
+  total?: number;
+  aprovadas?: number;
+  rejeitadas?: number;
+}
+
+interface BloqueioItem {
+  estado: string;
+  // outros campos conforme necessário
+}
+
+interface ValidacoesItem {
+  pendentes: number;
+  aprovadas?: number;
+  reprovadas?: number;
+  total?: number;
+}
+
+interface EstadoProjetoDados {
+  projetoId?: string;
+  versao?: string;
+  estado?: string;
+  resumo?: string;
+  tarefas: EstatisticasItem;
+  solicitacoes: EstatisticasItem;
+  artefatos?: { total: number; ativos: number };
+  handoffs: EstatisticasItem;
+  bloqueios: BloqueioItem[];
+  conflitos?: { total: number; abertos: number };
+  riscos?: { total: number; ativos: number; criticos: number };
+  validacoes: ValidacoesItem;
+  reservas?: { total: number; ativas: number };
+  checkpoints?: { total: number; recentes: number };
+  sessoes?: { total: number; ativas: number };
+  aprendizados?: { total: number; ativos: number };
+  integridade?: {
+    ultimaVerificacao: string;
+    inconsistencias: number;
+  };
+  datas?: {
+    atualizadaEm: string;
+  };
+}
+
+interface EstadoProjetoResponse {
+  sucesso: boolean;
+  dados: EstadoProjetoDados | EstadoProjetoDados[] | Record<string, unknown>;
+  // Outros campos possíveis
 }
 
 // ---------------------------------------------------------------------------
@@ -206,6 +261,42 @@ function montarResumo(mensagens: MensagemPendente[]): string {
     linhas.join("\n") +
     `\n\nConsulte o AgentMap para os detalhes completos antes de prosseguir.`
   );
+}
+
+async function montarHeartbeatPrompt(): Promise<string> {
+  try {
+    const url = new URL("/api/estado-projeto", AGENTMAP_API_URL);
+    const res = await fetch(url, {
+      headers: AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : undefined,
+    });
+    if (!res.ok) return "";
+    const body = (await res.json()) as Record<string, unknown>;
+    const dados = body?.dados as EstadoProjetoDados | undefined;
+    if (!dados) return "";
+
+    const partes: string[] = [];
+    if (Number(dados.tarefas?.pendentes || 0) > 0) partes.push(`${dados.tarefas.pendentes} tarefa(s) pendente(s)`);
+    if (Number(dados.solicitacoes?.pendentes || 0) > 0) partes.push(`${dados.solicitacoes.pendentes} solicitação(ões) aguardando`);
+    if (Number(dados.handoffs?.pendentes || 0) > 0) partes.push(`${dados.handoffs.pendentes} handoff(s) em andamento`);
+    const bloqueiosAtivos = Array.isArray(dados.bloqueios) ? dados.bloqueios.filter((b) => b.estado === "ATIVO").length : 0;
+    if (bloqueiosAtivos > 0) partes.push(`${bloqueiosAtivos} bloqueio(s) ativo(s)`);
+    if (Number(dados.validacoes?.pendentes || 0) > 0) partes.push(`${dados.validacoes.pendentes} validação(ões) pendente(s)`);
+
+    if (partes.length === 0) return "";
+
+    return (
+      `⚠️ Heartbeat AgentMap — há trabalho pendente no projeto:\n` +
+      partes.map((p) => `• ${p}`).join("\n") +
+      `\n\n👉 Para ver o que é seu, use as tools MCP do AgentMap:\n` +
+      `• agentmap_tarefas_listar → filtra por responsável\n` +
+      `• agentmap_handoffs_listar → filtra por destino (seu agenteId)\n` +
+      `• agentmap_sessao_atual → descubra seu agenteId\n\n` +
+      `✅ Se nada for seu → ignore este aviso.\n` +
+      `📝 Se for seu → atualize via agentmap_tarefas_atualizar ou agentmap_handoffs_atualizar.`
+    );
+  } catch {
+    return "";
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -445,7 +536,15 @@ async function cicloHeartbeat(
     return;
   }
 
-  await injetarPrompt(sessionId, client, directory, HEARTBEAT_PROMPT, "heartbeat", estado);
+  const prompt = HEARTBEAT_PROMPT || (await montarHeartbeatPrompt());
+  if (!prompt) {
+    console.log(`[agentmap-wakeup] heartbeat parado: sem prompt para sessao ${sessionId}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] heartbeat parado: sem prompt para sessao ${sessionId}`);
+    pararHeartbeat(projectId, sessionId, directory);
+    return;
+  }
+
+  await injetarPrompt(sessionId, client, directory, prompt, "heartbeat", estado);
 }
 
 async function iniciarHeartbeat(
