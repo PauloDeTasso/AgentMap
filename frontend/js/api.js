@@ -759,4 +759,8 @@ class ApiClient {
 
 const api = new ApiClient();
 
-export { api };
+export { api 
+  async resolverBloqueio(id, resolucao) {
+    return this.request(`/bloqueios/${id}/resolver`, { method: 'PUT', body: JSON.stringify({ resolucao }) });
+  }
+};

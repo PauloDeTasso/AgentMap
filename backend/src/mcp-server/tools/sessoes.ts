@@ -89,3 +89,22 @@ registerTracedTool(mcpServer, 'agentmap_sessoes_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_sessoes_excluir_todos', {
+  title: 'Excluir Todos os Sessões',
+  description: 'Exclui todas as sessões do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.sessao.excluirTodos();
+  auditoria.registrarToolCall('agentmap_sessoes_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

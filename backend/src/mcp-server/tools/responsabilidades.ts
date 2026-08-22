@@ -101,3 +101,22 @@ registerTracedTool(mcpServer, 'agentmap_responsabilidades_atualizar', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_responsabilidades_excluir_todos', {
+  title: 'Excluir Todos os Responsabilidades',
+  description: 'Exclui todas as responsabilidades do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.responsabilidade.excluirTodos();
+  auditoria.registrarToolCall('agentmap_responsabilidades_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

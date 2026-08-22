@@ -134,3 +134,22 @@ registerTracedTool(mcpServer, 'agentmap_artefatos_versoes', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_artefatos_excluir_todos', {
+  title: 'Excluir Todos os Artefatos',
+  description: 'Exclui todas as artefatos do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.artefato.excluirTodos();
+  auditoria.registrarToolCall('agentmap_artefatos_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

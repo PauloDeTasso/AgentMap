@@ -1738,7 +1738,7 @@ async function renderizarDependencias(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔗 Dependências (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-dependencia')">+ Nova Dependência</button>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-dependencia')">+ Nova Dependência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosDependencias()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma dependência registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1749,7 +1749,7 @@ async function renderizarDependencias(el) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${escapeHtml(d.id)}</td><td>${escapeHtml(d.fonteTipo)}:${escapeHtml(d.fonteId)}</td><td>${escapeHtml(d.tipo)}</td><td>${escapeHtml(d.destinoTipo)}:${escapeHtml(d.destinoId)}</td>
         <td><span class="badge badge--ativo">${escapeHtml(d.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verDependencia('${escapeAttr(d.id)}')">Ver</button></td>`;
+        <td><button class="btn btn--small" onclick="verDependencia('${escapeAttr(d.id)}')">Ver</button><button class="btn btn--small" onclick="editarDependencia('${escapeAttr(d.id)}')">Editar</button><button class="btn btn--small btn--danger" onclick="excluirDependencia('${escapeAttr(d.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1765,16 +1765,16 @@ async function renderizarResponsabilidades(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">👥 Responsabilidades (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-responsabilidade')">+ Nova Responsabilidade</button>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-responsabilidade')">+ Nova Responsabilidade</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosResponsabilidades()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma responsabilidade registrada.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>ID</th><th>Agente</th><th>Alvo</th><th>Tipo</th><th>Nível</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>ID</th><th>Agente</th><th>Alvo</th><th>Tipo</th><th>Nível</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const r of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.agenteId)}</td><td>${escapeHtml(r.alvoId)}</td><td>${escapeHtml(r.alvoTipo)}</td><td>${escapeHtml(r.nivel)}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.agenteId)}</td><td>${escapeHtml(r.alvoId)}</td><td>${escapeHtml(r.alvoTipo)}</td><td>${escapeHtml(r.nivel)}</td><td><button class="btn btn--small" onclick="verResponsabilidade('${escapeAttr(r.id)}')">Ver</button><button class="btn btn--small" onclick="editarResponsabilidade('${escapeAttr(r.id)}')">Editar</button><button class="btn btn--small btn--danger" onclick="excluirResponsabilidade('${escapeAttr(r.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1789,17 +1789,17 @@ async function renderizarSessoes(el) {
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     const ativas = items.filter((s) => !s.datas.fim);
-    el.innerHTML = `<h3>🖥️ Sessões (${items.length} total, ${ativas.length} ativas)</h3>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🖥️ Sessões (${items.length} total, ${ativas.length} ativas)</h3><div>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosSessoes()">Excluir Todos</button>' : ''}</div></div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma sessão registrada.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>ID</th><th>Agente</th><th>Tarefa</th><th>Início</th><th>Fim</th><th>Estado Final</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>ID</th><th>Agente</th><th>Tarefa</th><th>Início</th><th>Fim</th><th>Estado Final</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const s of items) {
       const tr = document.createElement('tr');
       const agente = s.agenteNome || s.agenteId;
       const tarefa = s.tarefaTitulo || s.tarefaId || '';
-      tr.innerHTML = `<td>${escapeHtml(s.id)}</td><td>${escapeHtml(agente)}</td><td>${escapeHtml(tarefa)}</td><td>${escapeHtml(s.datas.inicio || '')}</td><td>${escapeHtml(s.datas.fim || '')}</td><td>${escapeHtml(s.estadoFinal)}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(s.id)}</td><td>${escapeHtml(agente)}</td><td>${escapeHtml(tarefa)}</td><td>${escapeHtml(s.datas.inicio || '')}</td><td>${escapeHtml(s.datas.fim || '')}</td><td>${escapeHtml(s.estadoFinal)}</td><td><button class="btn btn--small" onclick="editarSessao('${escapeAttr(s.id)}')">Editar</button><button class="btn btn--small btn--danger" onclick="excluirSessao('${escapeAttr(s.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1919,15 +1919,21 @@ async function renderizarBloqueios(el) {
     const res = await api.getBloqueios();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<h3>🚫 Bloqueios (${items.length})</h3>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">🚫 Bloqueios (${items.length})</h3>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-bloqueio')">+ Novo Bloqueio</button>
+        ${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosBloqueios()">Excluir Todos</button>' : ''}
+      </div>
+    </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum bloqueio registrado.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>ID</th><th>Tarefa</th><th>Agente</th><th>Motivo</th><th>Estado</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>ID</th><th>Tarefa</th><th>Tipo</th><th>Gravidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const b of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(b.id)}</td><td>${escapeHtml(b.tarefaId)}</td><td>${escapeHtml(b.agenteId || '')}</td><td>${escapeHtml(b.motivo)}</td><td>${escapeHtml(b.estado)}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(b.id)}</td><td>${escapeHtml(b.tarefaId)}</td><td>${escapeHtml(b.tipo || '')}</td><td><span class="badge badge--${b.gravidade === 'CRITICA' ? 'bloqueada' : b.gravidade === 'ALTA' ? 'alerta' : 'ativo'}">${escapeHtml(b.gravidade)}</span></td><td><span class="badge badge--${b.estado === 'ATIVO' ? 'bloqueada' : b.estado === 'RESOLVIDO' ? 'ativo' : 'inativo'}">${escapeHtml(b.estado)}</span></td><td><button class="btn btn--small" onclick="verBloqueio('${escapeAttr(b.id)}')">Ver</button><button class="btn btn--small" onclick="editarBloqueio('${escapeAttr(b.id)}')">Editar</button>${b.estado === 'ATIVO' ? `<button class="btn btn--small btn--info" onclick="resolverBloqueio('${escapeAttr(b.id)}')">Resolver</button>` : ''}<button class="btn btn--small btn--danger" onclick="excluirBloqueio('${escapeAttr(b.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -4049,3 +4055,1023 @@ const btnLimparTemp = document.getElementById('btn-limpar-temp');
 if (btnLimparTemp) {
   btnLimparTemp.addEventListener('click', limparTemp);
 }
+
+window.abrirModalDependencia = function(dependencia = null) {
+  $('form-dependencia').reset();
+  $('dependencia-id').value = '';
+  if (dependencia) {
+    $('dependencia-id').value = dependencia.id;
+    $('dependencia-fonte-id').value = dependencia.fonteId || '';
+    $('dependencia-fonte-tipo').value = dependencia.fonteTipo || '';
+    $('dependencia-destino-id').value = dependencia.destinoId || '';
+    $('dependencia-destino-tipo').value = dependencia.destinoTipo || '';
+    $('dependencia-tipo').value = dependencia.tipo || 'FIM_INICIO';
+    $('dependencia-estado').value = dependencia.estado || 'ATIVA';
+    $('titulo-dependencia').textContent = `Editar: ${escapeHtml(dependencia.id)}`;
+  } else {
+    $('titulo-dependencia').textContent = 'Nova Dependência';
+  }
+  showModal('modal-dependencia');
+};
+
+window.editarDependencia = async function(id) {
+  try {
+    const res = await api.getDependencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalDependencia(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirDependencia = async function(id) {
+  if (!confirm(`Excluir dependência "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirDependencia(id);
+    if (res.sucesso) {
+      showToast('Dependência excluída!', 'sucesso');
+      carregarPainel('dependencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir dependência', 'erro');
+  }
+};
+
+window.excluirTodosDependencias = async function() {
+  if (!confirm('Excluir TODAS as dependências? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosDependencias();
+    if (res.sucesso) {
+      showToast('Todas as dependências foram excluídas!', 'sucesso');
+      carregarPainel('dependencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir dependências', 'erro');
+  }
+};
+
+window.verDependencia = async function(id) {
+  try {
+    const res = await api.getDependencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const d = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(d.id)}</h3>
+      <p><strong>Fonte:</strong> ${escapeHtml(d.fonteTipo)} — ${escapeHtml(d.fonteId)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(d.tipo)}</p>
+      <p><strong>Destino:</strong> ${escapeHtml(d.destinoTipo)} — ${escapeHtml(d.destinoId)}</p>
+      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(d.estado)}</span></p>
+      <p><strong>Criada em:</strong> ${d.datas?.criadaEm ? formatDate(d.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${d.datas?.atualizadaEm ? formatDate(d.datas.atualizadaEm) : '-'}</p>
+      <div style="margin-top:12px;">
+        <button class="btn btn--small" onclick="editarDependencia('${escapeAttr(d.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirDependencia('${escapeAttr(d.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalResponsabilidade = function(responsabilidade = null) {
+  $('form-responsabilidade').reset();
+  $('responsabilidade-id').value = '';
+  if (responsabilidade) {
+    $('responsabilidade-id').value = responsabilidade.id;
+    $('responsabilidade-agente-id').value = responsabilidade.agenteId || '';
+    $('responsabilidade-alvo-id').value = responsabilidade.alvoId || '';
+    $('responsabilidade-alvo-tipo').value = responsabilidade.alvoTipo || '';
+    $('responsabilidade-nivel').value = responsabilidade.nivel || 'RESPONSAVEL';
+    $('titulo-responsabilidade').textContent = `Editar: ${escapeHtml(responsabilidade.id)}`;
+  } else {
+    $('titulo-responsabilidade').textContent = 'Nova Responsabilidade';
+  }
+  showModal('modal-responsabilidade');
+};
+
+window.editarResponsabilidade = async function(id) {
+  try {
+    const res = await api.getResponsabilidade(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalResponsabilidade(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirResponsabilidade = async function(id) {
+  if (!confirm(`Excluir responsabilidade "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirResponsabilidade(id);
+    if (res.sucesso) {
+      showToast('Responsabilidade excluída!', 'sucesso');
+      carregarPainel('responsabilidades');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir responsabilidade', 'erro');
+  }
+};
+
+window.excluirTodosResponsabilidades = async function() {
+  if (!confirm('Excluir TODAS as responsabilidades? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosResponsabilidades();
+    if (res.sucesso) {
+      showToast('Todas as responsabilidades foram excluídas!', 'sucesso');
+      carregarPainel('responsabilidades');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir responsabilidades', 'erro');
+  }
+};
+
+window.verResponsabilidade = async function(id) {
+  try {
+    const res = await api.getResponsabilidade(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(r.id)}</h3>
+      <p><strong>Agente:</strong> ${escapeHtml(r.agenteId)}</p>
+      <p><strong>Alvo:</strong> ${escapeHtml(r.alvoTipo)} — ${escapeHtml(r.alvoId)}</p>
+      <p><strong>Nível:</strong> ${escapeHtml(r.nivel)}</p>
+      <p><strong>Criada em:</strong> ${r.datas?.criadaEm ? formatDate(r.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${r.datas?.atualizadaEm ? formatDate(r.datas.atualizadaEm) : '-'}</p>
+      <div style="margin-top:12px;">
+        <button class="btn btn--small" onclick="editarResponsabilidade('${escapeAttr(r.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirResponsabilidade('${escapeAttr(r.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalBloqueio = function(bloqueio = null) {
+  $('form-bloqueio').reset();
+  $('bloqueio-id').value = '';
+  if (bloqueio) {
+    $('bloqueio-id').value = bloqueio.id;
+    $('bloqueio-tarefa-id').value = bloqueio.tarefaId || '';
+    $('bloqueio-tipo').value = bloqueio.tipo || 'CONTRATO';
+    $('bloqueio-gravidade').value = bloqueio.gravidade || 'MEDIA';
+    $('bloqueio-descricao').value = bloqueio.descricao || '';
+    $('bloqueio-origem').value = bloqueio.origem || '';
+    $('bloqueio-responsavel').value = bloqueio.responsavelResolucao || '';
+    $('bloqueio-estado').value = bloqueio.estado || 'ATIVO';
+    $('titulo-bloqueio').textContent = `Editar: ${escapeHtml(bloqueio.id)}`;
+  } else {
+    $('titulo-bloqueio').textContent = 'Novo Bloqueio';
+  }
+  showModal('modal-bloqueio');
+};
+
+window.editarBloqueio = async function(id) {
+  try {
+    const res = await api.getBloqueio(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalBloqueio(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirBloqueio = async function(id) {
+  if (!confirm(`Excluir bloqueio "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirBloqueio(id);
+    if (res.sucesso) {
+      showToast('Bloqueio excluído!', 'sucesso');
+      carregarPainel('bloqueios');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir bloqueio', 'erro');
+  }
+};
+
+window.excluirTodosBloqueios = async function() {
+  if (!confirm('Excluir TODOS os bloqueios? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosBloqueios();
+    if (res.sucesso) {
+      showToast('Todos os bloqueios foram excluídos!', 'sucesso');
+      carregarPainel('bloqueios');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir bloqueios', 'erro');
+  }
+};
+
+window.verBloqueio = async function(id) {
+  try {
+    const res = await api.getBloqueio(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const b = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(b.id)}</h3>
+      <p><strong>Tarefa:</strong> ${escapeHtml(b.tarefaId)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(b.tipo)}</p>
+      <p><strong>Gravidade:</strong> <span class="badge badge--${b.gravidade === 'CRITICA' ? 'bloqueada' : 'ativo'}">${escapeHtml(b.gravidade)}</span></p>
+      <p><strong>Descrição:</strong> ${escapeHtml(b.descricao)}</p>
+      <p><strong>Origem:</strong> ${escapeHtml(b.origem)}</p>
+      <p><strong>Responsável:</strong> ${escapeHtml(b.responsavelResolucao)}</p>
+      <p><strong>Estado:</strong> <span class="badge badge--${b.estado === 'ATIVO' ? 'bloqueada' : b.estado === 'RESOLVIDO' ? 'ativo' : 'inativo'}">${escapeHtml(b.estado)}</span></p>
+      <p><strong>Criado em:</strong> ${b.criadoEm ? formatDate(b.criadoEm) : '-'}</p>
+      ${b.resolvidoEm ? `<p><strong>Resolvido em:</strong> ${formatDate(b.resolvidoEm)}</p>` : ''}
+      <div style="margin-top:12px;">
+        <button class="btn btn--small" onclick="editarBloqueio('${escapeAttr(b.id)}')">Editar</button>
+        ${b.estado === 'ATIVO' ? `<button class="btn btn--small btn--info" onclick="resolverBloqueio('${escapeAttr(b.id)}')">Resolver</button>` : ''}
+        <button class="btn btn--small btn--danger" onclick="excluirBloqueio('${escapeAttr(b.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.resolverBloqueio = async function(id) {
+  showConfirmModal('Resolver Bloqueio', {
+    resolucao: { label: 'Resolução', type: 'textarea', rows: 3 }
+  }, async (data) => {
+    try {
+      const res = await api.resolverBloqueio(id, data.resolucao);
+      if (res.sucesso) {
+        showToast('Bloqueio resolvido!', 'sucesso');
+        carregarPainel('bloqueios');
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.message || 'Erro', 'erro');
+    }
+  });
+};
+
+
+window.abrirModalSessao = function(sessao = null) {
+  const titulo = $('titulo-sessao');
+  if (sessao) {
+    titulo.textContent = 'Editar Sessao';
+    $('sessao-id').value = sessao.id;
+    $('sessao-agente-id').value = sessao.agenteId || '';
+    $('sessao-tarefa-id').value = sessao.tarefaId || '';
+    $('sessao-projeto-id').value = sessao.projetoId || '';
+    $('sessao-estado-final').value = sessao.estadoFinal || 'ATIVA';
+    $('sessao-contexto').value = sessao.contextoConsultado ? JSON.stringify(sessao.contextoConsultado, null, 2) : '';
+    $('sessao-registros').value = (sessao.registrosProduzidos || []).join('\n');
+  } else {
+    titulo.textContent = 'Nova Sessao';
+    $('sessao-id').value = '';
+    $('form-sessao').reset();
+  }
+  showModal('modal-sessao');
+};
+
+window.editarSessao = async function(id) {
+  try {
+    const res = await api.getSessao(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalSessao(res.dados);
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.excluirSessao = async function(id) {
+  if (!confirm('Excluir sessao ' + id + '?')) return;
+  try {
+    const res = await api.excluirSessao(id);
+    if (res.sucesso) {
+      showToast('Sessao excluida.', 'sucesso');
+      await carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.excluirTodasSessoes = async function() {
+  if (!confirm('Excluir TODAS as sessoes? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodasSessoes();
+    if (res.sucesso) {
+      showToast('Todas as sessoes foram excluídas.', 'sucesso');
+      await carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.finalizarSessao = async function(id) {
+  try {
+    const res = await api.finalizarSessao(id, { estadoFinal: 'CONCLUIDA' });
+    if (res.sucesso) {
+      showToast('Sessao finalizada.', 'sucesso');
+      await carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+
+window.excluirTodosSessoes = async function() {
+  if (!confirm('Excluir TODAS as sessões? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosSessoes();
+    if (res.sucesso) {
+      showToast('Todas as sessões foram excluídas!', 'sucesso');
+      carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir sessões', 'erro');
+  }
+};
+
+window.excluirTodosBloqueios = async function() {
+  if (!confirm('Excluir TODOS os bloqueios? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosBloqueios();
+    if (res.sucesso) {
+      showToast('Todos os bloqueios foram excluídos!', 'sucesso');
+      carregarPainel('bloqueios');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir bloqueios', 'erro');
+  }
+};
+
+window.excluirTodosDependencias = async function() {
+  if (!confirm('Excluir TODAS as dependências? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosDependencias();
+    if (res.sucesso) {
+      showToast('Todas as dependências foram excluídas!', 'sucesso');
+      carregarPainel('dependencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir dependências', 'erro');
+  }
+};
+
+window.excluirTodosResponsabilidades = async function() {
+  if (!confirm('Excluir TODAS as responsabilidades? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosResponsabilidades();
+    if (res.sucesso) {
+      showToast('Todas as responsabilidades foram excluídas!', 'sucesso');
+      carregarPainel('responsabilidades');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir responsabilidades', 'erro');
+  }
+};
+
+$('form-dependencia').reset();
+  $('dependencia-id').value = '';
+  if (dependencia) {
+    $('dependencia-id').value = dependencia.id;
+    $('dependencia-fonte-id').value = dependencia.fonteId || '';
+    $('dependencia-fonte-tipo').value = dependencia.fonteTipo || '';
+    $('dependencia-destino-id').value = dependencia.destinoId || '';
+    $('dependencia-destino-tipo').value = dependencia.destinoTipo || '';
+    $('dependencia-tipo').value = dependencia.tipo || 'FIM_INICIO';
+    $('dependencia-estado').value = dependencia.estado || 'ATIVA';
+    $('titulo-dependencia').textContent = `Editar: ${escapeHtml(dependencia.id)}`;
+  } else {
+    $('titulo-dependencia').textContent = 'Nova Dependência';
+  }
+  showModal('modal-dependencia');
+};
+
+window.editarDependencia = async function(id) {
+  try {
+    const res = await api.getDependencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalDependencia(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirDependencia = async function(id) {
+  if (!confirm(`Excluir dependência "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirDependencia(id);
+    if (res.sucesso) {
+      showToast('Dependência excluída!', 'sucesso');
+      carregarPainel('dependencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir dependência', 'erro');
+  }
+};
+
+window.excluirTodasDependencias = async function() {
+  if (!confirm('Excluir TODAS as dependências? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodasDependencias();
+    if (res.sucesso) {
+      showToast('Todas as dependências foram excluídas!', 'sucesso');
+      carregarPainel('dependencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir dependências', 'erro');
+  }
+};
+
+window.verDependencia = async function(id) {
+  try {
+    const res = await api.getDependencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const d = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(d.id)}</h3>
+      <p><strong>Fonte:</strong> ${escapeHtml(d.fonteTipo)} — ${escapeHtml(d.fonteId)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(d.tipo)}</p>
+      <p><strong>Destino:</strong> ${escapeHtml(d.destinoTipo)} — ${escapeHtml(d.destinoId)}</p>
+      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(d.estado)}</span></p>
+      <p><strong>Criada em:</strong> ${d.datas?.criadaEm ? formatDate(d.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${d.datas?.atualizadaEm ? formatDate(d.datas.atualizadaEm) : '-'}</p>
+      <div style="margin-top:12px;">
+        <button class="btn btn--small" onclick="editarDependencia('${escapeAttr(d.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirDependencia('${escapeAttr(d.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalResponsabilidade = function(responsabilidade = null) {
+  $('form-responsabilidade').reset();
+  $('responsabilidade-id').value = '';
+  if (responsabilidade) {
+    $('responsabilidade-id').value = responsabilidade.id;
+    $('responsabilidade-agente-id').value = responsabilidade.agenteId || '';
+    $('responsabilidade-alvo-id').value = responsabilidade.alvoId || '';
+    $('responsabilidade-alvo-tipo').value = responsabilidade.alvoTipo || '';
+    $('responsabilidade-nivel').value = responsabilidade.nivel || 'RESPONSAVEL';
+    $('titulo-responsabilidade').textContent = `Editar: ${escapeHtml(responsabilidade.id)}`;
+  } else {
+    $('titulo-responsabilidade').textContent = 'Nova Responsabilidade';
+  }
+  showModal('modal-responsabilidade');
+};
+
+window.editarResponsabilidade = async function(id) {
+  try {
+    const res = await api.getResponsabilidade(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalResponsabilidade(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirResponsabilidade = async function(id) {
+  if (!confirm(`Excluir responsabilidade "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirResponsabilidade(id);
+    if (res.sucesso) {
+      showToast('Responsabilidade excluída!', 'sucesso');
+      carregarPainel('responsabilidades');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir responsabilidade', 'erro');
+  }
+};
+
+window.excluirTodasResponsabilidades = async function() {
+  if (!confirm('Excluir TODAS as responsabilidades? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodasResponsabilidades();
+    if (res.sucesso) {
+      showToast('Todas as responsabilidades foram excluídas!', 'sucesso');
+      carregarPainel('responsabilidades');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir responsabilidades', 'erro');
+  }
+};
+
+window.verResponsabilidade = async function(id) {
+  try {
+    const res = await api.getResponsabilidade(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(r.id)}</h3>
+      <p><strong>Agente:</strong> ${escapeHtml(r.agenteId)}</p>
+      <p><strong>Alvo:</strong> ${escapeHtml(r.alvoTipo)} — ${escapeHtml(r.alvoId)}</p>
+      <p><strong>Nível:</strong> ${escapeHtml(r.nivel)}</p>
+      <p><strong>Criada em:</strong> ${r.datas?.criadaEm ? formatDate(r.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${r.datas?.atualizadaEm ? formatDate(r.datas.atualizadaEm) : '-'}</p>
+      <div style="margin-top:12px;">
+        <button class="btn btn--small" onclick="editarResponsabilidade('${escapeAttr(r.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirResponsabilidade('${escapeAttr(r.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalBloqueio = function(bloqueio = null) {
+  $('form-bloqueio').reset();
+  $('bloqueio-id').value = '';
+  if (bloqueio) {
+    $('bloqueio-id').value = bloqueio.id;
+    $('bloqueio-tarefa-id').value = bloqueio.tarefaId || '';
+    $('bloqueio-tipo').value = bloqueio.tipo || 'CONTRATO';
+    $('bloqueio-gravidade').value = bloqueio.gravidade || 'MEDIA';
+    $('bloqueio-descricao').value = bloqueio.descricao || '';
+    $('bloqueio-origem').value = bloqueio.origem || '';
+    $('bloqueio-responsavel').value = bloqueio.responsavelResolucao || '';
+    $('bloqueio-estado').value = bloqueio.estado || 'ATIVO';
+    $('titulo-bloqueio').textContent = `Editar: ${escapeHtml(bloqueio.id)}`;
+  } else {
+    $('titulo-bloqueio').textContent = 'Novo Bloqueio';
+  }
+  showModal('modal-bloqueio');
+};
+
+window.editarBloqueio = async function(id) {
+  try {
+    const res = await api.getBloqueio(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalBloqueio(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirBloqueio = async function(id) {
+  if (!confirm(`Excluir bloqueio "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirBloqueio(id);
+    if (res.sucesso) {
+      showToast('Bloqueio excluído!', 'sucesso');
+      carregarPainel('bloqueios');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir bloqueio', 'erro');
+  }
+};
+
+window.excluirTodosBloqueios = async function() {
+  if (!confirm('Excluir TODOS os bloqueios? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosBloqueios();
+    if (res.sucesso) {
+      showToast('Todos os bloqueios foram excluídos!', 'sucesso');
+      carregarPainel('bloqueios');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir bloqueios', 'erro');
+  }
+};
+
+window.verBloqueio = async function(id) {
+  try {
+    const res = await api.getBloqueio(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const b = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(b.id)}</h3>
+      <p><strong>Tarefa:</strong> ${escapeHtml(b.tarefaId)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(b.tipo)}</p>
+      <p><strong>Gravidade:</strong> <span class="badge badge--${b.gravidade === 'CRITICA' ? 'bloqueada' : 'ativo'}">${escapeHtml(b.gravidade)}</span></p>
+      <p><strong>Descrição:</strong> ${escapeHtml(b.descricao)}</p>
+      <p><strong>Origem:</strong> ${escapeHtml(b.origem)}</p>
+      <p><strong>Responsável:</strong> ${escapeHtml(b.responsavelResolucao)}</p>
+      <p><strong>Estado:</strong> <span class="badge badge--${b.estado === 'ATIVO' ? 'bloqueada' : b.estado === 'RESOLVIDO' ? 'ativo' : 'inativo'}">${escapeHtml(b.estado)}</span></p>
+      <p><strong>Criado em:</strong> ${b.criadoEm ? formatDate(b.criadoEm) : '-'}</p>
+      ${b.resolvidoEm ? `<p><strong>Resolvido em:</strong> ${formatDate(b.resolvidoEm)}</p>` : ''}
+      <div style="margin-top:12px;">
+        <button class="btn btn--small" onclick="editarBloqueio('${escapeAttr(b.id)}')">Editar</button>
+        ${b.estado === 'ATIVO' ? `<button class="btn btn--small btn--info" onclick="resolverBloqueio('${escapeAttr(b.id)}')">Resolver</button>` : ''}
+        <button class="btn btn--small btn--danger" onclick="excluirBloqueio('${escapeAttr(b.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.resolverBloqueio = async function(id) {
+  showConfirmModal('Resolver Bloqueio', {
+    resolucao: { label: 'Resolução', type: 'textarea', rows: 3 }
+  }, async (data) => {
+    try {
+      const res = await api.resolverBloqueio(id, data.resolucao);
+      if (res.sucesso) {
+        showToast('Bloqueio resolvido!', 'sucesso');
+        carregarPainel('bloqueios');
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.message || 'Erro', 'erro');
+    }
+  });
+};
+
+window.abrirModalTarefa = function() {
+  const select = $('tarefa-agente');
+  select.innerHTML = '';
+  for (const a of estado.agentes) {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = a.nome;
+    select.appendChild(opt);
+  }
+  $('form-tarefa').reset();
+  $('tarefa-id').value = '';
+  $('titulo-tarefa').textContent = 'Nova Tarefa';
+  showModal('modal-tarefa');
+};
+
+window.editarTarefa = async function(id) {
+  try {
+    const res = await api.obterTarefa(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const t = res.dados;
+    const select = $('tarefa-agente');
+    select.innerHTML = '';
+    const agentesRes = await api.getAgentes();
+    const agentes = (agentesRes.sucesso ? (Array.isArray(agentesRes.dados) ? agentesRes.dados : agentesRes.dados?.agentes || []) : estado.agentes) || [];
+    for (const a of agentes) {
+      const opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.nome;
+      if (a.id === t.agenteResponsavel) opt.selected = true;
+      select.appendChild(opt);
+    }
+    $('tarefa-id').value = t.id;
+    $('tarefa-titulo').value = t.titulo;
+    $('tarefa-objetivo').value = t.objetivo;
+    $('tarefa-tipo').value = t.tipo;
+    $('tarefa-dominio').value = t.dominio;
+    $('tarefa-prioridade').value = t.prioridade;
+    $('tarefa-estimativa').value = t.estimativaHoras || '';
+    $('tarefa-data-limite').value = t.dataLimite || '';
+    $('tarefa-dependencias').value = (t.dependencias || []).join('\n');
+    $('tarefa-criterios').value = (t.criteriosAceitacao || []).join('\n');
+    $('tarefa-arquivos-esperados').value = (t.arquivosPermitidos || []).join('\n');
+    $('tarefa-contexto').value = (t.contextoNecessario || []).join('\n');
+    $('tarefa-contratos').value = (t.contratosObrigatorios || []).join(', ');
+    $('tarefa-tags').value = (t.tags || []).join(', ');
+    $('titulo-tarefa').textContent = 'Editar Tarefa';
+    showModal('modal-tarefa');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.verContexto = async function(id) {
+  try {
+    const res = await api.getTarefaContexto(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    $('contexto-texto').value = JSON.stringify(res.dados, null, 2);
+    showModal('modal-contexto');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.verTarefa = async function(id) {
+  try {
+    const res = await api.obterTarefa(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const t = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(t.id)} — ${escapeHtml(t.titulo)}</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--${t.estado}">${escapeHtml(t.estado)}</span> | <strong>Prioridade:</strong> ${escapeHtml(t.prioridade)}</p>
+      <p><strong>Objetivo:</strong> ${escapeHtml(t.objetivo || '')}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(t.tipo)} | <strong>Domínio:</strong> ${escapeHtml(t.dominio)} | <strong>Ambiente:</strong> ${escapeHtml(t.ambiente)}</p>
+      <p><strong>Agente Responsável:</strong> ${escapeHtml(agenteNomePorId(t.agenteResponsavel))}</p>
+      <p><strong>Contratos Obrigatórios:</strong> ${escapeHtml((t.contratosObrigatorios || []).join(', ') || 'Nenhum')}</p>
+      <p><strong>Critérios de Aceitação:</strong> ${escapeHtml((t.criteriosAceitacao || []).join(', ') || 'Nenhum')}</p>
+      <p><strong>Dependências:</strong> ${escapeHtml((t.dependencias || []).join(', ') || 'Nenhuma')}</p>
+      <p><strong>Estimativa:</strong> ${t.estimativaHoras ? escapeHtml(t.estimativaHoras + 'h') : 'N/A'}</p>
+      <p><strong>Data Limite:</strong> ${escapeHtml(t.dataLimite || 'N/A')}</p>
+      <p><strong>Tags:</strong> ${escapeHtml((t.tags || []).join(', ') || 'N/A')}</p>
+      <p><strong>Arquivos Esperados:</strong> ${escapeHtml((t.arquivosPermitidos || []).join(', ') || 'N/A')}</p>
+      <p><strong>Contexto:</strong> ${escapeHtml((t.contextoNecessario || []).join('; ') || 'N/A')}</p>
+      ${t.datas?.inicio ? `<p><strong>Início:</strong> ${formatDate(t.datas.inicio)}</p>` : ''}
+      ${t.datas?.conclusao ? `<p><strong>Conclusão:</strong> ${formatDate(t.datas.conclusao)}</p>` : ''}
+      <p><strong>Criada em:</strong> ${t.datas?.criacao ? formatDate(t.datas.criacao) : '-'}</p>
+      <p><strong>Última atualização:</strong> ${t.datas?.ultimaAtualizacao ? formatDate(t.datas.ultimaAtualizacao) : '-'}</p>
+    </div>`;
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    el.innerHTML = '';
+    el.appendChild(container);
+    const relacionados = await carregarItensRelacionados('tarefa', t.id);
+    const relEl = document.createElement('div');
+    relEl.innerHTML = renderizarSecaoRelacionados(relacionados);
+    el.appendChild(relEl);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalContrato = function(contrato = null) {
+  $('form-contrato').reset();
+  $('contrato-id').value = '';
+  $('contrato-id-input').disabled = false;
+  if (contrato) {
+    $('contrato-id').value = contrato.id;
+    $('contrato-id-input').disabled = true;
+    $('contrato-id-input').value = contrato.id;
+    $('contrato-nome').value = contrato.nome || '';
+    $('contrato-versao').value = contrato.versao || '1.0.0';
+    $('contrato-estado').value = contrato.estado || 'ativo';
+    $('contrato-obrigatorio').checked = !!contrato.obrigatorio;
+    $('contrato-descricao').value = contrato.descricao || '';
+    $('contrato-objetivo').value = contrato.objetivo || '';
+    $('contrato-regras').value = (contrato.regras || []).join('\n');
+    $('contrato-restricoes').value = (contrato.restricoes || []).join('\n');
+    $('titulo-contrato').textContent = `Editar: ${escapeHtml(contrato.nome)}`;
+  } else {
+    $('contrato-id-input').value = '';
+    $('titulo-contrato').textContent = 'Novo Contrato';
+  }
+  showModal('modal-contrato');
+};
+
+window.verContrato = async function(id) {
+  try {
+    const res = await api.getContrato(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const c = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">${escapeHtml(c.nome)}</h3>
+      <div>
+        <button class="btn btn--small" onclick="editarContrato('${escapeAttr(c.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirContrato('${escapeAttr(c.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    html += `<p><strong>ID:</strong> ${escapeHtml(c.id)}</p>
+      <p><strong>Versão:</strong> ${escapeHtml(c.versao)}</p>
+      <p><strong>Estado:</strong> ${escapeHtml(c.estado)}</p>
+      <p><strong>Obrigatório:</strong> ${c.obrigatorio ? '✓' : ''}</p>
+      <p><strong>Descrição:</strong> ${escapeHtml(c.descricao || '')}</p>
+      <p><strong>Objetivo:</strong> ${escapeHtml(c.objetivo || '')}</p>`;
+    if (c.regras?.length) {
+      html += `<p><strong>Regras:</strong></p><ul>${c.regras.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`;
+    }
+    if (c.restricoes?.length) {
+      html += `<p><strong>Restrições:</strong></p><ul>${c.restricoes.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`;
+    }
+    el.innerHTML = html;
+    const relacionados = await carregarItensRelacionados('artefato', c.id);
+    const relEl = document.createElement('div');
+    relEl.innerHTML = renderizarSecaoRelacionados(relacionados);
+    el.appendChild(relEl);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarContrato = async function(id) {
+  try {
+    const res = await api.getContrato(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalContrato(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirContrato = async function(id) {
+  if (!confirm(`Excluir contrato "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirContrato(id);
+    if (res.sucesso) {
+      showToast('Contrato excluído!', 'sucesso');
+      carregarPainel('contratos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+  $('form-contrato').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-contrato').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('contrato-id').value;
+    const dados = {
+      id: $('contrato-id-input').value.trim(),
+      nome: $('contrato-nome').value.trim(),
+      versao: $('contrato-versao').value.trim(),
+      estado: $('contrato-estado').value,
+      obrigatorio: $('contrato-obrigatorio').checked,
+      descricao: $('contrato-descricao').value.trim(),
+      objetivo: $('contrato-objetivo').value.trim(),
+      regras: $('contrato-regras').value.split('\n').map(s => s.trim()).filter(s => s),
+      restricoes: $('contrato-restricoes').value.split('\n').map(s => s.trim()).filter(s => s)
+    };
+    if (!dados.id || !dados.nome || !dados.versao) {
+      showToast('ID, Nome e Versão são obrigatórios', 'erro');
+      restoreButton(btn);
+      return;
+    }
+    try {
+      const res = id ? await api.atualizarContrato(dados) : await api.criarContrato(dados);
+      if (res.sucesso) {
+        showToast('Contrato salvo!', 'sucesso');
+        hideModal('modal-contrato');
+        carregarPainel('contratos');
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.erro || 'Erro ao salvar contrato', 'erro');
+    } finally {
+      restoreButton(btn);
+    }
+  });
+
+  $('form-tarefa').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-tarefa').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('tarefa-id').value;
+    const dados = {
+      titulo: $('tarefa-titulo').value.trim(),
+      objetivo: $('tarefa-objetivo').value.trim(),
+      tipo: $('tarefa-tipo').value.trim(),
+      agenteResponsavel: $('tarefa-agente').value,
+      dominio: $('tarefa-dominio').value.trim(),
+      prioridade: $('tarefa-prioridade').value,
+      estimativaHoras: $('tarefa-estimativa').value ? Number($('tarefa-estimativa').value) : undefined,
+      dataLimite: $('tarefa-data-limite').value || undefined,
+      dependencias: ($('tarefa-dependencias').value || '').split('\n').map(s => s.trim()).filter(s => s),
+      criteriosAceitacao: $('tarefa-criterios').value.split('\n').map(s => s.trim()).filter(s => s),
+      arquivosPermitidos: ($('tarefa-arquivos-esperados').value || '').split('\n').map(s => s.trim()).filter(s => s),
+      contextoNecessario: ($('tarefa-contexto').value || '').split('\n').map(s => s.trim()).filter(s => s),
+      contratosObrigatorios: $('tarefa-contratos').value.split(',').map(s => s.trim()).filter(s => s),
+      tags: ($('tarefa-tags').value || '').split(',').map(s => s.trim()).filter(s => s)
+    };
+    if (!dados.titulo || !dados.objetivo || !dados.agenteResponsavel || !dados.dominio) {
+      showToast('Campos marcados com * são obrigatórios', 'erro');
+      restoreButton(btn);
+      return;
+    }
+    try {
+      let res;
+      if (id) {
+        res = await api.atualizarTarefa(id, dados);
+      } else {
+        res = await api.criarTarefa(dados);
+      }
+      if (res.sucesso) {
+        showToast('Tarefa salva!', 'sucesso');
+        hideModal('modal-tarefa');
+        carregarPainel('tarefas');
+      } else {
+        showToast(res.erro, 'erro');
+      }
+    } catch (err) {
+      showToast(err?.erro || 'Erro ao salvar tarefa', 'erro');
+    } finally {
+      restoreButton(btn);
+    }
+  });
+
+$('btn-cancelar-tarefa').addEventListener('click', () => hideModal('modal-tarefa'));
+
+// Agent form handlers
+
+$('form-sessao').reset();
+  }
+  showModal('modal-sessao');
+};
+
+window.editarSessao = async function(id) {
+  try {
+    const res = await api.getSessao(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalSessao(res.dados);
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.excluirSessao = async function(id) {
+  if (!confirm('Excluir sessao ' + id + '?')) return;
+  try {
+    const res = await api.excluirSessao(id);
+    if (res.sucesso) {
+      showToast('Sessao excluida.', 'sucesso');
+      await carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.excluirTodasSessoes = async function() {
+  if (!confirm('Excluir TODAS as sessoes? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodasSessoes();
+    if (res.sucesso) {
+      showToast('Todas as sessoes foram excluídas.', 'sucesso');
+      await carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.finalizarSessao = async function(id) {
+  try {
+    const res = await api.finalizarSessao(id, { estadoFinal: 'CONCLUIDA' });
+    if (res.sucesso) {
+      showToast('Sessao finalizada.', 'sucesso');
+      await carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || err, 'erro');
+  }
+};
+
+window.abrirModalCriterio = function(criterio = null) {
+  const titulo = $('titulo-criterio');
+  if (criterio) {
+    titulo.textContent = 'Editar Criterio';
+    $('criterio-id').value = criterio.id;
+    $('criterio-tarefa-id').value = criterio.tarefaId || '';
+    $('criterio-descricao').value = criterio.descricao || '';
+    $('criterio-tipo').value = criterio.tipo || 'FUNCIONAL';
+    $('criterio-estado').value = criterio.estado || 'PENDENTE';
+    $('criterio-obrigatorio').checked = criterio.obrigatorio !== false;
+    $('criterio-dados').value = criterio.dados || '';
+  } else {
+    titulo.textContent = 'Novo Criterio';
+    $('criterio-id').value = '';
+    

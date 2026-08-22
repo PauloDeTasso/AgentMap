@@ -121,3 +121,22 @@ registerTracedTool(mcpServer, 'agentmap_reservas_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_reservas_excluir_todos', {
+  title: 'Excluir Todos os Reservas',
+  description: 'Exclui todas as reservas do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.boolean(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.reserva.excluirTodos();
+  auditoria.registrarToolCall('agentmap_reservas_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

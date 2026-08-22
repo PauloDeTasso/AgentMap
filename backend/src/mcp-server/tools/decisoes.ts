@@ -112,3 +112,22 @@ registerTracedTool(mcpServer, 'agentmap_decisoes_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_decisoes_excluir_todos', {
+  title: 'Excluir Todos os Decisões',
+  description: 'Exclui todas as decisões do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.boolean(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.decisao.excluirTodos();
+  auditoria.registrarToolCall('agentmap_decisoes_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

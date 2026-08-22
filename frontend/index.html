@@ -1059,6 +1059,240 @@
      </div>
    </div>
 
+
+
+
+
+
+
+<div class="modal" id="modal-dependencia" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-dependencia')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-dependencia">Nova Dependência</h3>
+       <form class="form" id="form-dependencia">
+         <input type="hidden" id="dependencia-id">
+         <div class="form__grupo">
+           <label class="form__label" for="dependencia-fonte-id">Fonte ID *</label>
+           <input class="form__input" type="text" id="dependencia-fonte-id" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="dependencia-fonte-tipo">Fonte Tipo *</label>
+           <input class="form__input" type="text" id="dependencia-fonte-tipo" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="dependencia-destino-id">Destino ID *</label>
+           <input class="form__input" type="text" id="dependencia-destino-id" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="dependencia-destino-tipo">Destino Tipo *</label>
+           <input class="form__input" type="text" id="dependencia-destino-tipo" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="dependencia-tipo">Tipo *</label>
+           <select class="form__input" id="dependencia-tipo" required>
+             <option value="FIM_INICIO">Fim-Início</option>
+             <option value="FIM_INICIO_PINSTARTER">Fim-Início com Início Parcial</option>
+             <option value="INICIO_INICIO">Início-Início</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="dependencia-estado">Estado *</label>
+           <select class="form__input" id="dependencia-estado" required>
+             <option value="ATIVA">Ativa</option>
+             <option value="CIRCULAR">Circular</option>
+             <option value="RESOLVIDA">Resolvida</option>
+             <option value="CANCELADA">Cancelada</option>
+           </select>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-dependencia')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+<div class="modal" id="modal-responsabilidade" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-responsabilidade')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-responsabilidade">Nova Responsabilidade</h3>
+       <form class="form" id="form-responsabilidade">
+         <input type="hidden" id="responsabilidade-id">
+         <div class="form__grupo">
+           <label class="form__label" for="responsabilidade-agente-id">Agente ID *</label>
+           <input class="form__input" type="text" id="responsabilidade-agente-id" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="responsabilidade-alvo-id">Alvo ID *</label>
+           <input class="form__input" type="text" id="responsabilidade-alvo-id" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="responsabilidade-alvo-tipo">Alvo Tipo *</label>
+           <input class="form__input" type="text" id="responsabilidade-alvo-tipo" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="responsabilidade-nivel">Nível *</label>
+           <select class="form__input" id="responsabilidade-nivel" required>
+             <option value="RESPONSAVEL">Responsável</option>
+             <option value="CONSULTADO">Consultado</option>
+             <option value="INFORMADO">Informado</option>
+             <option value="APROVADOR">Aprovador</option>
+           </select>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-responsabilidade')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+<div class="modal" id="modal-bloqueio" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-bloqueio')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-bloqueio">Novo Bloqueio</h3>
+       <form class="form" id="form-bloqueio">
+         <input type="hidden" id="bloqueio-id">
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-tarefa-id">Tarefa ID *</label>
+           <input class="form__input" type="text" id="bloqueio-tarefa-id" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-tipo">Tipo *</label>
+           <select class="form__input" id="bloqueio-tipo" required>
+             <option value="CONTRATO">Contrato</option>
+             <option value="RECURSO">Recurso</option>
+             <option value="DECISAO">Decisão</option>
+             <option value="VALIDACAO">Validação</option>
+             <option value="EXTERNO">Externo</option>
+             <option value="OUTRO">Outro</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-gravidade">Gravidade *</label>
+           <select class="form__input" id="bloqueio-gravidade" required>
+             <option value="BAIXA">Baixa</option>
+             <option value="MEDIA">Média</option>
+             <option value="ALTA">Alta</option>
+             <option value="CRITICA">Crítica</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-descricao">Descrição *</label>
+           <textarea class="form__textarea" id="bloqueio-descricao" rows="3" required></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-origem">Origem *</label>
+           <input class="form__input" type="text" id="bloqueio-origem" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-responsavel">Responsável Resolução *</label>
+           <input class="form__input" type="text" id="bloqueio-responsavel" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-estado">Estado *</label>
+           <select class="form__input" id="bloqueio-estado" required>
+             <option value="ATIVO">Ativo</option>
+             <option value="RESOLVIDO">Resolvido</option>
+             <option value="CANCELADO">Cancelado</option>
+           </select>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-bloqueio')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+<div class="modal" id="modal-sessao" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-sessao')">&times;</button>
+      <h3 class="modal__titulo" id="titulo-sessao">Nova Sessao</h3>
+      <form class="form" id="form-sessao">
+        <input type="hidden" id="sessao-id">
+        <div class="form__grupo">
+          <label class="form__label" for="sessao-agente-id">Agente ID *</label>
+          <input class="form__input" type="text" id="sessao-agente-id" required>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="sessao-tarefa-id">Tarefa ID</label>
+          <input class="form__input" type="text" id="sessao-tarefa-id">
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="sessao-projeto-id">Projeto ID *</label>
+          <input class="form__input" type="text" id="sessao-projeto-id" required>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="sessao-estado-final">Estado Final</label>
+          <select class="form__input" id="sessao-estado-final">
+            <option value="ATIVA">ATIVA</option>
+            <option value="FINALIZADA">FINALIZADA</option>
+            <option value="CANCELADA">CANCELADA</option>
+          </select>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="sessao-contexto">Contexto Consultado (JSON)</label>
+          <textarea class="form__textarea" id="sessao-contexto" rows="3" placeholder='{"tarefaId": "..."}'></textarea>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="sessao-registros">Registros Produzidos (um por linha)</label>
+          <textarea class="form__textarea" id="sessao-registros" rows="3"></textarea>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-sessao')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<div class="modal" id="modal-criterio" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-criterio')">&times;</button>
+      <h3 class="modal__titulo" id="titulo-criterio">Novo Criterio</h3>
+      <form class="form" id="form-criterio">
+        <input type="hidden" id="criterio-id">
+        <div class="form__grupo">
+          <label class="form__label" for="criterio-tarefa-id">Tarefa ID *</label>
+          <input class="form__input" type="text" id="criterio-tarefa-id" required>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="criterio-descricao">Descricao *</label>
+          <textarea class="form__textarea" id="criterio-descricao" rows="2" required></textarea>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="criterio-tipo">Tipo *</label>
+          <select class="form__input" id="criterio-tipo" required>
+            <option value="FUNCIONAL">FUNCIONAL</option>
+            <option value="NEFUNCIONAL">NEFUNCIONAL</option>
+            <option value="REGRA_NEGOCIO">REGRA_NEGOCIO</option>
+            <option value="DESIGUALDADE">DESIGUALDADE</option>
+          </select>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label" for="criterio-estado">Estado *</label>
+          <select class="form__input" id="criterio-estado" required>
+            <option value="PENDENTE">PENDENTE</option>
+            <option value="SATISFEITO">SATISFEITO</option>
+            <option value="INSATISFEITO">INSATISFEITO</option>
+          </select>
+        </div>
+        <div class="form__grupo">
+          <label class="form__checkbox"><input type="checkbox" id="criterio-obrigatorio" checked> Obrigatorio</label>
+        </div>
+        <div class="form__grupo form__grupo_full">
+          <label class="form__label" for="criterio-dados">Dados (JSON opcional)</label>
+          <textarea class="form__textarea" id="criterio-dados" rows="2" placeholder='{"nota": "..."}'></textarea>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-criterio')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
    <script src="js/app.js?v=20260817-projetos" type="module"></script>
 </body>
 </html>
