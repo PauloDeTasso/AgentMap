@@ -91,3 +91,20 @@ registerTracedTool(mcpServer, 'agentmap_checkpoints_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_checkpoints_atualizar', {
+  title: 'Atualizar Checkpoint',
+  description: 'Atualiza um checkpoint existente.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: checkpointSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.checkpoint.atualizar(String(id || ''), dados);
+  auditoria.registrarToolCall('agentmap_checkpoints_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

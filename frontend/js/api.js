@@ -386,8 +386,16 @@ class ApiClient {
     return this.request('/artefatos', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarArtefato(id, dados) {
+    return this.request(`/artefatos/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirArtefato(id) {
     return this.request(`/artefatos/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosArtefatos() {
+    return this.request('/artefatos', { method: 'DELETE' });
   }
 
   async getHandoffs(agenteId = null) {
@@ -534,8 +542,16 @@ class ApiClient {
     return this.request('/checkpoints', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarCheckpoint(id, dados) {
+    return this.request(`/checkpoints/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirCheckpoint(id) {
     return this.request(`/checkpoints/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosCheckpoints() {
+    return this.request('/checkpoints', { method: 'DELETE' });
   }
 
   async getAprendizados() {
@@ -550,8 +566,16 @@ class ApiClient {
     return this.request('/aprendizados', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarAprendizado(id, dados) {
+    return this.request(`/aprendizados/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirAprendizado(id) {
     return this.request(`/aprendizados/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosAprendizados() {
+    return this.request('/aprendizados', { method: 'DELETE' });
   }
 
   async getDependencias(fonteId = null, destinoId = null) {

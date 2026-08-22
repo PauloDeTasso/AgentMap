@@ -88,5 +88,50 @@ export class AprendizadoService {
     this.fs.excluir(this.getAprendizadoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async atualizar(id: string, dados: Partial<Aprendizado>): Promise<ResultadoOperacao<Aprendizado>> {
+    const result = this.obter(id);
+    if (!result.sucesso || !result.dados) return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    const atual: Aprendizado = result.dados;
+    const { id: _id, ...resto } = dados as Partial<Aprendizado> & { id?: string };
+    const atualizado: Aprendizado = {
+      ...atual,
+      ...resto,
+      id: atual.id,
+      datas: { ...atual.datas, atualizadaEm: new Date().toISOString() }
+    };
+
+    const validation = this.validator.validar('aprendizado', atualizado);
+    if (!validation.valido) return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
+
+    const fileResult = this.fs.escreverJson(this.getAprendizadoPath(id), atualizado, { backup: true });
+    if (!fileResult.sucesso) return { sucesso: false, erro: fileResult.erro, codigoErro: fileResult.codigoErro };
+
+    const registryResult = this.carregarRegistry();
+    if (registryResult.sucesso && registryResult.dados) {
+      const idx = registryResult.dados.aprendizados.findIndex((a) => a.id === id);
+      if (idx >= 0) {
+        registryResult.dados.aprendizados[idx] = atualizado;
+        this.salvarRegistry(registryResult.dados);
+      }
+    }
+
+    this.auditoria.registrar('APRENDIZADO_ATUALIZADO', `Aprendizado '${id}' atualizado.`, { aprendizadoId: id });
+    return { sucesso: true, dados: atualizado };
+  }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const aprendizados = registryResult.dados.aprendizados;
+    let removidos = 0;
+    for (const a of aprendizados) {
+      this.fs.excluir(this.getAprendizadoPath(a.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ aprendizados: [] });
+    this.auditoria.registrar('APRENDIZADOS_EXCLUIDOS', `Todos os aprendizados (${removidos}) foram removidos.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

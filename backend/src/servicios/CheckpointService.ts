@@ -97,5 +97,50 @@ export class CheckpointService {
     this.fs.excluir(this.getCheckpointPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async atualizar(id: string, dados: Partial<Checkpoint>): Promise<ResultadoOperacao<Checkpoint>> {
+    const result = this.obter(id);
+    if (!result.sucesso || !result.dados) return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    const atual: Checkpoint = result.dados;
+    const { id: _id, ...resto } = dados as Partial<Checkpoint> & { id?: string };
+    const atualizado: Checkpoint = {
+      ...atual,
+      ...resto,
+      id: atual.id,
+      datas: { ...atual.datas, atualizadaEm: new Date().toISOString() }
+    };
+
+    const validation = this.validator.validar('checkpoint', atualizado);
+    if (!validation.valido) return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
+
+    const fileResult = this.fs.escreverJson(this.getCheckpointPath(id), atualizado, { backup: true });
+    if (!fileResult.sucesso) return { sucesso: false, erro: fileResult.erro, codigoErro: fileResult.codigoErro };
+
+    const registryResult = this.carregarRegistry();
+    if (registryResult.sucesso && registryResult.dados) {
+      const idx = registryResult.dados.checkpoints.findIndex((c) => c.id === id);
+      if (idx >= 0) {
+        registryResult.dados.checkpoints[idx] = atualizado;
+        this.salvarRegistry(registryResult.dados);
+      }
+    }
+
+    this.auditoria.registrar('CHECKPOINT_ATUALIZADO', `Checkpoint '${id}' atualizado.`, { checkpointId: id });
+    return { sucesso: true, dados: atualizado };
+  }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const checkpoints = registryResult.dados.checkpoints;
+    let removidos = 0;
+    for (const c of checkpoints) {
+      this.fs.excluir(this.getCheckpointPath(c.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ checkpoints: [] });
+    this.auditoria.registrar('CHECKPOINTS_EXCLUIDOS', `Todos os checkpoints (${removidos}) foram removidos.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 
