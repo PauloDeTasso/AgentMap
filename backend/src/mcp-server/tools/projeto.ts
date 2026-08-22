@@ -95,6 +95,20 @@ registerTracedTool(mcpServer, 'agentmap_projetos_atual', {
   return mcpError(resultado);
 });
 
+registerTracedTool(mcpServer, 'agentmap_projetos_excluir_todos', {
+  title: 'Excluir Todos os Projetos',
+  description: 'Exclui todos os projetos registrados no AgentMap.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const resultado = projetoService.excluirTodos();
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
 registerTracedTool(mcpServer, 'agentmap_integridade_verificar', {
   title: 'Verificar Integridade',
   description: 'Verifica a integridade do projeto aberto.',
