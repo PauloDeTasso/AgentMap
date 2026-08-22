@@ -71,6 +71,23 @@ registerTracedTool(mcpServer, 'agentmap_reservas_criar', {
   return toMcpStructured(resultado.dados);
 });
 
+registerTracedTool(mcpServer, 'agentmap_reservas_atualizar', {
+  title: 'Atualizar Reserva',
+  description: 'Atualiza uma reserva.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: reservaSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.reserva.atualizar(String(id || ''), dados as any);
+  auditoria.registrarToolCall('agentmap_reservas_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
 registerTracedTool(mcpServer, 'agentmap_reservas_liberar', {
   title: 'Liberar Reserva',
   description: 'Libera uma reserva.',

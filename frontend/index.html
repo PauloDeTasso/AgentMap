@@ -857,6 +857,208 @@
     </div>
   </div>
 
+   <div class="modal" id="modal-resultado" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-resultado')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-resultado">Novo Resultado</h3>
+       <form class="form" id="form-resultado">
+         <input type="hidden" id="resultado-id">
+         <div class="form__grupo">
+           <label class="form__label" for="resultado-tarefa-id">Tarefa ID</label>
+           <input class="form__input" type="text" id="resultado-tarefa-id">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="resultado-agente-id">Agente ID</label>
+           <input class="form__input" type="text" id="resultado-agente-id">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="resultado-resumo">Resumo</label>
+           <textarea class="form__textarea" id="resultado-resumo" rows="2"></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="resultado-estado">Estado</label>
+           <select class="form__input" id="resultado-estado">
+             <option value="COMPLETO">COMPLETO</option>
+             <option value="PARCIAL">PARCIAL</option>
+             <option value="INCOMPLETO">INCOMPLETO</option>
+           </select>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="resultado-observacoes">Observações</label>
+           <textarea class="form__textarea" id="resultado-observacoes" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-resultado')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Modal: Reserva -->
+   <div class="modal" id="modal-reserva" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-reserva')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-reserva">Nova Reserva</h3>
+       <form class="form" id="form-reserva">
+         <input type="hidden" id="reserva-id">
+         <div class="form__grupo">
+           <label class="form__label" for="reserva-alvo">Alvo</label>
+           <input class="form__input" type="text" id="reserva-alvo">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="reserva-tipo-alvo">Tipo Alvo</label>
+           <select class="form__input" id="reserva-tipo-alvo">
+             <option value="ARQUIVO">ARQUIVO</option>
+             <option value="PASTA">PASTA</option>
+             <option value="RECURSO">RECURSO</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="reserva-agente-id">Agente ID</label>
+           <input class="form__input" type="text" id="reserva-agente-id">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="reserva-estado">Estado</label>
+           <select class="form__input" id="reserva-estado">
+             <option value="ATIVA">ATIVA</option>
+             <option value="CANCELADA">CANCELADA</option>
+             <option value="CONCLUIDA">CONCLUIDA</option>
+           </select>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="reserva-observacoes">Observações</label>
+           <textarea class="form__textarea" id="reserva-observacoes" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-reserva')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Modal: Decisão -->
+   <div class="modal" id="modal-decisao" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-decisao')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-decisao">Nova Decisão</h3>
+       <form class="form" id="form-decisao">
+         <input type="hidden" id="decisao-id">
+         <div class="form__grupo">
+           <label class="form__label" for="decisao-titulo">Título</label>
+           <input class="form__input" type="text" id="decisao-titulo">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="decisao-estado">Estado</label>
+           <select class="form__input" id="decisao-estado">
+             <option value="ATIVA">ATIVA</option>
+             <option value="ARQUIVADA">ARQUIVADA</option>
+             <option value="RESPALDADA">RESPALDADA</option>
+             <option value="CANCELADA">CANCELADA</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="decisao-data">Data</label>
+           <input class="form__input" type="date" id="decisao-data">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="decisao-problema">Problema</label>
+           <textarea class="form__textarea" id="decisao-problema" rows="2"></textarea>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="decisao-contexto">Contexto</label>
+           <textarea class="form__textarea" id="decisao-contexto" rows="2"></textarea>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="decisao-decisao">Decisão</label>
+           <textarea class="form__textarea" id="decisao-decisao" rows="2"></textarea>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="decisao-justificativa">Justificativa</label>
+           <textarea class="form__textarea" id="decisao-justificativa" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-decisao')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Modal: Risco -->
+   <div class="modal" id="modal-risco" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-risco')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-risco">Novo Risco</h3>
+       <form class="form" id="form-risco">
+         <input type="hidden" id="risco-id">
+         <div class="form__grupo">
+           <label class="form__label" for="risco-titulo">Título</label>
+           <input class="form__input" type="text" id="risco-titulo">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="risco-descricao">Descrição</label>
+           <textarea class="form__textarea" id="risco-descricao" rows="2"></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="risco-categoria">Categoria</label>
+           <input class="form__input" type="text" id="risco-categoria">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="risco-probabilidade">Probabilidade</label>
+           <select class="form__input" id="risco-probabilidade">
+             <option value="BAIXA">BAIXA</option>
+             <option value="MEDIA">MÉDIA</option>
+             <option value="ALTA">ALTA</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="risco-impacto">Impacto</label>
+           <select class="form__input" id="risco-impacto">
+             <option value="BAIXA">BAIXA</option>
+             <option value="MEDIA">MÉDIA</option>
+             <option value="ALTA">ALTA</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="risco-gravidade">Gravidade</label>
+           <select class="form__input" id="risco-gravidade">
+             <option value="BAIXA">BAIXA</option>
+             <option value="MEDIA">MÉDIA</option>
+             <option value="ALTA">ALTA</option>
+             <option value="CRITICA">CRÍTICA</option>
+           </select>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="risco-causa">Causa</label>
+           <textarea class="form__textarea" id="risco-causa" rows="2"></textarea>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="risco-mitigacao">Mitigação</label>
+           <textarea class="form__textarea" id="risco-mitigacao" rows="2"></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="risco-responsavel">Responsável</label>
+           <input class="form__input" type="text" id="risco-responsavel">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="risco-estado">Estado</label>
+           <select class="form__input" id="risco-estado">
+             <option value="ATIVO">ATIVO</option>
+             <option value="MITIGADO">MITIGADO</option>
+             <option value="RESOLVIDO">RESOLVIDO</option>
+             <option value="CANCELADO">CANCELADO</option>
+           </select>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-risco')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
    <script src="js/app.js?v=20260817-projetos" type="module"></script>
 </body>
 </html>

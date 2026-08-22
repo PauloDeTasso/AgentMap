@@ -37,5 +37,10 @@ export function criarReservaRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.reserva.excluirTodos();
+    return responder(res, result);
+  }));
+
   return router;
 }

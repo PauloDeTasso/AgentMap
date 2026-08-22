@@ -1485,7 +1485,10 @@ async function renderizarResultados(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">✅ Resultados (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-resultado')">+ Novo Resultado</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-resultado')">+ Novo Resultado</button>
+        ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosResultados()">Excluir Todos</button>` : ''}
+      </div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum resultado registrado.</p>'; return; }
     const table = document.createElement('table');
@@ -1496,7 +1499,11 @@ async function renderizarResultados(el) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.tarefaId)}</td><td>${escapeHtml(r.agenteId)}</td><td>${escapeHtml(r.resumo)}</td>
         <td><span class="badge badge--ativo">${escapeHtml(r.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verResultado('${escapeAttr(r.id)}')">Ver</button></td>`;
+        <td>
+          <button class="btn btn--small" onclick="verResultado('${escapeAttr(r.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarResultado('${escapeAttr(r.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirResultado('${escapeAttr(r.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1662,7 +1669,10 @@ async function renderizarReservas(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔒 Reservas (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-reserva')">+ Nova Reserva</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-reserva')">+ Nova Reserva</button>
+        ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosReservas()">Excluir Todos</button>` : ''}
+      </div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma reserva registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1674,7 +1684,11 @@ async function renderizarReservas(el) {
       const badgeClass = r.estado === 'ATIVA' ? 'badge--ativo' : 'badge--inativo';
       tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.alvo)}</td><td>${escapeHtml(r.tipoAlvo)}</td><td>${escapeHtml(r.agenteId)}</td>
         <td><span class="badge ${badgeClass}">${escapeHtml(r.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verReserva('${escapeAttr(r.id)}')">Ver</button></td>`;
+        <td>
+          <button class="btn btn--small" onclick="verReserva('${escapeAttr(r.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarReserva('${escapeAttr(r.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirReserva('${escapeAttr(r.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1688,15 +1702,27 @@ async function renderizarDecisoes(el) {
     const res = await api.getDecisoes();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<h3>💭 Decisões (${items.length})</h3>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">💭 Decisões (${items.length})</h3>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-decisao')">+ Nova Decisão</button>
+        ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosDecisoes()">Excluir Todos</button>` : ''}
+      </div>
+    </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma decisão registrada.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Estado</th><th>Data</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Estado</th><th>Data</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const d of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(d.id)}</td><td>${escapeHtml(d.titulo)}</td><td>${escapeHtml(d.estado)}</td><td>${escapeHtml(d.data)}</td>`;
+      const badgeClass = d.estado === 'ATIVA' ? 'badge--ativo' : d.estado === 'CANCELADA' ? 'badge--inativo' : 'badge--bloqueada';
+      tr.innerHTML = `<td>${escapeHtml(d.id)}</td><td>${escapeHtml(d.titulo)}</td><td><span class="badge ${badgeClass}">${escapeHtml(d.estado)}</span></td><td>${escapeHtml(d.data)}</td>
+        <td>
+          <button class="btn btn--small" onclick="verDecisao('${escapeAttr(d.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarDecisao('${escapeAttr(d.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirDecisao('${escapeAttr(d.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1915,15 +1941,27 @@ async function renderizarRiscos(el) {
     const res = await api.getRiscos();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<h3>⚠️ Riscos (${items.length})</h3>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">⚠️ Riscos (${items.length})</h3>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-risco')">+ Novo Risco</button>
+        ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosRiscos()">Excluir Todos</button>` : ''}
+      </div>
+    </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum risco registrado.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Categoria</th><th>Gravidade</th><th>Estado</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Categoria</th><th>Gravidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const r of items) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.titulo)}</td><td>${escapeHtml(r.categoria)}</td><td>${escapeHtml(r.gravidade)}</td><td>${escapeHtml(r.estado)}</td>`;
+      const badgeClass = r.estado === 'ATIVO' ? 'badge--ativo' : r.estado === 'RESOLVIDO' ? 'badge--ativo' : 'badge--inativo';
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.titulo)}</td><td>${escapeHtml(r.categoria)}</td><td><span class="badge ${badgeClass}">${escapeHtml(r.gravidade)}</span></td><td>${escapeHtml(r.estado)}</td>
+        <td>
+          <button class="btn btn--small" onclick="verRisco('${escapeAttr(r.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarRisco('${escapeAttr(r.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirRisco('${escapeAttr(r.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -2168,6 +2206,290 @@ window.excluirTarefa = async function(id) {
     }
   } catch (err) {
     showToast(err?.erro || 'Erro ao excluir tarefa', 'erro');
+  }
+};
+
+window.verResultado = async function(id) {
+  try {
+    const res = await api.getResultado(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    const el = document.getElementById('painel-atividade');
+    el.innerHTML = `<div style="padding:8px;">
+      <h3>${escapeHtml(r.id)} — Resultado</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(r.estado)}</span></p>
+      <p><strong>Tarefa:</strong> ${escapeHtml(r.tarefaId)}</p>
+      <p><strong>Agente:</strong> ${escapeHtml(r.agenteId)}</p>
+      <p><strong>Resumo:</strong> ${escapeHtml(r.resumo)}</p>
+      ${r.observacoes ? `<p><strong>Observações:</strong> ${escapeHtml(r.observacoes)}</p>` : ''}
+      <p><strong>Criada em:</strong> ${r.datas?.criadaEm ? formatDate(r.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${r.datas?.atualizadaEm ? formatDate(r.datas.atualizadaEm) : '-'}</p>
+    </div>`;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarResultado = async function(id) {
+  try {
+    const res = await api.getResultado(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    $('resultado-id').value = r.id;
+    $('resultado-tarefa-id').value = r.tarefaId || '';
+    $('resultado-agente-id').value = r.agenteId || '';
+    $('resultado-resumo').value = r.resumo || '';
+    $('resultado-estado').value = r.estado || 'COMPLETO';
+    $('resultado-observacoes').value = r.observacoes || '';
+    $('titulo-resultado').textContent = `Editar: ${escapeHtml(r.id)}`;
+    showModal('modal-resultado');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirResultado = async function(id) {
+  if (!confirm(`Excluir resultado "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirResultado(id);
+    if (res.sucesso) {
+      showToast('Resultado excluído!', 'sucesso');
+      carregarPainel('resultados');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.excluirTodosResultados = async function() {
+  if (!confirm('Excluir TODOS os resultados? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosResultados();
+    if (res.sucesso) {
+      showToast('Todos os resultados foram excluídos!', 'sucesso');
+      carregarPainel('resultados');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.verReserva = async function(id) {
+  try {
+    const res = await api.getReserva(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    const el = document.getElementById('painel-atividade');
+    el.innerHTML = `<div style="padding:8px;">
+      <h3>${escapeHtml(r.id)} — Reserva</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(r.estado)}</span></p>
+      <p><strong>Alvo:</strong> ${escapeHtml(r.alvo)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(r.tipoAlvo)}</p>
+      <p><strong>Agente:</strong> ${escapeHtml(r.agenteId)}</p>
+      ${r.observacoes ? `<p><strong>Observações:</strong> ${escapeHtml(r.observacoes)}</p>` : ''}
+      <p><strong>Criada em:</strong> ${r.datas?.criadaEm ? formatDate(r.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${r.datas?.atualizadaEm ? formatDate(r.datas.atualizadaEm) : '-'}</p>
+    </div>`;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarReserva = async function(id) {
+  try {
+    const res = await api.getReserva(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    $('reserva-id').value = r.id;
+    $('reserva-alvo').value = r.alvo || '';
+    $('reserva-tipo-alvo').value = r.tipoAlvo || 'ARQUIVO';
+    $('reserva-agente-id').value = r.agenteId || '';
+    $('reserva-estado').value = r.estado || 'ATIVA';
+    $('reserva-observacoes').value = r.observacoes || '';
+    $('titulo-reserva').textContent = `Editar: ${escapeHtml(r.id)}`;
+    showModal('modal-reserva');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirReserva = async function(id) {
+  if (!confirm(`Excluir reserva "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirReserva(id);
+    if (res.sucesso) {
+      showToast('Reserva excluída!', 'sucesso');
+      carregarPainel('reservas');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.excluirTodosReservas = async function() {
+  if (!confirm('Excluir TODAS as reservas? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosReservas();
+    if (res.sucesso) {
+      showToast('Todas as reservas foram excluídas!', 'sucesso');
+      carregarPainel('reservas');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.verDecisao = async function(id) {
+  try {
+    const res = await api.getDecisao(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const d = res.dados;
+    const el = document.getElementById('painel-atividade');
+    el.innerHTML = `<div style="padding:8px;">
+      <h3>${escapeHtml(d.id)} — ${escapeHtml(d.titulo)}</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(d.estado)}</span></p>
+      <p><strong>Data:</strong> ${escapeHtml(d.data)}</p>
+      ${d.problema ? `<p><strong>Problema:</strong> ${escapeHtml(d.problema)}</p>` : ''}
+      ${d.contexto ? `<p><strong>Contexto:</strong> ${escapeHtml(d.contexto)}</p>` : ''}
+      ${d.decisao ? `<p><strong>Decisão:</strong> ${escapeHtml(d.decisao)}</p>` : ''}
+      ${d.justificativa ? `<p><strong>Justificativa:</strong> ${escapeHtml(d.justificativa)}</p>` : ''}
+    </div>`;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarDecisao = async function(id) {
+  try {
+    const res = await api.getDecisao(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const d = res.dados;
+    $('decisao-id').value = d.id;
+    $('decisao-titulo').value = d.titulo || '';
+    $('decisao-estado').value = d.estado || 'ATIVA';
+    $('decisao-data').value = d.data || '';
+    $('decisao-problema').value = d.problema || '';
+    $('decisao-contexto').value = d.contexto || '';
+    $('decisao-decisao').value = d.decisao || '';
+    $('decisao-justificativa').value = d.justificativa || '';
+    $('titulo-decisao').textContent = `Editar: ${escapeHtml(d.id)}`;
+    showModal('modal-decisao');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirDecisao = async function(id) {
+  if (!confirm(`Excluir decisão "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirDecisao(id);
+    if (res.sucesso) {
+      showToast('Decisão excluída!', 'sucesso');
+      carregarPainel('decisoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.excluirTodosDecisoes = async function() {
+  if (!confirm('Excluir TODAS as decisões? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosDecisoes();
+    if (res.sucesso) {
+      showToast('Todas as decisões foram excluídas!', 'sucesso');
+      carregarPainel('decisoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.verRisco = async function(id) {
+  try {
+    const res = await api.getRisco(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    const el = document.getElementById('painel-atividade');
+    el.innerHTML = `<div style="padding:8px;">
+      <h3>${escapeHtml(r.id)} — ${escapeHtml(r.titulo)}</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(r.estado)}</span></p>
+      <p><strong>Categoria:</strong> ${escapeHtml(r.categoria)}</p>
+      <p><strong>Gravidade:</strong> ${escapeHtml(r.gravidade)}</p>
+      <p><strong>Probabilidade:</strong> ${escapeHtml(r.probabilidade)}</p>
+      <p><strong>Impacto:</strong> ${escapeHtml(r.impacto)}</p>
+      ${r.descricao ? `<p><strong>Descrição:</strong> ${escapeHtml(r.descricao)}</p>` : ''}
+      ${r.causa ? `<p><strong>Causa:</strong> ${escapeHtml(r.causa)}</p>` : ''}
+      ${r.mitigacao ? `<p><strong>Mitigação:</strong> ${escapeHtml(r.mitigacao)}</p>` : ''}
+      ${r.responsavel ? `<p><strong>Responsável:</strong> ${escapeHtml(r.responsavel)}</p>` : ''}
+    </div>`;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarRisco = async function(id) {
+  try {
+    const res = await api.getRisco(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    $('risco-id').value = r.id;
+    $('risco-titulo').value = r.titulo || '';
+    $('risco-descricao').value = r.descricao || '';
+    $('risco-categoria').value = r.categoria || '';
+    $('risco-probabilidade').value = r.probabilidade || 'MEDIA';
+    $('risco-impacto').value = r.impacto || 'MEDIA';
+    $('risco-gravidade').value = r.gravidade || 'MEDIA';
+    $('risco-causa').value = r.causa || '';
+    $('risco-mitigacao').value = r.mitigacao || '';
+    $('risco-responsavel').value = r.responsavel || '';
+    $('risco-estado').value = r.estado || 'ATIVO';
+    $('titulo-risco').textContent = `Editar: ${escapeHtml(r.id)}`;
+    showModal('modal-risco');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirRisco = async function(id) {
+  if (!confirm(`Excluir risco "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirRisco(id);
+    if (res.sucesso) {
+      showToast('Risco excluído!', 'sucesso');
+      carregarPainel('riscos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+window.excluirTodosRiscos = async function() {
+  if (!confirm('Excluir TODOS os riscos? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosRiscos();
+    if (res.sucesso) {
+      showToast('Todos os riscos foram excluídos!', 'sucesso');
+      carregarPainel('riscos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
   }
 };
 
@@ -2669,6 +2991,153 @@ window.excluirContrato = async function(id) {
   });
 
 $('btn-cancelar-tarefa').addEventListener('click', () => hideModal('modal-tarefa'));
+
+$('form-resultado').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-resultado').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('resultado-id').value;
+  const dados = {
+    tarefaId: $('resultado-tarefa-id').value.trim(),
+    agenteId: $('resultado-agente-id').value.trim(),
+    resumo: $('resultado-resumo').value.trim(),
+    estado: $('resultado-estado').value,
+    observacoes: $('resultado-observacoes').value.trim() || null
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarResultado(id, dados);
+    } else {
+      res = await api.criarResultado(dados);
+    }
+    if (res.sucesso) {
+      showToast('Resultado salvo!', 'sucesso');
+      hideModal('modal-resultado');
+      carregarPainel('resultados');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar resultado', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('btn-cancelar-resultado').addEventListener('click', () => hideModal('modal-resultado'));
+
+$('form-reserva').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-reserva').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('reserva-id').value;
+  const dados = {
+    alvo: $('reserva-alvo').value.trim(),
+    tipoAlvo: $('reserva-tipo-alvo').value,
+    agenteId: $('reserva-agente-id').value.trim(),
+    estado: $('reserva-estado').value,
+    observacoes: $('reserva-observacoes').value.trim() || null
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarReserva(id, dados);
+    } else {
+      res = await api.criarReserva(dados);
+    }
+    if (res.sucesso) {
+      showToast('Reserva salva!', 'sucesso');
+      hideModal('modal-reserva');
+      carregarPainel('reservas');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar reserva', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('btn-cancelar-reserva').addEventListener('click', () => hideModal('modal-reserva'));
+
+$('form-decisao').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-decisao').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('decisao-id').value;
+  const dados = {
+    titulo: $('decisao-titulo').value.trim(),
+    estado: $('decisao-estado').value,
+    data: $('decisao-data').value || undefined,
+    problema: $('decisao-problema').value.trim() || undefined,
+    contexto: $('decisao-contexto').value.trim() || undefined,
+    decisao: $('decisao-decisao').value.trim() || undefined,
+    justificativa: $('decisao-justificativa').value.trim() || undefined
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarDecisao(id, dados);
+    } else {
+      res = await api.criarDecisao(dados);
+    }
+    if (res.sucesso) {
+      showToast('Decisão salva!', 'sucesso');
+      hideModal('modal-decisao');
+      carregarPainel('decisoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar decisão', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('btn-cancelar-decisao').addEventListener('click', () => hideModal('modal-decisao'));
+
+$('form-risco').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-risco').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('risco-id').value;
+  const dados = {
+    titulo: $('risco-titulo').value.trim(),
+    descricao: $('risco-descricao').value.trim() || undefined,
+    categoria: $('risco-categoria').value.trim(),
+    probabilidade: $('risco-probabilidade').value,
+    impacto: $('risco-impacto').value,
+    gravidade: $('risco-gravidade').value,
+    causa: $('risco-causa').value.trim() || undefined,
+    mitigacao: $('risco-mitigacao').value.trim() || undefined,
+    responsavel: $('risco-responsavel').value.trim() || undefined,
+    estado: $('risco-estado').value
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarRisco(id, dados);
+    } else {
+      res = await api.criarRisco(dados);
+    }
+    if (res.sucesso) {
+      showToast('Risco salvo!', 'sucesso');
+      hideModal('modal-risco');
+      carregarPainel('riscos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar risco', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('btn-cancelar-risco').addEventListener('click', () => hideModal('modal-risco'));
 
 // Agent form handlers
 $('form-agente').addEventListener('submit', async function(e) {

@@ -89,5 +89,19 @@ export class DecisaoService {
     this.fs.excluir(this.getDecisaoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<boolean>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    }
+    const itens = registryResult.dados.decisoes;
+    for (const item of itens) {
+      this.fs.excluir(this.getDecisaoPath(item.id), { backup: true });
+    }
+    this.salvarRegistry({ decisoes: [] });
+    this.auditoria.registrar('DECISOES_EXCLUIDAS', `${itens.length} decisão(ões) excluída(s).`, { quantidade: itens.length });
+    return { sucesso: true, dados: true };
+  }
 }
 

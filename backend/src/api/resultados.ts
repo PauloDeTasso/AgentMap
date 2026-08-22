@@ -32,5 +32,10 @@ export function criarResultadoRouter(): Router {
     return responder(res, result);
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.resultado.excluirTodos();
+    return responder(res, result);
+  }));
+
   return router;
 }

@@ -126,5 +126,19 @@ export class ReservaService {
     this.fs.excluir(this.getReservaPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<boolean>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    }
+    const itens = registryResult.dados.reservas;
+    for (const item of itens) {
+      this.fs.excluir(this.getReservaPath(item.id), { backup: true });
+    }
+    this.salvarRegistry({ reservas: [] });
+    this.auditoria.registrar('RESERVAS_EXCLUIDAS', `${itens.length} reserva(s) excluída(s).`, { quantidade: itens.length });
+    return { sucesso: true, dados: true };
+  }
 }
 
