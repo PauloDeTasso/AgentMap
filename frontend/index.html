@@ -668,7 +668,7 @@
   </div>
 
   <!-- Modal: Resultado Limpeza -->
-  <div class="modal" id="modal-limpeza" style="display:none;">
+   <div class="modal" id="modal-limpeza" style="display:none;">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-limpeza')">&times;</button>
       <h3 class="modal__titulo">Limpeza de Arquivos Temporários</h3>
@@ -676,6 +676,184 @@
       <div class="form__acoes">
         <button class="btn btn--primario" type="button" onclick="hideModal('modal-limpeza')">Fechar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Artefato -->
+  <div class="modal modal--grande" id="modal-artefato" style="display:none;">
+    <div class="modal__conteudo modal__conteudo--cheio">
+      <button class="modal__fechar" onclick="hideModal('modal-artefato')">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo" id="titulo-artefato">Novo Artefato</h3>
+        <button class="btn btn--small btn--ghost" onclick="hideModal('modal-artefato')">Fechar</button>
+      </div>
+      <form class="form" id="form-artefato">
+        <input type="hidden" id="artefato-id">
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label" for="artefato-id-input">ID *</label>
+            <input class="form__input" type="text" id="artefato-id-input" required>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="artefato-nome">Nome *</label>
+            <input class="form__input" type="text" id="artefato-nome" required>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="artefato-tipo">Tipo</label>
+            <select class="form__input" id="artefato-tipo">
+              <option value="ARQUIVO">Arquivo</option>
+              <option value="DOCUMENTO">Documento</option>
+              <option value="CODIGO">Código</option>
+              <option value="CONFIG">Configuração</option>
+              <option value="OUTRO">Outro</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="artefato-estado">Estado</label>
+            <select class="form__input" id="artefato-estado">
+              <option value="ATIVO">Ativo</option>
+              <option value="INATIVO">Inativo</option>
+              <option value="ARQUIVADO">Arquivado</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="artefato-tarefa">Tarefa ID</label>
+            <input class="form__input" type="text" id="artefato-tarefa">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="artefato-agente">Agente ID</label>
+            <input class="form__input" type="text" id="artefato-agente">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="artefato-localizacao">Localização</label>
+            <input class="form__input" type="text" id="artefato-localizacao">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="artefato-descricao">Descrição</label>
+            <textarea class="form__textarea" id="artefato-descricao" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-artefato')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Marco (Checkpoint) -->
+  <div class="modal modal--grande" id="modal-checkpoint" style="display:none;">
+    <div class="modal__conteudo modal__conteudo--cheio">
+      <button class="modal__fechar" onclick="hideModal('modal-checkpoint')">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo" id="titulo-checkpoint">Novo Marco</h3>
+        <button class="btn btn--small btn--ghost" onclick="hideModal('modal-checkpoint')">Fechar</button>
+      </div>
+      <form class="form" id="form-checkpoint">
+        <input type="hidden" id="checkpoint-id">
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label" for="checkpoint-id-input">ID *</label>
+            <input class="form__input" type="text" id="checkpoint-id-input" required>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="checkpoint-tipo">Tipo</label>
+            <select class="form__input" id="checkpoint-tipo">
+              <option value="INICIAL">Inicial</option>
+              <option value="INTERMEDIARIO">Intermediário</option>
+              <option value="FINAL">Final</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="checkpoint-tarefa">Tarefa ID</label>
+            <input class="form__input" type="text" id="checkpoint-tarefa">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="checkpoint-agente">Agente ID</label>
+            <input class="form__input" type="text" id="checkpoint-agente">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="checkpoint-titulo">Título *</label>
+            <input class="form__input" type="text" id="checkpoint-titulo" required>
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="checkpoint-descricao">Descrição</label>
+            <textarea class="form__textarea" id="checkpoint-descricao" rows="3"></textarea>
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="checkpoint-observacoes">Observações</label>
+            <textarea class="form__textarea" id="checkpoint-observacoes" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-checkpoint')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Aprendizado -->
+  <div class="modal modal--grande" id="modal-aprendizado" style="display:none;">
+    <div class="modal__conteudo modal__conteudo--cheio">
+      <button class="modal__fechar" onclick="hideModal('modal-aprendizado')">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo" id="titulo-aprendizado">Novo Aprendizado</h3>
+        <button class="btn btn--small btn--ghost" onclick="hideModal('modal-aprendizado')">Fechar</button>
+      </div>
+      <form class="form" id="form-aprendizado">
+        <input type="hidden" id="aprendizado-id">
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label" for="aprendizado-id-input">ID *</label>
+            <input class="form__input" type="text" id="aprendizado-id-input" required>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="aprendizado-utilidade">Utilidade</label>
+            <select class="form__input" id="aprendizado-utilidade">
+              <option value="BAIXA">Baixa</option>
+              <option value="MEDIA">Média</option>
+              <option value="ALTA">Alta</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="aprendizado-estado">Estado</label>
+            <select class="form__input" id="aprendizado-estado">
+              <option value="ATIVO">Ativo</option>
+              <option value="INATIVO">Inativo</option>
+              <option value="ARQUIVADO">Arquivado</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="aprendizado-tarefa">Tarefa ID</label>
+            <input class="form__input" type="text" id="aprendizado-tarefa">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="aprendizado-agente">Agente ID</label>
+            <input class="form__input" type="text" id="aprendizado-agente">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="aprendizado-titulo">Título *</label>
+            <input class="form__input" type="text" id="aprendizado-titulo" required>
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="aprendizado-categoria">Categoria</label>
+            <input class="form__input" type="text" id="aprendizado-categoria">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="aprendizado-origem">Origem</label>
+            <input class="form__input" type="text" id="aprendizado-origem">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="aprendizado-descricao">Descrição</label>
+            <textarea class="form__textarea" id="aprendizado-descricao" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-aprendizado')">Cancelar</button>
+        </div>
+      </form>
     </div>
   </div>
 

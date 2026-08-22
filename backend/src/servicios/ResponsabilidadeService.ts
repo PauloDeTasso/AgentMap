@@ -97,5 +97,42 @@ export class ResponsabilidadeService {
     this.fs.excluir(this.getResponsabilidadePath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async atualizar(id: string, dados: Partial<Responsabilidade>): Promise<ResultadoOperacao<Responsabilidade>> {
+    const existente = this.obter(id);
+    if (!existente.sucesso || !existente.dados) return { sucesso: false, erro: existente.erro, codigoErro: existente.codigoErro };
+    const atualizado: Responsabilidade = { ...existente.dados, ...dados, datas: { ...existente.dados.datas, atualizadaEm: new Date().toISOString() } };
+
+    const validation = this.validator.validar('responsabilidade', atualizado);
+    if (!validation.valido) return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
+
+    const fileResult = this.fs.escreverJson(this.getResponsabilidadePath(id), atualizado, { backup: true });
+    if (!fileResult.sucesso) return { sucesso: false, erro: fileResult.erro, codigoErro: fileResult.codigoErro };
+
+    const registryResult = this.carregarRegistry();
+    if (registryResult.sucesso && registryResult.dados) {
+      const idx = registryResult.dados.responsabilidades.findIndex((r) => r.id === id);
+      if (idx >= 0) {
+        registryResult.dados.responsabilidades[idx] = atualizado;
+        this.salvarRegistry(registryResult.dados);
+      }
+    }
+    this.auditoria.registrar('RESPONSABILIDADE_ATUALIZADA', `Responsabilidade '${id}' atualizada.`, { responsabilidadeId: id });
+    return { sucesso: true, dados: atualizado };
+  }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const responsabilidades = registryResult.dados.responsabilidades;
+    let removidos = 0;
+    for (const r of responsabilidades) {
+      this.fs.excluir(this.getResponsabilidadePath(r.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ responsabilidades: [] });
+    this.auditoria.registrar('RESPONSABILIDADES_EXCLUIDAS', `Todas as responsabilidades (${removidos}) foram removidas.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

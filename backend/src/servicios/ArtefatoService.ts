@@ -147,5 +147,58 @@ export class ArtefatoService {
     this.fs.excluir(this.getArtefatoPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async atualizar(id: string, dados: Partial<Artefato>): Promise<ResultadoOperacao<Artefato>> {
+    const result = this.obter(id);
+    if (!result.sucesso || !result.dados) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    const atual: Artefato = result.dados;
+    const { id: _id, ...resto } = dados as Partial<Artefato> & { id?: string };
+    const atualizado: Artefato = {
+      ...atual,
+      ...resto,
+      id: atual.id,
+      datas: { ...atual.datas, atualizadaEm: new Date().toISOString() }
+    };
+
+    const validation = this.validator.validar('artefato', atualizado);
+    if (!validation.valido) {
+      return { sucesso: false, erro: `Validação: ${validation.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
+    }
+
+    const fileResult = this.fs.escreverJson(this.getArtefatoPath(id), atualizado, { backup: true });
+    if (!fileResult.sucesso) {
+      return { sucesso: false, erro: fileResult.erro, codigoErro: fileResult.codigoErro };
+    }
+
+    const registryResult = this.carregarRegistry();
+    if (registryResult.sucesso && registryResult.dados) {
+      const idx = registryResult.dados.artefatos.findIndex((a) => a.id === id);
+      if (idx >= 0) {
+        registryResult.dados.artefatos[idx] = atualizado;
+        this.salvarRegistry(registryResult.dados);
+      }
+    }
+
+    this.auditoria.registrar('ARTEFATO_ATUALIZADO', `Artefato '${id}' atualizado.`, { artefatoId: id });
+    return { sucesso: true, dados: atualizado };
+  }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    }
+    const artefatos = registryResult.dados.artefatos;
+    let removidos = 0;
+    for (const a of artefatos) {
+      this.fs.excluir(this.getArtefatoPath(a.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ artefatos: [] });
+    this.auditoria.registrar('ARTEFATOS_EXCLUIDOS', `Todos os artefatos (${removidos}) foram removidos.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

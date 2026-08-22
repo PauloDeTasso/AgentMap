@@ -26,5 +26,15 @@ export function criarCriterioRouter(): Router {
     return responder(res, result);
   }));
 
+  router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.criterio.atualizar(req.params.id, req.body);
+    return responder(res, result, result.sucesso ? 200 : 400);
+  }));
+
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.criterio.excluirTodos();
+    return responder(res, result);
+  }));
+
   return router;
 }

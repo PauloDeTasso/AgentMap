@@ -86,3 +86,20 @@ registerTracedTool(mcpServer, 'agentmap_dependencias_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_dependencias_atualizar', {
+  title: 'Atualizar Dependencia',
+  description: 'Atualiza uma dependencia existente.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: dependenciaSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.dependencia.atualizar(String(id || ''), dados);
+  auditoria.registrarToolCall('agentmap_dependencias_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});

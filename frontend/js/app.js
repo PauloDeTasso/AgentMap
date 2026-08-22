@@ -1439,7 +1439,10 @@ async function renderizarArtefatos(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">📦 Artefatos (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-artefato')">+ Novo Artefato</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalArtefato()">+ Novo Artefato</button>
+        <button class="btn btn--small btn--danger" onclick="excluirTodosArtefatos()">Excluir Todos</button>
+      </div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum artefato registrado.</p>'; return; }
     const table = document.createElement('table');
@@ -1450,7 +1453,10 @@ async function renderizarArtefatos(el) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${escapeHtml(a.id)}</td><td>${escapeHtml(a.nome)}</td><td>${escapeHtml(a.tipo)}</td><td>${escapeHtml(a.agenteId)}</td><td>${escapeHtml(a.tarefaId || '')}</td>
         <td><span class="badge badge--ativo">${escapeHtml(a.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verArtefato('${escapeAttr(a.id)}')">Ver</button></td>`;
+        <td>
+          <button class="btn btn--small" onclick="editarArtefato('${escapeAttr(a.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirArtefato('${escapeAttr(a.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1705,7 +1711,10 @@ async function renderizarCheckpoints(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">📍 Marcos (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-checkpoint')">+ Novo Marco</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalCheckpoint()">+ Novo Marco</button>
+        <button class="btn btn--small btn--danger" onclick="excluirTodosCheckpoints()">Excluir Todos</button>
+      </div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum marco registrado.</p>'; return; }
     const table = document.createElement('table');
@@ -1715,7 +1724,10 @@ async function renderizarCheckpoints(el) {
     for (const c of items) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.tarefaId)}</td><td>${escapeHtml(c.agenteId)}</td><td>${escapeHtml(c.titulo)}</td><td>${escapeHtml(c.tipo)}</td>
-        <td><button class="btn btn--small" onclick="verCheckpoint('${escapeAttr(c.id)}')">Ver</button></td>`;
+        <td>
+          <button class="btn btn--small" onclick="editarCheckpoint('${escapeAttr(c.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirCheckpoint('${escapeAttr(c.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1731,7 +1743,10 @@ async function renderizarAprendizados(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">📚 Aprendizados (${items.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModal('modal-aprendizado')">+ Novo Aprendizado</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalAprendizado()">+ Novo Aprendizado</button>
+        <button class="btn btn--small btn--danger" onclick="excluirTodosAprendizados()">Excluir Todos</button>
+      </div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum aprendizado registrado.</p>'; return; }
     const table = document.createElement('table');
@@ -1741,7 +1756,10 @@ async function renderizarAprendizados(el) {
     for (const a of items) {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${escapeHtml(a.id)}</td><td>${escapeHtml(a.titulo)}</td><td>${escapeHtml(a.categoria)}</td><td>${escapeHtml(a.utilidade)}</td><td>${escapeHtml(a.estado)}</td>
-        <td><button class="btn btn--small" onclick="verAprendizado('${escapeAttr(a.id)}')">Ver</button></td>`;
+        <td>
+          <button class="btn btn--small" onclick="editarAprendizado('${escapeAttr(a.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirAprendizado('${escapeAttr(a.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -2295,6 +2313,234 @@ window.excluirContrato = async function(id) {
     } finally {
       restoreButton(btn);
     }
+  });
+
+  // ===== Artefatos: criar / editar / excluir =====
+  window.abrirModalArtefato = function(artefato = null) {
+    $('form-artefato').reset();
+    $('artefato-id').value = '';
+    $('artefato-id-input').disabled = false;
+    if (artefato) {
+      $('artefato-id').value = artefato.id;
+      $('artefato-id-input').value = artefato.id;
+      $('artefato-id-input').disabled = true;
+      $('artefato-nome').value = artefato.nome || '';
+      $('artefato-tipo').value = artefato.tipo || 'ARQUIVO';
+      $('artefato-descricao').value = artefato.descricao || '';
+      $('artefato-tarefa').value = artefato.tarefaId || '';
+      $('artefato-agente').value = artefato.agenteId || '';
+      $('artefato-localizacao').value = artefato.localizacao || '';
+      $('artefato-estado').value = artefato.estado || 'ATIVO';
+      $('titulo-artefato').textContent = `Editar Artefato: ${escapeHtml(artefato.id)}`;
+    } else {
+      $('artefato-id-input').value = '';
+      $('artefato-estado').value = 'ATIVO';
+      $('titulo-artefato').textContent = 'Novo Artefato';
+    }
+    showModal('modal-artefato');
+  };
+
+  window.editarArtefato = async function(id) {
+    try {
+      const res = await api.getArtefato(id);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      abrirModalArtefato(res.dados);
+    } catch (err) {
+      showToast(err?.message || 'Erro', 'erro');
+    }
+  };
+
+  window.excluirArtefato = async function(id) {
+    if (!confirm(`Excluir artefato "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirArtefato(id);
+      if (res.sucesso) { showToast('Artefato excluído!', 'sucesso'); carregarPainel('artefatos'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosArtefatos = async function() {
+    if (!confirm('Excluir TODOS os artefatos? Esta ação não pode ser revertida.')) return;
+    try {
+      const res = await api.excluirTodosArtefatos();
+      if (res.sucesso) { showToast(`Artefatos removidos (${res.dados}).`, 'sucesso'); carregarPainel('artefatos'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-artefato').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-artefato').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('artefato-id').value;
+    const dados = {
+      id: $('artefato-id-input').value.trim(),
+      nome: $('artefato-nome').value.trim(),
+      tipo: $('artefato-tipo').value,
+      descricao: $('artefato-descricao').value.trim(),
+      tarefaId: $('artefato-tarefa').value.trim() || null,
+      agenteId: $('artefato-agente').value.trim(),
+      localizacao: $('artefato-localizacao').value.trim() || null,
+      estado: $('artefato-estado').value
+    };
+    if (!dados.id || !dados.nome) { showToast('ID e Nome são obrigatórios', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarArtefato(id, dados) : await api.criarArtefato(dados);
+      if (res.sucesso) { showToast('Artefato salvo!', 'sucesso'); hideModal('modal-artefato'); carregarPainel('artefatos'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar artefato', 'erro'); }
+    finally { restoreButton(btn); }
+  });
+
+  // ===== Checkpoints: criar / editar / excluir =====
+  window.abrirModalCheckpoint = function(checkpoint = null) {
+    $('form-checkpoint').reset();
+    $('checkpoint-id').value = '';
+    $('checkpoint-id-input').disabled = false;
+    if (checkpoint) {
+      $('checkpoint-id').value = checkpoint.id;
+      $('checkpoint-id-input').value = checkpoint.id;
+      $('checkpoint-id-input').disabled = true;
+      $('checkpoint-tarefa').value = checkpoint.tarefaId || '';
+      $('checkpoint-agente').value = checkpoint.agenteId || '';
+      $('checkpoint-tipo').value = checkpoint.tipo || 'INTERMEDIARIO';
+      $('checkpoint-titulo').value = checkpoint.titulo || '';
+      $('checkpoint-descricao').value = checkpoint.descricao || '';
+      $('checkpoint-observacoes').value = checkpoint.observacoes || '';
+      $('titulo-checkpoint').textContent = `Editar Marco: ${escapeHtml(checkpoint.id)}`;
+    } else {
+      $('checkpoint-id-input').value = '';
+      $('checkpoint-tipo').value = 'INTERMEDIARIO';
+      $('titulo-checkpoint').textContent = 'Novo Marco';
+    }
+    showModal('modal-checkpoint');
+  };
+
+  window.editarCheckpoint = async function(id) {
+    try {
+      const res = await api.getCheckpoint(id);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      abrirModalCheckpoint(res.dados);
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirCheckpoint = async function(id) {
+    if (!confirm(`Excluir marco "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirCheckpoint(id);
+      if (res.sucesso) { showToast('Marco excluído!', 'sucesso'); carregarPainel('checkpoints'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosCheckpoints = async function() {
+    if (!confirm('Excluir TODOS os marcos? Esta ação não pode ser revertida.')) return;
+    try {
+      const res = await api.excluirTodosCheckpoints();
+      if (res.sucesso) { showToast(`Marcos removidos (${res.dados}).`, 'sucesso'); carregarPainel('checkpoints'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-checkpoint').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-checkpoint').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('checkpoint-id').value;
+    const dados = {
+      id: $('checkpoint-id-input').value.trim(),
+      tarefaId: $('checkpoint-tarefa').value.trim(),
+      agenteId: $('checkpoint-agente').value.trim(),
+      tipo: $('checkpoint-tipo').value,
+      titulo: $('checkpoint-titulo').value.trim(),
+      descricao: $('checkpoint-descricao').value.trim(),
+      observacoes: $('checkpoint-observacoes').value.trim() || null
+    };
+    if (!dados.id || !dados.titulo) { showToast('ID e Título são obrigatórios', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarCheckpoint(id, dados) : await api.criarCheckpoint(dados);
+      if (res.sucesso) { showToast('Marco salvo!', 'sucesso'); hideModal('modal-checkpoint'); carregarPainel('checkpoints'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar marco', 'erro'); }
+    finally { restoreButton(btn); }
+  });
+
+  // ===== Aprendizados: criar / editar / excluir =====
+  window.abrirModalAprendizado = function(aprendizado = null) {
+    $('form-aprendizado').reset();
+    $('aprendizado-id').value = '';
+    $('aprendizado-id-input').disabled = false;
+    if (aprendizado) {
+      $('aprendizado-id').value = aprendizado.id;
+      $('aprendizado-id-input').value = aprendizado.id;
+      $('aprendizado-id-input').disabled = true;
+      $('aprendizado-titulo').value = aprendizado.titulo || '';
+      $('aprendizado-descricao').value = aprendizado.descricao || '';
+      $('aprendizado-categoria').value = aprendizado.categoria || '';
+      $('aprendizado-tarefa').value = aprendizado.tarefaId || '';
+      $('aprendizado-agente').value = aprendizado.agenteId || '';
+      $('aprendizado-origem').value = aprendizado.origem || '';
+      $('aprendizado-utilidade').value = aprendizado.utilidade || 'MEDIA';
+      $('aprendizado-estado').value = aprendizado.estado || 'ATIVO';
+      $('titulo-aprendizado').textContent = `Editar Aprendizado: ${escapeHtml(aprendizado.id)}`;
+    } else {
+      $('aprendizado-id-input').value = '';
+      $('aprendizado-utilidade').value = 'MEDIA';
+      $('aprendizado-estado').value = 'ATIVO';
+      $('titulo-aprendizado').textContent = 'Novo Aprendizado';
+    }
+    showModal('modal-aprendizado');
+  };
+
+  window.editarAprendizado = async function(id) {
+    try {
+      const res = await api.getAprendizado(id);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      abrirModalAprendizado(res.dados);
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirAprendizado = async function(id) {
+    if (!confirm(`Excluir aprendizado "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirAprendizado(id);
+      if (res.sucesso) { showToast('Aprendizado excluído!', 'sucesso'); carregarPainel('aprendizados'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosAprendizados = async function() {
+    if (!confirm('Excluir TODOS os aprendizados? Esta ação não pode ser revertida.')) return;
+    try {
+      const res = await api.excluirTodosAprendizados();
+      if (res.sucesso) { showToast(`Aprendizados removidos (${res.dados}).`, 'sucesso'); carregarPainel('aprendizados'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-aprendizado').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-aprendizado').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('aprendizado-id').value;
+    const dados = {
+      id: $('aprendizado-id-input').value.trim(),
+      titulo: $('aprendizado-titulo').value.trim(),
+      descricao: $('aprendizado-descricao').value.trim(),
+      categoria: $('aprendizado-categoria').value.trim(),
+      tarefaId: $('aprendizado-tarefa').value.trim() || null,
+      agenteId: $('aprendizado-agente').value.trim() || null,
+      origem: $('aprendizado-origem').value.trim() || null,
+      utilidade: $('aprendizado-utilidade').value,
+      estado: $('aprendizado-estado').value
+    };
+    if (!dados.id || !dados.titulo) { showToast('ID e Título são obrigatórios', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarAprendizado(id, dados) : await api.criarAprendizado(dados);
+      if (res.sucesso) { showToast('Aprendizado salvo!', 'sucesso'); hideModal('modal-aprendizado'); carregarPainel('aprendizados'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar aprendizado', 'erro'); }
+    finally { restoreButton(btn); }
   });
 
   $('form-tarefa').addEventListener('submit', async function(e) {

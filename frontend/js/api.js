@@ -344,6 +344,14 @@ class ApiClient {
     return this.request(`/criterios/${id}`, { method: 'DELETE' });
   }
 
+  async atualizarCriterio(id, dados) {
+    return this.request(`/criterios/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirTodosCriterios() {
+    return this.request('/criterios', { method: 'DELETE' });
+  }
+
   async getResultados(tarefaId = null) {
     const suffix = tarefaId ? `?tarefaId=${encodeURIComponent(tarefaId)}` : '';
     return this.request(`/resultados${suffix}`);
@@ -382,8 +390,16 @@ class ApiClient {
     return this.request('/artefatos', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarArtefato(id, dados) {
+    return this.request(`/artefatos/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirArtefato(id) {
     return this.request(`/artefatos/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosArtefatos() {
+    return this.request('/artefatos', { method: 'DELETE' });
   }
 
   async getHandoffs(agenteId = null) {
@@ -517,6 +533,14 @@ class ApiClient {
     return this.request(`/sessoes/${id}`, { method: 'DELETE' });
   }
 
+  async atualizarSessao(id, dados) {
+    return this.request(`/sessoes/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirTodosSessoes() {
+    return this.request('/sessoes', { method: 'DELETE' });
+  }
+
   async getCheckpoints(tarefaId = null) {
     const suffix = tarefaId ? `?tarefaId=${encodeURIComponent(tarefaId)}` : '';
     return this.request(`/checkpoints${suffix}`);
@@ -530,8 +554,16 @@ class ApiClient {
     return this.request('/checkpoints', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarCheckpoint(id, dados) {
+    return this.request(`/checkpoints/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirCheckpoint(id) {
     return this.request(`/checkpoints/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosCheckpoints() {
+    return this.request('/checkpoints', { method: 'DELETE' });
   }
 
   async getAprendizados() {
@@ -546,8 +578,16 @@ class ApiClient {
     return this.request('/aprendizados', { method: 'POST', body: JSON.stringify(dados) });
   }
 
+  async atualizarAprendizado(id, dados) {
+    return this.request(`/aprendizados/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirAprendizado(id) {
     return this.request(`/aprendizados/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosAprendizados() {
+    return this.request('/aprendizados', { method: 'DELETE' });
   }
 
   async getDependencias(fonteId = null, destinoId = null) {
@@ -569,6 +609,14 @@ class ApiClient {
     return this.request(`/dependencias/${id}`, { method: 'DELETE' });
   }
 
+  async atualizarDependencia(id, dados) {
+    return this.request(`/dependencias/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirTodosDependencias() {
+    return this.request('/dependencias', { method: 'DELETE' });
+  }
+
   async getResponsabilidades(agenteId = null, alvoId = null) {
     let suffix = '';
     if (agenteId) suffix = `?agenteId=${encodeURIComponent(agenteId)}`;
@@ -586,6 +634,14 @@ class ApiClient {
 
   async excluirResponsabilidade(id) {
     return this.request(`/responsabilidades/${id}`, { method: 'DELETE' });
+  }
+
+  async atualizarResponsabilidade(id, dados) {
+    return this.request(`/responsabilidades/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirTodosResponsabilidades() {
+    return this.request('/responsabilidades', { method: 'DELETE' });
   }
 
   async getEstadoProjeto() {
@@ -622,6 +678,22 @@ class ApiClient {
 
   async criarBloqueio(dados) {
     return this.request('/bloqueios', { method: 'POST', body: JSON.stringify(dados) });
+  }
+
+  async getBloqueio(id) {
+    return this.request(`/bloqueios/${id}`);
+  }
+
+  async atualizarBloqueio(id, dados) {
+    return this.request(`/bloqueios/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirBloqueio(id) {
+    return this.request(`/bloqueios/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosBloqueios() {
+    return this.request('/bloqueios', { method: 'DELETE' });
   }
 }
 

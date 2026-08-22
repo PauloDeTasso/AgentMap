@@ -148,5 +148,19 @@ export class DependenciaService {
     this.fs.excluir(this.getDependenciaPath(id), { backup: true });
     return { sucesso: true, dados: true };
   }
+
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegistry();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const dependencias = registryResult.dados.dependencias;
+    let removidos = 0;
+    for (const d of dependencias) {
+      this.fs.excluir(this.getDependenciaPath(d.id), { backup: true });
+      removidos++;
+    }
+    this.salvarRegistry({ dependencias: [] });
+    this.auditoria.registrar('DEPENDENCIAS_EXCLUIDAS', `Todas as dependências (${removidos}) foram removidas.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 }
 

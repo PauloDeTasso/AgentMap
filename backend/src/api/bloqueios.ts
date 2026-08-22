@@ -33,5 +33,15 @@ export function criarBloqueioRouter(): Router {
     return responder(res, result);
   }));
 
+  router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.bloqueio.atualizar(req.params.id, req.body);
+    return responder(res, result, result.sucesso ? 200 : 400);
+  }));
+
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.bloqueio.excluirTodos();
+    return responder(res, result);
+  }));
+
   return router;
 }

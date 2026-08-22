@@ -82,3 +82,20 @@ registerTracedTool(mcpServer, 'agentmap_criterios_excluir', {
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });
+
+registerTracedTool(mcpServer, 'agentmap_criterios_atualizar', {
+  title: 'Atualizar Criterio',
+  description: 'Atualiza um criterio existente.',
+  inputSchema: z.object({ id: z.string() }).passthrough(),
+  outputSchema: criterioSchema,
+  annotations: { idempotentHint: true }
+}, async ({ id, ...dados }: { id: string } & Record<string, unknown>) => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.criterio.atualizar(String(id || ''), dados);
+  auditoria.registrarToolCall('agentmap_criterios_atualizar', projeto, { id, ...dados }, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
