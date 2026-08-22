@@ -140,5 +140,33 @@ export function criarContratoRouter(): Router {
     return responder(res, { sucesso: true, dados: true });
   }));
 
+  router.delete('/', asyncHandler(async (req: Request, res: Response) => {
+    const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(
+      path.win32.join('.ia', 'contratos', 'contratos.json')
+    );
+    if (!registryResult.sucesso || !registryResult.dados) {
+      return responder(res, registryResult);
+    }
+    const registry = registryResult.dados;
+    const contratos = [...registry.contratos];
+    let removidos = 0;
+    for (const c of contratos) {
+      const fileResult = req.servicos!.projeto.fileService.excluir(
+        path.win32.join('.ia', 'contratos', `${c.id}.json`),
+        { backup: true }
+      );
+      if (fileResult.sucesso) {
+        removidos++;
+      }
+    }
+    registry.contratos = [];
+    req.servicos!.projeto.fileService.escreverJson(
+      path.win32.join('.ia', 'contratos', 'contratos.json'),
+      registry
+    );
+    req.servicos!.auditoria.registrar('CONTRATOS_EXCLUIDOS', `${removidos} contratos excluídos.`, {});
+    return responder(res, { sucesso: true, dados: removidos });
+  }));
+
   return router;
 }

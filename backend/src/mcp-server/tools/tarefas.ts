@@ -160,6 +160,25 @@ registerTracedTool(mcpServer, 'agentmap_tarefas_excluir', {
   return toMcpStructured(resultado.dados);
 });
 
+registerTracedTool(mcpServer, 'agentmap_tarefas_excluir_todos', {
+  title: 'Excluir Todas as Tarefas',
+  description: 'Exclui todas as tarefas do projeto.',
+  inputSchema: z.object({}),
+  outputSchema: z.number(),
+  annotations: {
+    destructiveHint: true
+  }
+}, async () => {
+  const ctx = carregarContexto(projetoService);
+  if (!ctx.sucesso) return mcpError(ctx);
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
+  const resultado = await ctx.dados!.servicos.tarefa.excluirTodos();
+  auditoria.registrarToolCall('agentmap_tarefas_excluir_todos', projeto, {}, resultado);
+  if (!resultado.sucesso) return mcpError(resultado);
+  return toMcpStructured(resultado.dados);
+});
+
 registerTracedTool(mcpServer, 'agentmap_tarefas_contexto', {
   title: 'Contexto da Tarefa',
   description: 'Monta o pacote de contexto completo para uma tarefa.',
