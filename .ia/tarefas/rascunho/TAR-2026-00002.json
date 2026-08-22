@@ -1,13 +1,13 @@
 {
   "id": "TAR-2026-00002",
-  "titulo": "Auditoria: Aprendizados e Historico",
-  "descricao": "Voce e o agente Documentacao responsavel pela auditoria de conhecimento acumulado. Use as tools MCP e arquivos .ia/. Autoidentifique-se como Documentacao. Reporte via agentmap_resultados_criar. Nao altere dados.",
-  "objetivo": "Identificar aprendizados obsoletos e historico irrelevante",
-  "tipo": "auditoria",
+  "titulo": "CRUD Core G2: Dependências, Responsabilidades, Bloqueios",
+  "descricao": "",
+  "objetivo": "Full CRUD for Dependências, Responsabilidades, Bloqueios - backend PUT + service.atualizar + MCP atualizar + frontend CRUD buttons + delete-all",
+  "tipo": "implementacao",
   "estado": "RASCUNHO",
-  "prioridade": "MEDIA",
-  "agenteResponsavel": "documentacao",
-  "dominio": "documentacao",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
   "ambiente": "desenvolvimento",
   "dependencias": [],
   "contratosObrigatorios": [],
@@ -15,21 +15,12 @@
   "arquivosPermitidos": [],
   "arquivosProibidos": [],
   "contextoNecessario": [],
-  "criteriosAceitacao": [
-    "Registros obsoletos identificados",
-    "Relatorio gerado"
-  ],
+  "criteriosAceitacao": [],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [
-    "Nao alterar dados diretamente"
-  ],
-  "condicoesDeParada": [
-    "Relatorio concluido"
-  ],
-  "criteriosConclusao": [
-    "Resultado registrado via agentmap_resultados_criar"
-  ],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
   "tags": [],
   "resultado": {
     "resumo": "",
@@ -49,11 +40,11 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-22T01:52:17.948Z",
-    "criadoEm": "2026-08-22T01:52:17.948Z",
+    "criacao": "2026-08-22T14:34:34.278Z",
+    "criadoEm": "2026-08-22T14:34:34.278Z",
     "inicio": null,
-    "ultimaAtualizacao": "2026-08-22T01:52:17.948Z",
-    "atualizadaEm": "2026-08-22T01:52:17.948Z",
+    "ultimaAtualizacao": "2026-08-22T14:34:34.278Z",
+    "atualizadaEm": "2026-08-22T14:34:34.278Z",
     "conclusao": null
   }
 }

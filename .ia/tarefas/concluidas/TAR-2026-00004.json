@@ -1,11 +1,11 @@
 {
   "id": "TAR-2026-00004",
-  "titulo": "Auditoria: Arquivos e Agentes",
-  "descricao": "Voce e o agente Frontend responsavel pela auditoria de assets e perfis. Use agentmap_arquivos_listar, agentmap_arquivos_ler e explore .ia/agentes/. Autoidentifique-se como Frontend. Reporte via agentmap_resultados_criar. Nao exclua arquivos.",
-  "objetivo": "Identificar arquivos orfaos e perfis desatualizados",
-  "tipo": "auditoria",
+  "titulo": "CRUD Frontend G4: Resultados, Reservas, Decisões, Riscos",
+  "descricao": "",
+  "objetivo": "Add frontend Editar/Excluir + backend delete-all + MCP atualizar tools for Resultados, Reservas, Decisões, Riscos",
+  "tipo": "implementacao",
   "estado": "CONCLUIDA",
-  "prioridade": "MEDIA",
+  "prioridade": "ALTA",
   "agenteResponsavel": "frontend",
   "dominio": "frontend",
   "ambiente": "desenvolvimento",
@@ -15,21 +15,12 @@
   "arquivosPermitidos": [],
   "arquivosProibidos": [],
   "contextoNecessario": [],
-  "criteriosAceitacao": [
-    "Registros obsoletos identificados",
-    "Relatorio gerado"
-  ],
+  "criteriosAceitacao": [],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [
-    "Nao alterar dados diretamente"
-  ],
-  "condicoesDeParada": [
-    "Relatorio concluido"
-  ],
-  "criteriosConclusao": [
-    "Resultado registrado via agentmap_resultados_criar"
-  ],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
   "tags": [],
   "resultado": {
     "resumo": "",
@@ -49,13 +40,11 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-22T01:52:18.035Z",
-    "criadoEm": "2026-08-22T01:52:18.035Z",
+    "criacao": "2026-08-22T14:34:34.301Z",
+    "criadoEm": "2026-08-22T14:34:34.301Z",
     "inicio": null,
-    "ultimaAtualizacao": "2026-08-22T02:10:08.054Z",
-    "atualizadaEm": "2026-08-22T02:10:08.054Z",
-    "conclusao": "2026-08-22T02:10:08.027Z"
-  },
-  "inicio": "2026-08-22T01:54:44.481Z",
-  "conclusao": "2026-08-22T01:57:48.187Z"
+    "ultimaAtualizacao": "2026-08-22T15:00:33.224Z",
+    "atualizadaEm": "2026-08-22T14:59:55.895Z",
+    "conclusao": "2026-08-22T15:00:33.224Z"
+  }
 }

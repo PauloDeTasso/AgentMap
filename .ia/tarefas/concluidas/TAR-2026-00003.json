@@ -1,97 +1,50 @@
-﻿{
-    "arquivosProibidos":  [
-
-                          ],
-    "restricoes":  [
-                       "Nao alterar dados diretamente"
-                   ],
-    "resultado":  {
-                      "commit":  "",
-                      "pendencias":  [
-                                         "Definir politica de uso para modulos vazios"
-                                     ],
-                      "resumo":  "Auditoria de Projetos, Dependencias, Responsabilidades e Marcos concluida. Modulos de dependencias, responsabilidades e checkpoints estao vazios. Apenas 2 projetos cadastrados (AgentMap Sistema e Test). Nenhum registro obsoleto encontrado, mas modulos estao subutilizados.",
-                      "testesAprovados":  [
-                                              "Consulta de projetos OK",
-                                              "Consulta de dependencias OK",
-                                              "Consulta de responsabilidades OK",
-                                              "Consulta de checkpoints OK"
-                                          ],
-                      "testesExecutados":  [
-                                               "agentmap_projetos_listar",
-                                               "agentmap_dependencias_listar",
-                                               "agentmap_responsabilidades_listar",
-                                               "agentmap_checkpoints_listar",
-                                               "agentmap_obter_arquitetura"
-                                           ],
-                      "arquivosAlterados":  [
-
-                                            ],
-                      "riscosEncontrados":  [
-                                                "Modulos de dependencias, responsabilidades e checkpoints estao vazios/subutilizados"
-                                            ],
-                      "observacoes":  "Autoidentificacao: Banco. Nenhum dado foi alterado."
-                  },
-    "riscos":  [
-
-               ],
-    "dependencias":  [
-
-                     ],
-    "ambiente":  "desenvolvimento",
-    "titulo":  "Auditoria: Projetos, Dependencias, Responsabilidades e Marcos",
-    "aprovacao":  {
-                      "observacao":  "",
-                      "aprovador":  "",
-                      "necessaria":  false,
-                      "data":  null,
-                      "estado":  "nao_solicitada"
-                  },
-    "arquivosPermitidos":  [
-
-                           ],
-    "tags":  [
-
-             ],
-    "tipo":  "auditoria",
-    "contextoNecessario":  [
-
-                           ],
-    "inicio":  "2026-08-22T01:52:17.991Z",
-    "id":  "TAR-2026-00003",
-    "estado":  "CONCLUIDA",
-    "criteriosAceitacao":  [
-                               "Registros obsoletos identificados",
-                               "Relatorio gerado"
-                           ],
-    "objetivo":  "Identificar registros antigos, orfaos ou nao utilizados",
-    "datas":  {
-                  "ultimaAtualizacao":  "2026-08-22T09:18:01.189Z",
-                  "atualizadaEm":  "2026-08-22T09:18:01.189Z",
-                  "criacao":  "2026-08-22T01:52:17.991Z",
-                  "conclusao":  "2026-08-22T09:18:01.189Z",
-                  "inicio":  null,
-                  "criadoEm":  "2026-08-22T01:52:17.991Z"
-              },
-    "dominio":  "banco",
-    "testesObrigatorios":  [
-
-                           ],
-    "descricao":  "Voce e o agente Banco de Dados responsavel pela auditoria de estruturas relacionais e vinculos. Use as tools MCP, API e arquivos JSON do projeto. Autoidentifique-se como Banco. Reporte via agentmap_resultados_criar. Nao altere dados.",
-    "prioridade":  "ALTA",
-    "ultimaAtualizacao":  "2026-08-22T09:18:01.189Z",
-    "agenteResponsavel":  "banco",
-    "criteriosConclusao":  [
-                               "Resultado registrado via agentmap_resultados_criar"
-                           ],
-    "condicoesDeParada":  [
-                              "Relatorio concluido"
-                          ],
-    "conclusao":  "2026-08-22T09:18:01.189Z",
-    "contratosObrigatorios":  [
-
-                              ],
-    "procedimentosObrigatorios":  [
-
-                                  ]
+{
+  "id": "TAR-2026-00003",
+  "titulo": "CRUD Frontend G3: Tarefas, Contratos, Solicitações, Transferências",
+  "descricao": "",
+  "objetivo": "Add delete-all + frontend Editar/Excluir buttons for Tarefas, Contratos, Solicitações, Transferências - backend already has atualizar",
+  "tipo": "implementacao",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "frontend",
+  "dominio": "frontend",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
+  "tags": [],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-22T14:34:34.290Z",
+    "criadoEm": "2026-08-22T14:34:34.290Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-22T14:58:45.430Z",
+    "atualizadaEm": "2026-08-22T14:58:31.199Z",
+    "conclusao": "2026-08-22T14:58:45.431Z"
+  }
 }

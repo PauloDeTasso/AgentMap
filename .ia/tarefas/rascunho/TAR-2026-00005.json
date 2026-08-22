@@ -1,13 +1,13 @@
 {
   "id": "TAR-2026-00005",
-  "titulo": "Auditoria: Reservas e Bloqueios",
-  "descricao": "Voce e o agente Infraestrutura responsavel pela auditoria de alocacoes e impedimentos. Use as tools MCP. Autoidentifique-se como Infraestrutura. Reporte via agentmap_resultados_criar. Nao altere estados.",
-  "objetivo": "Identificar alocacoes e impedimentos obsoletos",
-  "tipo": "auditoria",
+  "titulo": "CRUD Read-only G5: Sessões, Critérios",
+  "descricao": "",
+  "objetivo": "Full CRUD for Sessões and Critérios - backend PUT + service.atualizar + MCP atualizar + frontend CRUD + delete-all + Sessões in nav",
+  "tipo": "implementacao",
   "estado": "RASCUNHO",
-  "prioridade": "MEDIA",
-  "agenteResponsavel": "infraestrutura",
-  "dominio": "infraestrutura",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
   "ambiente": "desenvolvimento",
   "dependencias": [],
   "contratosObrigatorios": [],
@@ -15,30 +15,34 @@
   "arquivosPermitidos": [],
   "arquivosProibidos": [],
   "contextoNecessario": [],
-  "criteriosAceitacao": [
-    "Registros obsoletos identificados",
-    "Relatorio gerado"
-  ],
+  "criteriosAceitacao": [],
   "testesObrigatorios": [],
   "riscos": [],
-  "restricoes": [
-    "Nao alterar dados diretamente"
-  ],
-  "condicoesDeParada": [
-    "Relatorio concluido"
-  ],
-  "criteriosConclusao": [
-    "Resultado registrado via agentmap_resultados_criar"
-  ],
+  "restricoes": [],
+  "condicoesDeParada": [],
+  "criteriosConclusao": [],
   "tags": [],
   "resultado": {
-    "resumo": "",
-    "arquivosAlterados": [],
-    "testesExecutados": [],
-    "testesAprovados": [],
+    "resumo": "Full CRUD implemented for Sessões and Critérios. Backend: PUT routes + service.atualizar + service.excluirTodos for both entities. MCP: agentmap_criterios_atualizar added; sessoes already had atualizar. Frontend: Nav entries, modals, CRUD tables with edit/delete/delete-all for both. Tests pass (526 passed, 2 pre-existing unrelated failures). Typecheck clean.",
+    "arquivosAlterados": [
+      "backend/src/api/sessoes.ts",
+      "backend/src/api/criterios.ts",
+      "backend/src/servicios/SessaoService.ts",
+      "backend/src/servicios/CriterioService.ts",
+      "backend/src/mcp-server/tools/criterios.ts",
+      "frontend/js/api.js",
+      "frontend/index.html",
+      "frontend/js/app.js"
+    ],
+    "testesExecutados": [
+      "npm test (backend) - 526 passed, 2 pre-existing failures unrelated to changes"
+    ],
+    "testesAprovados": [
+      "npm test (backend) - 526 passed"
+    ],
     "riscosEncontrados": [],
     "pendencias": [],
-    "observacoes": "",
+    "observacoes": "Storage: .ia/sessoes/sessoes.json + .ia/sessoes/<id>.json; .ia/criterios/criterios.json + .ia/criterios/<id>.json. DELETE removes file + registry. Agents protected.",
     "commit": ""
   },
   "aprovacao": {
@@ -49,11 +53,11 @@
     "observacao": ""
   },
   "datas": {
-    "criacao": "2026-08-22T01:52:18.068Z",
-    "criadoEm": "2026-08-22T01:52:18.068Z",
+    "criacao": "2026-08-22T14:34:34.311Z",
+    "criadoEm": "2026-08-22T14:34:34.311Z",
     "inicio": null,
-    "ultimaAtualizacao": "2026-08-22T01:52:18.068Z",
-    "atualizadaEm": "2026-08-22T01:52:18.068Z",
+    "ultimaAtualizacao": "2026-08-22T14:56:04.826Z",
+    "atualizadaEm": "2026-08-22T14:56:04.826Z",
     "conclusao": null
   }
 }
