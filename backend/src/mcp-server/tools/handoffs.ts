@@ -1,4 +1,4 @@
-import { mcpServer } from '../server';
+﻿import { mcpServer } from '../server';
 import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
@@ -71,7 +71,7 @@ registerTracedTool(mcpServer, 'agentmap_handoffs_criar', {
   description: 'Cria um novo handoff.',
   inputSchema: z.object({ dados: z.record(z.string(), z.unknown()) }),
   outputSchema: handoffSchema
-}, async ({ dados }: { dados: Record<string, unknown> }) => {
+}, async (dados: Record<string, unknown>) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
