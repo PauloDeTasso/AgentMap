@@ -508,6 +508,10 @@ class ApiClient {
     return this.request(`/validacoes/${id}/rejeitar`, { method: 'PUT' });
   }
 
+  async atualizarValidacao(id, dados) {
+    return this.request(`/validacoes/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async excluirValidacao(id) {
     return this.request(`/validacoes/${id}`, { method: 'DELETE' });
   }
@@ -526,6 +530,10 @@ class ApiClient {
 
   async resolverConflito(id, resolucao) {
     return this.request(`/conflitos/${id}/resolver`, { method: 'PUT', body: JSON.stringify({ resolucao }) });
+  }
+
+  async atualizarConflito(id, dados) {
+    return this.request(`/conflitos/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
   }
 
   async excluirConflito(id) {

@@ -1292,7 +1292,235 @@
         </div>
       </form>
     </div>
-  </div>
+   </div>
+
+   <!-- Modal: Handoff -->
+   <div class="modal" id="modal-handoff" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-handoff')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-handoff">Nova Transferência</h3>
+       <form class="form" id="form-handoff">
+         <input type="hidden" id="handoff-id">
+         <div class="form__grupo">
+           <label class="form__label" for="handoff-origem">Origem *</label>
+           <input class="form__input" type="text" id="handoff-origem" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="handoff-destino">Destino *</label>
+           <input class="form__input" type="text" id="handoff-destino" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="handoff-tarefa-id">Tarefa ID</label>
+           <input class="form__input" type="text" id="handoff-tarefa-id">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="handoff-resumo">Resumo *</label>
+           <textarea class="form__textarea" id="handoff-resumo" rows="2" required></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="handoff-estado">Estado</label>
+           <select class="form__input" id="handoff-estado">
+             <option value="PENDENTE">Pendente</option>
+             <option value="ACEITO">Aceito</option>
+             <option value="CONCLUIDO">Concluído</option>
+             <option value="DEVOLVIDO">Devolvido</option>
+           </select>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="handoff-observacoes">Observações</label>
+           <textarea class="form__textarea" id="handoff-observacoes" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-handoff')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Modal: Validação -->
+   <div class="modal" id="modal-validacao" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-validacao')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-validacao">Nova Validação</h3>
+       <form class="form" id="form-validacao">
+         <input type="hidden" id="validacao-id">
+         <div class="form__grupo">
+           <label class="form__label" for="validacao-alvo-tipo">Alvo Tipo *</label>
+           <input class="form__input" type="text" id="validacao-alvo-tipo" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="validacao-alvo-id">Alvo ID *</label>
+           <input class="form__input" type="text" id="validacao-alvo-id" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="validacao-tarefa-id">Tarefa ID</label>
+           <input class="form__input" type="text" id="validacao-tarefa-id">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="validacao-criterios">Critérios (um por linha)</label>
+           <textarea class="form__textarea" id="validacao-criterios" rows="3"></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="validacao-responsavel">Responsável *</label>
+           <input class="form__input" type="text" id="validacao-responsavel" required>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="validacao-estado">Estado</label>
+           <select class="form__input" id="validacao-estado">
+             <option value="PENDENTE">Pendente</option>
+             <option value="APROVADO">Aprovado</option>
+             <option value="REPROVADO">Reprovado</option>
+             <option value="APROVADO_COM_RESSALVAS">Aprovado com Ressalvas</option>
+           </select>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="validacao-eidencias">Evidências (um por linha)</label>
+           <textarea class="form__textarea" id="validacao-eidencias" rows="2"></textarea>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="validacao-observacoes">Observações</label>
+           <textarea class="form__textarea" id="validacao-observacoes" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-validacao')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Modal: Pendência -->
+   <div class="modal" id="modal-pendencia" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-pendencia')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-pendencia">Nova Pendência</h3>
+       <form class="form" id="form-pendencia">
+         <input type="hidden" id="pendencia-id">
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-titulo">Título *</label>
+           <input class="form__input" type="text" id="pendencia-titulo" required>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="pendencia-descricao">Descrição *</label>
+           <textarea class="form__textarea" id="pendencia-descricao" rows="2" required></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-tarefa-id">Tarefa ID</label>
+           <input class="form__input" type="text" id="pendencia-tarefa-id">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-agente-id">Agente ID</label>
+           <input class="form__input" type="text" id="pendencia-agente-id">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-tipo">Tipo</label>
+           <select class="form__input" id="pendencia-tipo">
+             <option value="IMPLEMENTACAO">Implementação</option>
+             <option value="DOCUMENTACAO">Documentação</option>
+             <option value="TESTE">Teste</option>
+             <option value="REVISAO">Revisão</option>
+             <option value="OUTRO">Outro</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-prioridade">Prioridade</label>
+           <select class="form__input" id="pendencia-prioridade">
+             <option value="BAIXA">Baixa</option>
+             <option value="MEDIA">Média</option>
+             <option value="ALTA">Alta</option>
+             <option value="CRITICA">Crítica</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-estado">Estado</label>
+           <select class="form__input" id="pendencia-estado">
+             <option value="PENDENTE">Pendente</option>
+             <option value="RESOLVIDO">Resolvido</option>
+             <option value="CANCELADO">Cancelado</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-origem">Origem</label>
+           <select class="form__input" id="pendencia-origem">
+             <option value="TAREFA">Tarefa</option>
+             <option value="SOLICITACAO">Solicitação</option>
+             <option value="VALIDACAO">Validação</option>
+             <option value="MANUAL">Manual</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="pendencia-referencia-id">Referência ID</label>
+           <input class="form__input" type="text" id="pendencia-referencia-id">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="pendencia-resolucao">Resolução</label>
+           <textarea class="form__textarea" id="pendencia-resolucao" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-pendencia')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
+   <!-- Modal: Conflito -->
+   <div class="modal" id="modal-conflito" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-conflito')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-conflito">Novo Conflito</h3>
+       <form class="form" id="form-conflito">
+         <input type="hidden" id="conflito-id">
+         <div class="form__grupo">
+           <label class="form__label" for="conflito-titulo">Título *</label>
+           <input class="form__input" type="text" id="conflito-titulo" required>
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="conflito-descricao">Descrição *</label>
+           <textarea class="form__textarea" id="conflito-descricao" rows="2" required></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="conflito-tipo">Tipo</label>
+           <select class="form__input" id="conflito-tipo">
+             <option value="RECURSO_DUPLICADO">Recurso Duplicado</option>
+             <option value="DEPENDENCIA_CRUZADA">Dependência Cruzada</option>
+             <option value="CONTRATO_VIOLADO">Contrato Violado</option>
+             <option value="OUTRO">Outro</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="conflito-severidade">Severidade</label>
+           <select class="form__input" id="conflito-severidade">
+             <option value="BAIXA">Baixa</option>
+             <option value="MEDIA">Média</option>
+             <option value="ALTA">Alta</option>
+             <option value="CRITICA">Crítica</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="conflito-tarefa-id">Tarefa ID</label>
+           <input class="form__input" type="text" id="conflito-tarefa-id">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="conflito-agente-id">Agente ID</label>
+           <input class="form__input" type="text" id="conflito-agente-id">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="conflito-origem">Origem</label>
+           <input class="form__input" type="text" id="conflito-origem">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="conflito-resolucao">Resolução</label>
+           <textarea class="form__textarea" id="conflito-resolucao" rows="2"></textarea>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-conflito')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
 
    <script src="js/app.js?v=20260822-fix" type="module"></script>
 </body>

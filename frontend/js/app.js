@@ -1790,7 +1790,7 @@ async function renderizarSessoes(el) {
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
     const ativas = items.filter((s) => !s.datas.fim);
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🖥️ Sessões (${items.length} total, ${ativas.length} ativas)</h3><div>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosSessoes()">Excluir Todos</button>' : ''}</div></div>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🖥️ Sessões (${items.length} total, ${ativas.length} ativas)</h3><div><button class="btn btn--small btn--primario" onclick="abrirModalSessao()">+ Nova Sessão</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosSessoes()">Excluir Todos</button>' : ''}</div></div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma sessão registrada.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
@@ -3146,6 +3146,154 @@ $('form-risco').addEventListener('submit', async function(e) {
 
 $('btn-cancelar-risco')?.addEventListener('click', () => hideModal('modal-risco'));
 
+$('form-handoff')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-handoff').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('handoff-id').value;
+  const dados = {
+    origem: $('handoff-origem').value.trim(),
+    destino: $('handoff-destino').value.trim(),
+    tarefaId: $('handoff-tarefa-id').value.trim() || null,
+    resumo: $('handoff-resumo').value.trim(),
+    estado: $('handoff-estado').value,
+    observacoes: $('handoff-observacoes').value.trim() || null
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarHandoff(id, dados);
+    } else {
+      res = await api.criarHandoff(dados);
+    }
+    if (res.sucesso) {
+      showToast('Transferência salva!', 'sucesso');
+      hideModal('modal-handoff');
+      carregarPainel('handoffs');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar transferência', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('form-validacao')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-validacao').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('validacao-id').value;
+  const criteriosText = $('validacao-criterios').value.trim();
+  const criterios = criteriosText ? criteriosText.split('\n').map(s => s.trim()).filter(s => s) : [];
+  const evidenciasText = $('validacao-eidencias').value.trim();
+  const evidencias = evidenciasText ? evidenciasText.split('\n').map(s => s.trim()).filter(s => s) : [];
+  const dados = {
+    alvoTipo: $('validacao-alvo-tipo').value.trim(),
+    alvoId: $('validacao-alvo-id').value.trim(),
+    tarefaId: $('validacao-tarefa-id').value.trim() || null,
+    criterios: criterios,
+    responsavel: $('validacao-responsavel').value.trim(),
+    estado: $('validacao-estado').value,
+    evidencias: evidencias,
+    observacoes: $('validacao-observacoes').value.trim() || null
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarValidacao(id, dados);
+    } else {
+      res = await api.criarValidacao(dados);
+    }
+    if (res.sucesso) {
+      showToast('Validação salva!', 'sucesso');
+      hideModal('modal-validacao');
+      carregarPainel('validacoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar validação', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('form-pendencia')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-pendencia').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('pendencia-id').value;
+  const dados = {
+    titulo: $('pendencia-titulo').value.trim(),
+    descricao: $('pendencia-descricao').value.trim(),
+    tarefaId: $('pendencia-tarefa-id').value.trim() || null,
+    agenteId: $('pendencia-agente-id').value.trim() || null,
+    tipo: $('pendencia-tipo').value,
+    prioridade: $('pendencia-prioridade').value,
+    estado: $('pendencia-estado').value,
+    origem: $('pendencia-origem').value,
+    referenciaId: $('pendencia-referencia-id').value.trim() || null,
+    resolucao: $('pendencia-resolucao').value.trim() || null
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarPendencia(id, dados);
+    } else {
+      res = await api.criarPendencia(dados);
+    }
+    if (res.sucesso) {
+      showToast('Pendência salva!', 'sucesso');
+      hideModal('modal-pendencia');
+      carregarPainel('pendencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar pendência', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('form-conflito')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-conflito').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('conflito-id').value;
+  const dados = {
+    titulo: $('conflito-titulo').value.trim(),
+    descricao: $('conflito-descricao').value.trim(),
+    tipo: $('conflito-tipo').value,
+    severidade: $('conflito-severidade').value,
+    tarefaId: $('conflito-tarefa-id').value.trim() || null,
+    agenteId: $('conflito-agente-id').value.trim() || null,
+    origem: $('conflito-origem').value.trim() || null,
+    resolucao: $('conflito-resolucao').value.trim() || null
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarConflito(id, dados);
+    } else {
+      res = await api.criarConflito(dados);
+    }
+    if (res.sucesso) {
+      showToast('Conflito salvo!', 'sucesso');
+      hideModal('modal-conflito');
+      carregarPainel('conflitos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar conflito', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
 // Agent form handlers
 $('form-agente').addEventListener('submit', async function(e) {
   console.log('[form-agente submit] iniciado');
@@ -3315,6 +3463,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 window.showModal = showModal;
+window.abrirModal = showModal;
 window.hideModal = hideModal;
 document.addEventListener('DOMContentLoaded', init);
 
@@ -3514,7 +3663,16 @@ window.editarHandoff = async function(id) {
   try {
     const res = await api.getHandoff(id);
     if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    showToast('Edição de transferência não implementada no frontend.', 'info');
+    const h = res.dados;
+    $('handoff-id').value = h.id;
+    $('handoff-origem').value = h.origem || '';
+    $('handoff-destino').value = h.destino || '';
+    $('handoff-tarefa-id').value = h.tarefaId || '';
+    $('handoff-resumo').value = h.resumo || '';
+    $('handoff-estado').value = h.estado || 'PENDENTE';
+    $('handoff-observacoes').value = h.observacoes || '';
+    $('titulo-handoff').textContent = `Editar: ${escapeHtml(h.id)}`;
+    showModal('modal-handoff');
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
   }
