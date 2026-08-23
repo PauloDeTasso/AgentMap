@@ -1586,7 +1586,7 @@ async function renderizarValidacoes(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔒 Validações (${items.length})</h3>
-      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-validacao')">+ Nova Validação</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosValidacoes()">Excluir Todos</button>' : ''}</div>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModalValidacao()">+ Nova Validação</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosValidacoes()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma validação registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1598,7 +1598,7 @@ async function renderizarValidacoes(el) {
       const badgeClass = v.estado === 'APROVADO' ? 'badge--ativo' : v.estado === 'REPROVADO' ? 'badge--bloqueada' : v.estado === 'APROVADO_COM_RESSALVAS' ? 'badge--inativo' : 'badge--ativo';
       tr.innerHTML = `<td>${escapeHtml(v.id)}</td><td>${escapeHtml(v.alvoId)}</td><td>${escapeHtml(v.alvoTipo)}</td><td>${escapeHtml(v.responsavel)}</td>
         <td><span class="badge ${badgeClass}">${escapeHtml(v.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verValidacao('${escapeAttr(v.id)}')">Ver</button></td>`;
+        <td><button class="btn btn--small" onclick="verValidacao('${escapeAttr(v.id)}')">Ver</button> <button class="btn btn--small" onclick="editarValidacao('${escapeAttr(v.id)}')">Editar</button> <button class="btn btn--small btn--danger" onclick="excluirValidacao('${escapeAttr(v.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1614,7 +1614,7 @@ async function renderizarPendencias(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">⏳ Pendências (${items.length})</h3>
-      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-pendencia')">+ Nova Pendência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosPendencias()">Excluir Todos</button>' : ''}</div>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModalPendencia()">+ Nova Pendência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosPendencias()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma pendência registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1626,7 +1626,9 @@ async function renderizarPendencias(el) {
       const badgeClass = p.estado === 'RESOLVIDO' ? 'badge--ativo' : p.estado === 'CANCELADO' ? 'badge--inativo' : 'badge--bloqueada';
       tr.innerHTML = `<td>${escapeHtml(p.id)}</td><td>${escapeHtml(p.titulo)}</td><td>${escapeHtml(p.tipo)}</td><td>${escapeHtml(p.prioridade)}</td>
         <td><span class="badge ${badgeClass}">${escapeHtml(p.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verPendencia('${escapeAttr(p.id)}')">Ver</button></td>`;
+        <td><button class="btn btn--small" onclick="verPendencia('${escapeAttr(p.id)}')">Ver</button>
+            <button class="btn btn--small" onclick="editarPendencia('${escapeAttr(p.id)}')">Editar</button>
+            <button class="btn btn--small btn--danger" onclick="excluirPendencia('${escapeAttr(p.id)}')">Excluir</button></td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1642,7 +1644,7 @@ async function renderizarConflitos(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">⚡ Conflitos (${items.length})</h3>
-      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-conflito')">+ Novo Conflito</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosConflitos()">Excluir Todos</button>' : ''}</div>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModalConflito()">+ Novo Conflito</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosConflitos()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum conflito registrado.</p>'; return; }
     const table = document.createElement('table');
@@ -1654,7 +1656,11 @@ async function renderizarConflitos(el) {
       const badgeClass = c.estado === 'RESOLVIDO' ? 'badge--ativo' : c.estado === 'CANCELADO' ? 'badge--inativo' : 'badge--bloqueada';
       tr.innerHTML = `<td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.titulo)}</td><td>${escapeHtml(c.tipo)}</td><td>${escapeHtml(c.severidade)}</td>
         <td><span class="badge ${badgeClass}">${escapeHtml(c.estado)}</span></td>
-        <td><button class="btn btn--small" onclick="verConflito('${escapeAttr(c.id)}')">Ver</button></td>`;
+        <td>
+          <button class="btn btn--small" onclick="verConflito('${escapeAttr(c.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarConflito('${escapeAttr(c.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirConflito('${escapeAttr(c.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -1739,7 +1745,7 @@ async function renderizarDependencias(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔗 Dependências (${items.length})</h3>
-      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-dependencia')">+ Nova Dependência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosDependencias()">Excluir Todos</button>' : ''}</div>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModalDependencia()">+ Nova Dependência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosDependencias()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma dependência registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1766,7 +1772,7 @@ async function renderizarResponsabilidades(el) {
     const items = res.dados || [];
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">👥 Responsabilidades (${items.length})</h3>
-      <div><button class="btn btn--small btn--primario" onclick="abrirModal('modal-responsabilidade')">+ Nova Responsabilidade</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosResponsabilidades()">Excluir Todos</button>' : ''}</div>
+      <div><button class="btn btn--small btn--primario" onclick="abrirModalResponsabilidade()">+ Nova Responsabilidade</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosResponsabilidades()">Excluir Todos</button>' : ''}</div>
     </div>`;
     if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma responsabilidade registrada.</p>'; return; }
     const table = document.createElement('table');
@@ -1923,7 +1929,7 @@ async function renderizarBloqueios(el) {
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🚫 Bloqueios (${items.length})</h3>
       <div>
-        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-bloqueio')">+ Novo Bloqueio</button>
+        <button class="btn btn--small btn--primario" onclick="abrirModalBloqueio()">+ Novo Bloqueio</button>
         ${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosBloqueios()">Excluir Todos</button>' : ''}
       </div>
     </div>`;
@@ -3185,20 +3191,21 @@ $('form-validacao')?.addEventListener('submit', async function(e) {
   const btn = e.submitter || $('form-validacao').querySelector('button[type="submit"]');
   setButtonLoading(btn, true);
   const id = $('validacao-id').value;
-  const criteriosText = $('validacao-criterios').value.trim();
-  const criterios = criteriosText ? criteriosText.split('\n').map(s => s.trim()).filter(s => s) : [];
-  const evidenciasText = $('validacao-eidencias').value.trim();
-  const evidencias = evidenciasText ? evidenciasText.split('\n').map(s => s.trim()).filter(s => s) : [];
   const dados = {
-    alvoTipo: $('validacao-alvo-tipo').value.trim(),
+    alvoTipo: $('validacao-alvo-tipo').value,
     alvoId: $('validacao-alvo-id').value.trim(),
     tarefaId: $('validacao-tarefa-id').value.trim() || null,
-    criterios: criterios,
     responsavel: $('validacao-responsavel').value.trim(),
     estado: $('validacao-estado').value,
-    evidencias: evidencias,
+    criterios: $('validacao-criterios').value.split('\n').map(s => s.trim()).filter(s => s),
+    evidencias: $('validacao-evidencias').value.split('\n').map(s => s.trim()).filter(s => s),
     observacoes: $('validacao-observacoes').value.trim() || null
   };
+  if (!dados.alvoTipo || !dados.alvoId || !dados.responsavel) {
+    showToast('Campos marcados com * são obrigatórios', 'erro');
+    restoreButton(btn);
+    return;
+  }
   try {
     let res;
     if (id) {
@@ -3206,15 +3213,12 @@ $('form-validacao')?.addEventListener('submit', async function(e) {
     } else {
       res = await api.criarValidacao(dados);
     }
-    if (res.sucesso) {
-      showToast('Validação salva!', 'sucesso');
-      hideModal('modal-validacao');
-      carregarPainel('validacoes');
-    } else {
-      showToast(res.erro, 'erro');
-    }
+    if (!res.sucesso) { showToast(res.erro, 'erro'); restoreButton(btn); return; }
+    showToast(id ? 'Validação atualizada.' : 'Validação criada.', 'sucesso');
+    hideModal('modal-validacao');
+    await renderizarValidacoes($('painel-atividade'));
   } catch (err) {
-    showToast(err?.erro || 'Erro ao salvar validação', 'erro');
+    showToast(err?.message || 'Erro', 'erro');
   } finally {
     restoreButton(btn);
   }
@@ -3228,31 +3232,30 @@ $('form-pendencia')?.addEventListener('submit', async function(e) {
   const dados = {
     titulo: $('pendencia-titulo').value.trim(),
     descricao: $('pendencia-descricao').value.trim(),
-    tarefaId: $('pendencia-tarefa-id').value.trim() || null,
-    agenteId: $('pendencia-agente-id').value.trim() || null,
     tipo: $('pendencia-tipo').value,
     prioridade: $('pendencia-prioridade').value,
     estado: $('pendencia-estado').value,
     origem: $('pendencia-origem').value,
-    referenciaId: $('pendencia-referencia-id').value.trim() || null,
-    resolucao: $('pendencia-resolucao').value.trim() || null
+    tarefaId: $('pendencia-tarefa-id').value || null,
+    agenteId: $('pendencia-agente-id').value || null,
+    referenciaId: $('pendencia-referencia-id').value.trim() || null
   };
+  if (!dados.titulo) {
+    showToast('Título é obrigatório', 'erro');
+    restoreButton(btn);
+    return;
+  }
   try {
-    let res;
-    if (id) {
-      res = await api.atualizarPendencia(id, dados);
-    } else {
-      res = await api.criarPendencia(dados);
-    }
+    const res = id ? await api.atualizarPendencia(id, dados) : await api.criarPendencia(dados);
     if (res.sucesso) {
-      showToast('Pendência salva!', 'sucesso');
+      showToast(id ? 'Pendência atualizada.' : 'Pendência criada.', 'sucesso');
       hideModal('modal-pendencia');
       carregarPainel('pendencias');
     } else {
       showToast(res.erro, 'erro');
     }
   } catch (err) {
-    showToast(err?.erro || 'Erro ao salvar pendência', 'erro');
+    showToast(err?.message || 'Erro ao salvar pendência', 'erro');
   } finally {
     restoreButton(btn);
   }
@@ -3264,22 +3267,25 @@ $('form-conflito')?.addEventListener('submit', async function(e) {
   setButtonLoading(btn, true);
   const id = $('conflito-id').value;
   const dados = {
+    id: $('conflito-id-input').value.trim(),
     titulo: $('conflito-titulo').value.trim(),
     descricao: $('conflito-descricao').value.trim(),
     tipo: $('conflito-tipo').value,
     severidade: $('conflito-severidade').value,
-    tarefaId: $('conflito-tarefa-id').value.trim() || null,
-    agenteId: $('conflito-agente-id').value.trim() || null,
+    estado: $('conflito-estado').value,
+    tarefaId: $('conflito-tarefa').value || null,
+    agenteId: $('conflito-agente').value || null,
     origem: $('conflito-origem').value.trim() || null,
+    referencias: $('conflito-referencias').value.split('\n').map(s => s.trim()).filter(s => s),
     resolucao: $('conflito-resolucao').value.trim() || null
   };
+  if (!dados.id || !dados.titulo || !dados.descricao) {
+    showToast('ID, Título e Descrição são obrigatórios', 'erro');
+    restoreButton(btn);
+    return;
+  }
   try {
-    let res;
-    if (id) {
-      res = await api.atualizarConflito(id, dados);
-    } else {
-      res = await api.criarConflito(dados);
-    }
+    const res = id ? await api.atualizarConflito(id, dados) : await api.criarConflito(dados);
     if (res.sucesso) {
       showToast('Conflito salvo!', 'sucesso');
       hideModal('modal-conflito');
@@ -3293,6 +3299,350 @@ $('form-conflito')?.addEventListener('submit', async function(e) {
     restoreButton(btn);
   }
 });
+
+$('form-dependencia')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-dependencia').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('dependencia-id').value;
+  const dados = {
+    fonteId: $('dependencia-fonte-id').value.trim(),
+    fonteTipo: $('dependencia-fonte-tipo').value.trim(),
+    destinoId: $('dependencia-destino-id').value.trim(),
+    destinoTipo: $('dependencia-destino-tipo').value.trim(),
+    tipo: $('dependencia-tipo').value,
+    estado: $('dependencia-estado').value
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarDependencia(id, dados);
+    } else {
+      res = await api.criarDependencia(dados);
+    }
+    if (res.sucesso) {
+      showToast('Dependência salva!', 'sucesso');
+      hideModal('modal-dependencia');
+      carregarPainel('dependencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar dependência', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+$('form-responsabilidade')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-responsabilidade').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('responsabilidade-id').value;
+  const dados = {
+    agenteId: $('responsabilidade-agente-id').value.trim(),
+    alvoId: $('responsabilidade-alvo-id').value.trim(),
+    alvoTipo: $('responsabilidade-alvo-tipo').value.trim(),
+    nivel: $('responsabilidade-nivel').value
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarResponsabilidade(id, dados);
+    } else {
+      res = await api.criarResponsabilidade(dados);
+    }
+    if (res.sucesso) {
+      showToast('Responsabilidade salva!', 'sucesso');
+      hideModal('modal-responsabilidade');
+      carregarPainel('responsabilidades');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar responsabilidade', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
+window.abrirModalValidacao = function(validacao = null) {
+  $('form-validacao').reset();
+  $('validacao-id').value = '';
+  if (validacao) {
+    $('validacao-id').value = validacao.id;
+    $('validacao-alvo-tipo').value = validacao.alvoTipo || '';
+    $('validacao-alvo-id').value = validacao.alvoId || '';
+    $('validacao-tarefa-id').value = validacao.tarefaId || '';
+    $('validacao-responsavel').value = validacao.responsavel || '';
+    $('validacao-estado').value = validacao.estado || 'PENDENTE';
+    $('validacao-criterios').value = (validacao.criterios || []).join('\n');
+    $('validacao-evidencias').value = (validacao.evidencias || []).join('\n');
+    $('validacao-observacoes').value = validacao.observacoes || '';
+    $('titulo-validacao').textContent = `Editar: ${escapeHtml(validacao.id)}`;
+  } else {
+    $('titulo-validacao').textContent = 'Nova Validação';
+  }
+  showModal('modal-validacao');
+};
+
+window.verValidacao = async function(id) {
+  try {
+    const res = await api.getValidacao(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const v = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">${escapeHtml(v.id)}</h3>
+      <div>
+        <button class="btn btn--small" onclick="editarValidacao('${escapeAttr(v.id)}')">Editar</button>
+        <button class="btn btn--small btn--danger" onclick="excluirValidacao('${escapeAttr(v.id)}')">Excluir</button>
+      </div>
+    </div>`;
+    html += `<p><strong>Alvo:</strong> ${escapeHtml(v.alvoTipo)} — ${escapeHtml(v.alvoId)}</p>
+      <p><strong>Tarefa Relacionada:</strong> ${escapeHtml(v.tarefaId || 'Nenhuma')}</p>
+      <p><strong>Responsável:</strong> ${escapeHtml(v.responsavel)}</p>
+      <p><strong>Estado:</strong> <span class="badge ${v.estado === 'APROVADO' ? 'badge--ativo' : v.estado === 'REPROVADO' ? 'badge--bloqueada' : 'badge--inativo'}">${escapeHtml(v.estado)}</span></p>
+      <p><strong>Critérios:</strong></p><ul>${(v.criterios || []).map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
+      <p><strong>Evidências:</strong></p><ul>${(v.evidencias || []).map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul>
+      <p><strong>Observações:</strong> ${escapeHtml(v.observacoes || '')}</p>
+      <p><strong>Criada em:</strong> ${v.datas?.criadaEm ? formatDate(v.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${v.datas?.atualizadaEm ? formatDate(v.datas.atualizadaEm) : '-'}</p>
+      ${v.datas?.concluidaEm ? `<p><strong>Concluída em:</strong> ${formatDate(v.datas.concluidaEm)}</p>` : ''}
+    `;
+    el.innerHTML = '';
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    el.appendChild(container);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarValidacao = async function(id) {
+  try {
+    const res = await api.getValidacao(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalValidacao(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirValidacao = async function(id) {
+  if (!confirm(`Excluir validação "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirValidacao(id);
+    if (res.sucesso) {
+      showToast('Validação excluída.', 'sucesso');
+      await renderizarValidacoes($('painel-atividade'));
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalPendencia = function(pendencia = null) {
+  const selectAgente = $('pendencia-agente-id');
+  const selectTarefa = $('pendencia-tarefa-id');
+  selectAgente.innerHTML = '<option value="">Nenhum</option>';
+  for (const a of estado.agentes) {
+    const opt = document.createElement('option');
+    opt.value = a.id;
+    opt.textContent = `${a.id} — ${a.nome}`;
+    selectAgente.appendChild(opt);
+  }
+  selectTarefa.innerHTML = '<option value="">Nenhuma</option>';
+  for (const t of (estado.tarefas || [])) {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = `${t.id} — ${t.titulo || t.objetivo || ''}`;
+    selectTarefa.appendChild(opt);
+  }
+  if (pendencia) {
+    $('titulo-pendencia').textContent = 'Editar Pendência';
+    $('pendencia-id').value = pendencia.id;
+    $('pendencia-titulo').value = pendencia.titulo;
+    $('pendencia-descricao').value = pendencia.descricao;
+    $('pendencia-tipo').value = pendencia.tipo;
+    $('pendencia-prioridade').value = pendencia.prioridade;
+    $('pendencia-estado').value = pendencia.estado;
+    $('pendencia-origem').value = pendencia.origem;
+    $('pendencia-tarefa-id').value = pendencia.tarefaId || '';
+    $('pendencia-agente-id').value = pendencia.agenteId || '';
+    $('pendencia-referencia-id').value = pendencia.referenciaId || '';
+  } else {
+    $('titulo-pendencia').textContent = 'Nova Pendência';
+    $('form-pendencia').reset();
+    $('pendencia-id').value = '';
+    $('pendencia-prioridade').value = 'MEDIA';
+    $('pendencia-estado').value = 'PENDENTE';
+    $('pendencia-origem').value = 'MANUAL';
+  }
+  showModal('modal-pendencia');
+};
+
+window.verPendencia = async function(id) {
+  try {
+    const res = await api.getPendencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const p = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <h3>${escapeHtml(p.id)} — ${escapeHtml(p.titulo)}</h3>
+      <p><strong>Estado:</strong> <span class="badge badge--${p.estado === 'RESOLVIDO' ? 'ativo' : p.estado === 'CANCELADO' ? 'inativo' : 'bloqueada'}">${escapeHtml(p.estado)}</span> | <strong>Prioridade:</strong> ${escapeHtml(p.prioridade)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(p.tipo)} | <strong>Origem:</strong> ${escapeHtml(p.origem)}</p>
+      <p><strong>Descrição:</strong> ${escapeHtml(p.descricao || '')}</p>
+      <p><strong>Tarefa:</strong> ${escapeHtml(p.tarefaId || 'Nenhuma')} | <strong>Agente:</strong> ${escapeHtml(p.agenteId)}</p>
+      <p><strong>Referência:</strong> ${escapeHtml(p.referenciaId || 'Nenhuma')}</p>
+      ${p.resolucao ? `<p><strong>Resolução:</strong> ${escapeHtml(p.resolucao)}</p>` : ''}
+      <p><strong>Criada em:</strong> ${p.datas?.criadaEm ? formatDate(p.datas.criadaEm) : '-'}</p>
+      <p><strong>Atualizada em:</strong> ${p.datas?.atualizadaEm ? formatDate(p.datas.atualizadaEm) : '-'}</p>
+      ${p.datas?.resolvidaEm ? `<p><strong>Resolvida em:</strong> ${formatDate(p.datas.resolvidaEm)}</p>` : ''}
+    </div>`;
+    el.innerHTML = html;
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarPendencia = async function(id) {
+  try {
+    const res = await api.getPendencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalPendencia(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirPendencia = async function(id) {
+  if (!confirm(`Excluir pendência "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirPendencia(id);
+    if (res.sucesso) {
+      showToast('Pendência excluída!', 'sucesso');
+      carregarPainel('pendencias');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir pendência', 'erro');
+  }
+};
+
+window.abrirModalConflito = function(conflito = null) {
+  popularConflitoSelects();
+  $('form-conflito').reset();
+  $('conflito-id').value = '';
+  $('conflito-id-input').disabled = false;
+  if (conflito) {
+    $('conflito-id').value = conflito.id;
+    $('conflito-id-input').disabled = true;
+    $('conflito-id-input').value = conflito.id;
+    $('conflito-titulo').value = conflito.titulo;
+    $('conflito-descricao').value = conflito.descricao;
+    $('conflito-tipo').value = conflito.tipo;
+    $('conflito-severidade').value = conflito.severidade;
+    $('conflito-estado').value = conflito.estado;
+    $('conflito-tarefa').value = conflito.tarefaId || '';
+    $('conflito-agente').value = conflito.agenteId || '';
+    $('conflito-origem').value = conflito.origem || '';
+    $('conflito-referencias').value = (conflito.referencias || []).join('\n');
+    $('conflito-resolucao').value = conflito.resolucao || '';
+    $('titulo-conflito').textContent = `Editar: ${escapeHtml(conflito.titulo)}`;
+  } else {
+    $('conflito-id-input').value = '';
+    $('titulo-conflito').textContent = 'Novo Conflito';
+  }
+  showModal('modal-conflito');
+};
+
+window.verConflito = async function(id) {
+  try {
+    const res = await api.getConflito(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const c = res.dados;
+    const el = document.getElementById('painel-atividade');
+    let html = `<div style="padding:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="margin:0;">${escapeHtml(c.titulo)}</h3>
+        <div>
+          <button class="btn btn--small" onclick="editarConflito('${escapeAttr(c.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirConflito('${escapeAttr(c.id)}')">Excluir</button>
+        </div>
+      </div>
+      <p><strong>ID:</strong> ${escapeHtml(c.id)}</p>
+      <p><strong>Tipo:</strong> ${escapeHtml(c.tipo)} | <strong>Severidade:</strong> ${escapeHtml(c.severidade)} | <strong>Estado:</strong> <span class="badge badge--${c.estado === 'RESOLVIDO' ? 'ativo' : c.estado === 'CANCELADO' ? 'inativo' : 'bloqueada'}">${escapeHtml(c.estado)}</span></p>
+      <p><strong>Descrição:</strong> ${escapeHtml(c.descricao || '')}</p>
+      ${c.origem ? `<p><strong>Origem:</strong> ${escapeHtml(c.origem)}</p>` : ''}
+      ${c.tarefaId ? `<p><strong>Tarefa:</strong> ${escapeHtml(c.tarefaId)}</p>` : ''}
+      ${c.agenteId ? `<p><strong>Agente:</strong> ${escapeHtml(agenteNomePorId(c.agenteId))}</p>` : ''}
+      ${c.referencias?.length ? `<p><strong>Referências:</strong></p><ul>${c.referencias.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>` : ''}
+      ${c.resolucao ? `<p><strong>Resolução:</strong> ${escapeHtml(c.resolucao)}</p>` : ''}
+      ${c.datas?.criadaEm ? `<p><strong>Criada em:</strong> ${formatDate(c.datas.criadaEm)}</p>` : ''}
+      ${c.datas?.atualizadaEm ? `<p><strong>Última atualização:</strong> ${formatDate(c.datas.atualizadaEm)}</p>` : ''}
+      ${c.datas?.resolvidaEm ? `<p><strong>Resolvida em:</strong> ${formatDate(c.datas.resolvidaEm)}</p>` : ''}
+    </div>`;
+    el.innerHTML = html;
+    const relacionados = await carregarItensRelacionados('tarefa', c.id);
+    const relEl = document.createElement('div');
+    relEl.innerHTML = renderizarSecaoRelacionados(relacionados);
+    el.appendChild(relEl);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.editarConflito = async function(id) {
+  try {
+    const res = await api.getConflito(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalConflito(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirConflito = async function(id) {
+  if (!confirm(`Excluir conflito "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirConflito(id);
+    if (res.sucesso) {
+      showToast('Conflito excluído!', 'sucesso');
+      carregarPainel('conflitos');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+function popularConflitoSelects() {
+  const selTarefa = $('conflito-tarefa');
+  if (selTarefa && !selTarefa.dataset.populado) {
+    selTarefa.innerHTML = '<option value="">Nenhuma</option>';
+    for (const t of (estado.tarefas || [])) {
+      const opt = document.createElement('option');
+      opt.value = t.id; opt.textContent = `${t.id} — ${t.titulo || t.objetivo || ''}`;
+      selTarefa.appendChild(opt);
+    }
+    selTarefa.dataset.populado = '1';
+  }
+  const selAgente = $('conflito-agente');
+  if (selAgente && !selAgente.dataset.populado) {
+    selAgente.innerHTML = '<option value="">Nenhum</option>';
+    for (const a of estado.agentes) {
+      const opt = document.createElement('option');
+      opt.value = a.id; opt.textContent = a.nome;
+      selAgente.appendChild(opt);
+    }
+    selAgente.dataset.populado = '1';
+  }
+}
 
 // Agent form handlers
 $('form-agente').addEventListener('submit', async function(e) {
@@ -4248,6 +4598,16 @@ window.excluirDependencia = async function(id) {
   }
 };
 
+window.editarDependencia = async function(id) {
+  try {
+    const res = await api.getDependencia(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalDependencia(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
 window.excluirTodosDependencias = async function() {
   if (!confirm('Excluir TODAS as dependências? Esta ação não pode ser revertida.')) return;
   try {
@@ -4606,151 +4966,6 @@ window.excluirTodosResponsabilidades = async function() {
     }
   } catch (err) {
     showToast(err?.message || 'Erro ao excluir responsabilidades', 'erro');
-  }
-};
-
-window.editarDependencia = async function(id) {
-  try {
-    const res = await api.getDependencia(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    abrirModalDependencia(res.dados);
-  } catch (err) {
-    showToast(err?.message || 'Erro', 'erro');
-  }
-};
-
-window.excluirDependencia = async function(id) {
-  if (!confirm(`Excluir dependência "${id}"? Esta ação não pode ser revertida.`)) return;
-  try {
-    const res = await api.excluirDependencia(id);
-    if (res.sucesso) {
-      showToast('Dependência excluída!', 'sucesso');
-      carregarPainel('dependencias');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao excluir dependência', 'erro');
-  }
-};
-
-window.excluirTodasDependencias = async function() {
-  if (!confirm('Excluir TODAS as dependências? Esta ação não pode ser revertida.')) return;
-  try {
-    const res = await api.excluirTodasDependencias();
-    if (res.sucesso) {
-      showToast('Todas as dependências foram excluídas!', 'sucesso');
-      carregarPainel('dependencias');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao excluir dependências', 'erro');
-  }
-};
-
-window.verDependencia = async function(id) {
-  try {
-    const res = await api.getDependencia(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    const d = res.dados;
-    const el = document.getElementById('painel-atividade');
-    let html = `<div style="padding:8px;">
-      <h3>${escapeHtml(d.id)}</h3>
-      <p><strong>Fonte:</strong> ${escapeHtml(d.fonteTipo)} — ${escapeHtml(d.fonteId)}</p>
-      <p><strong>Tipo:</strong> ${escapeHtml(d.tipo)}</p>
-      <p><strong>Destino:</strong> ${escapeHtml(d.destinoTipo)} — ${escapeHtml(d.destinoId)}</p>
-      <p><strong>Estado:</strong> <span class="badge badge--ativo">${escapeHtml(d.estado)}</span></p>
-      <p><strong>Criada em:</strong> ${d.datas?.criadaEm ? formatDate(d.datas.criadaEm) : '-'}</p>
-      <p><strong>Atualizada em:</strong> ${d.datas?.atualizadaEm ? formatDate(d.datas.atualizadaEm) : '-'}</p>
-      <div style="margin-top:12px;">
-        <button class="btn btn--small" onclick="editarDependencia('${escapeAttr(d.id)}')">Editar</button>
-        <button class="btn btn--small btn--danger" onclick="excluirDependencia('${escapeAttr(d.id)}')">Excluir</button>
-      </div>
-    </div>`;
-    el.innerHTML = html;
-  } catch (err) {
-    showToast(err?.message || 'Erro', 'erro');
-  }
-};
-
-window.abrirModalResponsabilidade = function(responsabilidade = null) {
-  $('form-responsabilidade').reset();
-  $('responsabilidade-id').value = '';
-  if (responsabilidade) {
-    $('responsabilidade-id').value = responsabilidade.id;
-    $('responsabilidade-agente-id').value = responsabilidade.agenteId || '';
-    $('responsabilidade-alvo-id').value = responsabilidade.alvoId || '';
-    $('responsabilidade-alvo-tipo').value = responsabilidade.alvoTipo || '';
-    $('responsabilidade-nivel').value = responsabilidade.nivel || 'RESPONSAVEL';
-    $('titulo-responsabilidade').textContent = `Editar: ${escapeHtml(responsabilidade.id)}`;
-  } else {
-    $('titulo-responsabilidade').textContent = 'Nova Responsabilidade';
-  }
-  showModal('modal-responsabilidade');
-};
-
-window.editarResponsabilidade = async function(id) {
-  try {
-    const res = await api.getResponsabilidade(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    abrirModalResponsabilidade(res.dados);
-  } catch (err) {
-    showToast(err?.message || 'Erro', 'erro');
-  }
-};
-
-window.excluirResponsabilidade = async function(id) {
-  if (!confirm(`Excluir responsabilidade "${id}"? Esta ação não pode ser revertida.`)) return;
-  try {
-    const res = await api.excluirResponsabilidade(id);
-    if (res.sucesso) {
-      showToast('Responsabilidade excluída!', 'sucesso');
-      carregarPainel('responsabilidades');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao excluir responsabilidade', 'erro');
-  }
-};
-
-window.excluirTodasResponsabilidades = async function() {
-  if (!confirm('Excluir TODAS as responsabilidades? Esta ação não pode ser revertida.')) return;
-  try {
-    const res = await api.excluirTodasResponsabilidades();
-    if (res.sucesso) {
-      showToast('Todas as responsabilidades foram excluídas!', 'sucesso');
-      carregarPainel('responsabilidades');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao excluir responsabilidades', 'erro');
-  }
-};
-
-window.verResponsabilidade = async function(id) {
-  try {
-    const res = await api.getResponsabilidade(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    const r = res.dados;
-    const el = document.getElementById('painel-atividade');
-    let html = `<div style="padding:8px;">
-      <h3>${escapeHtml(r.id)}</h3>
-      <p><strong>Agente:</strong> ${escapeHtml(r.agenteId)}</p>
-      <p><strong>Alvo:</strong> ${escapeHtml(r.alvoTipo)} — ${escapeHtml(r.alvoId)}</p>
-      <p><strong>Nível:</strong> ${escapeHtml(r.nivel)}</p>
-      <p><strong>Criada em:</strong> ${r.datas?.criadaEm ? formatDate(r.datas.criadaEm) : '-'}</p>
-      <p><strong>Atualizada em:</strong> ${r.datas?.atualizadaEm ? formatDate(r.datas.atualizadaEm) : '-'}</p>
-      <div style="margin-top:12px;">
-        <button class="btn btn--small" onclick="editarResponsabilidade('${escapeAttr(r.id)}')">Editar</button>
-        <button class="btn btn--small btn--danger" onclick="excluirResponsabilidade('${escapeAttr(r.id)}')">Excluir</button>
-      </div>
-    </div>`;
-    el.innerHTML = html;
-  } catch (err) {
-    showToast(err?.message || 'Erro', 'erro');
   }
 };
 
