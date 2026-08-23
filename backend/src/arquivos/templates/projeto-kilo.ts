@@ -12,8 +12,8 @@ Qualquer agente Kilo Code que abrir esta pasta deve seguir as regras do AgentMap
 
 ## O que ler primeiro
 
-1. \`.ia/fluxo-trabalho.md\`
-2. \`.ia/fluxo-trabalho-padrao.md\`
+1. \`AGENTS.md\` (este arquivo é a referência principal de regras)
+2. \`.ia/fluxo-trabalho.md\`
 3. \`.ia/contratos/\`
 4. \`.ia/procedimentos/preparacao-<papel>.md\`
 5. \`.ia/configuracao/projeto.json\`
@@ -27,35 +27,38 @@ Qualquer agente Kilo Code que abrir esta pasta deve seguir as regras do AgentMap
 ## Wake-up automático
 
 Este projeto inclui \`.kilo/plugin/agentmap-wakeup.ts\`. Se o Kilo Code estiver ocioso, ele pode ser acordado automaticamente por eventos do AgentMap.
+
+## Conexão MCP
+
+Este projeto já contém \`kilo.jsonc\` na raiz. Ao abrir a pasta no VS Code / Kilo Code, a conexão MCP com o AgentMap é estabelecida automaticamente.
 `;
 
-export const KILO_AGENTMAP_JSON = (agentMapPath: string) => ({
-  agentMapPath,
-  apiBase: "http://localhost:3150",
-  mcp: {
-    agentmap: {
-      type: "local",
-      command: [
-        "cmd",
-        "/c",
-        "cd",
-        agentMapPath.replace(/\\/g, "/"),
-        "&&",
-        "npx",
-        "tsx",
-        "src/mcp-server/index.ts"
-      ],
-      environment: {
-        NODE_ENV: "production"
-      },
-      enabled: true,
-      timeout: 30000
-    }
-  },
-  plugin: [
-    "./.kilo/plugin/agentmap-wakeup.ts"
-  ]
-});
+export const KILO_AGENTMAP_JSON = (agentMapPath: string) => {
+  const cmd = [
+    "cmd", "/c", "cd",
+    agentMapPath.replace(/\\/g, "/"),
+    "&&", "npx", "tsx",
+    "--tsconfig", "backend/tsconfig.json",
+    "backend/src/mcp-server/index.ts"
+  ];
+  return {
+    mcp: {
+      agentmap: {
+        type: "local",
+        command: cmd,
+        environment: { NODE_ENV: "production" },
+        enabled: true,
+        timeout: 30000
+      }
+    },
+    plugin: ["./.kilo/plugin/agentmap-wakeup.ts"]
+  };
+};
+
+export const KILO_JSONC_STRING = (agentMapPath: string) => {
+  const obj = KILO_AGENTMAP_JSON(agentMapPath);
+  return JSON.stringify(obj, null, 2);
+};
 
 export const AGENTMAP_WAKEUP_PLUGIN_TS = `// .kilo/plugin/agentmap-wakeup.ts
 //

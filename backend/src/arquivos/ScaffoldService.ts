@@ -29,6 +29,11 @@ import {
   criarProcedimentos,
   criarEventosAuditoria
 } from './templates/governanca';
+import {
+  AGENTES_MD,
+  KILO_JSONC_STRING,
+  AGENTMAP_WAKEUP_PLUGIN_TS
+} from './templates/projeto-kilo';
 import { ResultadoOperacao } from '../tipos';
 import { FileService } from './FileService';
 
@@ -57,7 +62,7 @@ const PAPEIS = [
 export class ScaffoldService {
   constructor() {}
 
-  scaffoldProject(projetoId: string, nome: string, descricao: string, caminhoRaiz: string, dadosExtra?: Record<string, unknown>): ResultadoOperacao<string> {
+  scaffoldProject(projetoId: string, nome: string, descricao: string, caminhoRaiz: string, agentMapPath?: string, dadosExtra?: Record<string, unknown>): ResultadoOperacao<string> {
     try {
       if (fsSync.existsSync(path.join(caminhoRaiz, '.ia'))) {
         return { sucesso: false, erro: 'Já existe uma estrutura .ia/ neste diretório', codigoErro: 'IA_EXISTS' };
@@ -70,6 +75,8 @@ export class ScaffoldService {
 
       const readmeContent = `# ${nome}\n\n${descricao || ''}\n\nEste projeto é gerenciado pelo **Gerenciador Local de Projetos para Agentes de IA**.\n`;
       fsSync.writeFileSync(path.join(caminhoRaiz, 'README.md'), readmeContent, 'utf-8');
+
+      this.criarArquivosProjeto(caminhoRaiz, nome, agentMapPath);
 
       return { sucesso: true, dados: caminhoRaiz };
     } catch (e) {
@@ -220,5 +227,36 @@ export class ScaffoldService {
     // Versão legível do contrato-projeto
     const projetoReadable = `# Contrato do Projeto\n\nEste é o contrato constitucional do projeto. Todos os agentes devem respeitá-lo.\n`;
     fsSync.writeFileSync(path.join(contratosDir, 'contrato-projeto.md'), projetoReadable, 'utf-8');
+  }
+
+  private criarArquivosProjeto(caminhoRaiz: string, nomeProjeto: string, agentMapPath?: string): void {
+    const nomeAgentMap = 'AgentMap';
+
+    // AGENTS.md na raiz do projeto
+    const agentsMd = AGENTES_MD(nomeProjeto, nomeAgentMap);
+    fsSync.writeFileSync(path.join(caminhoRaiz, 'AGENTS.md'), agentsMd, 'utf-8');
+
+    // kilo.jsonc na raiz do projeto (se conhecermos o caminho do AgentMap)
+    if (agentMapPath) {
+      const kiloJsonc = KILO_JSONC_STRING(agentMapPath);
+      fsSync.writeFileSync(path.join(caminhoRaiz, 'kilo.jsonc'), kiloJsonc, 'utf-8');
+    }
+
+    // .kilo/plugin/agentmap-wakeup.ts
+    const kiloPluginDir = path.join(caminhoRaiz, '.kilo', 'plugin');
+    fsSync.mkdirSync(kiloPluginDir, { recursive: true });
+    fsSync.writeFileSync(path.join(kiloPluginDir, 'agentmap-wakeup.ts'), AGENTMAP_WAKEUP_PLUGIN_TS, 'utf-8');
+
+    // .kilo/worktrees/ (diretório para worktrees isolados por agente)
+    fsSync.mkdirSync(path.join(caminhoRaiz, '.kilo', 'worktrees'), { recursive: true });
+
+    // .gitignore para ignorar worktrees locais e temporários
+    const gitignore = `# AgentMap — arquivos locais não versionados
+.kilo/worktrees/
+temp/
+*.tmp
+*.log
+`;
+    fsSync.writeFileSync(path.join(caminhoRaiz, '.gitignore'), gitignore, 'utf-8');
   }
 }

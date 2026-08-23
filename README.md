@@ -869,57 +869,89 @@ Isso inicia o servidor MCP via STDIO para integração com Kilo Code / VS Code.
 1. Acesse o frontend em `http://localhost:3150`
 2. Clique em **"Novo Projeto"**
 3. Preencha nome e pasta destino
-4. O scaffold gera automaticamente a estrutura `.ia/` completa
+4. O scaffold gera automaticamente:
+   - Estrutura `.ia/` completa (governança, contratos, tarefas, agentes)
+   - `kilo.jsonc` na raiz (configuração MCP auto-contida)
+   - `.kilo/plugin/agentmap-wakeup.ts` (wake-up automático)
+   - `.kilo/worktrees/` (diretório para worktrees isolados por agente)
+   - `AGENTS.md` (regras do projeto)
 
-> **Nota:** a pasta base de projetos é configurável. No Windows, o padrão é `G:\PROJETOS\AgenteMap_Projetos\`. Em Linux/macOS, use qualquer caminho como `~/projetos/agentmap/`. Você pode alterar o padrão nas configurações do projeto.
+> **Nota:** a pasta base de projetos é configurável por projeto (caminho absoluto ou relativo). No Windows, o padrão é `G:\PROJETOS\AgenteMap_Projetos\`. Em Linux/macOS, use qualquer caminho como `~/projetos/agentmap/`. Você pode alterar o padrão nas configurações do projeto.
 
 > **Best practice — separação de pastas:**
 > - A pasta do **AgentMap** (sistema) contém o código fonte, docs e scripts. Ex.: `G:\PROJETOS\WEB\AgentMap\`
 > - A pasta de **projetos gerenciados** contém os dados de cada projeto. Ex.: `G:\PROJETOS\AgenteMap_Projetos\`
 > - O sistema **não permite** criar projetos dentro da própria pasta do AgentMap. Essa validação evita mistura de código com dados operacionais.
 
+### Projetos auto-contidos
+
+Cada projeto novo criado pelo AgentMap é **totalmente auto-contido**. O scaffold gera todos os arquivos necessários para que agentes Kilo Code conectem ao MCP sem depender da pasta raiz do AgentMap:
+
+```
+<projeto>/
+├── kilo.jsonc              ← Configuração MCP com caminho absoluto para o AgentMap
+├── AGENTS.md               ← Regras e instruções do projeto
+├── .kilo/
+│   ├── plugin/
+│   │   └── agentmap-wakeup.ts   ← Plugin de wake-up automático
+│   └── worktrees/           ← Worktrees isolados por agente (Agent Manager)
+└── .ia/
+    └── ...                  ← Governança completa do projeto
+```
+
+**Vantagens:**
+- O MCP conecta automaticamente ao abrir o projeto no VS Code / Kilo Code
+- Agentes não precisam copiar/colar configuração manualmente
+- O `kilo.jsonc` usa caminho absoluto para a instalação do AgentMap
+- O plugin de wake-up está incluído e funcional
+- Todos os arquivos que agentes precisam criar/alterar/consultar estão na raiz do projeto
+
 ### Configuração do Kilo Code (MCP)
 
-O AgentMap se integra ao Kilo Code via **MCP local (STDIO)**. Essa configuração **não é instalada automaticamente** — o usuário deve adicioná-la manualmente ao `kilo.jsonc` na raiz do projeto.
+A configuração do MCP **é gerada automaticamente** no `kilo.jsonc` de cada novo projeto. O arquivo contém o comando MCP apontando para a instalação do AgentMap e o caminho do plugin de wake-up.
 
-#### Opção rápida — copie e cole
+#### Projetos existentes (anteriores à auto-contenção)
+
+Se você criou o projeto antes dessa funcionalidade, adicione manualmente o `kilo.jsonc` na raiz do projeto:
 
 ```jsonc
 {
-  "$schema": "https://app.kilo.ai/config.json",
   "mcp": {
     "agentmap": {
       "type": "local",
       "command": [
-        "powershell",
-        "-NoProfile",
-        "-Command",
-        "Set-Location -LiteralPath 'G:\\PROJETOS\\WEB\\AgentMap\\backend'; npx tsx src/mcp-server/index.ts"
+        "cmd", "/c", "cd", "<CAMINHO_AGENTMAP>", "&&", "npx", "tsx",
+        "--tsconfig", "backend/tsconfig.json",
+        "backend/src/mcp-server/index.ts"
       ],
-      "environment": {
-        "NODE_ENV": "production"
-      },
+      "environment": { "NODE_ENV": "production" },
       "enabled": true,
       "timeout": 30000
     }
   },
-  "plugin": [
-    "G:\\PROJETOS\\WEB\\AgentMap\\.kilo\\plugin\\agentmap-wakeup.ts"
-  ]
+  "plugin": ["./.kilo/plugin/agentmap-wakeup.ts"]
 }
 ```
 
-> **Nota Windows:** o comando usa `powershell -NoProfile -Command` com `Set-Location` para evitar problemas de caminho com espaços. O caminho do plugin deve ser absoluto para funcionar corretamente no Windows.
+Substitua `<CAMINHO_AGENTMAP>` pelo caminho absoluto da pasta onde o AgentMap está instalado (ex: `G:\\PROJETOS\\WEB\\AgentMap`). No Windows, use barras invertidas duplas ou barras normais no JSON.
+
+Copie também o arquivo `.kilo/plugin/agentmap-wakeup.ts` da pasta do AgentMap para `.kilo/plugin/` dentro do projeto.
+
+Crie a pasta `.kilo/worktrees/` (vazia) na raiz do projeto.
+
+> **Nota Windows:** o comando usa `cmd /c cd ... && npx tsx ...` para evitar problemas de caminho com espaços.
 
 Se o `kilo.jsonc` já existir, adicione apenas a chave `mcp.agentmap` e a lista `plugin` ao JSON existente.
 
-#### Passo a passo
+#### Passo a passo (projetos existentes)
 
 1. Abra o projeto no VS Code
 2. Verifique se existe `kilo.jsonc` na raiz
-3. Adicione a configuração acima
-4. Na extensão Kilo Code, o MCP do AgentMap deve aparecer automaticamente
-5. Se não aparecer, recarregue a janela: `Ctrl+Shift+P` → `Developer: Reload Window`
+3. Adicione a configuração acima (ou crie o arquivo)
+4. Copie `.kilo/plugin/agentmap-wakeup.ts` da pasta do AgentMap para `.kilo/plugin/` do projeto
+5. Crie `.kilo/worktrees/` (vazio)
+6. Na extensão Kilo Code, o MCP do AgentMap deve aparecer automaticamente
+7. Se não aparecer, recarregue a janela: `Ctrl+Shift+P` → `Developer: Reload Window`
 
 > O AgentMap **não executa agentes**. Ele fornece contexto, ferramentas e governança via MCP. O paralelismo é responsabilidade do Agent Manager (extensão VS Code).
 
@@ -1032,6 +1064,7 @@ AgentMap/
 |---|---|
 | `docs/guia-agente-mcp.md` | Guia do agente MCP |
 | `docs/configuracao-kilo-code.md` | Configuração do Kilo Code / VS Code + troubleshooting |
+| `docs/guia-novos-projetos-auto-contidos.md` | Guia de projetos auto-contidos (kilo.jsonc, .kilo/, wake-up) |
 | `docs/referencia-tools-mcp.md` | Referência completa de tools com parâmetros |
 | `docs/api-reference.md` | Referência completa da API REST |
 | `docs/arquitetura-mcp.md` | Arquitetura MCP |

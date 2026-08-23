@@ -91,7 +91,7 @@ export class ProjetoService {
 
     const scaffold = new ScaffoldService();
     console.log('[ProjetoService.criarProjeto] Criando scaffold para projeto:', nome, 'em', caminhoRaiz);
-    const result = scaffold.scaffoldProject(id, nome, descricao, caminhoRaiz);
+    const result = scaffold.scaffoldProject(id, nome, descricao, caminhoRaiz, GERENCIADOR_DIR);
     if (!result.sucesso) {
       console.error('[ProjetoService.criarProjeto] FALHA no scaffold:', result.erro);
       return result;

@@ -617,7 +617,7 @@ function setupEventListeners() {
         };
         res = await api.criarProjeto(nome, caminhoParental, descricao, dadosExtra);
         if (res.sucesso) {
-          showToast(`Projeto '${nome}' criado!`, 'sucesso');
+          showToast(`Projeto '${nome}' criado com sucesso! Abra a pasta em um editor (ex: VS Code) para usar o MCP do AgentMap.`, 'sucesso');
         }
       }
       if (res.sucesso) {
