@@ -1,11 +1,19 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { asyncHandler, responder } from './middleware';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
 
-export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): Router {
+function getMonitoramento(req: Request): MonitoramentoService | null {
+  return (req as any).monitoramentoProjeto || req.servicos?.monitoramento || null;
+}
+
+export function criarMonitoramentoRouter(): Router {
   const router = Router();
 
   router.get('/mensagens', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     let limite = req.query.limite ? Number(req.query.limite) : 100;
     if (!Number.isFinite(limite) || limite <= 0) limite = 100;
     if (limite > 500) limite = 500;
@@ -35,6 +43,10 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.post('/mensagens', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { tipo, emissor, agenteId, tarefaId, conteudo, dados, acoes } = req.body;
     if (!tipo || !emissor || !conteudo) {
       return responder(res, { sucesso: false, erro: 'tipo, emissor e conteudo são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
@@ -72,15 +84,27 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.get('/agentes', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const agentes = monitoramento.listarAgentes();
     return responder(res, { sucesso: true, dados: agentes });
   }));
 
   router.get('/modo', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     return responder(res, { sucesso: true, dados: monitoramento.obterModo() });
   }));
 
   router.post('/modo', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { modo, escopo, agenteId } = req.body;
     if (!modo || !escopo) {
       return responder(res, { sucesso: false, erro: 'modo e escopo são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
@@ -90,6 +114,10 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.post('/intervir', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { comando, payload } = req.body;
     if (!comando) {
       return responder(res, { sucesso: false, erro: 'comando é obrigatório', codigoErro: 'MISSING_FIELDS' }, 400);
@@ -99,6 +127,10 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.put('/agente/:agenteId/status', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { agenteId } = req.params;
     const { status, ...dados } = req.body;
     if (!status) {
@@ -109,12 +141,20 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.get('/dispatcher/pendentes', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const agenteId = req.query.agenteId as string | undefined;
     const dados = monitoramento.listarPendentesDispatcher(agenteId);
     return responder(res, { sucesso: true, dados });
   }));
 
   router.post('/dispatcher/executar', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { agenteId } = req.body;
     if (!agenteId) {
       return responder(res, { sucesso: false, erro: 'agenteId é obrigatório', codigoErro: 'MISSING_FIELDS' }, 400);
@@ -124,12 +164,20 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.get('/dispatcher/logs', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const limite = req.query.limite ? Number(req.query.limite) : 100;
     const dados = monitoramento.listarLogsDispatcher(limite);
     return responder(res, { sucesso: true, dados });
   }));
 
   router.get('/kilo/receive-chat', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const agenteId = typeof req.query.agenteId === 'string' ? req.query.agenteId.trim() : undefined;
     const tarefaId = typeof req.query.tarefaId === 'string' ? req.query.tarefaId.trim() : undefined;
     const messageId = typeof req.query.messageId === 'string' ? req.query.messageId.trim() : undefined;
@@ -171,22 +219,38 @@ export function criarMonitoramentoRouter(monitoramento: MonitoramentoService): R
   }));
 
   router.delete('/mensagens/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { id } = req.params;
     const result = monitoramento.excluirMensagem(id);
     return responder(res, result, result.sucesso ? 200 : 400);
   }));
 
   router.delete('/mensagens', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.limparMensagens();
     return responder(res, result, result.sucesso ? 200 : 400);
   }));
 
   router.delete('/agentes', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.limparAgentes();
     return responder(res, result, result.sucesso ? 200 : 400);
   }));
 
   router.delete('/agentes/:agenteId', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const { agenteId } = req.params;
     const result = monitoramento.excluirAgente(agenteId);
     return responder(res, result, result.sucesso ? 200 : 400);

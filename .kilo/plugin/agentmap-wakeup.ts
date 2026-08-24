@@ -25,6 +25,7 @@ const HEARTBEAT_PROMPT = (globalThis as any).process?.env?.AGENTMAP_WAKEUP_HEART
 const RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
 const INTERRUPT_CLEANUP_MS = 5 * 60 * 1000;
 const CONFIRM_TIMEOUT_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_CONFIRM_MS || "10000");
+const MEMORIA_ENVIO_THRESHOLD = 3;
 
 const TIPOS_RELEVANTES = new Set([
   "KILO_CHAT_REPLY", "KILO_REPLY", "KILO_RESULT", "KILO_CHAT", "WAKEUP_PARENT",
@@ -77,6 +78,11 @@ interface SessionWakeupState {
   recoveryTimer: ReturnType<typeof setTimeout> | null;
   interruptCleanupTimer: ReturnType<typeof setTimeout> | null;
   confirmTimer: ReturnType<typeof setTimeout> | null;
+  memoriaEnvio: MemoriaEnvioMensagem;
+}
+
+interface MemoriaEnvioMensagem {
+  [tipoConteudo: string]: number;
 }
 
 interface MensagemPendente {
@@ -177,6 +183,7 @@ function obterOuCriarEstado(projectId: string, sessionId: string): SessionWakeup
       recoveryTimer: null,
       interruptCleanupTimer: null,
       confirmTimer: null,
+      memoriaEnvio: {},
     };
     sessoes.set(key, estado);
   }
@@ -213,11 +220,14 @@ async function logEmArquivo(directory: string, mensagem: string) {
 // Consulta ao AgentMap
 // ---------------------------------------------------------------------------
 
-async function buscarMensagensPendentes(estado: SessionWakeupState): Promise<MensagemPendente[]> {
+async function buscarMensagensPendentes(estado: SessionWakeupState, projetoId: string): Promise<MensagemPendente[]> {
   const url = new URL("/api/monitoramento/mensagens", AGENTMAP_API_URL);
   url.searchParams.set("limite", "50");
   if (estado.cursorEventSequence > 0) {
     url.searchParams.set("after", String(estado.cursorEventSequence));
+  }
+  if (projetoId) {
+    url.searchParams.set("projetoId", projetoId);
   }
 
   const res = await fetch(url, {
@@ -380,6 +390,36 @@ async function injetarPrompt(
 // Wake-up (verificação pós-idle)
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Memória de envio — anti-loop por mensagem repetida
+// ---------------------------------------------------------------------------
+
+function gerarChaveMemoria(mensagem: MensagemPendente): string {
+  const tipo = mensagem.tipo || "DESCONHECIDO";
+  const conteudo = mensagem.resumo || mensagem.conteudo || mensagem.id || "";
+  return `${tipo}:${conteudo}`;
+}
+
+function atualizarMemoriaEnvio(estado: SessionWakeupState, mensagens: MensagemPendente[]): boolean {
+  const chavesAtuais = new Set(mensagens.map(gerarChaveMemoria));
+
+  for (const chave of Object.keys(estado.memoriaEnvio)) {
+    if (!chavesAtuais.has(chave)) {
+      delete estado.memoriaEnvio[chave];
+    }
+  }
+
+  for (const chave of chavesAtuais) {
+    estado.memoriaEnvio[chave] = (estado.memoriaEnvio[chave] || 0) + 1;
+  }
+
+  return Object.values(estado.memoriaEnvio).some((count) => count >= MEMORIA_ENVIO_THRESHOLD);
+}
+
+function resetarMemoriaEnvio(estado: SessionWakeupState): void {
+  estado.memoriaEnvio = {};
+}
+
 async function executarWakeup(estado: SessionWakeupState, client: PluginInput["client"], directory: string) {
   if (ehSessaoFilha(estado)) {
     console.log(`[agentmap-wakeup] Wake-up suprimido (sessao-filha): ${estado.sessionId}`);
@@ -391,10 +431,21 @@ async function executarWakeup(estado: SessionWakeupState, client: PluginInput["c
     return;
   }
 
-  const pendentes = await buscarMensagensPendentes(estado);
+  const pendentes = await buscarMensagensPendentes(estado, estado.projectId);
   if (pendentes.length === 0) {
     console.log(`[agentmap-wakeup] Nenhuma mensagem pendente para session ${estado.sessionId}`);
     await logEmArquivo(directory, `[agentmap-wakeup] Nenhuma mensagem pendente para session ${estado.sessionId}`);
+    return;
+  }
+
+  const repetido = atualizarMemoriaEnvio(estado, pendentes);
+  if (repetido) {
+    const tiposRepetidos = Object.entries(estado.memoriaEnvio)
+      .filter(([, count]) => count >= MEMORIA_ENVIO_THRESHOLD)
+      .map(([chave]) => chave.split(":")[0]);
+    const log = `[agentmap-wakeup] Wake-up suprimido (memoria de envio): mensagem repetida ${MEMORIA_ENVIO_THRESHOLD}x na sessao ${estado.sessionId}. Tipos: ${tiposRepetidos.join(", ")}`;
+    console.log(log);
+    await logEmArquivo(directory, log);
     return;
   }
 
@@ -515,7 +566,7 @@ async function cicloHeartbeat(
     return;
   }
 
-  const pendentes = await buscarMensagensPendentes(estado);
+  const pendentes = await buscarMensagensPendentes(estado, estado.projectId);
   if (pendentes.length > 0) {
     console.log(`[agentmap-wakeup] heartbeat skip: ${pendentes.length} mensagem(ns) pendente(s) para session ${sessionId}`);
     await logEmArquivo(directory, `[agentmap-wakeup] heartbeat skip: ${pendentes.length} mensagens pendentes: sessao ${sessionId}`);
@@ -649,6 +700,13 @@ async function handleSessionStatus(
   const log = `[agentmap-wakeup] session.status: ${sessionId} ${anterior} -> ${statusNormalizado}`;
   console.log(log);
   await logEmArquivo(directory, log);
+
+  if (statusNormalizado === "busy" && anterior !== "busy" && anterior !== "unknown") {
+    resetarMemoriaEnvio(estado);
+    const logReset = `[agentmap-wakeup] Memoria de envio resetada (novo ciclo de trabalho): ${sessionId}`;
+    console.log(logReset);
+    await logEmArquivo(directory, logReset);
+  }
 }
 
 async function handleSessionCreated(

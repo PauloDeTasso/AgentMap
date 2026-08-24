@@ -355,10 +355,9 @@ export class ProjetoService {
   }
 
   private limparReferenciasProjeto(id: string, nome: string, caminhoRaiz: string): void {
-    const agentMapDir = GERENCIADOR_DIR;
     const targets = [
-      path.join(agentMapDir, '.ia', 'contexto', 'mapeamento-inicial-agentmap.json'),
-      path.join(agentMapDir, '.ia', 'handoffs', 'handoffs.json'),
+      path.join(caminhoRaiz, '.ia', 'contexto', 'mapeamento-inicial-agentmap.json'),
+      path.join(caminhoRaiz, '.ia', 'handoffs', 'handoffs.json'),
     ];
 
     for (const filePath of targets) {
@@ -440,7 +439,7 @@ export class ProjetoService {
       }
     };
 
-    walkMd(path.join(agentMapDir, '.ia'));
+    walkMd(path.join(caminhoRaiz, '.ia'));
   }
 
   atualizarConfiguracao(id: string, config: ProjetoConfig): ResultadoOperacao<ProjetoConfig> {

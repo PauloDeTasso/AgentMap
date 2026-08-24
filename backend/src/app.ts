@@ -7,8 +7,9 @@ import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
 import { corsService } from './servicios/CorsService';
 import { httpRequestMiddleware } from './observability/http-tracing';
-import { TempCleanupService } from './servicios/TempCleanupService';
 import { MonitoramentoService } from './servicios/MonitoramentoService';
+
+type GetMonitoramentoAtual = () => MonitoramentoService | null;
 
 function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -19,7 +20,7 @@ function securityHeaders(req: express.Request, res: express.Response, next: expr
   next();
 }
 
-export function createApp(monitoramento: MonitoramentoService): Application {
+export function createApp(getMonitoramentoAtual: GetMonitoramentoAtual): Application {
   const app: Application = express();
   const settings = loadSettings();
 
@@ -70,7 +71,7 @@ export function createApp(monitoramento: MonitoramentoService): Application {
     }
   }));
 
-  app.use('/', setupRotas(projetoService, monitoramento, new TempCleanupService(path.resolve(__dirname, '..', '..'))));
+  app.use('/', setupRotas(projetoService, getMonitoramentoAtual));
 
   app.use('/esquemas', express.static(esquemasPath));
 

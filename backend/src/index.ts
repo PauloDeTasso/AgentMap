@@ -8,7 +8,6 @@ async function bootstrap() {
   const { createApp } = await import('./app');
   const { ProjetoService } = await import('./servicios/ProjetoService');
   const { SchemaValidator } = await import('./validacao/SchemaValidator');
-  const { MonitoramentoService } = await import('./servicios/MonitoramentoService');
   const { MonitoramentoWebSocket } = await import('./websocket/monitoramento');
 
   const settings = loadSettings();
@@ -17,20 +16,38 @@ async function bootstrap() {
   const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
   const validator = new SchemaValidator(esquemasPath);
   const projetoService = new ProjetoService(validator);
-  const projetoResult = projetoService.getProjetoAtual();
 
-  let monitoramento;
-  if (projetoResult.sucesso && projetoResult.dados) {
-    const projeto = projetoResult.dados;
-    monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator);
-  } else {
-    const repoRoot = path.resolve(__dirname, '..', '..', '..');
-    const fileService = new (await import('./arquivos/FileService')).FileService(repoRoot);
-    const { AuditoriaService } = await import('./servicios/AuditoriaService');
-    monitoramento = new MonitoramentoService(fileService, new AuditoriaService(fileService), validator);
+  const { MonitoramentoService } = await import('./servicios/MonitoramentoService');
+  const { FileService } = await import('./arquivos/FileService');
+  const { AuditoriaService } = await import('./servicios/AuditoriaService');
+
+  function getMonitoramentoDeProjeto(projetoId: string): any {
+    const registro = projetoService.listarProjetos();
+    if (!registro.sucesso || !registro.dados) return null;
+    const proj = registro.dados.find((p) => p.id === projetoId || p.caminhoRaiz === projetoId);
+    if (!proj) return null;
+
+    const aberto = projetoService.getProjetoCached(proj.id);
+    if (aberto) return aberto.monitoramento;
+
+    const fileService = new FileService(proj.caminhoRaiz);
+    const auditoria = new AuditoriaService(fileService);
+    return new MonitoramentoService(fileService, auditoria, validator);
   }
 
-  const app = createApp(monitoramento);
+  function getMonitoramentoAtual(projetoId?: string): any {
+    if (projetoId) {
+      const monitoramento = getMonitoramentoDeProjeto(projetoId);
+      if (monitoramento) return monitoramento;
+    }
+    const projetoResult = projetoService.getProjetoAtual();
+    if (projetoResult.sucesso && projetoResult.dados) {
+      return projetoResult.dados.monitoramento;
+    }
+    return null;
+  }
+
+  const app = createApp(getMonitoramentoAtual);
   const server = app.listen(PORTA, () => {
     console.log(`\n========================================`);
     console.log(`  Gerenciador Local de Agentes de IA`);
@@ -40,7 +57,7 @@ async function bootstrap() {
     console.log(`========================================\n`);
   });
 
-  const wsServer = new MonitoramentoWebSocket(monitoramento);
+  const wsServer = new MonitoramentoWebSocket(projetoService);
   wsServer.iniciar(server);
 }
 

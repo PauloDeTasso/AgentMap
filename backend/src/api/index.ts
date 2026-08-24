@@ -2,7 +2,6 @@
 import * as path from 'path';
 import { ProjetoService } from '../servicios/ProjetoService';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
-import { TempCleanupService } from '../servicios/TempCleanupService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
 import { criarProjetoRouter } from './projetos';
 import { criarAgenteRouter } from './agentes';
@@ -40,22 +39,32 @@ import { criarObservabilidadeRouter } from './observabilidade';
 import { criarTempRouter } from './temp';
 import { GERENCIADOR_DIR } from '../config';
 
-export function setupRotas(projetoService: ProjetoService, monitoramento: MonitoramentoService, cleanupService: TempCleanupService): Router {
+type GetMonitoramentoAtual = (projetoId?: string) => Promise<any> | any;
+
+export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual: GetMonitoramentoAtual): Router {
   const router = Router();
 
   router.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0', gerenciadorDir: GERENCIADOR_DIR } });
   });
 
-  router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
-
-  router.use('/api/temp', criarTempRouter(cleanupService));
-
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
   router.use('/api/observabilidade', criarObservabilidadeRouter());
 
   router.use('/api/*', projectMiddleware(projetoService));
+
+  router.use('/api/monitoramento', (req: Request, res: Response, next: any) => {
+    const projetoId = typeof req.query.projetoId === 'string' ? req.query.projetoId : undefined;
+    const monitoramento = getMonitoramentoAtual(projetoId);
+    if (!monitoramento) {
+      return res.status(400).json({ sucesso: false, erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.', codigoErro: 'NO_PROJECT_OPEN' });
+    }
+    (req as any).monitoramentoProjeto = monitoramento;
+    next();
+  }, criarMonitoramentoRouter());
+
+  router.use('/api/temp', criarTempRouter());
 
   router.use('/api/gerenciador-agentes', criarGerenciadorAgentesRouter());
 
@@ -106,6 +115,7 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
 
   router.get('/api/monitor', asyncHandler(async (req: Request, res: Response) => {
     const servicos = req.servicos!;
+    const monitoramento = servicos.monitoramento;
     const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes, tarefasRes, mensagensRes] = await Promise.all([
       servicos.integridade.calcularEstadoProjeto(servicos.projeto.id),
       servicos.sessao.listar(),

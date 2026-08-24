@@ -1,24 +1,53 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server, IncomingMessage } from 'http';
 import { MonitoramentoService, MensagemMonitoramento } from '../servicios/MonitoramentoService';
+import { ProjetoService } from '../servicios/ProjetoService';
 
 export class MonitoramentoWebSocket {
   private wss: WebSocketServer | null = null;
   private clientes: Set<WebSocket> = new Set();
-  private mensagemHandler: (msg: MensagemMonitoramento) => void;
+  private mensagemHandler: ((msg: MensagemMonitoramento) => void) | null = null;
+  private monitoramentoAtual: MonitoramentoService | null = null;
 
-  private ORIGINS_PERMITIDAS: string[];
+  private ORIGENS_PERMITIDAS: string[];
 
-  constructor(private monitoramento: MonitoramentoService) {
-    this.mensagemHandler = (msg: MensagemMonitoramento) => this.enviarParaTodos(msg);
-    this.monitoramento.on('mensagem', this.mensagemHandler);
+  constructor(private projetoService: ProjetoService) {
     const porta = process.env.PORTA || '3150';
-    this.ORIGINS_PERMITIDAS = [
+    this.ORIGENS_PERMITIDAS = [
       `http://localhost:${porta}`,
       `http://localhost:3150`,
       `http://127.0.0.1:${porta}`,
       `http://127.0.0.1:3150`
     ];
+  }
+
+  private getMonitoramento(): MonitoramentoService | null {
+    const projetoResult = this.projetoService.getProjetoAtual();
+    if (projetoResult.sucesso && projetoResult.dados) {
+      return projetoResult.dados.monitoramento;
+    }
+    return null;
+  }
+
+  private atualizarInscricao(): void {
+    const monitoramento = this.getMonitoramento();
+
+    if (monitoramento === this.monitoramentoAtual) {
+      return;
+    }
+
+    if (this.monitoramentoAtual && this.mensagemHandler) {
+      this.monitoramentoAtual.off('mensagem', this.mensagemHandler);
+    }
+
+    this.monitoramentoAtual = monitoramento;
+
+    if (monitoramento) {
+      this.mensagemHandler = (msg: MensagemMonitoramento) => this.enviarParaTodos(msg);
+      monitoramento.on('mensagem', this.mensagemHandler);
+    } else {
+      this.mensagemHandler = null;
+    }
   }
 
   iniciar(server: Server, caminho = '/ws/monitoramento'): void {
@@ -45,6 +74,14 @@ export class MonitoramentoWebSocket {
       console.log('[WebSocket] Cliente conectado ao monitoramento');
       this.clientes.add(ws);
 
+      this.atualizarInscricao();
+      const monitoramento = this.monitoramentoAtual;
+
+      if (!monitoramento) {
+        ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Nenhum projeto aberto' } }));
+        return;
+      }
+
       const welcomeMsg: MensagemMonitoramento = {
         id: `MSG-${Date.now()}`,
         timestamp: new Date().toISOString(),
@@ -54,7 +91,7 @@ export class MonitoramentoWebSocket {
       };
       ws.send(JSON.stringify(welcomeMsg));
 
-      const modo = this.monitoramento.obterModo();
+      const modo = monitoramento.obterModo();
       ws.send(JSON.stringify({
         type: 'mensagem_nova',
         data: {
@@ -67,7 +104,7 @@ export class MonitoramentoWebSocket {
         }
       }));
 
-      const agentes = this.monitoramento.listarAgentes();
+      const agentes = monitoramento.listarAgentes();
       ws.send(JSON.stringify({
         type: 'agente_status_alterado',
         data: agentes
@@ -102,11 +139,19 @@ export class MonitoramentoWebSocket {
   private verificarOrigem(info: { origin: string; req: IncomingMessage; secure: boolean }): boolean {
     const origin = info.origin || (info.req.headers && (info.req.headers as any).origin);
     if (!origin) return true;
-    return this.ORIGINS_PERMITIDAS.includes(origin);
+    return this.ORIGENS_PERMITIDAS.includes(origin);
   }
 
   private async processarMensagem(ws: WebSocket, payload: any): Promise<void> {
     const { type, data } = payload;
+
+    this.atualizarInscricao();
+    const monitoramento = this.monitoramentoAtual;
+
+    if (!monitoramento) {
+      ws.send(JSON.stringify({ type: 'erro', data: { mensagem: 'Nenhum projeto aberto' } }));
+      return;
+    }
 
     switch (type) {
       case 'ping':
@@ -114,17 +159,17 @@ export class MonitoramentoWebSocket {
         break;
 
       case 'solicitar_mensagens':
-        const msgs = this.monitoramento.listarMensagens(data?.limite || 100);
+        const msgs = monitoramento.listarMensagens(data?.limite || 100);
         ws.send(JSON.stringify({ type: 'mensagens', data: msgs }));
         break;
 
       case 'solicitar_agentes':
-        const agentes = this.monitoramento.listarAgentes();
+        const agentes = monitoramento.listarAgentes();
         ws.send(JSON.stringify({ type: 'agentes', data: agentes }));
         break;
 
       case 'alterar_modo':
-        const result = this.monitoramento.alterarModo(
+        const result = monitoramento.alterarModo(
           data?.modo,
           data?.escopo === 'AGENTE' ? 'AGENTE' : 'GLOBAL',
           data?.agenteId
@@ -133,27 +178,27 @@ export class MonitoramentoWebSocket {
         break;
 
       case 'solicitar_pendentes_dispatcher':
-        const pendentes = this.monitoramento.listarPendentesDispatcher(data?.agenteId);
+        const pendentes = monitoramento.listarPendentesDispatcher(data?.agenteId);
         ws.send(JSON.stringify({ type: 'pendentes_dispatcher', data: pendentes }));
         break;
 
       case 'executar_pendente_dispatcher':
-        const execResult = await this.monitoramento.executarPendenteDispatcher(data?.agenteId);
+        const execResult = await monitoramento.executarPendenteDispatcher(data?.agenteId);
         ws.send(JSON.stringify({ type: 'dispatch_resultado', data: execResult }));
         break;
 
       case 'solicitar_logs_dispatcher':
-        const logs = this.monitoramento.listarLogsDispatcher(data?.limite || 100);
+        const logs = monitoramento.listarLogsDispatcher(data?.limite || 100);
         ws.send(JSON.stringify({ type: 'logs_dispatcher', data: logs }));
         break;
 
       case 'solicitar_kilo_state':
-        const kiloState = await this.monitoramento.obterKiloState();
+        const kiloState = await monitoramento.obterKiloState();
         ws.send(JSON.stringify({ type: 'kilo_state', data: kiloState }));
         break;
 
       case 'intervenir':
-        this.monitoramento.executarIntervencao(data?.comando, data?.payload || {})
+        monitoramento.executarIntervencao(data?.comando, data?.payload || {})
           .then(result => {
             ws.send(JSON.stringify({ type: 'intervencao_resultado', data: result }));
           })
@@ -191,7 +236,11 @@ export class MonitoramentoWebSocket {
       this.wss.close();
       this.wss = null;
     }
-    this.monitoramento.off('mensagem', this.mensagemHandler);
+    if (this.monitoramentoAtual && this.mensagemHandler) {
+      this.monitoramentoAtual.off('mensagem', this.mensagemHandler);
+    }
+    this.monitoramentoAtual = null;
+    this.mensagemHandler = null;
     for (const ws of this.clientes) {
       ws.close();
     }
