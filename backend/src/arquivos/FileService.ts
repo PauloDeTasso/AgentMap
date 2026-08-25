@@ -96,16 +96,30 @@ export class FileService {
       if (!fs.existsSync(caminhoAbsoluto)) {
         return { sucesso: false, erro: 'Arquivo/diretório não encontrado', codigoErro: 'NOT_FOUND' };
       }
+
+      const pastasProtegidas = [
+        '.ia/tarefas', '.ia/handoffs', '.ia/contratos', '.ia/dependencias',
+        '.ia/estado', '.ia/auditoria', '.ia/contexto', '.ia/sessoes',
+        '.ia/resultados', '.ia/pendencias', '.ia/validacoes', '.ia/reservas',
+        '.ia/decisoes', '.ia/responsabilidades', '.ia/artefatos', '.ia/aprendizados',
+        '.ia/bloqueios', '.ia/riscos', '.ia/conflitos', '.ia/checkpoints',
+        '.ia/solicitacoes', '.ia/agentes', '.ia/configuracao', '.ia/procedimentos'
+      ];
+      const relPath = path.win32.relative(this.projectRoot, caminhoAbsoluto).replace(/\\/g, '/').replace(/^\.ia[\\/]/, '.ia/');
+      const isProtected = pastasProtegidas.some(p => relPath === p || relPath.startsWith(p + '/'));
+      const stats = fs.statSync(caminhoAbsoluto);
+      if (stats.isDirectory() && isProtected) {
+        return { sucesso: false, erro: `Pasta protegida pelo sistema: ${relPath}. Use a funcionalidade "Limpar Dados" para limpar o conteúdo.`, codigoErro: 'PROTECTED_FOLDER' };
+      }
+
       if (opcoes.backup) {
         this.criarBackup(caminhoAbsoluto);
       }
-      const stats = fs.statSync(caminhoAbsoluto);
       if (stats.isDirectory()) {
         fs.rmSync(caminhoAbsoluto, { recursive: true, force: true });
       } else {
         fs.unlinkSync(caminhoAbsoluto);
       }
-      const relPath = path.win32.relative(this.projectRoot, caminhoAbsoluto).replace(/\\/g, '/');
       return { sucesso: true, dados: relPath };
     } catch (e) {
       if (e instanceof PathTraversalError) {
