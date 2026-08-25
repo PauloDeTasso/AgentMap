@@ -69,6 +69,30 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
     return responder(res, { sucesso: true, dados: req.servicos!.auditoria.listar(200) });
   }));
 
+  router.get('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, req.servicos!.auditoria.obter(req.params.id));
+  }));
+
+  router.post('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.auditoria.criar(req.body);
+    return responder(res, result, result.sucesso ? 201 : 400);
+  }));
+
+  router.put('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.auditoria.atualizar(req.params.id, req.body);
+    return responder(res, result, result.sucesso ? 200 : 400);
+  }));
+
+  router.delete('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.auditoria.excluir(req.params.id);
+    return responder(res, result);
+  }));
+
+  router.delete('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
+    const result = await req.servicos!.auditoria.excluirTodos();
+    return responder(res, result);
+  }));
+
   router.use('/api/agentes', criarAgenteRouter());
   router.use('/api/tarefas', criarTarefaRouter());
   router.use('/api/arquivos', criarArquivoRouter());

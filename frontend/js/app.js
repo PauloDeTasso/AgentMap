@@ -1884,15 +1884,25 @@ async function renderizarHistorico(el) {
     const res = await api.getAuditoria();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const eventos = res.dados || [];
-    el.innerHTML = `<h3>📜 Histórico de Coordenação (${eventos.length} eventos)</h3>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">📜 Histórico de Coordenação (${eventos.length} eventos)</h3>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalHistorico()">+ Novo Evento</button>
+        ${eventos.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosHistorico()">Excluir Todos</button>' : ''}
+      </div>
+    </div>`;
     if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Agente</th><th>Tarefa</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Agente</th><th>Tarefa</th><th>Resultado</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const ev of eventos) {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${escapeHtml(formatDate(ev.data))}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td>${escapeHtml(ev.agenteId || '')}</td><td>${escapeHtml(ev.tarefaId || '')}</td>`;
+      tr.innerHTML = `<td>${escapeHtml(formatDate(ev.data))}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td>${escapeHtml(ev.agenteId || '')}</td><td>${escapeHtml(ev.tarefaId || '')}</td><td>${escapeHtml(ev.resultado || '')}</td>
+        <td>
+          <button class="btn btn--small" onclick="editarHistorico('${escapeAttr(ev.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirHistorico('${escapeAttr(ev.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -2953,6 +2963,76 @@ window.excluirContrato = async function(id) {
       if (res.sucesso) { showToast('Aprendizado salvo!', 'sucesso'); hideModal('modal-aprendizado'); carregarPainel('aprendizados'); }
       else showToast(res.erro, 'erro');
     } catch (err) { showToast(err?.erro || 'Erro ao salvar aprendizado', 'erro'); }
+    finally { restoreButton(btn); }
+  });
+
+  // ===== Histórico: criar / editar / excluir =====
+  window.abrirModalHistorico = function(evento = null) {
+    $('form-historico').reset();
+    $('historico-id').value = '';
+    $('historico-id-input').disabled = true;
+    if (evento) {
+      $('historico-id').value = evento.id;
+      $('historico-id-input').value = evento.id;
+      $('historico-tipo').value = evento.tipo || 'MANUAL';
+      $('historico-resultado').value = evento.resultado || 'sucesso';
+      $('historico-agente').value = evento.agenteId || '';
+      $('historico-tarefa').value = evento.tarefaId || '';
+      $('historico-descricao').value = evento.descricao || '';
+      $('titulo-historico').textContent = `Editar Evento: ${escapeHtml(evento.id)}`;
+    } else {
+      $('historico-id-input').value = '';
+      $('historico-tipo').value = 'MANUAL';
+      $('historico-resultado').value = 'sucesso';
+      $('titulo-historico').textContent = 'Novo Evento de Histórico';
+    }
+    showModal('modal-historico');
+  };
+
+  window.editarHistorico = async function(id) {
+    try {
+      const res = await api.getAuditoriaEvento(id);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      abrirModalHistorico(res.dados);
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirHistorico = async function(id) {
+    if (!confirm(`Excluir evento "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirAuditoria(id);
+      if (res.sucesso) { showToast('Evento excluído!', 'sucesso'); carregarPainel('historico'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosHistorico = async function() {
+    if (!confirm('Excluir TODOS os eventos de histórico? Esta ação não pode ser revertida.')) return;
+    try {
+      const res = await api.excluirTodosAuditoria();
+      if (res.sucesso) { showToast(`Eventos removidos (${res.dados}).`, 'sucesso'); carregarPainel('historico'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-historico').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-historico').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('historico-id').value;
+    const dados = {
+      tipo: $('historico-tipo').value,
+      resultado: $('historico-resultado').value,
+      agenteId: $('historico-agente').value.trim() || null,
+      tarefaId: $('historico-tarefa').value.trim() || null,
+      descricao: $('historico-descricao').value.trim()
+    };
+    if (!dados.descricao) { showToast('Descrição é obrigatória', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarAuditoria(id, dados) : await api.criarAuditoria(dados);
+      if (res.sucesso) { showToast('Evento salvo!', 'sucesso'); hideModal('modal-historico'); carregarPainel('historico'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar evento', 'erro'); }
     finally { restoreButton(btn); }
   });
 
