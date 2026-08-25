@@ -530,7 +530,7 @@ O backend expõe endpoints dedicados para integração com o painel Monitor:
 | `DELETE /api/monitoramento/mensagens` | Apaga todas as mensagens de monitoramento |
 | `PUT /api/monitoramento/agente/:id/status` | Atualiza o status de um agente monitorado |
 | `GET /api/monitoramento/agentes` | Lista agentes e seus status de monitoramento |
-| `GET /api/monitoramento/modo` | Retorna o modo global de operação (MANUAL/AUTO) |
+| `GET /api/monitoramento/modo` | Retorna o modo global de operação (MANUAL/ASSISTIDA/AUTONOMA) |
 | `POST /api/monitoramento/modo` | Altera o modo global de operação |
 | `POST /api/monitoramento/intervir` | Executa intervenção manual no sistema |
 | `GET /api/monitoramento/dispatcher/pendentes` | Lista itens pendentes do dispatcher |
@@ -540,10 +540,11 @@ O backend expõe endpoints dedicados para integração com o painel Monitor:
 
 ### Modos de Operação
 
-O AgentMap suporta dois modos de operação no monitoramento:
+O AgentMap suporta três modos de operação no monitoramento:
 
 - **MANUAL** — Agentes e operações seguem fluxo controlado pelo usuário ou planejador
-- **AUTO** — Sistema pode executar operações automaticamente dentro de regras predefinidas
+- **ASSISTIDA** — Sistema sugere ações e valida antes de executar
+- **AUTONOMA** — Sistema executa operações automaticamente dentro de regras predefinidas
 
 O modo pode ser alterado via `POST /api/monitoramento/modo` e é refletido em tempo real no painel Monitor.
 
@@ -1045,7 +1046,7 @@ AgentMap/
 ├── backend/          # API Node.js + TypeScript + Express + MCP Server
 ├── frontend/          # Interface web HTML/CSS/JS vanilla
 ├── .ia/               # Dados do projeto (tarefas, contratos, agentes, handoffs...)
-├── esquemas/          # JSON Schemas de validação
+├── esquemas/          # JSON Schemas de validação (27 schemas)
 ├── banco/             # PostgreSQL opcional (não implementado; apenas expansão futura)
 ├── PLANO GERAL/       # Documentação de planejamento e especificações
 ├── docs/              # Guias e documentação adicional
@@ -1093,7 +1094,7 @@ Variáveis de ambiente e configurações locais devem ser definidas em `kilo.loc
 
 O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 
-- **132 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0, incluindo `agentmap_monitoramento_verificar_pendentes` para wake-up
+- **163 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0, incluindo `agentmap_monitoramento_verificar_pendentes` para wake-up
 - **Transporte STDIO** local (sem exposição de rede)
 - **`outputSchema` + `structuredContent`** para resultados estruturados
 - **Validação de entrada** via Zod em todas as tools
@@ -1210,7 +1211,7 @@ O AgentMap está funcional, testado e pronto para uso em projetos reais. A inter
 |---|---|
 | 🖥️ Interface Web | **27 painéis funcionais** com navegação completa |
 | 🔌 API REST | **~180 rotas** funcionais e documentadas |
-| 🛠️ Tools MCP | **132 tools** registradas para integração com agentes, incluindo `agentmap_monitoramento_verificar_pendentes` |
+| 🛠️ Tools MCP | **163 tools** registradas para integração com agentes, incluindo `agentmap_monitoramento_verificar_pendentes` |
 | 📊 Dados | Base populada com dados realistas em todos os módulos |
 | 🔔 Eventos | Sistema de eventos assíncronos com subscrições em tempo real |
 | 🔒 Segurança | Validação Zod, proteção contra path traversal, CORS configurado |

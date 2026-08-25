@@ -5,7 +5,7 @@
 
 ## 1. O QUE É O AGENTMAP
 
-O AgentMap é um **Gerenciador Local de Agentes de IA** para Windows 11. Ele organiza projetos, agentes, contratos, tarefas, contexto, conhecimento e governança através de arquivos reais no sistema de arquivos.
+O AgentMap é um **Gerenciador Local de Agentes de IA** multiplataforma (Windows, Linux e macOS). Ele organiza projetos, agentes, contratos, tarefas, contexto, conhecimento e governança através de arquivos reais no sistema de arquivos.
 
 **Premissa fundamental:** O arquivo é a informação principal. PostgreSQL é opcional (não implementado no momento; apenas pasta para futura expansão).
 
@@ -27,7 +27,9 @@ Ele entrega contexto correto e registra o que acontece.
 ### 2.2 Frontend (HTML5 + CSS3 + JavaScript vanilla)
 - Interface web local em `frontend/`
 - Acesse: `http://localhost:3150/index.html`
-- Páginas: `index.html` (principal) e `monitoramento.html` (dashboard)
+- Monitoramento: `http://localhost:3150/monitoramento.html`
+- Gerenciador de Agentes: `http://localhost:3150/gerenciador-agentes.html`
+- Páginas: `index.html` (principal), `monitoramento.html` (dashboard de monitoramento) e `gerenciador-agentes.html` (gestão de agentes/dispatcher)
 
 ### 2.3 Dados (`.ia/` por projeto)
 Cada projeto gerenciado tem uma pasta `.ia/` com:
@@ -138,183 +140,240 @@ Estados terminais (sem saída):
 
 ## 4. TODAS AS FERRAMENTAS DISPONÍVEIS
 
-### 4.1 MCP Tools (131 tools registradas)
+### 4.1 MCP Tools (163 tools `agentmap_*` registradas)
 
-Estas tools são chamadas por agentes via protocolo MCP. Estão registradas em `backend/src/mcp-server/tools/index.ts`.
+Estas tools são chamadas por agentes via protocolo MCP (STDIO local, `@modelcontextprotocol/sdk` v1.30.0). Estão registradas em `backend/src/mcp-server/tools/*.ts` e agregadas em `backend/src/mcp-server/tools/index.ts`.
 
-**Gerenciamento de Projeto:**
+> **Total:** 163 tools com prefixo `agentmap_`. Há ainda 4 tools complementares do Kilo Hub (`kilohub_*`) usadas pela integração com o Kilo Code (ver final da seção).
+
+**Gerenciamento de Projeto (6):**
 - `agentmap_projetos_listar` — lista projetos
 - `agentmap_projetos_criar` — cria projeto
 - `agentmap_projetos_abrir` — abre projeto (`POST /api/projetos/:id/abrir`)
 - `agentmap_projetos_fechar` — fecha projeto (`POST /api/projetos/:id/fechar`)
 - `agentmap_projetos_atual` — projeto atual
+- `agentmap_projetos_excluir_todos` — remove todos os projetos registrados
 
-**Gerenciamento de Agentes:**
+**Gerenciamento de Agentes (5):**
 - `agentmap_agentes_listar` — lista agentes
 - `agentmap_agentes_criar` — cria agente
 - `agentmap_agentes_obter` — obtém agente
 - `agentmap_agentes_atualizar` — atualiza agente
 - `agentmap_agentes_excluir` — exclui agente
 
-**Gerenciamento de Tarefas:**
+**Gerenciamento de Tarefas (9):**
 - `agentmap_tarefas_listar` — lista tarefas
 - `agentmap_tarefas_criar` — cria tarefa
 - `agentmap_tarefas_obter` — obtém tarefa
 - `agentmap_tarefas_atualizar` — atualiza tarefa
 - `agentmap_tarefas_excluir` — exclui tarefa
+- `agentmap_tarefas_excluir_todos` — exclui todas as tarefas
 - `agentmap_tarefas_alterar_estado` — altera estado (respeita transições)
 - `agentmap_tarefas_contexto` — pacote de contexto completo para tarefa
+- `agentmap_tarefas_prontas_para_worktree` — lista tarefas sem dependência pendente
 
-**Worktree (paralelismo real):**
-- `agentmap_tarefas_prontas_para_worktree` — lista tarefas prontas para worktree
-- `agentmap_verificar_dependencias_pendentes` — verifica dependências pendentes
-- `agentmap_abrir_worktree` — abre worktree para agente
+**Worktree (paralelismo real) (3):**
+- `agentmap_tarefas_prontas_para_worktree` — vê acima (tarefas prontas)
+- `agentmap_verificar_dependencias_pendentes` — verifica dependências pendentes de uma tarefa
+- `agentmap_abrir_worktree` — registra intenção de worktree para uma tarefa
 
-**Handoffs:**
+**Handoffs (6):**
 - `agentmap_handoffs_listar` — lista handoffs
 - `agentmap_handoffs_criar` — cria handoff
 - `agentmap_handoffs_obter` — obtém handoff
 - `agentmap_handoffs_atualizar` — atualiza handoff
 - `agentmap_handoffs_excluir` — exclui handoff
+- `agentmap_handoffs_excluir_todos` — exclui todos os handoffs
 
-**Solicitações de Alteração:**
+**Solicitações de Alteração (10):**
 - `agentmap_solicitacoes_listar` — lista solicitações
 - `agentmap_solicitacoes_criar` — cria solicitação
+- `agentmap_solicitacoes_obter` — obtém solicitação
+- `agentmap_solicitacoes_atualizar` — atualiza solicitação
 - `agentmap_solicitacoes_aprovar` — aprova solicitação
 - `agentmap_solicitacoes_rejeitar` — rejeita solicitação
-- `agentmap_solicitacoes_atualizar` — atualiza solicitação
+- `agentmap_solicitacoes_cancelar` — cancela solicitação
 - `agentmap_solicitacoes_excluir` — exclui solicitação
-- `agentmap_solicitacoes_historico` — histórico de solicitação
+- `agentmap_solicitacoes_excluir_todos` — exclui todas as solicitações
+- `agentmap_solicitacoes_historico` — histórico de uma solicitação
 
-**Dependências:**
+**Dependências (6):**
 - `agentmap_dependencias_listar` — lista dependências
 - `agentmap_dependencias_criar` — cria dependência
 - `agentmap_dependencias_obter` — obtém dependência
+- `agentmap_dependencias_atualizar` — atualiza dependência
 - `agentmap_dependencias_excluir` — exclui dependência
+- `agentmap_dependencias_excluir_todos` — exclui todas as dependências
 
-**Eventos:**
-- `agentmap_eventos_listar` — lista eventos
-- `agentmap_eventos_pendentes` — eventos pendentes para agente
+**Eventos (3):**
+- `agentmap_eventos_listar` — lista eventos (com filtros opcionais)
+- `agentmap_eventos_pendentes` — eventos pendentes para um agente
 - `agentmap_eventos_confirmar` — confirma consumo de evento
 
-**Sessões:**
+**Sessões (7):**
 - `agentmap_sessoes_listar` — lista sessões
 - `agentmap_sessoes_criar` — cria sessão
 - `agentmap_sessoes_obter` — obtém sessão
 - `agentmap_sessoes_atualizar` — atualiza sessão
 - `agentmap_sessoes_finalizar` — finaliza sessão
 - `agentmap_sessoes_excluir` — exclui sessão
+- `agentmap_sessoes_excluir_todos` — exclui todas as sessões
 
-**Reservas:**
+**Reservas (7):**
 - `agentmap_reservas_listar` — lista reservas
 - `agentmap_reservas_criar` — cria reserva
 - `agentmap_reservas_obter` — obtém reserva
+- `agentmap_reservas_atualizar` — atualiza reserva
 - `agentmap_reservas_liberar` — libera reserva
 - `agentmap_reservas_excluir` — exclui reserva
+- `agentmap_reservas_excluir_todos` — exclui todas as reservas
 
-**Bloqueios:**
+**Bloqueios (7):**
 - `agentmap_bloqueios_listar` — lista bloqueios
 - `agentmap_bloqueios_criar` — cria bloqueio
 - `agentmap_bloqueios_obter` — obtém bloqueio
+- `agentmap_bloqueios_atualizar` — atualiza bloqueio
 - `agentmap_bloqueios_resolver` — resolve bloqueio
 - `agentmap_bloqueios_excluir` — exclui bloqueio
+- `agentmap_bloqueios_excluir_todos` — exclui todos os bloqueios
 
-**Conflitos:**
+**Conflitos (7):**
 - `agentmap_conflitos_listar` — lista conflitos
 - `agentmap_conflitos_criar` — cria conflito
 - `agentmap_conflitos_obter` — obtém conflito
+- `agentmap_conflitos_atualizar` — atualiza conflito
 - `agentmap_conflitos_resolver` — resolve conflito
 - `agentmap_conflitos_excluir` — exclui conflito
+- `agentmap_conflitos_excluir_todos` — exclui todos os conflitos
 
-**Critérios:**
+**Critérios (6):**
 - `agentmap_criterios_listar` — lista critérios
 - `agentmap_criterios_criar` — cria critério
 - `agentmap_criterios_obter` — obtém critério
+- `agentmap_criterios_atualizar` — atualiza critério
 - `agentmap_criterios_excluir` — exclui critério
+- `agentmap_criterios_excluir_todos` — exclui todos os critérios
 
-**Validações:**
+**Validações (6):**
 - `agentmap_validacoes_listar` — lista validações
 - `agentmap_validacoes_criar` — cria validação
 - `agentmap_validacoes_obter` — obtém validação
+- `agentmap_validacoes_atualizar` — atualiza validação
 - `agentmap_validacoes_excluir` — exclui validação
+- `agentmap_validacoes_excluir_todos` — exclui todas as validações
 
-**Checkpoints:**
+**Checkpoints (6):**
 - `agentmap_checkpoints_listar` — lista checkpoints
 - `agentmap_checkpoints_criar` — cria checkpoint
 - `agentmap_checkpoints_obter` — obtém checkpoint
+- `agentmap_checkpoints_atualizar` — atualiza checkpoint
 - `agentmap_checkpoints_excluir` — exclui checkpoint
+- `agentmap_checkpoints_excluir_todos` — exclui todos os checkpoints
 
-**Pendências:**
+**Pendências (7):**
 - `agentmap_pendencias_listar` — lista pendências
+- (filtro opcional por tarefa)
 - `agentmap_pendencias_criar` — cria pendência
 - `agentmap_pendencias_obter` — obtém pendência
+- `agentmap_pendencias_atualizar` — atualiza pendência
 - `agentmap_pendencias_resolver` — resolve pendência
 - `agentmap_pendencias_excluir` — exclui pendência
+- `agentmap_pendencias_excluir_todos` — exclui todas as pendências
 
-**Riscos:**
+**Riscos (6):**
 - `agentmap_riscos_listar` — lista riscos
 - `agentmap_riscos_criar` — cria risco
 - `agentmap_riscos_obter` — obtém risco
 - `agentmap_riscos_atualizar` — atualiza risco
 - `agentmap_riscos_excluir` — exclui risco
+- `agentmap_riscos_excluir_todos` — exclui todos os riscos
 
-**Resultados:**
+**Resultados (6):**
 - `agentmap_resultados_listar` — lista resultados
 - `agentmap_resultados_criar` — cria resultado
 - `agentmap_resultados_obter` — obtém resultado
+- `agentmap_resultados_atualizar` — atualiza resultado
+- `agentmap_resultados_excluir` — exclui resultado
+- `agentmap_resultados_excluir_todos` — exclui todos os resultados
 
-**Artefatos:**
+**Artefatos (7):**
 - `agentmap_artefatos_listar` — lista artefatos
 - `agentmap_artefatos_criar` — cria artefato
 - `agentmap_artefatos_obter` — obtém artefato
+- `agentmap_artefatos_atualizar` — atualiza artefato
 - `agentmap_artefatos_excluir` — exclui artefato
-- `agentmap_artefatos_versoes` — versões de artefato
+- `agentmap_artefatos_excluir_todos` — exclui todos os artefatos
+- `agentmap_artefatos_versoes` — versões de um artefato
 
-**Aprendizados:**
+**Aprendizados (6):**
 - `agentmap_aprendizados_listar` — lista aprendizados
 - `agentmap_aprendizados_criar` — cria aprendizado
 - `agentmap_aprendizados_obter` — obtém aprendizado
+- `agentmap_aprendizados_atualizar` — atualiza aprendizado
 - `agentmap_aprendizados_excluir` — exclui aprendizado
+- `agentmap_aprendizados_excluir_todos` — exclui todos os aprendizados
 
-**Contatos:**
+**Contatos (6):**
 - `agentmap_contatos_listar` — lista contatos
 - `agentmap_contatos_criar` — cria contato
 - `agentmap_contatos_obter` — obtém contato
 - `agentmap_contatos_atualizar` — atualiza contato
 - `agentmap_contatos_excluir` — exclui contato
+- `agentmap_contatos_excluir_todos` — exclui todos os contatos
 
-**Responsabilidades:**
+**Responsabilidades (6):**
 - `agentmap_responsabilidades_listar` — lista responsabilidades
 - `agentmap_responsabilidades_criar` — cria responsabilidade
 - `agentmap_responsabilidades_obter` — obtém responsabilidade
+- `agentmap_responsabilidades_atualizar` — atualiza responsabilidade
 - `agentmap_responsabilidades_excluir` — exclui responsabilidade
+- `agentmap_responsabilidades_excluir_todos` — exclui todas as responsabilidades
 
-**Arquivos:**
+**Decisões (6):**
+- `agentmap_decisoes_listar` — lista decisões
+- `agentmap_decisoes_criar` — cria decisão
+- `agentmap_decisoes_obter` — obtém decisão
+- `agentmap_decisoes_atualizar` — atualiza decisão
+- `agentmap_decisoes_excluir` — exclui decisão
+- `agentmap_decisoes_excluir_todos` — exclui todas as decisões
+
+**Arquivos (4):**
 - `agentmap_arquivos_listar` — lista arquivos de um diretório
 - `agentmap_arquivos_ler` — lê arquivo
 - `agentmap_arquivos_excluir` — exclui arquivo/diretório
+- `agentmap_arquivos_excluir_todos` — exclui todos os arquivos de um diretório
 
-**Busca:**
+**Busca (3):**
 - `agentmap_buscar_conhecimento` — busca na base de conhecimento
-- `agentmap_buscar_referencias` — busca referências a símbolo
+- `agentmap_buscar_referencias` — busca referências a um símbolo
 - `agentmap_buscar_simbolo` — busca definições de símbolos
 
-**Contexto:**
+**Contexto e Descoberta (10):**
 - `agentmap_obter_agente` — obtém perfil completo de agente
 - `agentmap_obter_arquitetura` — obtém arquitetura do projeto
 - `agentmap_obter_contexto_projeto` — contexto completo do projeto
 - `agentmap_obter_contexto_tarefa` — pacote de contexto para tarefa
 - `agentmap_recomendar_agente` — recomenda agente para tarefa
 - `agentmap_ler_trecho_arquivo` — lê trecho de arquivo
+- `agentmap_integridade_verificar` — verifica integridade do projeto
+- `agentmap_monitoramento_verificar_pendentes` — consulta mensagens novas no monitoramento
+- `agentmap_descobrir` — lista capabilities, agents, docs, CLI, worktree e onboarding
+- `agentmap_sugerir_fluxo` — recomenda sequência de tools por objetivo
 
-**Auditoria:**
+**Auditoria (1):**
 - `agentmap_auditoria_listar` — lista eventos de auditoria
 
-**Workflows:**
+**Workflows (4):**
 - `agentmap_workflows_iniciar_trabalho` — inicia trabalho (valida agente + tarefa + monta contexto)
 - `agentmap_workflows_finalizar_trabalho` — finaliza trabalho (registra resultado, artefatos, handoff)
 - `agentmap_workflows_consultar_pendencias` — consulta pendências/handoffs/validações/bloqueios
 - `agentmap_workflows_obter_mapa_projeto` — obtém mapa completo do projeto
+
+**Kilo Hub — integração Kilo Code (4):**
+- `kilohub_receive_chat_message` — busca mensagens direcionadas a um agente Kilo no monitoramento
+- `kilohub_report_status` — reporta status de uma sessão Kilo
+- `kilohub_report_progress` — reporta progresso de uma tarefa
+- `kilohub_report_result` — reporta o resultado final de uma tarefa
 
 ### 4.2 API REST (principais endpoints)
 
