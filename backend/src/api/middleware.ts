@@ -35,6 +35,7 @@ import { KiloReconciliationService } from '../servicios/KiloReconciliationServic
 import { TaskContextBuilder } from '../servicios/TaskContextBuilder';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
+import { EstadoService } from '../servicios';
 
 export interface Servicos {
   projeto: ProjetoAberto;
@@ -60,6 +61,7 @@ export interface Servicos {
   bloqueio: BloqueioService;
   evento: EventoService;
   contato: ContatoService;
+  estado: EstadoService;
   auditoria: AuditoriaService;
   stateMachine: StateMachineService;
   contractValidator: ContractValidatorService;
@@ -114,6 +116,7 @@ export function projectMiddleware(projetoService: ProjetoService) {
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
       evento: new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
+      estado: new EstadoService(projeto.fileService, projeto.auditoria),
       auditoria: projeto.auditoria,
       stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator),
       contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),

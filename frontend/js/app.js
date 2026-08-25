@@ -1093,6 +1093,178 @@ window.excluirTodosHandoffs = async function() {
   }
 };
 
+window.abrirModalEstadoNota = function(nota = null) {
+  const isEdit = nota !== null;
+  let html = `<div id="modal-estado-nota" class="modal-overlay active">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">${isEdit ? 'Editar Nota de Estado' : 'Nova Nota de Estado'}</h3>
+        <button class="modal-close" onclick="fecharModalEstadoNota()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-estado-nota">
+          <div class="form-group">
+            <label class="form-label">Título <span class="required">*</span></label>
+            <input type="text" id="estado-nota-titulo" class="form-input" value="${isEdit ? escapeAttr(nota.titulo) : ''}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Conteúdo <span class="required">*</span></label>
+            <textarea id="estado-nota-conteudo" class="form-textarea" rows="5" required>${isEdit ? escapeHtml(nota.conteudo) : ''}</textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Categoria</label>
+              <select id="estado-nota-categoria" class="form-select">
+                <option value="GERAL" ${isEdit && nota.categoria === 'GERAL' ? 'selected' : ''}>Geral</option>
+                <option value="PROBLEMA" ${isEdit && nota.categoria === 'PROBLEMA' ? 'selected' : ''}>Problema</option>
+                <option value="DECISAO" ${isEdit && nota.categoria === 'DECISAO' ? 'selected' : ''}>Decisão</option>
+                <option value="OBSERVACAO" ${isEdit && nota.categoria === 'OBSERVACAO' ? 'selected' : ''}>Observação</option>
+                <option value="RISCO" ${isEdit && nota.categoria === 'RISCO' ? 'selected' : ''}>Risco</option>
+                <option value="MELHORIA" ${isEdit && nota.categoria === 'MELHORIA' ? 'selected' : ''}>Melhoria</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prioridade</label>
+              <select id="estado-nota-prioridade" class="form-select">
+                <option value="BAIXA" ${isEdit && nota.prioridade === 'BAIXA' ? 'selected' : ''}>Baixa</option>
+                <option value="MEDIA" ${!isEdit || nota.prioridade === 'MEDIA' ? 'selected' : ''}>Média</option>
+                <option value="ALTA" ${isEdit && nota.prioridade === 'ALTA' ? 'selected' : ''}>Alta</option>
+                <option value="CRITICA" ${isEdit && nota.prioridade === 'CRITICA' ? 'selected' : ''}>Crítica</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select id="estado-nota-estado" class="form-select">
+              <option value="ATIVO" ${!isEdit || nota.estado === 'ATIVO' ? 'selected' : ''}>Ativo</option>
+              <option value="ARQUIVADO" ${isEdit && nota.estado === 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
+              <option value="RESOLVIDO" ${isEdit && nota.estado === 'RESOLVIDO' ? 'selected' : ''}>Resolvido</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="fecharModalEstadoNota()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarEstadoNota(${isEdit ? "'" + nota.id + "'" : 'null'})">${isEdit ? 'Atualizar' : 'Criar'}</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+};
+
+window.fecharModalEstadoNota = function() {
+  const modal = document.getElementById('modal-estado-nota');
+  if (modal) modal.remove();
+};
+
+window.salvarEstadoNota = async function(id) {
+  const titulo = document.getElementById('estado-nota-titulo').value.trim();
+  const conteudo = document.getElementById('estado-nota-conteudo').value.trim();
+  const categoria = document.getElementById('estado-nota-categoria').value;
+  const prioridade = document.getElementById('estado-nota-prioridade').value;
+  const estado = document.getElementById('estado-nota-estado').value;
+
+  if (!titulo) { showToast('Título é obrigatório.', 'erro'); return; }
+  if (!conteudo) { showToast('Conteúdo é obrigatório.', 'erro'); return; }
+
+  const dados = { titulo, conteudo, categoria, prioridade, estado };
+
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarEstadoNota(id, dados);
+    } else {
+      res = await api.criarEstadoNota(dados);
+    }
+    if (res.sucesso) {
+      showToast(id ? 'Nota atualizada com sucesso!' : 'Nota criada com sucesso!', 'sucesso');
+      fecharModalEstadoNota();
+      carregarPainel('estado');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao salvar.', 'erro');
+  }
+};
+
+window.editarEstadoNota = async function(id) {
+  try {
+    const res = await api.getEstadoNota(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalEstadoNota(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro ao carregar nota.', 'erro');
+  }
+};
+
+window.verEstadoNota = async function(id) {
+  try {
+    const res = await api.getEstadoNota(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const n = res.dados;
+    const dataCriacao = n.datas?.criacao ? formatDate(n.datas.criacao) : '-';
+    const dataAtualizacao = n.datas?.ultimaAtualizacao ? formatDate(n.datas.ultimaAtualizacao) : '-';
+    let html = `<div id="modal-ver-estado-nota" class="modal-overlay active">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">${escapeHtml(n.titulo)}</h3>
+          <button class="modal-close" onclick="document.getElementById('modal-ver-estado-nota').remove()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>ID:</strong> ${escapeHtml(n.id)}</p>
+          <p><strong>Categoria:</strong> ${escapeHtml(n.categoria)}</p>
+          <p><strong>Prioridade:</strong> ${escapeHtml(n.prioridade)}</p>
+          <p><strong>Estado:</strong> ${escapeHtml(n.estado)}</p>
+          <p><strong>Criada em:</strong> ${escapeHtml(dataCriacao)}</p>
+          <p><strong>Última atualização:</strong> ${escapeHtml(dataAtualizacao)}</p>
+          <hr style="margin:12px 0;">
+          <p><strong>Conteúdo:</strong></p>
+          <div style="background:#1a1a2e;padding:12px;border-radius:6px;white-space:pre-wrap;">${escapeHtml(n.conteudo)}</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="document.getElementById('modal-ver-estado-nota').remove()">Fechar</button>
+          <button class="btn btn-primary" onclick="document.getElementById('modal-ver-estado-nota').remove();editarEstadoNota('${escapeAttr(n.id)}')">Editar</button>
+        </div>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+  } catch (err) {
+    showToast(err?.message || 'Erro ao carregar nota.', 'erro');
+  }
+};
+
+window.excluirEstadoNota = async function(id) {
+  if (!confirm('Excluir esta nota de estado? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirEstadoNota(id);
+    if (res.sucesso) {
+      showToast('Nota excluída com sucesso.', 'sucesso');
+      carregarPainel('estado');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir.', 'erro');
+  }
+};
+
+window.excluirTodasEstadoNotas = async function() {
+  if (!confirm('Excluir TODAS as notas de estado? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodasEstadoNotas();
+    if (res.sucesso) {
+      const removidas = typeof res.dados === 'number' ? res.dados : 0;
+      showToast(`${removidas} nota(s) excluída(s).`, 'sucesso');
+      carregarPainel('estado');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir.', 'erro');
+  }
+};
+
 async function renderizarAgentes(el) {
   console.log('[renderizarAgentes] renderizando, agentes em estado:', estado.agentes.length);
   try {
@@ -1305,20 +1477,47 @@ async function renderizarArquivos(el) {
 
 async function renderizarEstado(el) {
   try {
-    const res = await api.getEstado();
-    if (!res.sucesso || !res.dados) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro || 'Nenhum estado')}</p>`; return; }
-    const e = res.dados;
-    el.innerHTML = `<h3>Estado do Projeto</h3>
-      <p><strong>Projeto:</strong> ${escapeHtml(e.projetoId || e.nome || '')}</p>
-      <p><strong>Estado:</strong> ${escapeHtml(e.estado || '')}</p>
-      <p><strong>Fase:</strong> ${escapeHtml(e.fase || '')}</p>
-      <p><strong>Versão:</strong> ${escapeHtml(e.versao || '')}</p>
-      <p><strong>Agentes ativos:</strong> ${e.agentesAtivos}</p>
-      <p><strong>Tarefas ativas:</strong> ${e.tarefasAtivas}</p>
-      <p><strong>Tarefas bloqueadas:</strong> ${e.tarefasBloqueadas}</p>
-      <p><strong>Testes:</strong> ${e.testes?.aprovados}/${e.testes?.total} aprovados</p>
-      <p><strong>Qualidade:</strong> ${e.qualidade?.percentual}% (${e.qualidade?.pendenciasCriticas} críticas)</p>
-      <p><strong>Segurança:</strong> ${escapeHtml(e.seguranca?.estado || '')} (${e.seguranca?.riscosCriticos} críticos, ${e.seguranca?.riscosAltos} altos)</p>`;
+    const res = await api.getEstadoNotas();
+    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro || 'Erro ao carregar notas')}</p>`; return; }
+    const notas = res.dados || [];
+
+    let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">📊 Estado - Notas do Projeto (${notas.length})</h3>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalEstadoNota()">+ Nova Nota</button>
+        ${notas.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodasEstadoNotas()">Excluir Todas</button>` : ''}
+      </div>
+    </div>`;
+
+    if (notas.length === 0) {
+      html += '<p class="painel-vazio">Nenhuma nota de estado cadastrada. Clique em "+ Nova Nota" para criar.</p>';
+      el.innerHTML = html;
+      return;
+    }
+
+    html += `<div class="table-container"><table class="table"><thead><tr><th>ID</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Estado</th><th>Criada em</th><th>Ações</th></tr></thead><tbody>`;
+
+    for (const n of notas) {
+      const dataCriacao = n.datas?.criacao ? formatDate(n.datas.criacao) : '-';
+      const prioridadeClass = n.prioridade === 'CRITICA' ? 'critico' : n.prioridade === 'ALTA' ? 'alerta' : n.prioridade === 'BAIXA' ? 'inativo' : 'ativo';
+      const estadoClass = n.estado === 'ATIVO' ? 'ativo' : n.estado === 'RESOLVIDO' ? 'ativo' : 'inativo';
+      html += `<tr>
+        <td>${escapeHtml(n.id)}</td>
+        <td>${escapeHtml(n.titulo)}</td>
+        <td>${escapeHtml(n.categoria || 'GERAL')}</td>
+        <td><span class="badge badge--${prioridadeClass}">${escapeHtml(n.prioridade)}</span></td>
+        <td><span class="badge badge--${estadoClass}">${escapeHtml(n.estado)}</span></td>
+        <td>${escapeHtml(dataCriacao)}</td>
+        <td>
+          <button class="btn btn--small" onclick="verEstadoNota('${escapeAttr(n.id)}')">Ver</button>
+          <button class="btn btn--small" onclick="editarEstadoNota('${escapeAttr(n.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirEstadoNota('${escapeAttr(n.id)}')">Excluir</button>
+        </td>
+      </tr>`;
+    }
+
+    html += `</tbody></table></div>`;
+    el.innerHTML = html;
   } catch (err) {
     el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }

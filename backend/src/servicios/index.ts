@@ -8,6 +8,7 @@ export * from './ConflitoService';
 export * from './CriterioService';
 export * from './DecisaoService';
 export * from './DependenciaService';
+export * from './EstadoService';
 export * from './EventoService';
 export * from './HandoffService';
 export * from './IntegridadeService';
