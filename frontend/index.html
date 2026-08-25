@@ -13,6 +13,7 @@
       <h1 class="header__titulo">Gerenciador Local de Agentes de IA</h1>
       <div class="header__status" id="status-api">🔴 Desconectado</div>
       <button class="btn btn--small btn--ghost" id="btn-limpar-temp" title="Limpar arquivos temporários">🧹 Limpar Temp</button>
+      <button class="btn btn--small btn--danger" id="btn-limpar-obsoletos" title="Limpar dados obsoletos do projeto">🗑️ Limpar Dados</button>
     </div>
   </header>
 
@@ -676,6 +677,45 @@
       <div id="limpeza-corpo" style="margin-bottom:12px;"></div>
       <div class="form__acoes">
         <button class="btn btn--primario" type="button" onclick="hideModal('modal-limpeza')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmacao Limpeza Obsoletos -->
+  <div class="modal" id="modal-confirmacao-obsoletos" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-confirmacao-obsoletos')">&times;</button>
+      <h3 class="modal__titulo">⚠️ Limpar Dados Obsoletos</h3>
+      <div id="confirmacao-obsoletos-corpo" style="margin-bottom:12px;">
+        <p style="margin-bottom:12px;color:#ff9e9e;">Esta ação irá remover permanentemente:</p>
+        <ul style="margin-bottom:12px;padding-left:20px;line-height:1.8;">
+          <li><strong>Handoffs</strong> — Todos os handoffs do projeto</li>
+          <li><strong>Tarefas</strong> — Todas as tarefas registradas</li>
+          <li><strong>Documentos</strong> — Pasta de documentação</li>
+          <li><strong>Estado</strong> — Estado atual do projeto</li>
+          <li><strong>Contratos</strong> — Todos os contratos</li>
+          <li><strong>Dependências</strong> — Todas as dependências</li>
+          <li><strong>Auditoria</strong> — Logs de auditoria</li>
+          <li><strong>Backups</strong> — Todos os backups automáticos</li>
+          <li><strong>Mensagens</strong> — Mensagens de monitoramento</li>
+        </ul>
+        <p style="color:#ffd700;font-weight:600;">Deseja realmente apagar todos esses dados?</p>
+      </div>
+      <div class="form__acoes">
+        <button class="btn btn--ghost" type="button" onclick="hideModal('modal-confirmacao-obsoletos')">Cancelar</button>
+        <button class="btn btn--danger" type="button" id="btn-confirmar-limpeza-obsoletos">Apagar Tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Resultado Limpeza Obsoletos -->
+  <div class="modal" id="modal-resultado-obsoletos" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-resultado-obsoletos')">&times;</button>
+      <h3 class="modal__titulo">Resultado da Limpeza</h3>
+      <div id="resultado-obsoletos-corpo" style="margin-bottom:12px;"></div>
+      <div class="form__acoes">
+        <button class="btn btn--primario" type="button" onclick="hideModal('modal-resultado-obsoletos')">Fechar</button>
       </div>
     </div>
   </div>

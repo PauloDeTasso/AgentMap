@@ -163,7 +163,7 @@ export const AGENTES_BASE: AgenteInicial[] = [
     responsabilidades: ['Implementar pipeline CI/CD', 'Gerenciar containers', 'Configurar cloud', 'Monitorar infraestrutura', 'Aplicar scaling', 'Gerenciar deploy', 'Implementar IaC', 'Gerenciar segredos', 'Garantir disponibilidade']
   },
   {
-    id: 'devops', nome: 'DevOps Engineer', funcao: 'devops',
+    id: 'technical-writer', nome: 'Technical Writer', funcao: 'documentacao_tecnica',
     subpasta: 'technical-writer', perfilId: 'technical-writer', estado: 'ativo',
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: false, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/docs/**', '/README.md', '/.ia/**'],

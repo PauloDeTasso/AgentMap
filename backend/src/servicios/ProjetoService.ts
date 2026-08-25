@@ -188,18 +188,30 @@ export class ProjetoService {
 
   abrirProjeto(caminhoOuId: string): ResultadoOperacao<ProjetoAberto> {
     let caminhoRaiz = caminhoOuId;
+    console.log('[ProjetoService.abrirProjeto] INÍCIO - caminhoOuId:', caminhoOuId);
+    
     if (!caminhoOuId.includes(path.win32.sep) && !caminhoOuId.includes('/')) {
-      console.log('[ProjetoService.abrirProjeto] lookup by ID:', caminhoOuId);
+      console.log('[ProjetoService.abrirProjeto] Lookup por ID no registro:', caminhoOuId);
       const proj = this.registro.projetos.find((p) => p.id === caminhoOuId);
       if (!proj) {
-        console.error('[ProjetoService.abrirProjeto] PROJETO NAO ENCONTRADO no registro:', caminhoOuId);
+        console.error('[ProjetoService.abrirProjeto] PROJETO NÃO ENCONTRADO no registro:', caminhoOuId);
+        console.error('[ProjetoService.abrirProjeto] Projetos registrados:', this.registro.projetos.map(p => ({ id: p.id, caminhoRaiz: p.caminhoRaiz })));
         return { sucesso: false, erro: 'Projeto não encontrado no registro', codigoErro: 'PROJECT_NOT_FOUND' };
       }
-      console.log('[ProjetoService.abrirProjeto] encontrado - caminhoRaiz=' + proj.caminhoRaiz);
+      console.log('[ProjetoService.abrirProjeto] Projeto encontrado - caminhoRaiz:', proj.caminhoRaiz, 'tipo:', typeof proj.caminhoRaiz);
+      if (!proj.caminhoRaiz) {
+        console.error('[ProjetoService.abrirProjeto] caminhoRaiz é NULL/UNDEFINED para projeto:', caminhoOuId);
+        return { sucesso: false, erro: 'Caminho do projeto está vazio no registro', codigoErro: 'NULL_PATH' };
+      }
       caminhoRaiz = proj.caminhoRaiz;
     }
 
-    if (!fs.existsSync(path.win32.join(caminhoRaiz, '.ia'))) {
+    console.log('[ProjetoService.abrirProjeto] caminhoRaiz final:', caminhoRaiz);
+    const iaPath = path.win32.join(caminhoRaiz, '.ia');
+    console.log('[ProjetoService.abrirProjeto] Verificando .ia em:', iaPath, 'existe:', fs.existsSync(iaPath));
+    
+    if (!fs.existsSync(iaPath)) {
+      console.error('[ProjetoService.abrirProjeto] .ia não encontrado em:', iaPath);
       return { sucesso: false, erro: 'Diretório .ia/ não encontrado — não é um projeto gerenciado', codigoErro: 'IA_NOT_FOUND' };
     }
 
@@ -207,10 +219,29 @@ export class ProjetoService {
       const fileService = new FileService(caminhoRaiz);
       const auditoria = new AuditoriaService(fileService);
 
-      const configResult = fileService.lerJson<ProjetoConfig>(
-        path.win32.join('.ia', 'configuracao', 'projeto.json')
-      );
+      const configPath = path.win32.join('.ia', 'configuracao', 'projeto.json');
+      console.log('[ProjetoService.abrirProjeto] Lendo config de:', configPath);
+      
+      const configResult = fileService.lerJson<ProjetoConfig>(configPath);
+      console.log('[ProjetoService.abrirProjeto] Resultado leitura config - sucesso:', configResult.sucesso, 'erro:', configResult.erro || 'N/A');
+      
       if (!configResult.sucesso || !configResult.dados) {
+        console.error('[ProjetoService.abrirProjeto] FALHA ao ler config - erro:', configResult.erro, 'codigo:', configResult.codigoErro);
+        
+        // Tentar ler diretamente para diagnóstico
+        const configAbsPath = path.win32.join(caminhoRaiz, configPath);
+        console.error('[ProjetoService.abrirProjeto] Caminho absoluto:', configAbsPath);
+        console.error('[ProjetoService.abrirProjeto] Arquivo existe?', fs.existsSync(configAbsPath));
+        if (fs.existsSync(configAbsPath)) {
+          try {
+            const rawContent = fs.readFileSync(configAbsPath, 'utf-8');
+            console.error('[ProjetoService.abrirProjeto] Tamanho do arquivo:', rawContent.length, 'bytes');
+            console.error('[ProjetoService.abrirProjeto] Primeiros 200 chars:', rawContent.substring(0, 200));
+          } catch (readErr: any) {
+            console.error('[ProjetoService.abrirProjeto] Erro ao ler arquivo diretamente:', readErr.message);
+          }
+        }
+        
         return { sucesso: false, erro: 'Não foi possível ler a configuração do projeto', codigoErro: 'CONFIG_READ_ERROR' };
       }
 

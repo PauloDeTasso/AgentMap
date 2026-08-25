@@ -4565,6 +4565,51 @@ if (btnLimparTemp) {
   btnLimparTemp.addEventListener('click', limparTemp);
 }
 
+function abrirModalLimparObsoletos() {
+  showModal('modal-confirmacao-obsoletos');
+}
+
+async function confirmarLimparObsoletos() {
+  hideModal('modal-confirmacao-obsoletos');
+  const corpo = document.getElementById('resultado-obsoletos-corpo');
+  if (!corpo) return;
+
+  corpo.innerHTML = '<p>Removendo dados obsoletos...</p>';
+  showModal('modal-resultado-obsoletos');
+
+  try {
+    const res = await api.post('/admin/limpar-obsoletos', {});
+    if (res.sucesso) {
+      const dados = res.dados || {};
+      const pastas = (dados.pastasRemovidas || []).map((p) => `📁 ${escapeHtml(p)}`).join('<br>');
+      const arquivos = (dados.arquivosRemovidos || []).map((a) => `📄 ${escapeHtml(a)}`).join('<br>');
+      const erros = (dados.erros || []).map((e) => `⚠️ ${escapeHtml(e)}`).join('<br>');
+      corpo.innerHTML = `
+        <p style="color:#7fdf7f;margin-bottom:8px;">✅ Limpeza concluída com sucesso!</p>
+        <p><strong>Pastas removidas:</strong> ${dados.pastasRemovidas?.length || 0}</p>
+        ${pastas ? `<div style="margin-top:4px; max-height:150px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${pastas}</div>` : ''}
+        <p style="margin-top:8px;"><strong>Arquivos removidos:</strong> ${dados.arquivosRemovidos?.length || 0}</p>
+        ${arquivos ? `<div style="margin-top:4px; max-height:150px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${arquivos}</div>` : ''}
+        ${erros ? `<p style="margin-top:8px; color:#ff9e9e;">Erros:<br>${erros}</p>` : ''}
+      `;
+    } else {
+      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(res.erro || 'Falha ao limpar dados obsoletos')}</p>`;
+    }
+  } catch (err) {
+    corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(err?.message || err)}</p>`;
+  }
+}
+
+const btnLimparObsoletos = document.getElementById('btn-limpar-obsoletos');
+if (btnLimparObsoletos) {
+  btnLimparObsoletos.addEventListener('click', abrirModalLimparObsoletos);
+}
+
+const btnConfirmarLimpezaObsoletos = document.getElementById('btn-confirmar-limpeza-obsoletos');
+if (btnConfirmarLimpezaObsoletos) {
+  btnConfirmarLimpezaObsoletos.addEventListener('click', confirmarLimparObsoletos);
+}
+
 window.abrirModalDependencia = function(dependencia = null) {
   $('form-dependencia').reset();
   $('dependencia-id').value = '';

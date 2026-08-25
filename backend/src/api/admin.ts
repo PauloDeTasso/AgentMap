@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import * as fs from 'fs';
 import * as path from 'path';
 import { asyncHandler, responder } from './middleware';
 import { corsService } from '../servicios/CorsService';
@@ -106,6 +107,57 @@ export function criarAdminRouter(): Router {
         environment: process.env.NODE_ENV || 'development'
       }
     });
+  }));
+
+  router.post('/limpar-obsoletos', asyncHandler(async (req: Request, res: Response) => {
+    const servicos = (req as any).servicos;
+    if (!servicos) {
+      return responder(res, { sucesso: false, erro: 'Serviços não disponíveis', codigoErro: 'SERVICE_UNAVAILABLE' }, 500);
+    }
+
+    const projeto = servicos.projeto;
+    const filePath = (rel: string) => path.win32.join(projeto.caminhoRaiz, '.ia', rel);
+
+    const pastasParaLimpar = ['handoffs', 'tarefas', 'docs', 'estado', 'contratos', 'dependencias', 'auditoria', '.backups', 'contexto'];
+    const arquivosParaLimpar = ['contexto/mensagens-monitoramento.json', 'contexto/monitoramento-sequence.json', 'contexto/kilo-state.json'];
+
+    const resultado = {
+      pastasRemovidas: [] as string[],
+      arquivosRemovidos: [] as string[],
+      erros: [] as string[],
+    };
+
+    for (const pasta of pastasParaLimpar) {
+      const fullPath = filePath(pasta);
+      try {
+        if (fs.existsSync(fullPath)) {
+          fs.rmSync(fullPath, { recursive: true, force: true });
+          resultado.pastasRemovidas.push(pasta);
+        }
+      } catch (err: any) {
+        resultado.erros.push(`Falha ao remover ${pasta}: ${err.message}`);
+      }
+    }
+
+    for (const arquivo of arquivosParaLimpar) {
+      const fullPath = filePath(arquivo);
+      try {
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+          resultado.arquivosRemovidos.push(arquivo);
+        }
+      } catch (err: any) {
+        resultado.erros.push(`Falha ao remover ${arquivo}: ${err.message}`);
+      }
+    }
+
+    servicos.auditoria.registrar({
+      tipo: 'ADMIN_LIMPEZA_OBSOLETOS',
+      descricao: `Limpeza de dados obsoletos: ${resultado.pastasRemovidas.length} pastas, ${resultado.arquivosRemovidos.length} arquivos removidos`,
+      projetoId: projeto.id,
+    });
+
+    return responder(res, { sucesso: true, dados: resultado });
   }));
 
   router.get('/estado-projeto', asyncHandler(async (req: Request, res: Response) => {

@@ -146,7 +146,8 @@ export class FileService {
       return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
     }
     try {
-      return { sucesso: true, dados: JSON.parse(result.dados) as T };
+      const limpo = result.dados.replace(/^\uFEFF/, '');
+      return { sucesso: true, dados: JSON.parse(limpo) as T };
     } catch (e) {
       return { sucesso: false, erro: 'JSON inválido', codigoErro: 'INVALID_JSON' };
     }

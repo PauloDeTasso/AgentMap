@@ -156,8 +156,10 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
   router.post('/:id/abrir', asyncHandler(async (req: Request, res: Response) => {
     const { caminho } = req.body;
     const idOuPath = caminho || req.params.id;
+    console.log('[api.abrirProjeto] params.id:', req.params.id, '| caminho body:', caminho, '| idOuPath final:', idOuPath);
     const result = projetoService.abrirProjeto(idOuPath);
     if (!result.sucesso || !result.dados) {
+      console.log('[api.abrirProjeto] FALHA:', result.erro, '| codigo:', result.codigoErro);
       return responder(res, result);
     }
     const { id, nome, caminhoRaiz, config } = result.dados;
