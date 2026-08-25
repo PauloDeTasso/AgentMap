@@ -135,6 +135,10 @@ class ApiClient {
     });
   }
 
+  async excluirTodosAgentes() {
+    return this.request(`/agentes`, { method: 'DELETE' });
+  }
+
   async getTarefas() {
     return this.request('/tarefas');
   }

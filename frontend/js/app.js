@@ -1106,7 +1106,10 @@ async function renderizarAgentes(el) {
     }
   el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">Agentes (${agentes.length})</h3>
-      <button class="btn btn--small btn--primario" onclick="abrirModalAgente()">+ Novo Agente</button>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalAgente()">+ Novo Agente</button>
+        <button class="btn btn--small btn--danger" onclick="excluirTodosAgentes()">Excluir Todos</button>
+      </div>
     </div>`;
     const table = document.createElement('table');
     table.className = 'table';
@@ -2203,6 +2206,21 @@ window.excluirAgente = async function(id) {
     }
   } catch (err) {
     showToast(err?.erro || 'Erro ao excluir agente', 'erro');
+  }
+};
+
+window.excluirTodosAgentes = async function() {
+  if (!confirm('Excluir TODOS os agentes? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosAgentes();
+    if (res.sucesso) {
+      showToast('Agentes excluídos!', 'sucesso');
+      carregarPainel('agentes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir agentes', 'erro');
   }
 };
 
