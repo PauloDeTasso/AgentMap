@@ -1,6 +1,6 @@
 # Referência de Tools MCP
 
-Este documento lista as 131 tools MCP disponíveis para integração com agentes externos via Model Context Protocol.
+Este documento lista as 169 tools MCP disponíveis para integração com agentes externos via Model Context Protocol.
 
 > **Nota:** O AgentMap disponibiliza um conjunto completo de tools padronizadas para que agentes de IA possam interagir com projetos, tarefas, agentes, workflows, handoffs e demais entidades do gerenciador. Todas as operações seguem convenções consistentes de entrada, saída e validação.
 

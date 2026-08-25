@@ -140,11 +140,11 @@ Estados terminais (sem saída):
 
 ## 4. TODAS AS FERRAMENTAS DISPONÍVEIS
 
-### 4.1 MCP Tools (163 tools `agentmap_*` registradas)
+### 4.1 MCP Tools (169 tools `agentmap_*` registradas)
 
 Estas tools são chamadas por agentes via protocolo MCP (STDIO local, `@modelcontextprotocol/sdk` v1.30.0). Estão registradas em `backend/src/mcp-server/tools/*.ts` e agregadas em `backend/src/mcp-server/tools/index.ts`.
 
-> **Total:** 163 tools com prefixo `agentmap_`. Há ainda 4 tools complementares do Kilo Hub (`kilohub_*`) usadas pela integração com o Kilo Code (ver final da seção).
+> **Total:** 169 tools com prefixo `agentmap_`. Há ainda 4 tools complementares do Kilo Hub (`kilohub_*`) usadas pela integração com o Kilo Code (ver final da seção).
 
 **Gerenciamento de Projeto (6):**
 - `agentmap_projetos_listar` — lista projetos

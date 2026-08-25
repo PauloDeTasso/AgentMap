@@ -125,7 +125,7 @@ O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 
 - **Transporte:** STDIO local (`npx tsx src/mcp-server/index.ts`)
 - **SDK:** `@modelcontextprotocol/sdk` v1.30.0
-- **Tools:** 163 tools registradas com `registerTool` / `registerTracedTool`, seguindo o padrão MCP 2026:
+- **Tools:** 169 tools registradas com `registerTool` / `registerTracedTool`, seguindo o padrão MCP 2026:
   - `outputSchema` + `structuredContent` para dados estruturados
   - `isError: true` para erros de execução
   - Annotations (`readOnlyHint`, `destructiveHint`, etc)

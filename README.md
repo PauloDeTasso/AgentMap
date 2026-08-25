@@ -1094,7 +1094,7 @@ Variáveis de ambiente e configurações locais devem ser definidas em `kilo.loc
 
 O AgentMap segue as melhores práticas do ecossistema MCP em 2026:
 
-- **163 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0, incluindo `agentmap_monitoramento_verificar_pendentes` para wake-up
+- **169 tools MCP** registradas com `registerTracedTool` / `registerWorkflowTool` do SDK `@modelcontextprotocol/sdk` v1.30.0, incluindo `agentmap_monitoramento_verificar_pendentes` para wake-up
 - **Transporte STDIO** local (sem exposição de rede)
 - **`outputSchema` + `structuredContent`** para resultados estruturados
 - **Validação de entrada** via Zod em todas as tools
@@ -1210,8 +1210,8 @@ O AgentMap está funcional, testado e pronto para uso em projetos reais. A inter
 | Recurso | Detalhe |
 |---|---|
 | 🖥️ Interface Web | **27 painéis funcionais** com navegação completa |
-| 🔌 API REST | **~180 rotas** funcionais e documentadas |
-| 🛠️ Tools MCP | **163 tools** registradas para integração com agentes, incluindo `agentmap_monitoramento_verificar_pendentes` |
+| 🔌 API REST | **~102 rotas** funcionais e documentadas |
+| 🛠️ Tools MCP | **169 tools** registradas para integração com agentes, incluindo `agentmap_monitoramento_verificar_pendentes` |
 | 📊 Dados | Base populada com dados realistas em todos os módulos |
 | 🔔 Eventos | Sistema de eventos assíncronos com subscrições em tempo real |
 | 🔒 Segurança | Validação Zod, proteção contra path traversal, CORS configurado |
