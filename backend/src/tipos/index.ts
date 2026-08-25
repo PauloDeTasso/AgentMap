@@ -316,6 +316,17 @@ export interface Bloqueio {
   resolvidoEm: string | null;
 }
 
+export interface RegraIntegridade {
+  id: string;
+  nome: string;
+  descricao: string;
+  entidade: string;
+  severidade: 'BAIXA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string | null;
+}
+
 export interface Decisao {
   id: string;
   titulo: string;

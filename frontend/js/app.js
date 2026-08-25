@@ -1903,12 +1903,22 @@ async function renderizarHistorico(el) {
 
 async function renderizarIntegridade(el) {
   try {
-    const res = await api.getIntegridade();
-    if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
-    const data = res.dados;
-    el.innerHTML = `<h3>🔍 Verificação de Integridade</h3>
-      <p><strong>Estado:</strong> <span class="badge ${data.estado === 'OK' ? 'badge--ativo' : 'badge--bloqueada'}">${data.estado}</span></p>
-      <p><strong>Inconsistências:</strong> ${data.inconsistencias.length}</p>`;
+    const [verRes, regrasRes] = await Promise.all([
+      api.getIntegridade(),
+      api.getRegrasIntegridade()
+    ]);
+    if (!verRes.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(verRes.erro)}</p>`; return; }
+    const data = verRes.dados;
+    const regras = regrasRes.sucesso ? (regrasRes.dados || []) : [];
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">🔍 Verificação de Integridade</h3>
+      <div>
+        <button class="btn btn--small btn--info" onclick="reverificarIntegridade()">🔄 Re-verificar</button>
+        <button class="btn btn--small btn--primario" onclick="abrirModalRegraIntegridade()">+ Nova Regra</button>
+      </div>
+    </div>
+    <p><strong>Estado:</strong> <span class="badge ${data.estado === 'OK' ? 'badge--ativo' : 'badge--bloqueada'}">${data.estado}</span></p>
+    <p><strong>Inconsistências:</strong> ${data.inconsistencias.length}</p>`;
     if (data.inconsistencias.length > 0) {
       el.innerHTML += '<h4>Detalhes:</h4><ul>';
       for (const inc of data.inconsistencias) {
@@ -1916,10 +1926,117 @@ async function renderizarIntegridade(el) {
       }
       el.innerHTML += '</ul>';
     }
+
+    el.innerHTML += `<h4 style="margin-top:20px;">Regras de Integridade (${regras.length})</h4>`;
+    if (regras.length === 0) {
+      el.innerHTML += '<p class="painel-vazio">Nenhuma regra de integridade registrada.</p>';
+      return;
+    }
+    const table = document.createElement('table');
+    table.className = 'table';
+    table.innerHTML = `<thead><tr><th>ID</th><th>Nome</th><th>Entidade</th><th>Severidade</th><th>Ativo</th><th>Ações</th></tr></thead><tbody></tbody>`;
+    const tbody = table.querySelector('tbody');
+    for (const r of regras) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(r.id)}</td><td>${escapeHtml(r.nome)}</td><td>${escapeHtml(r.entidade)}</td><td><span class="badge badge--${r.severidade === 'CRITICA' ? 'bloqueada' : r.severidade === 'ALTA' ? 'alerta' : 'ativo'}">${escapeHtml(r.severidade)}</span></td><td>${r.ativo ? 'SIM' : 'NÃO'}</td><td><button class="btn btn--small" onclick="editarRegraIntegridade('${escapeAttr(r.id)}')">Editar</button><button class="btn btn--small btn--danger" onclick="excluirRegraIntegridade('${escapeAttr(r.id)}')">Excluir</button></td>`;
+      tbody.appendChild(tr);
+    }
+    el.appendChild(table);
   } catch (err) {
     el.innerHTML = `<p class="painel-vazio">Erro: ${escapeHtml(err?.message || err)}</p>`;
   }
 }
+
+window.reverificarIntegridade = async function() {
+  try {
+    const res = await api.verificarIntegridade();
+    if (res.sucesso) {
+      showToast('Verificação de integridade concluída!', 'sucesso');
+      carregarPainel('integridade');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao verificar', 'erro');
+  }
+};
+
+window.abrirModalRegraIntegridade = function() {
+  $('form-regra-integridade').reset();
+  $('regra-integridade-id').value = '';
+  $('regra-integridade-severidade').value = 'MEDIA';
+  $('regra-integridade-ativo').value = 'true';
+  $('titulo-regra-integridade').textContent = 'Nova Regra de Integridade';
+  showModal('modal-regra-integridade');
+};
+
+window.editarRegraIntegridade = async function(id) {
+  try {
+    const res = await api.getRegraIntegridade(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    $('regra-integridade-id').value = r.id;
+    $('regra-integridade-nome').value = r.nome || '';
+    $('regra-integridade-entidade').value = r.entidade || '';
+    $('regra-integridade-descricao').value = r.descricao || '';
+    $('regra-integridade-severidade').value = r.severidade || 'MEDIA';
+    $('regra-integridade-ativo').value = r.ativo ? 'true' : 'false';
+    $('titulo-regra-integridade').textContent = `Editar: ${escapeHtml(r.id)}`;
+    showModal('modal-regra-integridade');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirRegraIntegridade = async function(id) {
+  if (!confirm(`Excluir a regra de integridade "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirRegraIntegridade(id);
+    if (res.sucesso) {
+      showToast('Regra de integridade excluída!', 'sucesso');
+      carregarPainel('integridade');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+$('btn-cancelar-regra-integridade')?.addEventListener('click', () => hideModal('modal-regra-integridade'));
+
+$('form-regra-integridade')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-regra-integridade').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('regra-integridade-id').value;
+  const dados = {
+    nome: $('regra-integridade-nome').value.trim(),
+    entidade: $('regra-integridade-entidade').value.trim() || 'GERAL',
+    descricao: $('regra-integridade-descricao').value.trim(),
+    severidade: $('regra-integridade-severidade').value,
+    ativo: $('regra-integridade-ativo').value === 'true'
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarRegraIntegridade(id, dados);
+    } else {
+      res = await api.criarRegraIntegridade(dados);
+    }
+    if (res.sucesso) {
+      showToast('Regra de integridade salva!', 'sucesso');
+      hideModal('modal-regra-integridade');
+      carregarPainel('integridade');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar regra', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
 
 async function renderizarBloqueios(el) {
   try {

@@ -3,7 +3,8 @@ import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from './AuditoriaService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
 import { FluxoService } from './FluxoService';
-import { EstadoProjeto, ResultadoOperacao, SolicitacaoAlteracao, Tarefa, HistoricoCoordenacao, Bloqueio, ResultadoEntity, CriterioAceitacao, Artefato, Handoff, Validacao, Conflito, Reserva, Sessao, Checkpoint, Aprendizado, Dependencia, Responsabilidade, Decisao, Risco, Pendencia } from '../tipos';
+import { EstadoProjeto, RegraIntegridade, ResultadoOperacao, SolicitacaoAlteracao, Tarefa, HistoricoCoordenacao, Bloqueio, ResultadoEntity, CriterioAceitacao, Artefato, Handoff, Validacao, Conflito, Reserva, Sessao, Checkpoint, Aprendizado, Dependencia, Responsabilidade, Decisao, Risco, Pendencia } from '../tipos';
+import { IdGenerator } from '../arquivos/IdGenerator';
 import { v4 as uuid } from 'uuid';
 
 function lerJsonSeguro<T>(fs: FileService, caminho: string, chave?: string): T[] {
@@ -16,12 +17,133 @@ function lerJsonSeguro<T>(fs: FileService, caminho: string, chave?: string): T[]
 }
 
 export class IntegridadeService {
+  private idGenerator: IdGenerator;
+
   constructor(
     private fs: FileService,
     private auditoria: AuditoriaService,
     private validator: SchemaValidator,
-    private fluxo?: FluxoService
-  ) {}
+    private fluxo?: FluxoService,
+    idGenerator?: IdGenerator
+  ) {
+    this.idGenerator = idGenerator || new IdGenerator(fs);
+  }
+
+  private getRegrasPath(): string {
+    return path.win32.join('.ia', 'integridade', 'regras.json');
+  }
+
+  private carregarRegras(): ResultadoOperacao<{ regras: RegraIntegridade[] }> {
+    const result = this.fs.lerJson<{ regras: RegraIntegridade[] }>(this.getRegrasPath());
+    if (!result.sucesso || !result.dados) return { sucesso: true, dados: { regras: [] } };
+    return result;
+  }
+
+  private salvarRegras(registry: { regras: RegraIntegridade[] }): void {
+    this.fs.escreverJson(this.getRegrasPath(), registry);
+  }
+
+  listarRegras(): ResultadoOperacao<RegraIntegridade[]> {
+    const result = this.carregarRegras();
+    if (!result.sucesso || !result.dados) return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    return { sucesso: true, dados: result.dados.regras };
+  }
+
+  obterRegra(id: string): ResultadoOperacao<RegraIntegridade> {
+    const result = this.carregarRegras();
+    if (!result.sucesso || !result.dados) return { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' };
+    const regra = result.dados.regras.find((r) => r.id === id);
+    if (!regra) return { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' };
+    return { sucesso: true, dados: regra };
+  }
+
+  async criarRegra(dados: Partial<RegraIntegridade>, projetoId?: string): Promise<ResultadoOperacao<RegraIntegridade>> {
+    if (!dados.nome || !dados.nome.trim()) {
+      return { sucesso: false, erro: 'nome é obrigatório', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!dados.descricao || !dados.descricao.trim()) {
+      return { sucesso: false, erro: 'descricao é obrigatória', codigoErro: 'VALIDATION_ERROR' };
+    }
+    const severidade = (dados.severidade || 'MEDIA') as RegraIntegridade['severidade'];
+    if (!['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'].includes(severidade)) {
+      return { sucesso: false, erro: 'severidade inválida', codigoErro: 'VALIDATION_ERROR' };
+    }
+
+    const agora = new Date().toISOString();
+    const regra: RegraIntegridade = {
+      id: dados.id || this.idGenerator.gerarId('REGINT', this.getRegrasPath(), 'regras'),
+      nome: dados.nome.trim(),
+      descricao: dados.descricao.trim(),
+      entidade: (dados.entidade || 'GERAL').trim(),
+      severidade,
+      ativo: dados.ativo !== undefined ? dados.ativo : true,
+      criadoEm: dados.criadoEm || agora,
+      atualizadoEm: agora
+    };
+
+    const registryResult = this.carregarRegras();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: 'Erro ao carregar registro', codigoErro: 'REGISTRY_ERROR' };
+    if (registryResult.dados.regras.find((r) => r.id === regra.id)) return { sucesso: false, erro: `ID '${regra.id}' já existe`, codigoErro: 'DUPLICATE_ID' };
+
+    registryResult.dados.regras.push(regra);
+    this.salvarRegras(registryResult.dados);
+    this.auditoria.registrar('REGRA_INTEGRIDADE_CRIADA', `Regra de integridade '${regra.id}' criada.`, { regraId: regra.id, nome: regra.nome });
+    return { sucesso: true, dados: regra };
+  }
+
+  async atualizarRegra(id: string, dados: Partial<RegraIntegridade>, projetoId?: string): Promise<ResultadoOperacao<RegraIntegridade>> {
+    const registryResult = this.carregarRegras();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const idx = registryResult.dados.regras.findIndex((r) => r.id === id);
+    if (idx === -1) return { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' };
+
+    const existente = registryResult.dados.regras[idx];
+    const atualizada: RegraIntegridade = {
+      ...existente,
+      ...dados,
+      id,
+      atualizadoEm: new Date().toISOString()
+    };
+
+    if (!atualizada.nome || !atualizada.nome.trim()) {
+      return { sucesso: false, erro: 'nome é obrigatório', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!atualizada.descricao || !atualizada.descricao.trim()) {
+      return { sucesso: false, erro: 'descricao é obrigatória', codigoErro: 'VALIDATION_ERROR' };
+    }
+    if (!['BAIXA', 'MEDIA', 'ALTA', 'CRITICA'].includes(atualizada.severidade)) {
+      return { sucesso: false, erro: 'severidade inválida', codigoErro: 'VALIDATION_ERROR' };
+    }
+
+    atualizada.nome = atualizada.nome.trim();
+    atualizada.descricao = atualizada.descricao.trim();
+    atualizada.entidade = (atualizada.entidade || 'GERAL').trim();
+
+    registryResult.dados.regras[idx] = atualizada;
+    this.salvarRegras(registryResult.dados);
+    this.auditoria.registrar('REGRA_INTEGRIDADE_ATUALIZADA', `Regra de integridade '${id}' atualizada.`, { regraId: id });
+    return { sucesso: true, dados: atualizada };
+  }
+
+  async excluirRegra(id: string): Promise<ResultadoOperacao<boolean>> {
+    const registryResult = this.carregarRegras();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const antes = registryResult.dados.regras.length;
+    registryResult.dados.regras = registryResult.dados.regras.filter((r) => r.id !== id);
+    if (registryResult.dados.regras.length === antes) return { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' };
+    this.salvarRegras(registryResult.dados);
+    this.auditoria.registrar('REGRA_INTEGRIDADE_EXCLUIDA', `Regra de integridade '${id}' excluída.`, { regraId: id });
+    return { sucesso: true, dados: true };
+  }
+
+  async excluirTodasRegras(): Promise<ResultadoOperacao<number>> {
+    const registryResult = this.carregarRegras();
+    if (!registryResult.sucesso || !registryResult.dados) return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+    const removidos = registryResult.dados.regras.length;
+    this.salvarRegras({ regras: [] });
+    this.auditoria.registrar('REGRA_INTEGRIDADE_EXCLUIDAS', `Todas as regras de integridade (${removidos}) foram removidas.`, { removidos });
+    return { sucesso: true, dados: removidos };
+  }
 
   async verificar(projetoId: string): Promise<ResultadoOperacao<{ inconsistencias: string[]; estado: string }>> {
     const inconsistencias: string[] = [];
