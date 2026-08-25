@@ -5069,19 +5069,19 @@ function abrirModalLimparObsoletos(projetoId, projetoNome) {
   const corpo = document.getElementById('confirmacao-obsoletos-corpo');
   if (corpo) {
     corpo.innerHTML = `
-      <p style="margin-bottom:12px;color:#ff9e9e;">Esta ação irá remover permanentemente do projeto <strong>${escapeHtml(projetoNome)}</strong>:</p>
+      <p style="margin-bottom:12px;color:#ff9e9e;">Esta ação irá limpar os dados do projeto <strong>${escapeHtml(projetoNome)}</strong>:</p>
       <ul style="margin-bottom:12px;padding-left:20px;line-height:1.8;">
-        <li><strong>Handoffs</strong> — Todos os handoffs do projeto</li>
-        <li><strong>Tarefas</strong> — Todas as tarefas registradas</li>
-        <li><strong>Documentos</strong> — Pasta de documentação</li>
-        <li><strong>Estado</strong> — Estado atual do projeto</li>
-        <li><strong>Contratos</strong> — Todos os contratos</li>
-        <li><strong>Dependências</strong> — Todas as dependências</li>
-        <li><strong>Auditoria</strong> — Logs de auditoria</li>
-        <li><strong>Backups</strong> — Todos os backups automáticos</li>
-        <li><strong>Mensagens</strong> — Mensagens de monitoramento</li>
+        <li><strong>Handoffs</strong> — Todos os handoffs serão removidos</li>
+        <li><strong>Tarefas</strong> — Todas as tarefas serão removidas</li>
+        <li><strong>Documentos</strong> — Pasta de documentação será limpa</li>
+        <li><strong>Estado</strong> — Estado atual será resetado</li>
+        <li><strong>Contratos</strong> — Todos os contratos serão removidos</li>
+        <li><strong>Dependências</strong> — Todas as dependências serão removidas</li>
+        <li><strong>Auditoria</strong> — Logs de auditoria serão removidos</li>
+        <li><strong>Contexto</strong> — Dados de contexto serão limpos</li>
       </ul>
-      <p style="color:#ffd700;font-weight:600;">Deseja realmente apagar todos os dados deste projeto?</p>
+      <p style="color:#7fdf7f;font-weight:600;">As pastas e arquivos serão mantidos, mas com conteúdo vazio.</p>
+      <p style="color:#ffd700;font-weight:600;margin-top:8px;">Deseja realmente limpar todos os dados deste projeto?</p>
       <input type="hidden" id="limpar-obsoletos-projeto-id" value="${escapeAttr(projetoId)}">
     `;
   }
@@ -5103,19 +5103,19 @@ async function confirmarLimparObsoletos() {
     const res = await api.post('/admin/limpar-obsoletos', body);
     if (res.sucesso) {
       const dados = res.dados || {};
-      const pastas = (dados.pastasRemovidas || []).map((p) => `📁 ${escapeHtml(p)}`).join('<br>');
-      const arquivos = (dados.arquivosRemovidos || []).map((a) => `📄 ${escapeHtml(a)}`).join('<br>');
+      const pastas = (dados.pastasLimpas || []).map((p) => `📁 ${escapeHtml(p)}`).join('<br>');
+      const arquivos = (dados.arquivosLimpos || []).map((a) => `📄 ${escapeHtml(a)}`).join('<br>');
       const erros = (dados.erros || []).map((e) => `⚠️ ${escapeHtml(e)}`).join('<br>');
       corpo.innerHTML = `
         <p style="color:#7fdf7f;margin-bottom:8px;">✅ Limpeza concluída com sucesso!</p>
-        <p><strong>Pastas removidas:</strong> ${dados.pastasRemovidas?.length || 0}</p>
+        <p><strong>Pastas limpas:</strong> ${dados.pastasLimpas?.length || 0}</p>
         ${pastas ? `<div style="margin-top:4px; max-height:150px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${pastas}</div>` : ''}
-        <p style="margin-top:8px;"><strong>Arquivos removidos:</strong> ${dados.arquivosRemovidos?.length || 0}</p>
+        <p style="margin-top:8px;"><strong>Arquivos limpos:</strong> ${dados.arquivosLimpos?.length || 0}</p>
         ${arquivos ? `<div style="margin-top:4px; max-height:150px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${arquivos}</div>` : ''}
         ${erros ? `<p style="margin-top:8px; color:#ff9e9e;">Erros:<br>${erros}</p>` : ''}
       `;
     } else {
-      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(res.erro || 'Falha ao limpar dados obsoletos')}</p>`;
+      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(res.erro || 'Falha ao limpar dados')}</p>`;
     }
   } catch (err) {
     corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(err?.message || err)}</p>`;
