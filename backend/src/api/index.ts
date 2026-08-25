@@ -1,8 +1,6 @@
 ﻿import { Router, Request, Response } from 'express';
 import * as path from 'path';
 import { ProjetoService } from '../servicios/ProjetoService';
-import { MonitoramentoService } from '../servicios/MonitoramentoService';
-import { TempCleanupService } from '../servicios/TempCleanupService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
 import { criarProjetoRouter } from './projetos';
 import { criarAgenteRouter } from './agentes';
@@ -41,16 +39,18 @@ import { criarObservabilidadeRouter } from './observabilidade';
 import { criarTempRouter } from './temp';
 import { GERENCIADOR_DIR } from '../config';
 
-export function setupRotas(projetoService: ProjetoService, monitoramento: MonitoramentoService, cleanupService: TempCleanupService): Router {
+type GetMonitoramentoAtual = (projetoId?: string) => Promise<any> | any;
+
+export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual: GetMonitoramentoAtual): Router {
   const router = Router();
 
   router.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0', gerenciadorDir: GERENCIADOR_DIR } });
   });
 
-  router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
+  router.use('/api/monitoramento', criarMonitoramentoRouter());
 
-  router.use('/api/temp', criarTempRouter(cleanupService));
+  router.use('/api/temp', criarTempRouter());
 
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
@@ -141,7 +141,7 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
       servicos.risco.listar(),
       servicos.agente.listar(),
       servicos.tarefa.listar(),
-      Promise.resolve({ sucesso: true, dados: monitoramento.listarMensagens(20) })
+      Promise.resolve({ sucesso: true, dados: servicos.monitoramento.listarMensagens(20) })
     ]);
 
     const sessoesAtivas = sessoesRes.sucesso && sessoesRes.dados ? sessoesRes.dados.filter((s: any) => !s.datas?.fim) : [];

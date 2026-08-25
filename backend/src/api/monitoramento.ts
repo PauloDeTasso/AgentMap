@@ -257,11 +257,19 @@ export function criarMonitoramentoRouter(): Router {
   }));
 
   router.get('/alertas', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const alertas = monitoramento.listarAlertas();
     return responder(res, { sucesso: true, dados: alertas });
   }));
 
   router.get('/alertas/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const alerta = monitoramento.obterAlerta(req.params.id);
     if (!alerta) {
       return responder(res, { sucesso: false, erro: 'Alerta não encontrado', codigoErro: 'NOT_FOUND' }, 404);
@@ -270,26 +278,46 @@ export function criarMonitoramentoRouter(): Router {
   }));
 
   router.post('/alertas', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.criarAlerta(req.body);
     return responder(res, result, result.sucesso ? 201 : 400);
   }));
 
   router.put('/alertas/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.atualizarAlerta(req.params.id, req.body);
     return responder(res, result, result.sucesso ? 200 : 404);
   }));
 
   router.delete('/alertas/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.excluirAlerta(req.params.id);
     return responder(res, result, result.sucesso ? 200 : 404);
   }));
 
   router.get('/regras', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const regras = monitoramento.listarRegras();
     return responder(res, { sucesso: true, dados: regras });
   }));
 
   router.get('/regras/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const regra = monitoramento.obterRegra(req.params.id);
     if (!regra) {
       return responder(res, { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' }, 404);
@@ -298,25 +326,45 @@ export function criarMonitoramentoRouter(): Router {
   }));
 
   router.post('/regras', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.criarRegra(req.body);
     return responder(res, result, result.sucesso ? 201 : 400);
   }));
 
   router.put('/regras/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.atualizarRegra(req.params.id, req.body);
     return responder(res, result, result.sucesso ? 200 : 404);
   }));
 
   router.delete('/regras/:id', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.excluirRegra(req.params.id);
     return responder(res, result, result.sucesso ? 200 : 404);
   }));
 
   router.get('/configuracao', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     return responder(res, { sucesso: true, dados: monitoramento.obterConfiguracao() });
   }));
 
   router.put('/configuracao', asyncHandler(async (req: Request, res: Response) => {
+    const monitoramento = getMonitoramento(req);
+    if (!monitoramento) {
+      return responder(res, { sucesso: false, erro: 'Nenhum projeto aberto', codigoErro: 'NO_PROJECT_OPEN' }, 400);
+    }
     const result = monitoramento.atualizarConfiguracao(req.body);
     return responder(res, result, result.sucesso ? 200 : 400);
   }));
