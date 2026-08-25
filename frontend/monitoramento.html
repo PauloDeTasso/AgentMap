@@ -50,6 +50,27 @@
         </div>
       </aside>
 
+      <aside class="alertas-sidebar" id="alertas-sidebar">
+        <div class="agentes-header">
+          <h2>Alertas</h2>
+          <span class="agentes-count" id="alertas-count">0 alertas</span>
+          <button class="btn-add-item" id="btn-add-alerta" title="Adicionar alerta">+</button>
+          <button class="btn-configure" id="btn-config-monitor" title="Configurações">⚙️</button>
+        </div>
+        <div class="agentes-list" id="alertas-list">
+        </div>
+      </aside>
+
+      <aside class="regras-sidebar" id="regras-sidebar">
+        <div class="agentes-header">
+          <h2>Regras</h2>
+          <span class="agentes-count" id="regras-count">0 regras</span>
+          <button class="btn-add-item" id="btn-add-regra" title="Adicionar regra">+</button>
+        </div>
+        <div class="agentes-list" id="regras-list">
+        </div>
+      </aside>
+
       <section class="chat-section">
         <div class="chat-header">
           <h2>Chat / Monitoramento</h2>
@@ -79,5 +100,125 @@
   </main>
 
   <script src="js/monitoramento.js" type="module"></script>
+
+  <div class="modal-overlay" id="modal-alerta" style="display:none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-alerta-titulo">Novo Alerta</h3>
+        <button class="modal-close" data-modal="modal-alerta">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="alerta-nome">Nome *</label>
+          <input type="text" id="alerta-nome" placeholder="Nome do alerta">
+        </div>
+        <div class="form-group">
+          <label for="alerta-descricao">Descrição</label>
+          <textarea id="alerta-descricao" placeholder="Descrição do alerta"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="alerta-tipo">Tipo *</label>
+          <select id="alerta-tipo">
+            <option value="LIMIAR">LIMIAR</option>
+            <option value="EVENTO">EVENTO</option>
+            <option value="CONDICAO">CONDIÇÃO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="alerta-condicao">Condição *</label>
+          <input type="text" id="alerta-condicao" placeholder="Ex: progresso < 50">
+        </div>
+        <div class="form-group">
+          <label for="alerta-acao">Ação *</label>
+          <input type="text" id="alerta-acao" placeholder="Ex: notificar usuario">
+        </div>
+        <div class="form-group">
+          <label for="alerta-prioridade">Prioridade</label>
+          <select id="alerta-prioridade">
+            <option value="BAIXA">BAIXA</option>
+            <option value="MEDIA">MÉDIA</option>
+            <option value="ALTA">ALTA</option>
+            <option value="CRITICA">CRÍTICA</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="alerta-ativo" checked> Ativo
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal="modal-alerta">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-alerta">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-regra" style="display:none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="modal-regra-titulo">Nova Regra</h3>
+        <button class="modal-close" data-modal="modal-regra">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="regra-nome">Nome *</label>
+          <input type="text" id="regra-nome" placeholder="Nome da regra">
+        </div>
+        <div class="form-group">
+          <label for="regra-descricao">Descrição</label>
+          <textarea id="regra-descricao" placeholder="Descrição da regra"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="regra-gatilho">Gatilho *</label>
+          <input type="text" id="regra-gatilho" placeholder="Ex: tarefa_concluida">
+        </div>
+        <div class="form-group">
+          <label for="regra-acao">Ação *</label>
+          <input type="text" id="regra-acao" placeholder="Ex: iniciar_proxima_tarefa">
+        </div>
+        <div class="form-group">
+          <label for="regra-parametros">Parâmetros (JSON)</label>
+          <textarea id="regra-parametros" placeholder='{"chave": "valor"}'></textarea>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="regra-ativo" checked> Ativo
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal="modal-regra">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-regra">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-config" style="display:none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Configurações de Monitoramento</h3>
+        <button class="modal-close" data-modal="modal-config">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="config-timeout">Timeout Heartbeat (ms)</label>
+          <input type="number" id="config-timeout" placeholder="300000">
+        </div>
+        <div class="form-group">
+          <label for="config-modo">Modo Global</label>
+          <select id="config-modo">
+            <option value="MANUAL">MANUAL</option>
+            <option value="HIBRIDO">HÍBRIDO</option>
+            <option value="AUTOMATICO">AUTOMÁTICO</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal="modal-config">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-config">Salvar</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

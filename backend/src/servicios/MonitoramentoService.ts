@@ -43,11 +43,38 @@ export interface ConfigMonitoramento {
   timeoutHeartbeat: number;
 }
 
+export interface AlertaMonitoramento {
+  id: string;
+  nome: string;
+  descricao: string;
+  tipo: 'LIMIAR' | 'EVENTO' | 'CONDICAO';
+  condicao: string;
+  acao: string;
+  prioridade: 'BAIXA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+export interface RegraMonitoramento {
+  id: string;
+  nome: string;
+  descricao: string;
+  gatilho: string;
+  acao: string;
+  parametros: Record<string, unknown>;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
 export class MonitoramentoService extends EventEmitter {
   private statusPath = '.ia/contexto/status';
   private configPath = '.ia/configuracao/monitoramento.json';
   private mensagensPath = '.ia/contexto/mensagens-monitoramento.json';
   private sequencePath = '.ia/contexto/monitoramento-sequence.json';
+  private alertasPath = '.ia/contexto/monitoramento-alertas.json';
+  private regrasPath = '.ia/contexto/monitoramento-regras.json';
   private logsLimit = 500;
   private ultimoSequence: number = 0;
   private sequenceLock: Promise<unknown> = Promise.resolve();
@@ -570,5 +597,162 @@ export class MonitoramentoService extends EventEmitter {
     }
     this.auditoria.registrar('MENSAGENS_MONITORAMENTO_LIMPAR', 'Todas as mensagens de monitoramento foram limpas', {});
     return { sucesso: true };
+  }
+
+  private carregarAlertas(): AlertaMonitoramento[] {
+    const result = this.fs.lerJson<AlertaMonitoramento[]>(this.alertasPath);
+    if (!result.sucesso || !result.dados) {
+      return [];
+    }
+    return result.dados;
+  }
+
+  private salvarAlertas(alertas: AlertaMonitoramento[]): ResultadoOperacao<string> {
+    return this.fs.escreverJson(this.alertasPath, alertas, { backup: true });
+  }
+
+  listarAlertas(): AlertaMonitoramento[] {
+    return this.carregarAlertas();
+  }
+
+  obterAlerta(id: string): AlertaMonitoramento | null {
+    const alertas = this.carregarAlertas();
+    return alertas.find(a => a.id === id) || null;
+  }
+
+  criarAlerta(dados: Omit<AlertaMonitoramento, 'id' | 'criadoEm' | 'atualizadoEm'>): ResultadoOperacao<AlertaMonitoramento> {
+    if (!dados.nome || !dados.condicao || !dados.acao) {
+      return { sucesso: false, erro: 'nome, condicao e acao são obrigatórios', codigoErro: 'MISSING_FIELDS' };
+    }
+    const alertas = this.carregarAlertas();
+    const agora = new Date().toISOString();
+    const alerta: AlertaMonitoramento = {
+      ...dados,
+      id: `ALERTA-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+      criadoEm: agora,
+      atualizadoEm: agora
+    };
+    alertas.push(alerta);
+    const result = this.salvarAlertas(alertas);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('ALERTA_CRIADO', `Alerta "${alerta.nome}" criado`, { id: alerta.id });
+    return { sucesso: true, dados: alerta };
+  }
+
+  atualizarAlerta(id: string, dados: Partial<Omit<AlertaMonitoramento, 'id' | 'criadoEm'>>): ResultadoOperacao<AlertaMonitoramento> {
+    const alertas = this.carregarAlertas();
+    const idx = alertas.findIndex(a => a.id === id);
+    if (idx === -1) {
+      return { sucesso: false, erro: 'Alerta não encontrado', codigoErro: 'NOT_FOUND' };
+    }
+    alertas[idx] = { ...alertas[idx], ...dados, atualizadoEm: new Date().toISOString() };
+    const result = this.salvarAlertas(alertas);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('ALERTA_ATUALIZADO', `Alerta "${alertas[idx].nome}" atualizado`, { id });
+    return { sucesso: true, dados: alertas[idx] };
+  }
+
+  excluirAlerta(id: string): ResultadoOperacao<string> {
+    const alertas = this.carregarAlertas();
+    const filtrados = alertas.filter(a => a.id !== id);
+    if (filtrados.length === alertas.length) {
+      return { sucesso: false, erro: 'Alerta não encontrado', codigoErro: 'NOT_FOUND' };
+    }
+    const result = this.salvarAlertas(filtrados);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('ALERTA_EXCLUIDO', `Alerta ${id} excluído`, { id });
+    return { sucesso: true };
+  }
+
+  private carregarRegras(): RegraMonitoramento[] {
+    const result = this.fs.lerJson<RegraMonitoramento[]>(this.regrasPath);
+    if (!result.sucesso || !result.dados) {
+      return [];
+    }
+    return result.dados;
+  }
+
+  private salvarRegras(regras: RegraMonitoramento[]): ResultadoOperacao<string> {
+    return this.fs.escreverJson(this.regrasPath, regras, { backup: true });
+  }
+
+  listarRegras(): RegraMonitoramento[] {
+    return this.carregarRegras();
+  }
+
+  obterRegra(id: string): RegraMonitoramento | null {
+    const regras = this.carregarRegras();
+    return regras.find(r => r.id === id) || null;
+  }
+
+  criarRegra(dados: Omit<RegraMonitoramento, 'id' | 'criadoEm' | 'atualizadoEm'>): ResultadoOperacao<RegraMonitoramento> {
+    if (!dados.nome || !dados.gatilho || !dados.acao) {
+      return { sucesso: false, erro: 'nome, gatilho e acao são obrigatórios', codigoErro: 'MISSING_FIELDS' };
+    }
+    const regras = this.carregarRegras();
+    const agora = new Date().toISOString();
+    const regra: RegraMonitoramento = {
+      ...dados,
+      id: `REGRA-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+      criadoEm: agora,
+      atualizadoEm: agora
+    };
+    regras.push(regra);
+    const result = this.salvarRegras(regras);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('REGRA_CRIADA', `Regra "${regra.nome}" criada`, { id: regra.id });
+    return { sucesso: true, dados: regra };
+  }
+
+  atualizarRegra(id: string, dados: Partial<Omit<RegraMonitoramento, 'id' | 'criadoEm'>>): ResultadoOperacao<RegraMonitoramento> {
+    const regras = this.carregarRegras();
+    const idx = regras.findIndex(r => r.id === id);
+    if (idx === -1) {
+      return { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' };
+    }
+    regras[idx] = { ...regras[idx], ...dados, atualizadoEm: new Date().toISOString() };
+    const result = this.salvarRegras(regras);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('REGRA_ATUALIZADA', `Regra "${regras[idx].nome}" atualizada`, { id });
+    return { sucesso: true, dados: regras[idx] };
+  }
+
+  excluirRegra(id: string): ResultadoOperacao<string> {
+    const regras = this.carregarRegras();
+    const filtradas = regras.filter(r => r.id !== id);
+    if (filtradas.length === regras.length) {
+      return { sucesso: false, erro: 'Regra não encontrada', codigoErro: 'NOT_FOUND' };
+    }
+    const result = this.salvarRegras(filtradas);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('REGRA_EXCLUIDA', `Regra ${id} excluída`, { id });
+    return { sucesso: true };
+  }
+
+  atualizarConfiguracao(config: Partial<ConfigMonitoramento>): ResultadoOperacao<ConfigMonitoramento> {
+    const configAtual = this.carregarConfig();
+    const novaConfig = { ...configAtual, ...config, ultimaAtualizacao: new Date().toISOString() };
+    const result = this.fs.escreverJson(this.configPath, novaConfig);
+    if (!result.sucesso) {
+      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    }
+    this.auditoria.registrar('CONFIG_MONITORAMENTO_ATUALIZADA', 'Configuração de monitoramento atualizada', config);
+    return { sucesso: true, dados: novaConfig };
+  }
+
+  obterConfiguracao(): ConfigMonitoramento {
+    return this.carregarConfig();
   }
 }
