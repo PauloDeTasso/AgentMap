@@ -309,6 +309,28 @@ class ApiClient {
     return this.request('/auditoria');
   }
 
+  async criarAuditoria(dados) {
+    return this.request('/auditoria', {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async atualizarAuditoria(id, dados) {
+    return this.request(`/auditoria/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async excluirAuditoria(id) {
+    return this.request(`/auditoria/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosAuditoria() {
+    return this.request(`/auditoria`, { method: 'DELETE' });
+  }
+
   async getSettings() {
     return this.request('/projetos/settings');
   }

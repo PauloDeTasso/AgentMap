@@ -1528,17 +1528,27 @@ async function renderizarAuditoria(el) {
     const res = await api.getAuditoria();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const eventos = res.dados;
-    el.innerHTML = `<h3>Auditoria (${eventos.length} eventos)</h3>`;
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">🔍 Auditoria (${eventos.length} eventos)</h3>
+      <div>
+        <button class="btn btn--small btn--primario" onclick="abrirModalAuditoria()">+ Nova Entrada</button>
+        ${eventos.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosAuditoria()">Limpar Tudo</button>' : ''}
+      </div>
+    </div>`;
     if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
-    table.innerHTML = `<thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Resultado</th></tr></thead><tbody></tbody>`;
+    table.innerHTML = `<thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Resultado</th><th>Ações</th></tr></thead><tbody></tbody>`;
     const tbody = table.querySelector('tbody');
     for (const ev of eventos) {
       const tr = document.createElement('tr');
       const data = formatDate(ev.data);
       const cls = ev.resultado === 'sucesso' ? 'badge--ativo' : ev.resultado === 'falha' ? 'badge--bloqueada' : 'badge--inativo';
-      tr.innerHTML = `<td>${escapeHtml(data)}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td><span class="badge ${cls}">${escapeHtml(ev.resultado)}</span></td>`;
+      tr.innerHTML = `<td>${escapeHtml(data)}</td><td>${escapeHtml(ev.tipo)}</td><td>${escapeHtml(ev.descricao)}</td><td><span class="badge ${cls}">${escapeHtml(ev.resultado)}</span></td>
+        <td>
+          <button class="btn btn--small" onclick="editarAuditoria('${escapeAttr(ev.id)}')">Editar</button>
+          <button class="btn btn--small btn--danger" onclick="excluirAuditoria('${escapeAttr(ev.id)}')">Excluir</button>
+        </td>`;
       tbody.appendChild(tr);
     }
     el.appendChild(table);
@@ -3147,6 +3157,80 @@ window.excluirContrato = async function(id) {
       else showToast(res.erro, 'erro');
     } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
   };
+
+  // ===== Auditoria: criar / editar / excluir =====
+  window.abrirModalAuditoria = function(evento = null) {
+    $('form-auditoria').reset();
+    $('auditoria-id').value = '';
+    if (evento) {
+      $('auditoria-id').value = evento.id;
+      $('auditoria-tipo').value = evento.tipo || 'MANUAL';
+      $('auditoria-descricao').value = evento.descricao || '';
+      $('auditoria-resultado').value = evento.resultado || 'sucesso';
+      $('auditoria-agente').value = evento.agenteId || '';
+      $('auditoria-tarefa').value = evento.tarefaId || '';
+      $('auditoria-usuario').value = evento.usuarioId || '';
+      $('auditoria-origem').value = evento.origem || 'gerenciador';
+      $('titulo-auditoria').textContent = `Editar Entrada: ${escapeHtml(evento.id)}`;
+    } else {
+      $('auditoria-tipo').value = 'MANUAL';
+      $('auditoria-resultado').value = 'sucesso';
+      $('auditoria-origem').value = 'gerenciador';
+      $('titulo-auditoria').textContent = 'Nova Entrada de Auditoria';
+    }
+    showModal('modal-auditoria');
+  };
+
+  window.editarAuditoria = async function(id) {
+    try {
+      const res = await api.getAuditoria();
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      const ev = (res.dados || []).find((e: any) => e.id === id);
+      if (!ev) { showToast('Evento não encontrado', 'erro'); return; }
+      abrirModalAuditoria(ev);
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirAuditoria = async function(id) {
+    if (!confirm(`Excluir entrada de auditoria "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirAuditoria(id);
+      if (res.sucesso) { showToast('Entrada excluída!', 'sucesso'); carregarPainel('auditoria'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosAuditoria = async function() {
+    if (!confirm('Limpar TODAS as entradas de auditoria? Esta ação não pode ser revertida.')) return;
+    try {
+      const res = await api.excluirTodosAuditoria();
+      if (res.sucesso) { showToast(`Auditoria limpa (${res.dados} entradas removidas).`, 'sucesso'); carregarPainel('auditoria'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-auditoria').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-auditoria').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('auditoria-id').value;
+    const dados = {
+      tipo: $('auditoria-tipo').value.trim(),
+      descricao: $('auditoria-descricao').value.trim(),
+      resultado: $('auditoria-resultado').value,
+      origem: $('auditoria-origem').value.trim(),
+      agenteId: $('auditoria-agente').value.trim() || null,
+      tarefaId: $('auditoria-tarefa').value.trim() || null,
+      usuarioId: $('auditoria-usuario').value.trim() || null
+    };
+    if (!dados.descricao) { showToast('Descrição é obrigatória', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarAuditoria(id, dados) : await api.criarAuditoria(dados);
+      if (res.sucesso) { showToast('Entrada de auditoria salva!', 'sucesso'); hideModal('modal-auditoria'); carregarPainel('auditoria'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar entrada de auditoria', 'erro'); }
+    finally { restoreButton(btn); }
+  });
 
   $('form-aprendizado').addEventListener('submit', async function(e) {
     e.preventDefault();

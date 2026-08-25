@@ -40,12 +40,21 @@ export class AuditoriaService {
     this.fs.escrever(auditoriaPath, JSON.stringify({ eventos }, null, 2), { backup: true });
   }
 
-  listar(limite = 100): EventoAuditoria[] {
+  private lerEventos(): { eventos: EventoAuditoria[] } {
     const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(
       path.win32.join('.ia', 'auditoria', 'eventos.json')
     );
-    if (!result.sucesso || !result.dados) return [];
-    return result.dados.eventos.slice(-limite).reverse();
+    if (!result.sucesso || !result.dados) return { eventos: [] };
+    return result.dados;
+  }
+
+  private salvarEventos(eventos: EventoAuditoria[]): void {
+    this.fs.escrever(path.win32.join('.ia', 'auditoria', 'eventos.json'), JSON.stringify({ eventos }, null, 2), { backup: true });
+  }
+
+  listar(limite = 100): EventoAuditoria[] {
+    const eventos = this.lerEventos().eventos;
+    return eventos.slice(-limite).reverse();
   }
 
   buscar(tipo?: string, agenteId?: string): EventoAuditoria[] {
@@ -55,6 +64,59 @@ export class AuditoriaService {
       if (agenteId && e.agenteId !== agenteId) return false;
       return true;
     });
+  }
+
+  obter(id: string): EventoAuditoria | null {
+    const eventos = this.lerEventos().eventos;
+    return eventos.find((e) => e.id === id) || null;
+  }
+
+  criar(dados: Partial<EventoAuditoria> & { descricao: string }): EventoAuditoria {
+    const evento: EventoAuditoria = {
+      id: uuid(),
+      tipo: dados.tipo || 'MANUAL',
+      origem: dados.origem || 'gerenciador',
+      agenteId: dados.agenteId || null,
+      usuarioId: dados.usuarioId || null,
+      tarefaId: dados.tarefaId || null,
+      descricao: dados.descricao,
+      dados: dados.dados || {},
+      resultado: dados.resultado || 'sucesso',
+      data: dados.data || new Date().toISOString()
+    };
+    this.appendEvento(evento);
+    return evento;
+  }
+
+  atualizar(id: string, dados: Partial<EventoAuditoria>): EventoAuditoria | null {
+    const registros = this.lerEventos();
+    const idx = registros.eventos.findIndex((e) => e.id === id);
+    if (idx < 0) return null;
+    const atualizado: EventoAuditoria = {
+      ...registros.eventos[idx],
+      ...dados,
+      id: registros.eventos[idx].id,
+      data: registros.eventos[idx].data
+    };
+    registros.eventos[idx] = atualizado;
+    this.salvarEventos(registros.eventos);
+    return atualizado;
+  }
+
+  excluir(id: string): boolean {
+    const registros = this.lerEventos();
+    const idx = registros.eventos.findIndex((e) => e.id === id);
+    if (idx < 0) return false;
+    registros.eventos.splice(idx, 1);
+    this.salvarEventos(registros.eventos);
+    return true;
+  }
+
+  limpar(): number {
+    const registros = this.lerEventos();
+    const total = registros.eventos.length;
+    this.salvarEventos([]);
+    return total;
   }
 }
 

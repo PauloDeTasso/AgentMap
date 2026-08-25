@@ -79,6 +79,36 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
     return responder(res, { sucesso: true, dados: req.servicos!.auditoria.listar(200) });
   }));
 
+  router.post('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
+    const dados = req.body || {};
+    if (!dados.descricao) {
+      return responder(res, { sucesso: false, erro: 'Descrição é obrigatória', codigoErro: 'MISSING_FIELDS' }, 400);
+    }
+    const evento = req.servicos!.auditoria.criar(dados);
+    return responder(res, { sucesso: true, dados: evento }, 201);
+  }));
+
+  router.put('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
+    const resultado = req.servicos!.auditoria.atualizar(req.params.id, req.body || {});
+    if (!resultado) {
+      return responder(res, { sucesso: false, erro: 'Evento de auditoria não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+    }
+    return responder(res, { sucesso: true, dados: resultado });
+  }));
+
+  router.delete('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
+    const excluido = req.servicos!.auditoria.excluir(req.params.id);
+    if (!excluido) {
+      return responder(res, { sucesso: false, erro: 'Evento de auditoria não encontrado', codigoErro: 'NOT_FOUND' }, 404);
+    }
+    return responder(res, { sucesso: true, dados: true });
+  }));
+
+  router.delete('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
+    const total = req.servicos!.auditoria.limpar();
+    return responder(res, { sucesso: true, dados: total });
+  }));
+
   router.use('/api/agentes', criarAgenteRouter());
   router.use('/api/tarefas', criarTarefaRouter());
   router.use('/api/arquivos', criarArquivoRouter());
