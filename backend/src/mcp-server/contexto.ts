@@ -25,6 +25,7 @@ import { DecisaoService } from 'servicios';
 import { RiscoService } from 'servicios';
 import { BloqueioService } from 'servicios';
 import { EventoService } from 'servicios';
+import { EstadoService } from 'servicios';
 import { ContatoService } from 'servicios';
 import { StateMachineService } from 'servicios';
 import { ContractValidatorService } from 'servicios';
@@ -74,6 +75,7 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
       risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
       bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator, undefined, globalEventBus),
       contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
+      estado: new EstadoService(projeto.fileService, projeto.auditoria),
       evento: eventoService,
       auditoria: projeto.auditoria,
       stateMachine: stateMachineService,
