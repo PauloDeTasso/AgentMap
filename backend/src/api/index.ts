@@ -27,6 +27,7 @@ import { criarResponsabilidadeRouter } from './responsabilidades';
 import { criarDecisaoRouter } from './decisoes';
 import { criarRiscoRouter } from './riscos';
 import { criarBloqueioRouter } from './bloqueios';
+import { criarIntegridadeRouter } from './integridade';
 import { criarEventoRouter } from './eventos';
 import { criarContatoRouter } from './contatos';
 import { criarAdminRouter } from './admin';
@@ -115,6 +116,7 @@ export function setupRotas(projetoService: ProjetoService, monitoramento: Monito
   router.use('/api/decisoes', criarDecisaoRouter());
   router.use('/api/riscos', criarRiscoRouter());
   router.use('/api/bloqueios', criarBloqueioRouter());
+  router.use('/api/integridade', criarIntegridadeRouter());
   router.use('/api/eventos', criarEventoRouter());
   router.use('/api/contatos', criarContatoRouter());
   router.use('/api/admin', criarAdminRouter());

@@ -734,6 +734,34 @@ class ApiClient {
     return this.request('/integridade');
   }
 
+  async verificarIntegridade() {
+    return this.request('/integridade/verificar', { method: 'POST' });
+  }
+
+  async getRegrasIntegridade() {
+    return this.request('/integridade/regras');
+  }
+
+  async getRegraIntegridade(id) {
+    return this.request(`/integridade/regras/${id}`);
+  }
+
+  async criarRegraIntegridade(dados) {
+    return this.request('/integridade/regras', { method: 'POST', body: JSON.stringify(dados) });
+  }
+
+  async atualizarRegraIntegridade(id, dados) {
+    return this.request(`/integridade/regras/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirRegraIntegridade(id) {
+    return this.request(`/integridade/regras/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodasRegrasIntegridade() {
+    return this.request('/integridade/regras', { method: 'DELETE' });
+  }
+
   async getMonitor() {
     return this.request('/monitor');
   }

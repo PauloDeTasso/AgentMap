@@ -1106,6 +1106,49 @@
 
 
 
+   <!-- Modal: Regra de Integridade -->
+   <div class="modal" id="modal-regra-integridade" style="display:none;">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-regra-integridade')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-regra-integridade">Nova Regra de Integridade</h3>
+       <form class="form" id="form-regra-integridade">
+         <input type="hidden" id="regra-integridade-id">
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-nome">Nome</label>
+           <input class="form__input" type="text" id="regra-integridade-nome">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-entidade">Entidade</label>
+           <input class="form__input" type="text" id="regra-integridade-entidade" placeholder="GERAL">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="regra-integridade-descricao">Descrição</label>
+           <textarea class="form__textarea" id="regra-integridade-descricao" rows="2"></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-severidade">Severidade</label>
+           <select class="form__input" id="regra-integridade-severidade">
+             <option value="BAIXA">BAIXA</option>
+             <option value="MEDIA">MÉDIA</option>
+             <option value="ALTA">ALTA</option>
+             <option value="CRITICA">CRÍTICA</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-ativo">Ativo</label>
+           <select class="form__input" id="regra-integridade-ativo">
+             <option value="true">SIM</option>
+             <option value="false">NÃO</option>
+           </select>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" id="btn-cancelar-regra-integridade" onclick="hideModal('modal-regra-integridade')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+   </div>
+
 <div class="modal" id="modal-dependencia" style="display:none;">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-dependencia')">&times;</button>
