@@ -621,6 +621,402 @@ document.addEventListener('DOMContentLoaded', () => {
     btnLimparAgentes.addEventListener('click', limparAgentes);
   }
 
+  const btnAddAlerta = document.getElementById('btn-add-alerta');
+  const btnAddRegra = document.getElementById('btn-add-regra');
+  const btnConfigMonitor = document.getElementById('btn-config-monitor');
+  const btnSalvarAlerta = document.getElementById('btn-salvar-alerta');
+  const btnSalvarRegra = document.getElementById('btn-salvar-regra');
+  const btnSalvarConfig = document.getElementById('btn-salvar-config');
+
+  function abrirModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function fecharModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.style.display = 'none';
+  }
+
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => fecharModal(btn.getAttribute('data-modal')));
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.style.display = 'none';
+    });
+  });
+
+  let alertaEditandoId = null;
+  let regraEditandoId = null;
+
+  function limparFormularioAlerta() {
+    alertaEditandoId = null;
+    document.getElementById('modal-alerta-titulo').textContent = 'Novo Alerta';
+    document.getElementById('alerta-nome').value = '';
+    document.getElementById('alerta-descricao').value = '';
+    document.getElementById('alerta-tipo').value = 'LIMIAR';
+    document.getElementById('alerta-condicao').value = '';
+    document.getElementById('alerta-acao').value = '';
+    document.getElementById('alerta-prioridade').value = 'BAIXA';
+    document.getElementById('alerta-ativo').checked = true;
+  }
+
+  function limparFormularioRegra() {
+    regraEditandoId = null;
+    document.getElementById('modal-regra-titulo').textContent = 'Nova Regra';
+    document.getElementById('regra-nome').value = '';
+    document.getElementById('regra-descricao').value = '';
+    document.getElementById('regra-gatilho').value = '';
+    document.getElementById('regra-acao').value = '';
+    document.getElementById('regra-parametros').value = '';
+    document.getElementById('regra-ativo').checked = true;
+  }
+
+  function preencherFormularioAlerta(alerta) {
+    alertaEditandoId = alerta.id;
+    document.getElementById('modal-alerta-titulo').textContent = 'Editar Alerta';
+    document.getElementById('alerta-nome').value = alerta.nome || '';
+    document.getElementById('alerta-descricao').value = alerta.descricao || '';
+    document.getElementById('alerta-tipo').value = alerta.tipo || 'LIMIAR';
+    document.getElementById('alerta-condicao').value = alerta.condicao || '';
+    document.getElementById('alerta-acao').value = alerta.acao || '';
+    document.getElementById('alerta-prioridade').value = alerta.prioridade || 'BAIXA';
+    document.getElementById('alerta-ativo').checked = alerta.ativo !== false;
+  }
+
+  function preencherFormularioRegra(regra) {
+    regraEditandoId = regra.id;
+    document.getElementById('modal-regra-titulo').textContent = 'Editar Regra';
+    document.getElementById('regra-nome').value = regra.nome || '';
+    document.getElementById('regra-descricao').value = regra.descricao || '';
+    document.getElementById('regra-gatilho').value = regra.gatilho || '';
+    document.getElementById('regra-acao').value = regra.acao || '';
+    document.getElementById('regra-parametros').value = regra.parametros ? JSON.stringify(regra.parametros, null, 2) : '';
+    document.getElementById('regra-ativo').checked = regra.ativo !== false;
+  }
+
+  if (btnAddAlerta) {
+    btnAddAlerta.addEventListener('click', () => {
+      limparFormularioAlerta();
+      abrirModal('modal-alerta');
+    });
+  }
+
+  if (btnAddRegra) {
+    btnAddRegra.addEventListener('click', () => {
+      limparFormularioRegra();
+      abrirModal('modal-regra');
+    });
+  }
+
+  if (btnConfigMonitor) {
+    btnConfigMonitor.addEventListener('click', async () => {
+      try {
+        const res = await fetch(`${API_BASE}/configuracao`);
+        const json = await res.json();
+        if (json.sucesso) {
+          document.getElementById('config-timeout').value = json.dados.timeoutHeartbeat || 300000;
+          document.getElementById('config-modo').value = json.dados.modoGlobal || 'MANUAL';
+        }
+      } catch (err) {
+        console.error('Erro ao carregar configuração:', err);
+      }
+      abrirModal('modal-config');
+    });
+  }
+
+  if (btnSalvarAlerta) {
+    btnSalvarAlerta.addEventListener('click', async () => {
+      const dados = {
+        nome: document.getElementById('alerta-nome').value.trim(),
+        descricao: document.getElementById('alerta-descricao').value.trim(),
+        tipo: document.getElementById('alerta-tipo').value,
+        condicao: document.getElementById('alerta-condicao').value.trim(),
+        acao: document.getElementById('alerta-acao').value.trim(),
+        prioridade: document.getElementById('alerta-prioridade').value,
+        ativo: document.getElementById('alerta-ativo').checked
+      };
+
+      if (!dados.nome || !dados.condicao || !dados.acao) {
+        alert('Nome, Condição e Ação são obrigatórios.');
+        return;
+      }
+
+      try {
+        const url = alertaEditandoId ? `${API_BASE}/alertas/${alertaEditandoId}` : `${API_BASE}/alertas`;
+        const method = alertaEditandoId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const json = await res.json();
+        if (json.sucesso) {
+          fecharModal('modal-alerta');
+          await carregarAlertas();
+        } else {
+          alert('Erro: ' + (json.erro || 'Falha ao salvar'));
+        }
+      } catch (err) {
+        console.error('Erro ao salvar alerta:', err);
+        alert('Erro de conexão ao salvar alerta.');
+      }
+    });
+  }
+
+  if (btnSalvarRegra) {
+    btnSalvarRegra.addEventListener('click', async () => {
+      const parametrosStr = document.getElementById('regra-parametros').value.trim();
+      let parametros = {};
+      if (parametrosStr) {
+        try {
+          parametros = JSON.parse(parametrosStr);
+        } catch (e) {
+          alert('Parâmetros devem ser um JSON válido.');
+          return;
+        }
+      }
+
+      const dados = {
+        nome: document.getElementById('regra-nome').value.trim(),
+        descricao: document.getElementById('regra-descricao').value.trim(),
+        gatilho: document.getElementById('regra-gatilho').value.trim(),
+        acao: document.getElementById('regra-acao').value.trim(),
+        parametros,
+        ativo: document.getElementById('regra-ativo').checked
+      };
+
+      if (!dados.nome || !dados.gatilho || !dados.acao) {
+        alert('Nome, Gatilho e Ação são obrigatórios.');
+        return;
+      }
+
+      try {
+        const url = regraEditandoId ? `${API_BASE}/regras/${regraEditandoId}` : `${API_BASE}/regras`;
+        const method = regraEditandoId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+        const json = await res.json();
+        if (json.sucesso) {
+          fecharModal('modal-regra');
+          await carregarRegras();
+        } else {
+          alert('Erro: ' + (json.erro || 'Falha ao salvar'));
+        }
+      } catch (err) {
+        console.error('Erro ao salvar regra:', err);
+        alert('Erro de conexão ao salvar regra.');
+      }
+    });
+  }
+
+  if (btnSalvarConfig) {
+    btnSalvarConfig.addEventListener('click', async () => {
+      const timeout = parseInt(document.getElementById('config-timeout').value, 10);
+      const modo = document.getElementById('config-modo').value;
+
+      if (!timeout || timeout < 1000) {
+        alert('Timeout deve ser pelo menos 1000ms.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/configuracao`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timeoutHeartbeat: timeout, modoGlobal: modo })
+        });
+        const json = await res.json();
+        if (json.sucesso) {
+          fecharModal('modal-config');
+          atualizarModoAtivo(modo);
+        } else {
+          alert('Erro: ' + (json.erro || 'Falha ao salvar'));
+        }
+      } catch (err) {
+        console.error('Erro ao salvar configuração:', err);
+        alert('Erro de conexão ao salvar configuração.');
+      }
+    });
+  }
+
+  async function carregarAlertas() {
+    try {
+      const res = await fetch(`${API_BASE}/alertas`);
+      const json = await res.json();
+      if (json.sucesso) {
+        renderizarAlertas(json.dados);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar alertas:', err);
+    }
+  }
+
+  async function carregarRegras() {
+    try {
+      const res = await fetch(`${API_BASE}/regras`);
+      const json = await res.json();
+      if (json.sucesso) {
+        renderizarRegras(json.dados);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar regras:', err);
+    }
+  }
+
+  function renderizarAlertas(alertas) {
+    const list = document.getElementById('alertas-list');
+    const count = document.getElementById('alertas-count');
+    if (!list) return;
+
+    list.innerHTML = '';
+    if (count) count.textContent = `${alertas.length} alertas`;
+
+    alertas.forEach(alerta => {
+      const div = document.createElement('div');
+      div.className = `agente-item alerta-item ${alerta.ativo ? '' : 'item-inativo'}`;
+      div.innerHTML = `
+        <div class="agente-nome">
+          <span class="status-badge status-badge--${(alerta.prioridade || 'BAIXA').toLowerCase()}"></span>
+          ${alerta.nome}
+          <span class="modo-tag">${alerta.tipo}</span>
+        </div>
+        <div class="agente-status">
+          <span>${alerta.condicao}</span>
+          <span class="status-badge-text">${alerta.prioridade}</span>
+        </div>
+        <div class="item-acoes">
+          <button class="item-editar" data-alerta-id="${alerta.id}" title="Editar">✏️</button>
+          <button class="item-excluir" data-alerta-id="${alerta.id}" title="Excluir">🗑️</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    if (alertas.length === 0) {
+      list.innerHTML = '<div style="padding:12px;color:#6e7681;font-size:12px;">Nenhum alerta configurado</div>';
+    }
+  }
+
+  function renderizarRegras(regras) {
+    const list = document.getElementById('regras-list');
+    const count = document.getElementById('regras-count');
+    if (!list) return;
+
+    list.innerHTML = '';
+    if (count) count.textContent = `${regras.length} regras`;
+
+    regras.forEach(regra => {
+      const div = document.createElement('div');
+      div.className = `agente-item regra-item ${regra.ativo ? '' : 'item-inativo'}`;
+      div.innerHTML = `
+        <div class="agente-nome">
+          <span class="status-badge status-badge--regra"></span>
+          ${regra.nome}
+          <span class="modo-tag">${regra.gatilho}</span>
+        </div>
+        <div class="agente-status">
+          <span>${regra.acao}</span>
+          <span class="status-badge-text">${regra.ativo ? 'ATIVO' : 'INATIVO'}</span>
+        </div>
+        <div class="item-acoes">
+          <button class="item-editar" data-regra-id="${regra.id}" title="Editar">✏️</button>
+          <button class="item-excluir" data-regra-id="${regra.id}" title="Excluir">🗑️</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+
+    if (regras.length === 0) {
+      list.innerHTML = '<div style="padding:12px;color:#6e7681;font-size:12px;">Nenhuma regra configurada</div>';
+    }
+  }
+
+  async function editarAlerta(id) {
+    try {
+      const res = await fetch(`${API_BASE}/alertas/${id}`);
+      const json = await res.json();
+      if (json.sucesso) {
+        preencherFormularioAlerta(json.dados);
+        abrirModal('modal-alerta');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar alerta:', err);
+    }
+  }
+
+  async function editarRegra(id) {
+    try {
+      const res = await fetch(`${API_BASE}/regras/${id}`);
+      const json = await res.json();
+      if (json.sucesso) {
+        preencherFormularioRegra(json.dados);
+        abrirModal('modal-regra');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar regra:', err);
+    }
+  }
+
+  async function excluirAlerta(id) {
+    if (!confirm('Excluir este alerta?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/alertas/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.sucesso) {
+        await carregarAlertas();
+      } else {
+        alert('Erro: ' + (json.erro || 'Falha ao excluir'));
+      }
+    } catch (err) {
+      console.error('Erro ao excluir alerta:', err);
+    }
+  }
+
+  async function excluirRegra(id) {
+    if (!confirm('Excluir esta regra?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/regras/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.sucesso) {
+        await carregarRegras();
+      } else {
+        alert('Erro: ' + (json.erro || 'Falha ao excluir'));
+      }
+    } catch (err) {
+      console.error('Erro ao excluir regra:', err);
+    }
+  }
+
+  document.getElementById('alertas-list').addEventListener('click', async (e) => {
+    const btnEditar = e.target.closest('.item-editar');
+    const btnExcluir = e.target.closest('.item-excluir');
+    if (btnEditar) {
+      const id = btnEditar.getAttribute('data-alerta-id');
+      if (id) await editarAlerta(id);
+    } else if (btnExcluir) {
+      const id = btnExcluir.getAttribute('data-alerta-id');
+      if (id) await excluirAlerta(id);
+    }
+  });
+
+  document.getElementById('regras-list').addEventListener('click', async (e) => {
+    const btnEditar = e.target.closest('.item-editar');
+    const btnExcluir = e.target.closest('.item-excluir');
+    if (btnEditar) {
+      const id = btnEditar.getAttribute('data-regra-id');
+      if (id) await editarRegra(id);
+    } else if (btnExcluir) {
+      const id = btnExcluir.getAttribute('data-regra-id');
+      if (id) await excluirRegra(id);
+    }
+  });
+
   async function carregarMensagens() {
     try {
       const res = await fetch(`${API_BASE}/mensagens?limite=100`);
@@ -636,5 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   carregarModoAtual();
   carregarMensagens();
+  carregarAlertas();
+  carregarRegras();
   conectarWebSocket();
 });

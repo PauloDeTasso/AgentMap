@@ -712,6 +712,54 @@ class ApiClient {
     return this.request('/monitor');
   }
 
+  async listarAlertas() {
+    return this.request('/monitoramento/alertas');
+  }
+
+  async obterAlerta(id) {
+    return this.request(`/monitoramento/alertas/${id}`);
+  }
+
+  async criarAlerta(dados) {
+    return this.request('/monitoramento/alertas', { method: 'POST', body: JSON.stringify(dados) });
+  }
+
+  async atualizarAlerta(id, dados) {
+    return this.request(`/monitoramento/alertas/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirAlerta(id) {
+    return this.request(`/monitoramento/alertas/${id}`, { method: 'DELETE' });
+  }
+
+  async listarRegras() {
+    return this.request('/monitoramento/regras');
+  }
+
+  async obterRegra(id) {
+    return this.request(`/monitoramento/regras/${id}`);
+  }
+
+  async criarRegra(dados) {
+    return this.request('/monitoramento/regras', { method: 'POST', body: JSON.stringify(dados) });
+  }
+
+  async atualizarRegra(id, dados) {
+    return this.request(`/monitoramento/regras/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirRegra(id) {
+    return this.request(`/monitoramento/regras/${id}`, { method: 'DELETE' });
+  }
+
+  async obterConfiguracaoMonitor() {
+    return this.request('/monitoramento/configuracao');
+  }
+
+  async atualizarConfiguracaoMonitor(dados) {
+    return this.request('/monitoramento/configuracao', { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
   async getDecisoes() {
     return this.request('/decisoes');
   }
