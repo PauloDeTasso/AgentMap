@@ -834,11 +834,13 @@ async function renderizarProjetos(el) {
       const deleteBtn = isSystem
         ? ''
         : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`;
+      const limparBtn = `<button class="btn btn--small btn--danger" onclick="limparDadosProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')" title="Limpar tarefas, handoffs, pendências e dados obsoletos deste projeto">🗑️ Limpar Dados</button>`;
       tr.innerHTML = `<td>${escapeHtml(p.nome || '')}${badge}</td><td>${escapeHtml(caminho)}</td>
         <td>
           <button class="btn btn--small" onclick="verProjeto('${escapeAttr(p.id)}')">Ver</button>
           <button class="btn btn--small" onclick="abrirProjeto('${escapeAttr(p.id)}')">Abrir</button>
           <button class="btn btn--small" onclick="editarProjeto('${escapeAttr(p.id)}')">Editar</button>
+          ${limparBtn}
           ${deleteBtn}
         </td>`;
       tbody.appendChild(tr);
@@ -5063,11 +5065,32 @@ if (btnLimparTemp) {
   btnLimparTemp.addEventListener('click', limparTemp);
 }
 
-function abrirModalLimparObsoletos() {
+function abrirModalLimparObsoletos(projetoId, projetoNome) {
+  const corpo = document.getElementById('confirmacao-obsoletos-corpo');
+  if (corpo) {
+    corpo.innerHTML = `
+      <p style="margin-bottom:12px;color:#ff9e9e;">Esta ação irá remover permanentemente do projeto <strong>${escapeHtml(projetoNome)}</strong>:</p>
+      <ul style="margin-bottom:12px;padding-left:20px;line-height:1.8;">
+        <li><strong>Handoffs</strong> — Todos os handoffs do projeto</li>
+        <li><strong>Tarefas</strong> — Todas as tarefas registradas</li>
+        <li><strong>Documentos</strong> — Pasta de documentação</li>
+        <li><strong>Estado</strong> — Estado atual do projeto</li>
+        <li><strong>Contratos</strong> — Todos os contratos</li>
+        <li><strong>Dependências</strong> — Todas as dependências</li>
+        <li><strong>Auditoria</strong> — Logs de auditoria</li>
+        <li><strong>Backups</strong> — Todos os backups automáticos</li>
+        <li><strong>Mensagens</strong> — Mensagens de monitoramento</li>
+      </ul>
+      <p style="color:#ffd700;font-weight:600;">Deseja realmente apagar todos os dados deste projeto?</p>
+      <input type="hidden" id="limpar-obsoletos-projeto-id" value="${escapeAttr(projetoId)}">
+    `;
+  }
   showModal('modal-confirmacao-obsoletos');
 }
 
 async function confirmarLimparObsoletos() {
+  const projetoIdEl = document.getElementById('limpar-obsoletos-projeto-id');
+  const projetoId = projetoIdEl ? projetoIdEl.value : null;
   hideModal('modal-confirmacao-obsoletos');
   const corpo = document.getElementById('resultado-obsoletos-corpo');
   if (!corpo) return;
@@ -5076,7 +5099,8 @@ async function confirmarLimparObsoletos() {
   showModal('modal-resultado-obsoletos');
 
   try {
-    const res = await api.post('/admin/limpar-obsoletos', {});
+    const body = projetoId ? { projetoId } : {};
+    const res = await api.post('/admin/limpar-obsoletos', body);
     if (res.sucesso) {
       const dados = res.dados || {};
       const pastas = (dados.pastasRemovidas || []).map((p) => `📁 ${escapeHtml(p)}`).join('<br>');
@@ -5098,10 +5122,9 @@ async function confirmarLimparObsoletos() {
   }
 }
 
-const btnLimparObsoletos = document.getElementById('btn-limpar-obsoletos');
-if (btnLimparObsoletos) {
-  btnLimparObsoletos.addEventListener('click', abrirModalLimparObsoletos);
-}
+window.limparDadosProjeto = function(projetoId, projetoNome) {
+  abrirModalLimparObsoletos(projetoId, projetoNome);
+};
 
 const btnConfirmarLimpezaObsoletos = document.getElementById('btn-confirmar-limpeza-obsoletos');
 if (btnConfirmarLimpezaObsoletos) {

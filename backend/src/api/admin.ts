@@ -3,6 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { asyncHandler, responder } from './middleware';
 import { corsService } from '../servicios/CorsService';
+import { loadRegistroProjetos } from '../config';
+import { FileService } from '../arquivos/FileService';
+import { AuditoriaService } from '../servicios/AuditoriaService';
 
 export function criarAdminRouter(): Router {
   const router = Router();
@@ -115,7 +118,61 @@ export function criarAdminRouter(): Router {
       return responder(res, { sucesso: false, erro: 'Serviços não disponíveis', codigoErro: 'SERVICE_UNAVAILABLE' }, 500);
     }
 
-    const projeto = servicos.projeto;
+    const projetoId = req.body.projetoId as string | undefined;
+    let projeto = servicos.projeto;
+
+    if (projetoId && projetoId !== projeto.id) {
+      const registro = loadRegistroProjetos();
+      const projRegistro = registro.projetos.find((p) => p.id === projetoId);
+      if (!projRegistro || !projRegistro.caminhoRaiz) {
+        return responder(res, { sucesso: false, erro: 'Projeto não encontrado no registro', codigoErro: 'PROJECT_NOT_FOUND' }, 404);
+      }
+      const fsService = new FileService(projRegistro.caminhoRaiz);
+      const auditoria = new AuditoriaService(fsService);
+      const filePath = (rel: string) => path.win32.join(projRegistro.caminhoRaiz, '.ia', rel);
+
+      const pastasParaLimpar = ['handoffs', 'tarefas', 'docs', 'estado', 'contratos', 'dependencias', 'auditoria', '.backups', 'contexto'];
+      const arquivosParaLimpar = ['contexto/mensagens-monitoramento.json', 'contexto/monitoramento-sequence.json', 'contexto/kilo-state.json'];
+
+      const resultado = {
+        pastasRemovidas: [] as string[],
+        arquivosRemovidos: [] as string[],
+        erros: [] as string[],
+      };
+
+      for (const pasta of pastasParaLimpar) {
+        const fullPath = filePath(pasta);
+        try {
+          if (fs.existsSync(fullPath)) {
+            fs.rmSync(fullPath, { recursive: true, force: true });
+            resultado.pastasRemovidas.push(pasta);
+          }
+        } catch (err: any) {
+          resultado.erros.push(`Falha ao remover ${pasta}: ${err.message}`);
+        }
+      }
+
+      for (const arquivo of arquivosParaLimpar) {
+        const fullPath = filePath(arquivo);
+        try {
+          if (fs.existsSync(fullPath)) {
+            fs.unlinkSync(fullPath);
+            resultado.arquivosRemovidos.push(arquivo);
+          }
+        } catch (err: any) {
+          resultado.erros.push(`Falha ao remover ${arquivo}: ${err.message}`);
+        }
+      }
+
+      auditoria.registrar(
+        'ADMIN_LIMPEZA_OBSOLETOS',
+        `Limpeza de dados obsoletos: ${resultado.pastasRemovidas.length} pastas, ${resultado.arquivosRemovidos.length} arquivos removidos`,
+        { projetoId: projetoId }
+      );
+
+      return responder(res, { sucesso: true, dados: resultado });
+    }
+
     const filePath = (rel: string) => path.win32.join(projeto.caminhoRaiz, '.ia', rel);
 
     const pastasParaLimpar = ['handoffs', 'tarefas', 'docs', 'estado', 'contratos', 'dependencias', 'auditoria', '.backups', 'contexto'];
