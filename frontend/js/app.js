@@ -1321,7 +1321,7 @@ async function renderizarTarefas(el) {
       </div>
     </div>`;
     if (tarefas.length === 0) {
-      el.innerHTML += '<p class="painel-vazio">Nenhuma tarefa cadastrada.</p>';
+      el.innerHTML += '<p class="painel-vazio">Nenhuma tarefa cadastrada. Clique em "+ Nova Tarefa" para criar.</p>';
       return;
     }
     const table = document.createElement('table');
@@ -1358,7 +1358,7 @@ async function renderizarContratos(el) {
         ${contratos.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosContratos()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
-    if (contratos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum contrato cadastrado.</p>'; return; }
+    if (contratos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum contrato cadastrado. Clique em "+ Novo Contrato" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Nome</th><th>Versão</th><th>Estado</th><th>Obrigatório</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1413,7 +1413,7 @@ async function renderizarSolicitacoes(el) {
       </select>
       ${estado.filtroAgenteSolicitacoes?.agenteId ? '<span style="font-size:0.8rem;color:var(--text-muted);">Filtrando...</span>' : ''}
     </div>`;
-    if (solicitacoes.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma solicitação encontrada com os filtros atuais.</p>'; return; }
+    if (solicitacoes.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma solicitação encontrada. Clique em "+ Nova Solicitação" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Solicitante</th><th>Responsável</th><th>Prioridade</th><th>Status</th><th>Aprovação</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1537,7 +1537,7 @@ async function renderizarAuditoria(el) {
         ${eventos.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosAuditoria()">Limpar Tudo</button>' : ''}
       </div>
     </div>`;
-    if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado.</p>'; return; }
+    if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado. Clique em "+ Nova Entrada" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Resultado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1705,7 +1705,7 @@ async function renderizarResultados(el) {
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosResultados()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum resultado registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum resultado registrado. Clique em "+ Novo Resultado" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Tarefa</th><th>Agente</th><th>Resumo</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1739,7 +1739,7 @@ async function renderizarArtefatos(el) {
         <button class="btn btn--small btn--danger" onclick="excluirTodosArtefatos()">Excluir Todos</button>
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum artefato registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum artefato registrado. Clique em "+ Novo Artefato" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Nome</th><th>Tipo</th><th>Agente</th><th>Tarefa</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1772,7 +1772,7 @@ async function renderizarHandoffs(el) {
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosHandoffs()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma transferência registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma transferência registrada. Clique em "+ Nova Transferência" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Origem</th><th>Destino</th><th>Tarefa</th><th>Resumo</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1802,7 +1802,7 @@ async function renderizarValidacoes(el) {
       <h3 style="margin:0;">🔒 Validações (${items.length})</h3>
       <div><button class="btn btn--small btn--primario" onclick="abrirModalValidacao()">+ Nova Validação</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosValidacoes()">Excluir Todos</button>' : ''}</div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma validação registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma validação registrada. Clique em "+ Nova Validação" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Alvo</th><th>Tipo</th><th>Responsável</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1830,7 +1830,7 @@ async function renderizarPendencias(el) {
       <h3 style="margin:0;">⏳ Pendências (${items.length})</h3>
       <div><button class="btn btn--small btn--primario" onclick="abrirModalPendencia()">+ Nova Pendência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosPendencias()">Excluir Todos</button>' : ''}</div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma pendência registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma pendência registrada. Clique em "+ Nova Pendência" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Tipo</th><th>Prioridade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1860,7 +1860,7 @@ async function renderizarConflitos(el) {
       <h3 style="margin:0;">⚡ Conflitos (${items.length})</h3>
       <div><button class="btn btn--small btn--primario" onclick="abrirModalConflito()">+ Novo Conflito</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosConflitos()">Excluir Todos</button>' : ''}</div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum conflito registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum conflito registrado. Clique em "+ Novo Conflito" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Tipo</th><th>Severidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1895,7 +1895,7 @@ async function renderizarReservas(el) {
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosReservas()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma reserva registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma reserva registrada. Clique em "+ Nova Reserva" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Alvo</th><th>Tipo</th><th>Agente</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1930,7 +1930,7 @@ async function renderizarDecisoes(el) {
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosDecisoes()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma decisão registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma decisão registrada. Clique em "+ Nova Decisão" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Estado</th><th>Data</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1961,7 +1961,7 @@ async function renderizarDependencias(el) {
       <h3 style="margin:0;">🔗 Dependências (${items.length})</h3>
       <div><button class="btn btn--small btn--primario" onclick="abrirModalDependencia()">+ Nova Dependência</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosDependencias()">Excluir Todos</button>' : ''}</div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma dependência registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma dependência registrada. Clique em "+ Nova Dependência" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Fonte</th><th>Tipo</th><th>Destino</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -1988,7 +1988,7 @@ async function renderizarResponsabilidades(el) {
       <h3 style="margin:0;">👥 Responsabilidades (${items.length})</h3>
       <div><button class="btn btn--small btn--primario" onclick="abrirModalResponsabilidade()">+ Nova Responsabilidade</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosResponsabilidades()">Excluir Todos</button>' : ''}</div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma responsabilidade registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma responsabilidade registrada. Clique em "+ Nova Responsabilidade" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Agente</th><th>Alvo</th><th>Tipo</th><th>Nível</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -2011,7 +2011,7 @@ async function renderizarSessoes(el) {
     const items = res.dados || [];
     const ativas = items.filter((s) => !s.datas.fim);
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🖥️ Sessões (${items.length} total, ${ativas.length} ativas)</h3><div><button class="btn btn--small btn--primario" onclick="abrirModalSessao()">+ Nova Sessão</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosSessoes()">Excluir Todos</button>' : ''}</div></div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma sessão registrada.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhuma sessão registrada. Clique em "+ Nova Sessão" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Agente</th><th>Tarefa</th><th>Início</th><th>Fim</th><th>Estado Final</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -2041,7 +2041,7 @@ async function renderizarCheckpoints(el) {
         <button class="btn btn--small btn--danger" onclick="excluirTodosCheckpoints()">Excluir Todos</button>
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum marco registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum marco registrado. Clique em "+ Novo Marco" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Tarefa</th><th>Agente</th><th>Título</th><th>Tipo</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -2073,7 +2073,7 @@ async function renderizarAprendizados(el) {
         <button class="btn btn--small btn--danger" onclick="excluirTodosAprendizados()">Excluir Todos</button>
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum aprendizado registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum aprendizado registrado. Clique em "+ Novo Aprendizado" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Categoria</th><th>Utilidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -2105,7 +2105,7 @@ async function renderizarHistorico(el) {
         ${eventos.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosHistorico()">Excluir Todos</button>' : ''}
       </div>
     </div>`;
-    if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado.</p>'; return; }
+    if (eventos.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum evento registrado. Clique em "+ Novo Evento" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Agente</th><th>Tarefa</th><th>Resultado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -2153,7 +2153,7 @@ async function renderizarIntegridade(el) {
 
     el.innerHTML += `<h4 style="margin-top:20px;">Regras de Integridade (${regras.length})</h4>`;
     if (regras.length === 0) {
-      el.innerHTML += '<p class="painel-vazio">Nenhuma regra de integridade registrada.</p>';
+      el.innerHTML += '<p class="painel-vazio">Nenhuma regra de integridade registrada. Clique em "+ Nova Regra" para criar.</p>';
       return;
     }
     const table = document.createElement('table');
@@ -2274,7 +2274,7 @@ async function renderizarBloqueios(el) {
         ${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosBloqueios()">Excluir Todos</button>' : ''}
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum bloqueio registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum bloqueio registrado. Clique em "+ Novo Bloqueio" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Tarefa</th><th>Tipo</th><th>Gravidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;
@@ -2302,7 +2302,7 @@ async function renderizarRiscos(el) {
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosRiscos()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
-    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum risco registrado.</p>'; return; }
+    if (items.length === 0) { el.innerHTML += '<p class="painel-vazio">Nenhum risco registrado. Clique em "+ Novo Risco" para criar.</p>'; return; }
     const table = document.createElement('table');
     table.className = 'table';
     table.innerHTML = `<thead><tr><th>ID</th><th>Título</th><th>Categoria</th><th>Gravidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody></tbody>`;

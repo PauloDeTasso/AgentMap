@@ -97,6 +97,21 @@ export class ScaffoldService {
     fsSync.mkdirSync(path.join(iaRoot, 'procedimentos'), { recursive: true });
     fsSync.mkdirSync(path.join(iaRoot, 'auditoria'), { recursive: true });
     fsSync.mkdirSync(path.join(iaRoot, 'contexto'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'handoffs'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'sessoes'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'resultados'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'pendencias'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'validacoes'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'reservas'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'decisoes'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'responsabilidades'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'artefatos'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'aprendizados'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'bloqueios'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'riscos'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'conflitos'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'checkpoints'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'solicitacoes'), { recursive: true });
 
     // Configuração
     fsSync.writeFileSync(path.join(iaRoot, 'configuracao', 'projeto.json'), JSON.stringify(criarProjetoConfig(projetoId, nome, descricao), null, 2), 'utf-8');
@@ -133,6 +148,54 @@ export class ScaffoldService {
 
     // Dependências
     fsSync.writeFileSync(path.join(iaRoot, 'dependencias', 'dependencias.json'), JSON.stringify({ dependencias: [] }, null, 2), 'utf-8');
+
+    // Tarefas
+    fsSync.writeFileSync(path.join(iaRoot, 'tarefas', 'tarefas.json'), JSON.stringify({ tarefas: [], estatisticas: {} }, null, 2), 'utf-8');
+
+    // Handoffs
+    fsSync.writeFileSync(path.join(iaRoot, 'handoffs', 'handoffs.json'), JSON.stringify({ handoffs: [] }, null, 2), 'utf-8');
+
+    // Sessões
+    fsSync.writeFileSync(path.join(iaRoot, 'sessoes', 'sessoes.json'), JSON.stringify({ sessoes: [] }, null, 2), 'utf-8');
+
+    // Resultados
+    fsSync.writeFileSync(path.join(iaRoot, 'resultados', 'resultados.json'), JSON.stringify({ resultados: [] }, null, 2), 'utf-8');
+
+    // Pendências
+    fsSync.writeFileSync(path.join(iaRoot, 'pendencias', 'pendencias.json'), JSON.stringify({ pendencias: [] }, null, 2), 'utf-8');
+
+    // Validações
+    fsSync.writeFileSync(path.join(iaRoot, 'validacoes', 'validacoes.json'), JSON.stringify({ validacoes: [] }, null, 2), 'utf-8');
+
+    // Reservas
+    fsSync.writeFileSync(path.join(iaRoot, 'reservas', 'reservas.json'), JSON.stringify({ reservas: [] }, null, 2), 'utf-8');
+
+    // Decisões
+    fsSync.writeFileSync(path.join(iaRoot, 'decisoes', 'decisoes.json'), JSON.stringify({ decisoes: [] }, null, 2), 'utf-8');
+
+    // Responsabilidades
+    fsSync.writeFileSync(path.join(iaRoot, 'responsabilidades', 'responsabilidades.json'), JSON.stringify({ responsabilidades: [] }, null, 2), 'utf-8');
+
+    // Artefatos
+    fsSync.writeFileSync(path.join(iaRoot, 'artefatos', 'artefatos.json'), JSON.stringify({ artefatos: [] }, null, 2), 'utf-8');
+
+    // Aprendizados
+    fsSync.writeFileSync(path.join(iaRoot, 'aprendizados', 'aprendizados.json'), JSON.stringify({ aprendizados: [] }, null, 2), 'utf-8');
+
+    // Bloqueios
+    fsSync.writeFileSync(path.join(iaRoot, 'bloqueios', 'bloqueios.json'), JSON.stringify({ bloqueios: [] }, null, 2), 'utf-8');
+
+    // Riscos
+    fsSync.writeFileSync(path.join(iaRoot, 'riscos', 'riscos.json'), JSON.stringify({ riscos: [] }, null, 2), 'utf-8');
+
+    // Conflitos
+    fsSync.writeFileSync(path.join(iaRoot, 'conflitos', 'conflitos.json'), JSON.stringify({ conflitos: [] }, null, 2), 'utf-8');
+
+    // Checkpoints
+    fsSync.writeFileSync(path.join(iaRoot, 'checkpoints', 'checkpoints.json'), JSON.stringify({ checkpoints: [] }, null, 2), 'utf-8');
+
+    // Solicitações
+    fsSync.writeFileSync(path.join(iaRoot, 'solicitacoes', 'solicitacoes.json'), JSON.stringify({ solicitacoes: [] }, null, 2), 'utf-8');
 
     // Fluxo obrigatório
     fsSync.writeFileSync(path.join(iaRoot, 'fluxo-desenvolvimento.json'), JSON.stringify({
