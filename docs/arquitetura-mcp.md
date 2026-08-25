@@ -16,53 +16,74 @@ A implementação está em produção, validada e pronta para consumo por client
 
 ```
 backend/src/mcp-server/
-├── index.ts                      # Entry point stdio + setToolRequestHandlers
-├── server.ts                     # McpServer instance, capabilities, resources, subscriptions
-├── contexto.ts                   # ProjetoContext: carrega projeto atual + serviços
+├── index.ts                      # Entry point stdio + carrega tools e resources
+├── server.ts                     # McpServer instance, capabilities, configuração MCP
+├── contexto.ts                   # carregarContexto: carrega projeto atual + serviços
+├── audit/
+│   └── auditoria.ts              # McpAuditoria: registro de chamadas de tools
 ├── erros/
 │   └── mcp-erros.ts              # Códigos de erro estáveis + mapeamento para MCP
 ├── events/
 │   └── event-bus.ts              # EventBus local: publish/subscribe + coalescência por URI
+├── mapper/
+│   └── mapeadores.ts             # Mapeadores de dados para MCP
 ├── resources/
-│   ├── index.ts                  # Resources estáticos + templates + handlers subscribe/unsubscribe + listen 2026
+│   ├── index.ts                  # Resources estáticos + templates + handlers subscribe/unsubscribe
 │   ├── uri-factory.ts            # URIs canônicas agentmap://... com encodeURIComponent
-│   └── paths.ts                  # Proteção contra path traversal em todos os acessos
+│   └── monitoramento-resource.ts # Resource de monitoramento para polling
+├── security/
+│   └── pathValidator.ts          # Proteção contra path traversal em todos os acessos
 ├── subscriptions/
-│   ├── subscription-manager.ts   # Gerenciamento de subscriptions por session/URI (2025 + 2026)
+│   ├── subscription-manager.ts   # Gerenciamento de subscriptions por session/URI
 │   └── protocol-adapter.ts       # Adaptador de protocolo para dual-era routing
-├── tools/
-│   ├── base.ts                   # Helper: executarServico<T>(servico, metodo, args)
-│   ├── projeto.ts                # status, projetos_listar, projetos_criar, projetos_abrir, projetos_fechar, projetos_atual
-│   ├── tarefas.ts                # listar, obter, criar, atualizar, alterar_estado, excluir, contexto
+├── tools/                        # 163 tools registradas (ver referencia-tools-mcp.md)
+│   ├── projeto.ts                # projetos_listar, projetos_criar, projetos_abrir, projetos_fechar, projetos_atual, projetos_excluir_todos, integridade_verificar
+│   ├── tarefas.ts                # listar, obter, criar, atualizar, alterar_estado, excluir, excluir_todos, contexto
 │   ├── agentes.ts                # listar, obter, criar, atualizar, excluir
-│   ├── solicitacoes.ts           # listar, obter, criar, atualizar, aprovar, rejeitar, cancelar, excluir, historico
-│   ├── handoffs.ts               # listar, obter, criar, atualizar, excluir
-│   ├── sessoes.ts                # listar, obter, criar, atualizar, finalizar, excluir
-│   ├── checkpoints.ts            # listar, obter, criar, excluir
-│   ├── riscos.ts                 # listar, obter, criar, atualizar, excluir
-│   ├── bloqueios.ts              # listar, obter, criar, resolver, excluir
-│   ├── pendencias.ts             # listar, obter, criar, atualizar, resolver, excluir
-│   ├── reservas.ts               # listar, obter, criar, liberar, excluir
-│   ├── decisoes.ts               # listar, obter, criar, atualizar, excluir
-│   ├── dependencias.ts           # listar, obter, criar, excluir
-│   ├── responsabilidades.ts      # listar, obter, criar, excluir
-│   ├── artefatos.ts              # listar, obter, criar, excluir, versoes
-│   ├── resultados.ts             # listar, obter, criar, atualizar, excluir
-│   ├── criterios.ts              # listar, obter, criar, excluir
-│   ├── aprendizados.ts           # listar, obter, criar, excluir
-│   ├── validacoes.ts             # listar, obter, criar, atualizar, aprovar, rejeitar, excluir
-│   ├── arquivos.ts               # listar, ler, escrever, excluir (COM isPathSafe)
+│   ├── solicitacoes.ts           # listar, obter, criar, atualizar, aprovar, rejeitar, cancelar, excluir, excluir_todos, historico
+│   ├── handoffs.ts               # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── sessoes.ts                # listar, obter, criar, atualizar, finalizar, excluir, excluir_todos
+│   ├── checkpoints.ts            # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── riscos.ts                 # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── bloqueios.ts              # listar, obter, criar, resolver, atualizar, excluir, excluir_todos
+│   ├── pendencias.ts             # listar, obter, criar, atualizar, resolver, excluir, excluir_todos
+│   ├── reservas.ts               # listar, obter, criar, atualizar, liberar, excluir, excluir_todos
+│   ├── decisoes.ts               # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── dependencias.ts           # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── responsabilidades.ts      # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── artefatos.ts              # listar, obter, criar, atualizar, excluir, versoes, excluir_todos
+│   ├── resultados.ts             # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── criterios.ts              # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── aprendizados.ts           # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── validacoes.ts             # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── conflitos.ts              # listar, obter, criar, atualizar, resolver, excluir, excluir_todos
+│   ├── arquivos.ts               # listar, ler, excluir, excluir_todos
 │   ├── auditoria.ts              # listar (ultimos N eventos)
-│   ├── contatos.ts               # listar, obter, criar, atualizar, excluir
-│   ├── descobrir.ts              # agentmap_descobrir: lista capabilities, agents, docs, CLI, worktree
-│   ├── sugerirFluxo.ts           # agentmap_sugerir_fluxo: recomenda sequência de tools por objetivo
-│   └── workflows.ts              # iniciar_trabalho, finalizar_trabalho, consultar_pendencias, obter_mapa_projeto
+│   ├── eventos.ts                # pendentes, listar, confirmar
+│   ├── contatos.ts               # listar, obter, criar, atualizar, excluir, excluir_todos
+│   ├── descobrir.ts              # agentmap_descobrir: lista capabilities
+│   ├── sugerirFluxo.ts           # agentmap_sugerir_fluxo: recomenda sequência de tools
+│   ├── workflows.ts              # iniciar_trabalho, finalizar_trabalho, consultar_pendencias, obter_mapa_projeto
+│   ├── worktree.ts               # tarefas_prontas_para_worktree, verificar_dependencias_pendentes, abrir_worktree
+│   ├── obterContextoProjeto.ts   # contexto completo do projeto
+│   ├── obterArquitetura.ts       # arquitetura do projeto
+│   ├── obterAgente.ts            # agente com permissões
+│   ├── recomendarAgente.ts       # recomenda agente para tarefa
+│   ├── obterContextoTarefa.ts    # contexto específico da tarefa
+│   ├── lerTrechoArquivo.ts       # lê trecho de arquivo
+│   ├── buscarConhecimento.ts     # busca na base de conhecimento
+│   ├── buscarReferencias.ts      # busca referências a símbolo
+│   ├── buscarSimbolo.ts          # busca definições de símbolos
+│   ├── kilohub.ts                # report_status, report_progress, report_result
+│   ├── kilohub-receive.ts        # receive_chat_message
+│   └── monitoramento-wakeup.ts   # verificar_pendentes
 ├── prompts/
-│   └── index.ts                  # agentmap-iniciar-trabalho, agentmap-finalizar-trabalho, etc.
+│   └── index.ts                  # prompts MCP
 ├── schemas/
 │   └── manifest.json             # Manifesto do AgentMap para MCP
 └── utils/
-    └── helpers.ts                # toMcpResult, toMcpData, toMcpStructured, mcpError, schema helper
+    ├── helpers.ts                # toMcpStructured, mcpError, safeStringify
+    └── search.ts                 # utilitários de busca
 ```
 
 ## Observabilidade (OpenTelemetry)

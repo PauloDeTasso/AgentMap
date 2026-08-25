@@ -1,8 +1,8 @@
 # Guia dos Agentes Existentes — Monitoramento do AgentMap
 
-**Versão:** 1.0  
-**Data:** 2026-08-13  
-**Destinatário:** Agentes existentes do AgentMap (frontend, backend, dba, arquiteto, admin)
+**Versão:** 1.1
+**Data:** 2026-08-25
+**Destinatário:** Agentes existentes do AgentMap
 
 ---
 

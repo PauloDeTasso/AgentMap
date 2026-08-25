@@ -53,15 +53,15 @@ curl -X POST http://localhost:3150/api/monitoramento/modo \
 
 | Modo | Aprovação | Auto-execute | Quando usar |
 |------|-----------|--------------|-------------|
-| **AUTOMÁTICO** | Nunca | Todas | [REMOVIDO]es, deploys simples |
-| **HÍBRIDO** | Apenas críticas | Não-críticas | Uso diário normal |
 | **MANUAL** | Sempre | Nenhuma | Ações destrutivas, alta segurança |
+| **ASSISTIDA** | Apenas críticas | Não-críticas | Uso diário normal |
+| **AUTONOMA** | Nunca | Todas | Tarefas repetitivas, deploys simples |
 
-### Ações Críticas (sempre aprovadas no HÍBRIDO):
-- Deploy para produção
-- Drop de tabelas
+### Ações Críticas (sempre aprovadas no ASSISTIDA):
+- Exclusão de dados
 - Comandos destrutivos (`rm`, `delete massivo`)
 - Mudanças de schema
+- Alterações em produção
 
 ---
 

@@ -1,5 +1,8 @@
 # Comunicação AgentMap <-> Agent Manager / Kilo Code
 
+**Versão:** 1.1
+**Data:** 2026-08-25
+
 ## 1. Visão geral
 
 O AgentMap atua como **Control Plane** de orquestração. O **Agent Manager** (VS Code) é o executor operacional. Eles se comunicam por **HTTP/MCP**, nunca por escrita direta em arquivos compartilhados.

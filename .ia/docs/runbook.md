@@ -40,9 +40,10 @@ O Agent Manager é o mecanismo de paralelismo real. Cada agente opera em um work
 6. Limpeza de temporários: `POST /api/temp/limpar` ou botão "🧹 Limpar Temp" no frontend
 
 ## Incidentes comuns
-- Porta ocupada: reinicie o backend `npm run dev`
-- CORS bloqueando: atualize origins via `/api/admin/cors`
-- Transição travada: valide em `/api/admin/transicoes/validar`
+- Porta ocupada: reinicie o backend `npm run dev` (backend) ou `npm run dev` na raiz do backend
+- CORS bloqueando: origens configuradas dinamicamente via `CorsService`
+- Transição travada: valide com `agentmap_tarefas_alterar_estado` (respeita máquina de estados)
+- WebSocket não conecta: verifique `ws://localhost:3150/ws/monitoramento`
 
 ## Contatos
 - Arquiteto/Gerente: `arquiteto`

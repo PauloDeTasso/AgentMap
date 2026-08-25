@@ -1,18 +1,17 @@
 # ROADMAP E STATUS DO AGENTMAP
-## Branch: v0007 | Data: 2026-08-15
+## Branch: v0037 | Data: 2026-08-25
 
 ---
 
 ## 1. ESTADO ATUAL
 
-### Branch v0006 (estável, no GitHub)
+### Branch v0036 (estável, no GitHub)
 - Auditoria completa aplicada
 - Build limpo, testes verdes
 - Documentação consolidada
-- PR pendente para `main`
 
-### Branch v0007 (em desenvolvimento)
-- Criado a partir de `v0006`
+### Branch v0037 (em desenvolvimento)
+- Criado a partir de `v0036`
 - Próximas correções serão aplicadas aqui
 
 ---
@@ -21,10 +20,10 @@
 
 ### P0 — Crítico (segurança)
 
-| # | Tarefa | Worktree | Responsável | Status |
-|---|--------|----------|-------------|--------|
-| 1 | Corrigir command injection em `/api/arquivos/explorer` | `fix/command-injection-explorer` | Agente backend | 🔄 Em andamento |
-| 2 | Implementar `verifyClient` no WebSocket | `fix/websocket-verify-client` | Agente backend | 🔄 Em andamento |
+| # | Tarefa | Status |
+|---|--------|--------|
+| 1 | Corrigir command injection em `/api/arquivos/explorer` | ✅ Concluído (sem exec/spawn no código) |
+| 2 | Implementar `verifyClient` no WebSocket | ✅ Concluído (implementado em monitoramento.ts) |
 
 ### P1 — Alto (qualidade)
 

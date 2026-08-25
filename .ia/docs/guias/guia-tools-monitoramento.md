@@ -1,12 +1,16 @@
 # Guia de Ferramentas (Tools) — Monitoramento do AgentMap
 
-**Versão:** 1.0  
-**Data:** 2026-08-13  
+**Versão:** 1.1
+**Data:** 2026-08-25
 **Destinatário:** Agentes e usuários do AgentMap
 
 ---
 
 ## 1. Lista Completa de Tools Disponíveis
+
+> **Total:** 163 tools MCP com prefixo `agentmap_` + 4 tools Kilo Hub (`kilohub_*`)
+
+Para a lista completa e detalhada, consulte [referencia-tools-mcp.md](../../../docs/referencia-tools-mcp.md).
 
 ### Tools de Administração
 
