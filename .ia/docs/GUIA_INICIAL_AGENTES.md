@@ -144,7 +144,7 @@ Estados terminais (sem saída):
 
 Estas tools são chamadas por agentes via protocolo MCP (STDIO local, `@modelcontextprotocol/sdk` v1.30.0). Estão registradas em `backend/src/mcp-server/tools/*.ts` e agregadas em `backend/src/mcp-server/tools/index.ts`.
 
-> **Total:** 169 tools com prefixo `agentmap_`. Há ainda 4 tools complementares do Kilo Hub (`kilohub_*`) usadas pela integração com o Kilo Code (ver final da seção).
+> **Total:** 169 tools (165 com prefixo `agentmap_` + 4 com prefixo `kilohub_`).
 
 **Gerenciamento de Projeto (6):**
 - `agentmap_projetos_listar` — lista projetos
@@ -161,7 +161,7 @@ Estas tools são chamadas por agentes via protocolo MCP (STDIO local, `@modelcon
 - `agentmap_agentes_atualizar` — atualiza agente
 - `agentmap_agentes_excluir` — exclui agente
 
-**Gerenciamento de Tarefas (9):**
+**Gerenciamento de Tarefas (8):**
 - `agentmap_tarefas_listar` — lista tarefas
 - `agentmap_tarefas_criar` — cria tarefa
 - `agentmap_tarefas_obter` — obtém tarefa
@@ -170,7 +170,6 @@ Estas tools são chamadas por agentes via protocolo MCP (STDIO local, `@modelcon
 - `agentmap_tarefas_excluir_todos` — exclui todas as tarefas
 - `agentmap_tarefas_alterar_estado` — altera estado (respeita transições)
 - `agentmap_tarefas_contexto` — pacote de contexto completo para tarefa
-- `agentmap_tarefas_prontas_para_worktree` — lista tarefas sem dependência pendente
 
 **Worktree (paralelismo real) (3):**
 - `agentmap_tarefas_prontas_para_worktree` — vê acima (tarefas prontas)
