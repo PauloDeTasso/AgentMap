@@ -135,10 +135,6 @@ class ApiClient {
     });
   }
 
-  async excluirTodosAgentes() {
-    return this.request(`/agentes`, { method: 'DELETE' });
-  }
-
   async getTarefas() {
     return this.request('/tarefas');
   }
@@ -309,6 +305,10 @@ class ApiClient {
     return this.request('/auditoria');
   }
 
+  async getAuditoriaEvento(id) {
+    return this.request(`/auditoria/${encodeURIComponent(id)}`);
+  }
+
   async criarAuditoria(dados) {
     return this.request('/auditoria', {
       method: 'POST',
@@ -317,14 +317,14 @@ class ApiClient {
   }
 
   async atualizarAuditoria(id, dados) {
-    return this.request(`/auditoria/${id}`, {
+    return this.request(`/auditoria/${encodeURIComponent(id)}`, {
       method: 'PUT',
       body: JSON.stringify(dados)
     });
   }
 
   async excluirAuditoria(id) {
-    return this.request(`/auditoria/${id}`, { method: 'DELETE' });
+    return this.request(`/auditoria/${encodeURIComponent(id)}`, { method: 'DELETE' });
   }
 
   async excluirTodosAuditoria() {
@@ -728,30 +728,6 @@ class ApiClient {
 
   async getEstadoProjeto() {
     return this.request('/estado-projeto');
-  }
-
-  async getEstadoNotas() {
-    return this.request('/estado/notas');
-  }
-
-  async getEstadoNota(id) {
-    return this.request(`/estado/notas/${id}`);
-  }
-
-  async criarEstadoNota(dados) {
-    return this.request('/estado/notas', { method: 'POST', body: JSON.stringify(dados) });
-  }
-
-  async atualizarEstadoNota(id, dados) {
-    return this.request(`/estado/notas/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
-  }
-
-  async excluirEstadoNota(id) {
-    return this.request(`/estado/notas/${id}`, { method: 'DELETE' });
-  }
-
-  async excluirTodasEstadoNotas() {
-    return this.request('/estado/notas', { method: 'DELETE' });
   }
 
   async getIntegridade() {

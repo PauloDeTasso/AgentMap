@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { FileService } from '../arquivos/FileService';
-import { EventoAuditoria, TipoEvento } from '../tipos';
+import { EventoAuditoria, TipoEvento, ResultadoOperacao } from '../tipos';
 import { v4 as uuid } from 'uuid';
 
 export class AuditoriaService {
@@ -40,21 +40,12 @@ export class AuditoriaService {
     this.fs.escrever(auditoriaPath, JSON.stringify({ eventos }, null, 2), { backup: true });
   }
 
-  private lerEventos(): { eventos: EventoAuditoria[] } {
+  listar(limite = 100): EventoAuditoria[] {
     const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(
       path.win32.join('.ia', 'auditoria', 'eventos.json')
     );
-    if (!result.sucesso || !result.dados) return { eventos: [] };
-    return result.dados;
-  }
-
-  private salvarEventos(eventos: EventoAuditoria[]): void {
-    this.fs.escrever(path.win32.join('.ia', 'auditoria', 'eventos.json'), JSON.stringify({ eventos }, null, 2), { backup: true });
-  }
-
-  listar(limite = 100): EventoAuditoria[] {
-    const eventos = this.lerEventos().eventos;
-    return eventos.slice(-limite).reverse();
+    if (!result.sucesso || !result.dados) return [];
+    return result.dados.eventos.slice(-limite).reverse();
   }
 
   buscar(tipo?: string, agenteId?: string): EventoAuditoria[] {
@@ -66,57 +57,60 @@ export class AuditoriaService {
     });
   }
 
-  obter(id: string): EventoAuditoria | null {
-    const eventos = this.lerEventos().eventos;
-    return eventos.find((e) => e.id === id) || null;
+  obter(id: string): ResultadoOperacao<EventoAuditoria> {
+    const eventos = this.listar(1000);
+    const evento = eventos.find((e) => e.id === id);
+    if (!evento) return { sucesso: false, erro: 'Evento não encontrado', codigoErro: 'NOT_FOUND' };
+    return { sucesso: true, dados: evento };
   }
 
-  criar(dados: Partial<EventoAuditoria> & { descricao: string }): EventoAuditoria {
+  async criar(dados: Partial<EventoAuditoria>): Promise<ResultadoOperacao<EventoAuditoria>> {
     const evento: EventoAuditoria = {
-      id: uuid(),
+      id: dados.id || uuid(),
       tipo: dados.tipo || 'MANUAL',
       origem: dados.origem || 'gerenciador',
       agenteId: dados.agenteId || null,
       usuarioId: dados.usuarioId || null,
       tarefaId: dados.tarefaId || null,
-      descricao: dados.descricao,
+      descricao: dados.descricao || '',
       dados: dados.dados || {},
       resultado: dados.resultado || 'sucesso',
       data: dados.data || new Date().toISOString()
     };
     this.appendEvento(evento);
-    return evento;
+    return { sucesso: true, dados: evento };
   }
 
-  atualizar(id: string, dados: Partial<EventoAuditoria>): EventoAuditoria | null {
-    const registros = this.lerEventos();
-    const idx = registros.eventos.findIndex((e) => e.id === id);
-    if (idx < 0) return null;
-    const atualizado: EventoAuditoria = {
-      ...registros.eventos[idx],
-      ...dados,
-      id: registros.eventos[idx].id,
-      data: registros.eventos[idx].data
-    };
-    registros.eventos[idx] = atualizado;
-    this.salvarEventos(registros.eventos);
-    return atualizado;
+  async atualizar(id: string, dados: Partial<EventoAuditoria>): Promise<ResultadoOperacao<EventoAuditoria>> {
+    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(auditoriaPath);
+    if (!result.sucesso || !result.dados?.eventos) return { sucesso: false, erro: result.erro || 'Erro ao ler auditoria', codigoErro: 'READ_ERROR' };
+    const idx = result.dados.eventos.findIndex((e) => e.id === id);
+    if (idx < 0) return { sucesso: false, erro: 'Evento não encontrado', codigoErro: 'NOT_FOUND' };
+    const atualizado: EventoAuditoria = { ...result.dados.eventos[idx], ...dados, id: result.dados.eventos[idx].id };
+    result.dados.eventos[idx] = atualizado;
+    const writeResult = this.fs.escreverJson(auditoriaPath, result.dados, { backup: true });
+    if (!writeResult.sucesso) return { sucesso: false, erro: writeResult.erro, codigoErro: writeResult.codigoErro };
+    return { sucesso: true, dados: atualizado };
   }
 
-  excluir(id: string): boolean {
-    const registros = this.lerEventos();
-    const idx = registros.eventos.findIndex((e) => e.id === id);
-    if (idx < 0) return false;
-    registros.eventos.splice(idx, 1);
-    this.salvarEventos(registros.eventos);
-    return true;
+  async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
+    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(auditoriaPath);
+    if (!result.sucesso || !result.dados?.eventos) return { sucesso: false, erro: result.erro || 'Erro ao ler auditoria', codigoErro: 'READ_ERROR' };
+    const originalLength = result.dados.eventos.length;
+    result.dados.eventos = result.dados.eventos.filter((e) => e.id !== id);
+    if (result.dados.eventos.length === originalLength) return { sucesso: false, erro: 'Evento não encontrado', codigoErro: 'NOT_FOUND' };
+    const writeResult = this.fs.escreverJson(auditoriaPath, result.dados, { backup: true });
+    if (!writeResult.sucesso) return { sucesso: false, erro: writeResult.erro, codigoErro: writeResult.codigoErro };
+    return { sucesso: true, dados: true };
   }
 
-  limpar(): number {
-    const registros = this.lerEventos();
-    const total = registros.eventos.length;
-    this.salvarEventos([]);
-    return total;
+  async excluirTodos(): Promise<ResultadoOperacao<number>> {
+    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const result = this.fs.escreverJson(auditoriaPath, { eventos: [] }, { backup: true });
+    if (!result.sucesso) return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+    return { sucesso: true, dados: 0 };
   }
 }
 

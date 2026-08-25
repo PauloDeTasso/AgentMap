@@ -1670,6 +1670,67 @@
     </div>
   </div>
 
+    <!-- Modal: Histórico -->
+    <div class="modal modal--grande" id="modal-historico" style="display:none;">
+      <div class="modal__conteudo modal__conteudo--cheio">
+        <button class="modal__fechar" onclick="hideModal('modal-historico')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo" id="titulo-historico">Novo Evento de Histórico</h3>
+          <button class="btn btn--small btn--ghost" onclick="hideModal('modal-historico')">Fechar</button>
+        </div>
+        <form class="form" id="form-historico">
+          <input type="hidden" id="historico-id">
+          <div class="form__grid">
+            <div class="form__grupo">
+              <label class="form__label" for="historico-id-input">ID</label>
+              <input class="form__input" type="text" id="historico-id-input" disabled>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-tipo">Tipo *</label>
+              <select class="form__input" id="historico-tipo" required>
+                <option value="MANUAL">Manual</option>
+                <option value="CONTRATO_CRIADO">Contrato Criado</option>
+                <option value="CONTRATO_ALTERADO">Contrato Alterado</option>
+                <option value="TAREFA_CRIADA">Tarefa Criada</option>
+                <option value="TAREFA_CONCLUIDA">Tarefa Concluída</option>
+                <option value="HANDOFF_CRIADO">Handoff Criado</option>
+                <option value="HANDOFF_ACEITO">Handoff Aceito</option>
+                <option value="BLOQUEIO_CRIADO">Bloqueio Criado</option>
+                <option value="BLOQUEIO_RESOLVIDO">Bloqueio Resolvido</option>
+                <option value="REGRAS_RESPEITADAS">Regras Respeitadas</option>
+                <option value="AVISO">Aviso</option>
+                <option value="ERRO">Erro</option>
+              </select>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-resultado">Resultado</label>
+              <select class="form__input" id="historico-resultado">
+                <option value="sucesso">Sucesso</option>
+                <option value="falha">Falha</option>
+                <option value="bloqueado">Bloqueado</option>
+              </select>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-agente">Agente ID</label>
+              <input class="form__input" type="text" id="historico-agente">
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-tarefa">Tarefa ID</label>
+              <input class="form__input" type="text" id="historico-tarefa">
+            </div>
+            <div class="form__grupo form__grupo_full">
+              <label class="form__label" for="historico-descricao">Descrição *</label>
+              <textarea class="form__textarea" id="historico-descricao" rows="3" required></textarea>
+            </div>
+          </div>
+          <div class="form__acoes">
+            <button class="btn btn--primario" type="submit">Salvar</button>
+            <button class="btn btn--ghost" type="button" onclick="hideModal('modal-historico')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
    <script src="js/app.js?v=20260822-fix" type="module"></script>
 </body>
 </html>

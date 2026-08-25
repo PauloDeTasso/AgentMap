@@ -2,6 +2,7 @@
 import * as path from 'path';
 import { ProjetoService } from '../servicios/ProjetoService';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
+import { TempCleanupService } from '../servicios/TempCleanupService';
 import { projectMiddleware, asyncHandler, responder } from './middleware';
 import { criarProjetoRouter } from './projetos';
 import { criarAgenteRouter } from './agentes';
@@ -27,7 +28,6 @@ import { criarDecisaoRouter } from './decisoes';
 import { criarRiscoRouter } from './riscos';
 import { criarBloqueioRouter } from './bloqueios';
 import { criarEventoRouter } from './eventos';
-import { criarEstadoRouter } from './estado';
 import { criarContatoRouter } from './contatos';
 import { criarAdminRouter } from './admin';
 import { criarHealthRouter } from './health';
@@ -40,32 +40,22 @@ import { criarObservabilidadeRouter } from './observabilidade';
 import { criarTempRouter } from './temp';
 import { GERENCIADOR_DIR } from '../config';
 
-type GetMonitoramentoAtual = (projetoId?: string) => Promise<any> | any;
-
-export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual: GetMonitoramentoAtual): Router {
+export function setupRotas(projetoService: ProjetoService, monitoramento: MonitoramentoService, cleanupService: TempCleanupService): Router {
   const router = Router();
 
   router.get('/api/status', (_req: Request, res: Response) => {
     res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0', gerenciadorDir: GERENCIADOR_DIR } });
   });
 
+  router.use('/api/monitoramento', criarMonitoramentoRouter(monitoramento));
+
+  router.use('/api/temp', criarTempRouter(cleanupService));
+
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
   router.use('/api/observabilidade', criarObservabilidadeRouter());
 
   router.use('/api/*', projectMiddleware(projetoService));
-
-  router.use('/api/monitoramento', (req: Request, res: Response, next: any) => {
-    const projetoId = typeof req.query.projetoId === 'string' ? req.query.projetoId : undefined;
-    const monitoramento = getMonitoramentoAtual(projetoId);
-    if (!monitoramento) {
-      return res.status(400).json({ sucesso: false, erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.', codigoErro: 'NO_PROJECT_OPEN' });
-    }
-    (req as any).monitoramentoProjeto = monitoramento;
-    next();
-  }, criarMonitoramentoRouter());
-
-  router.use('/api/temp', criarTempRouter());
 
   router.use('/api/gerenciador-agentes', criarGerenciadorAgentesRouter());
 
@@ -79,34 +69,28 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
     return responder(res, { sucesso: true, dados: req.servicos!.auditoria.listar(200) });
   }));
 
+  router.get('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, req.servicos!.auditoria.obter(req.params.id));
+  }));
+
   router.post('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
-    const dados = req.body || {};
-    if (!dados.descricao) {
-      return responder(res, { sucesso: false, erro: 'Descrição é obrigatória', codigoErro: 'MISSING_FIELDS' }, 400);
-    }
-    const evento = req.servicos!.auditoria.criar(dados);
-    return responder(res, { sucesso: true, dados: evento }, 201);
+    const result = await req.servicos!.auditoria.criar(req.body);
+    return responder(res, result, result.sucesso ? 201 : 400);
   }));
 
   router.put('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
-    const resultado = req.servicos!.auditoria.atualizar(req.params.id, req.body || {});
-    if (!resultado) {
-      return responder(res, { sucesso: false, erro: 'Evento de auditoria não encontrado', codigoErro: 'NOT_FOUND' }, 404);
-    }
-    return responder(res, { sucesso: true, dados: resultado });
+    const result = await req.servicos!.auditoria.atualizar(req.params.id, req.body);
+    return responder(res, result, result.sucesso ? 200 : 400);
   }));
 
   router.delete('/api/auditoria/:id', asyncHandler(async (req: Request, res: Response) => {
-    const excluido = req.servicos!.auditoria.excluir(req.params.id);
-    if (!excluido) {
-      return responder(res, { sucesso: false, erro: 'Evento de auditoria não encontrado', codigoErro: 'NOT_FOUND' }, 404);
-    }
-    return responder(res, { sucesso: true, dados: true });
+    const result = await req.servicos!.auditoria.excluir(req.params.id);
+    return responder(res, result);
   }));
 
   router.delete('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
-    const total = req.servicos!.auditoria.limpar();
-    return responder(res, { sucesso: true, dados: total });
+    const result = await req.servicos!.auditoria.excluirTodos();
+    return responder(res, result);
   }));
 
   router.use('/api/agentes', criarAgenteRouter());
@@ -132,7 +116,6 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
   router.use('/api/riscos', criarRiscoRouter());
   router.use('/api/bloqueios', criarBloqueioRouter());
   router.use('/api/eventos', criarEventoRouter());
-  router.use('/api/estado', criarEstadoRouter());
   router.use('/api/contatos', criarContatoRouter());
   router.use('/api/admin', criarAdminRouter());
   router.use('/api/health', criarHealthRouter());
@@ -147,7 +130,6 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
 
   router.get('/api/monitor', asyncHandler(async (req: Request, res: Response) => {
     const servicos = req.servicos!;
-    const monitoramento = servicos.monitoramento;
     const [estadoProjeto, sessoesRes, auditoriaRes, handoffsRes, bloqueiosRes, riscosRes, agentesRes, tarefasRes, mensagensRes] = await Promise.all([
       servicos.integridade.calcularEstadoProjeto(servicos.projeto.id),
       servicos.sessao.listar(),
