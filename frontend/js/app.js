@@ -3312,7 +3312,7 @@ window.excluirContrato = async function(id) {
     try {
       const res = await api.getAuditoria();
       if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-      const ev = (res.dados || []).find((e: any) => e.id === id);
+      const ev = (res.dados || []).find((e) => e.id === id);
       if (!ev) { showToast('Evento não encontrado', 'erro'); return; }
       abrirModalAuditoria(ev);
     } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
