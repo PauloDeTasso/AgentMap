@@ -1575,8 +1575,60 @@
             <button class="btn btn--ghost" type="button" onclick="hideModal('modal-conflito')">Cancelar</button>
           </div>
         </form>
-      </div>
     </div>
+  </div>
+
+  <!-- Modal: Auditoria -->
+  <div class="modal modal--grande" id="modal-auditoria" style="display:none;">
+    <div class="modal__conteudo modal__conteudo--cheio">
+      <button class="modal__fechar" onclick="hideModal('modal-auditoria')">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo" id="titulo-auditoria">Nova Entrada de Auditoria</h3>
+        <button class="btn btn--small btn--ghost" onclick="hideModal('modal-auditoria')">Fechar</button>
+      </div>
+      <form class="form" id="form-auditoria">
+        <input type="hidden" id="auditoria-id">
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-tipo">Tipo *</label>
+            <input class="form__input" type="text" id="auditoria-tipo" required>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-resultado">Resultado</label>
+            <select class="form__input" id="auditoria-resultado">
+              <option value="sucesso">Sucesso</option>
+              <option value="falha">Falha</option>
+              <option value="bloqueado">Bloqueado</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-origem">Origem</label>
+            <input class="form__input" type="text" id="auditoria-origem">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-agente">Agente ID</label>
+            <input class="form__input" type="text" id="auditoria-agente">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-tarefa">Tarefa ID</label>
+            <input class="form__input" type="text" id="auditoria-tarefa">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-usuario">Usuário ID</label>
+            <input class="form__input" type="text" id="auditoria-usuario">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="auditoria-descricao">Descrição *</label>
+            <textarea class="form__textarea" id="auditoria-descricao" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-auditoria')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
    <script src="js/app.js?v=20260822-fix" type="module"></script>
 </body>
