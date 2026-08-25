@@ -9,14 +9,17 @@ Documento completo com todos os endpoints da API do AgentMap, agrupados por dom�
 - [Geral](#geral)
 - [Projetos](#projetos)
 - [Agentes](#agentes)
+- [Gerenciador de Agentes](#gerenciador-de-agentes)
 - [Tarefas](#tarefas)
 - [Arquivos](#arquivos)
 - [Contratos](#contratos)
+- [Validação de Contratos](#validação-de-contratos)
 - [Solicitações de Alteração](#solicitações-de-alteração)
 - [Critérios](#critérios)
 - [Resultados](#resultados)
 - [Artefatos](#artefatos)
 - [Handoffs](#handoffs)
+- [Handoffs Centrais](#handoffs-centrais)
 - [Pendências](#pendências)
 - [Validações](#validações)
 - [Conflitos](#conflitos)
@@ -36,9 +39,9 @@ Documento completo com todos os endpoints da API do AgentMap, agrupados por dom�
 - [Orquestrador](#orquestrador)
 - [Admin](#admin)
 - [Health](#health)
-- [Handoffs Centrais](#handoffs-centrais)
 - [Observabilidade](#observabilidade)
 - [Temporários](#temporários)
+- [Endpoints Gerais](#endpoints-gerais)
 
 ---
 
@@ -57,7 +60,7 @@ curl http://localhost:3150/api/status
 ```json
 {
   "sucesso": true,
-  "dados": { "status": "online", "versao": "1.0.0" }
+  "dados": { "status": "online", "versao": "1.0.0", "gerenciadorDir": "..." }
 }
 ```
 
@@ -70,16 +73,18 @@ curl http://localhost:3150/api/status
 | `GET` | `/api/projetos` | Lista todos os projetos registrados |
 | `GET` | `/api/projetos/scan` | Escaneia pasta de projetos |
 | `GET` | `/api/projetos/atual` | Retorna o projeto atualmente aberto |
-| `GET` | `/api/projetos/settings` | Retorna configurações |
-| `PUT` | `/api/projetos/settings` | Atualiza configurações |
+| `GET` | `/api/projetos/settings` | Retorna configurações do gerenciador |
+| `PUT` | `/api/projetos/settings` | Atualiza configurações do gerenciador |
 | `POST` | `/api/projetos` | Cria um novo projeto |
 | `GET` | `/api/projetos/:id` | Obtém projeto por ID |
 | `PUT` | `/api/projetos/:id` | Atualiza projeto |
 | `POST` | `/api/projetos/:id/abrir` | Abre um projeto |
 | `POST` | `/api/projetos/:id/fechar` | Fecha um projeto |
 | `DELETE` | `/api/projetos/:id` | Remove projeto |
+| `DELETE` | `/api/projetos/todos` | Remove todos os projetos |
+| `DELETE` | `/api/projetos` | Remove todos os projetos (alias) |
 | `GET` | `/api/projetos/:id/configuracao` | Obtém configuração do projeto |
-| `GET` | `/api/projetos/:id/fluxo/checklist` | Valida checklist de fluxo |
+| `GET` | `/api/projetos/:id/fluxo/checklist` | Valida checklist de fluxo do projeto |
 | `PUT` | `/api/projetos/:id/configuracao` | Atualiza configuração do projeto |
 
 **Exemplo - listar projetos:**
@@ -94,6 +99,11 @@ curl -X POST http://localhost:3150/api/projetos/ID/abrir \
   -d '{"caminho": "G:\\PROJETOS\\AgenteMap_Projetos\\MEU_PROJETO"}'
 ```
 
+**Exemplo - scan de pasta:**
+```bash
+curl "http://localhost:3150/api/projetos/scan?pasta=C:\\meus-projetos"
+```
+
 ---
 
 ## Agentes
@@ -105,6 +115,7 @@ curl -X POST http://localhost:3150/api/projetos/ID/abrir \
 | `POST` | `/api/agentes` | Cria um novo agente |
 | `PUT` | `/api/agentes/:id` | Atualiza agente |
 | `DELETE` | `/api/agentes/:id` | Remove agente |
+| `DELETE` | `/api/agentes` | Remove todos os agentes |
 | `GET` | `/api/agentes/:id/dominio/:caminho(*)` | Valida se agente pode acessar caminho |
 
 **Exemplo - listar agentes:**
@@ -115,6 +126,34 @@ curl http://localhost:3150/api/agentes
 **Exemplo - validar domínio:**
 ```bash
 curl http://localhost:3150/api/agentes/backend/dominio/backend/src/servicos
+```
+
+**Exemplo - criar agente:**
+```bash
+curl -X POST http://localhost:3150/api/agentes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "backend",
+    "nome": "Backend",
+    "funcao": "backend",
+    "estado": "ATIVO",
+    "permissoes": { "leitura": true, "escrita": true }
+  }'
+```
+
+---
+
+## Gerenciador de Agentes
+
+| Método | Caminho | Descrição |
+|---|---|---|
+| `GET` | `/api/gerenciador-agentes/agentes` | Lista agentes com contexto completo |
+| `GET` | `/api/gerenciador-agentes/agentes/:id` | Obtém agente com perfis e fluxo padrão |
+| `GET` | `/api/gerenciador-agentes/fluxo-padrao` | Retorna fluxo de prompt e domínios padrão |
+
+**Exemplo - listar agentes com contexto:**
+```bash
+curl http://localhost:3150/api/gerenciador-agentes/agentes
 ```
 
 ---
@@ -130,6 +169,7 @@ curl http://localhost:3150/api/agentes/backend/dominio/backend/src/servicos
 | `POST` | `/api/tarefas/:id/estado` | Altera estado da tarefa |
 | `GET` | `/api/tarefas/:id/contexto` | Obtém contexto completo da tarefa |
 | `DELETE` | `/api/tarefas/:id` | Remove tarefa |
+| `DELETE` | `/api/tarefas` | Remove todas as tarefas |
 
 **Exemplo - listar tarefas:**
 ```bash
@@ -143,20 +183,25 @@ curl -X POST http://localhost:3150/api/tarefas/TAR-2026-00001/estado \
   -d '{"estado": "EM_EXECUCAO"}'
 ```
 
+**Exemplo - obter contexto:**
+```bash
+curl http://localhost:3150/api/tarefas/TAR-2026-00001/contexto
+```
+
 ---
 
 ## Arquivos
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/arquivos` | Lista arquivos em um diretório |
-| `GET` | `/api/arquivos/conteudo` | Lê conteúdo de um arquivo |
+| `GET` | `/api/arquivos` | Lista arquivos em um diretório (`path` query) |
+| `GET` | `/api/arquivos/conteudo` | Lê conteúdo de um arquivo (`path` query) |
 | `POST` | `/api/arquivos` | Cria arquivo |
 | `PUT` | `/api/arquivos` | Atualiza arquivo |
 | `DELETE` | `/api/arquivos` | Remove arquivo |
-| `GET` | `/api/arquivos/validar-json` | Valida se arquivo é JSON |
-| `GET` | `/api/arquivos/validar-schema` | Valida JSON contra schema |
-| `GET` | `/api/arquivos/explorer` | Abre caminho no explorer |
+| `GET` | `/api/arquivos/validar-json` | Valida se arquivo é JSON (`path` query) |
+| `GET` | `/api/arquivos/validar-schema` | Valida JSON contra schema (`path` e `schema` query) |
+| `GET` | `/api/arquivos/explorer` | Abre caminho no explorer (`path` query) |
 
 **Exemplo - listar arquivos:**
 ```bash
@@ -166,6 +211,21 @@ curl "http://localhost:3150/api/arquivos?path=backend/src"
 **Exemplo - ler arquivo:**
 ```bash
 curl "http://localhost:3150/api/arquivos/conteudo?path=backend/src/servicos/NovoServico.ts"
+```
+
+**Exemplo - criar arquivo:**
+```bash
+curl -X POST http://localhost:3150/api/arquivos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "caminho": "backend/src/servicos/NovoServico.ts",
+    "conteudo": "export class NovoServico {}"
+  }'
+```
+
+**Exemplo - validar schema:**
+```bash
+curl "http://localhost:3150/api/arquivos/validar-schema?path=backend/src/servicos/schema.json&schema=meu-schema"
 ```
 
 ---
@@ -180,8 +240,18 @@ curl "http://localhost:3150/api/arquivos/conteudo?path=backend/src/servicos/Novo
 | `POST` | `/api/contratos` | Cria contrato |
 | `PUT` | `/api/contratos/:id` | Atualiza contrato |
 | `DELETE` | `/api/contratos/:id` | Remove contrato |
+| `DELETE` | `/api/contratos` | Remove todos os contratos |
 
-**Validação de contratos:**
+**Exemplo:**
+```bash
+curl http://localhost:3150/api/contratos
+curl "http://localhost:3150/api/contratos/validar/contrato-api"
+```
+
+---
+
+## Validação de Contratos
+
 | Método | Caminho | Descrição |
 |---|---|---|
 | `GET` | `/api/contratos/validar/:contratoId` | Valida contrato específico |
@@ -189,7 +259,7 @@ curl "http://localhost:3150/api/arquivos/conteudo?path=backend/src/servicos/Novo
 
 **Exemplo:**
 ```bash
-curl http://localhost:3150/api/contratos
+curl http://localhost:3150/api/contratos/validar
 curl "http://localhost:3150/api/contratos/validar/contrato-api"
 ```
 
@@ -207,6 +277,7 @@ curl "http://localhost:3150/api/contratos/validar/contrato-api"
 | `PUT` | `/api/solicitacoes/:id/aprovar` | Aprova solicitação |
 | `PUT` | `/api/solicitacoes/:id/rejeitar` | Rejeita solicitação |
 | `DELETE` | `/api/solicitacoes/:id` | Remove solicitação |
+| `DELETE` | `/api/solicitacoes` | Remove todas as solicitações |
 
 **Exemplo - aprovar:**
 ```bash
@@ -221,10 +292,12 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/criterios` | Lista critérios (filtra por `tarefaId`) |
+| `GET` | `/api/criterios` | Lista critérios (filtra por `tarefaId` query) |
 | `GET` | `/api/criterios/:id` | Obtém critério por ID |
 | `POST` | `/api/criterios` | Cria critério |
 | `DELETE` | `/api/criterios/:id` | Remove critério |
+| `PUT` | `/api/criterios/:id` | Atualiza critério |
+| `DELETE` | `/api/criterios` | Remove todos os critérios |
 
 ---
 
@@ -232,11 +305,12 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/resultados` | Lista resultados (filtra por `tarefaId`) |
+| `GET` | `/api/resultados` | Lista resultados (filtra por `tarefaId` query) |
 | `GET` | `/api/resultados/:id` | Obtém resultado por ID |
 | `POST` | `/api/resultados` | Cria resultado |
 | `PUT` | `/api/resultados/:id` | Atualiza resultado |
 | `DELETE` | `/api/resultados/:id` | Remove resultado |
+| `DELETE` | `/api/resultados` | Remove todos os resultados |
 
 ---
 
@@ -244,11 +318,13 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/artefatos` | Lista artefatos (filtra por `tarefaId`) |
+| `GET` | `/api/artefatos` | Lista artefatos (filtra por `tarefaId` query) |
 | `GET` | `/api/artefatos/:id` | Obtém artefato por ID |
 | `GET` | `/api/artefatos/:id/versoes` | Lista versões do artefato |
 | `POST` | `/api/artefatos` | Cria artefato |
 | `DELETE` | `/api/artefatos/:id` | Remove artefato |
+| `PUT` | `/api/artefatos/:id` | Atualiza artefato |
+| `DELETE` | `/api/artefatos` | Remove todos os artefatos |
 
 ---
 
@@ -256,11 +332,26 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/handoffs` | Lista handoffs (filtra por `destino`) |
+| `GET` | `/api/handoffs` | Lista handoffs (filtra por `destino` query) |
 | `GET` | `/api/handoffs/:id` | Obtém handoff por ID |
 | `POST` | `/api/handoffs` | Cria handoff |
 | `PUT` | `/api/handoffs/:id` | Atualiza handoff |
 | `DELETE` | `/api/handoffs/:id` | Remove handoff |
+| `DELETE` | `/api/handoffs` | Remove todos os handoffs |
+
+---
+
+## Handoffs Centrais
+
+| Método | Caminho | Descrição |
+|---|---|---|
+| `GET` | `/api/handoffs-centrais/pendentes` | Lista handoffs pendentes |
+| `GET` | `/api/handoffs-centrais/priorizados` | Lista handoffs pendentes priorizados |
+
+**Exemplo:**
+```bash
+curl http://localhost:3150/api/handoffs-centrais/pendentes
+```
 
 ---
 
@@ -268,12 +359,20 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/pendencias` | Lista pendências (filtra por `tarefaId`) |
+| `GET` | `/api/pendencias` | Lista pendências (filtra por `tarefaId` query) |
 | `GET` | `/api/pendencias/:id` | Obtém pendência por ID |
 | `POST` | `/api/pendencias` | Cria pendência |
 | `PUT` | `/api/pendencias/:id/resolver` | Resolve pendência |
 | `PUT` | `/api/pendencias/:id` | Atualiza pendência |
 | `DELETE` | `/api/pendencias/:id` | Remove pendência |
+| `DELETE` | `/api/pendencias` | Remove todas as pendências |
+
+**Exemplo - resolver pendência:**
+```bash
+curl -X PUT http://localhost:3150/api/pendencias/PEN-2026-00001/resolver \
+  -H "Content-Type: application/json" \
+  -d '{"resolucao": "Dependência concluída"}'
+```
 
 ---
 
@@ -288,6 +387,7 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 | `PUT` | `/api/validacoes/:id/rejeitar` | Rejeita validação |
 | `PUT` | `/api/validacoes/:id` | Atualiza validação |
 | `DELETE` | `/api/validacoes/:id` | Remove validação |
+| `DELETE` | `/api/validacoes` | Remove todas as validações |
 
 ---
 
@@ -301,6 +401,7 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 | `PUT` | `/api/conflitos/:id/resolver` | Resolve conflito |
 | `PUT` | `/api/conflitos/:id` | Atualiza conflito |
 | `DELETE` | `/api/conflitos/:id` | Remove conflito |
+| `DELETE` | `/api/conflitos` | Remove todos os conflitos |
 
 ---
 
@@ -308,12 +409,13 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/reservas` | Lista reservas (filtra por `agenteId`) |
+| `GET` | `/api/reservas` | Lista reservas (filtra por `agenteId` query) |
 | `GET` | `/api/reservas/:id` | Obtém reserva por ID |
 | `POST` | `/api/reservas` | Cria reserva |
 | `PUT` | `/api/reservas/:id/liberar` | Libera reserva |
 | `PUT` | `/api/reservas/:id` | Atualiza reserva |
 | `DELETE` | `/api/reservas/:id` | Remove reserva |
+| `DELETE` | `/api/reservas` | Remove todas as reservas |
 
 ---
 
@@ -321,11 +423,13 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/sessoes` | Lista sessões (filtra por `agenteId`) |
+| `GET` | `/api/sessoes` | Lista sessões (filtra por `agenteId` query) |
 | `GET` | `/api/sessoes/:id` | Obtém sessão por ID |
 | `POST` | `/api/sessoes` | Inicia sessão |
 | `PUT` | `/api/sessoes/:id/finalizar` | Finaliza sessão |
 | `DELETE` | `/api/sessoes/:id` | Remove sessão |
+| `PUT` | `/api/sessoes/:id` | Atualiza sessão |
+| `DELETE` | `/api/sessoes` | Remove todas as sessões |
 
 ---
 
@@ -333,10 +437,12 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/checkpoints` | Lista checkpoints (filtra por `tarefaId`) |
+| `GET` | `/api/checkpoints` | Lista checkpoints (filtra por `tarefaId` query) |
 | `GET` | `/api/checkpoints/:id` | Obtém checkpoint por ID |
 | `POST` | `/api/checkpoints` | Cria checkpoint |
 | `DELETE` | `/api/checkpoints/:id` | Remove checkpoint |
+| `PUT` | `/api/checkpoints/:id` | Atualiza checkpoint |
+| `DELETE` | `/api/checkpoints` | Remove todos os checkpoints |
 
 ---
 
@@ -348,6 +454,8 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 | `GET` | `/api/aprendizados/:id` | Obtém aprendizado por ID |
 | `POST` | `/api/aprendizados` | Cria aprendizado |
 | `DELETE` | `/api/aprendizados/:id` | Remove aprendizado |
+| `PUT` | `/api/aprendizados/:id` | Atualiza aprendizado |
+| `DELETE` | `/api/aprendizados` | Remove todos os aprendizados |
 
 ---
 
@@ -355,10 +463,12 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/dependencias` | Lista dependências (filtra por `fonteId`/`destinoId`) |
+| `GET` | `/api/dependencias` | Lista dependências (filtra por `fonteId`/`destinoId` query) |
 | `GET` | `/api/dependencias/:id` | Obtém dependência por ID |
 | `POST` | `/api/dependencias` | Cria dependência |
 | `DELETE` | `/api/dependencias/:id` | Remove dependência |
+| `PUT` | `/api/dependencias/:id` | Atualiza dependência |
+| `DELETE` | `/api/dependencias` | Remove todas as dependências |
 
 ---
 
@@ -366,10 +476,12 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/responsabilidades` | Lista responsabilidades (filtra por `agenteId`/`alvoId`) |
+| `GET` | `/api/responsabilidades` | Lista responsabilidades (filtra por `agenteId`/`alvoId` query) |
 | `GET` | `/api/responsabilidades/:id` | Obtém responsabilidade por ID |
 | `POST` | `/api/responsabilidades` | Cria responsabilidade |
 | `DELETE` | `/api/responsabilidades/:id` | Remove responsabilidade |
+| `PUT` | `/api/responsabilidades/:id` | Atualiza responsabilidade |
+| `DELETE` | `/api/responsabilidades` | Remove todas as responsabilidades |
 
 ---
 
@@ -382,6 +494,7 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 | `POST` | `/api/decisoes` | Cria decisão |
 | `PUT` | `/api/decisoes/:id` | Atualiza decisão |
 | `DELETE` | `/api/decisoes/:id` | Remove decisão |
+| `DELETE` | `/api/decisoes` | Remove todas as decisões |
 
 ---
 
@@ -394,6 +507,7 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 | `POST` | `/api/riscos` | Cria risco |
 | `PUT` | `/api/riscos/:id` | Atualiza risco |
 | `DELETE` | `/api/riscos/:id` | Remove risco |
+| `DELETE` | `/api/riscos` | Remove todos os riscos |
 
 ---
 
@@ -406,6 +520,15 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 | `POST` | `/api/bloqueios` | Cria bloqueio |
 | `PUT` | `/api/bloqueios/:id/resolver` | Resolve bloqueio |
 | `DELETE` | `/api/bloqueios/:id` | Remove bloqueio |
+| `PUT` | `/api/bloqueios/:id` | Atualiza bloqueio |
+| `DELETE` | `/api/bloqueios` | Remove todos os bloqueios |
+
+**Exemplo - resolver bloqueio:**
+```bash
+curl -X PUT http://localhost:3150/api/bloqueios/BLO-2026-00001/resolver \
+  -H "Content-Type: application/json" \
+  -d '{"resolucao": "Dependência externa liberada"}'
+```
 
 ---
 
@@ -413,7 +536,7 @@ curl -X PUT http://localhost:3150/api/solicitacoes/ALT-2026-00001/aprovar \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/eventos` | Lista eventos (filtra por `destino`/`estado`) |
+| `GET` | `/api/eventos` | Lista eventos (filtra por `destino`/`estado` query) |
 | `GET` | `/api/eventos/:id` | Obtém evento por ID |
 | `PUT` | `/api/eventos/:id/consumir` | Marca evento como consumido |
 | `POST` | `/api/eventos` | Cria evento validado |
@@ -443,6 +566,7 @@ curl -X POST http://localhost:3150/api/eventos/custom \
 | `POST` | `/api/contatos` | Cria contato |
 | `PUT` | `/api/contatos/:id` | Atualiza contato |
 | `DELETE` | `/api/contatos/:id` | Remove contato |
+| `DELETE` | `/api/contatos` | Remove todos os contatos |
 
 ---
 
@@ -450,7 +574,6 @@ curl -X POST http://localhost:3150/api/eventos/custom \
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/monitor` | Visão consolidada do monitoramento |
 | `GET` | `/api/monitoramento/mensagens` | Lista mensagens de monitoramento |
 | `POST` | `/api/monitoramento/mensagens` | Cria mensagem de monitoramento |
 | `GET` | `/api/monitoramento/agentes` | Lista agentes monitorados |
@@ -462,6 +585,10 @@ curl -X POST http://localhost:3150/api/eventos/custom \
 | `POST` | `/api/monitoramento/dispatcher/executar` | Executa item pendente |
 | `GET` | `/api/monitoramento/dispatcher/logs` | Lista logs do dispatcher |
 | `GET` | `/api/monitoramento/kilo/receive-chat` | Busca mensagens Kilo por agente/tarefa |
+| `DELETE` | `/api/monitoramento/mensagens/:id` | Remove mensagem de monitoramento |
+| `DELETE` | `/api/monitoramento/mensagens` | Limpa todas as mensagens |
+| `DELETE` | `/api/monitoramento/agentes` | Limpa agentes monitorados |
+| `DELETE` | `/api/monitoramento/agentes/:agenteId` | Remove agente monitorado |
 
 **Parâmetros de consulta:**
 - `GET /api/monitoramento/mensagens` aceita `limite` (número), `agenteId` (string), `tipo` (string) e `after` (number — `eventSequence` para polling incremental).
@@ -490,17 +617,29 @@ curl -X POST http://localhost:3150/api/monitoramento/mensagens \
 curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend-teste&limite=20"
 ```
 
+**Exemplo - alterar modo:**
+```bash
+curl -X POST http://localhost:3150/api/monitoramento/modo \
+  -H "Content-Type: application/json" \
+  -d '{
+    "modo": "AUTO",
+    "escopo": "GLOBAL",
+    "agenteId": "backend"
+  }'
+```
+
 ---
 
 ## Instâncias
 
 | Método | Caminho | Descrição |
 |---|---|---|
-| `GET` | `/api/instancias` | Lista instâncias (filtra por `agenteId`/`projetoId`/`status`) |
+| `GET` | `/api/instancias` | Lista instâncias (filtra por `agenteId`/`projetoId`/`status` query) |
 | `GET` | `/api/instancias/:id` | Obtém instância por ID |
 | `POST` | `/api/instancias` | Cria instância |
 | `PUT` | `/api/instancias/:id` | Atualiza instância |
 | `DELETE` | `/api/instancias/:id` | Remove instância |
+| `DELETE` | `/api/instancias` | Remove todas as instâncias |
 
 ---
 
@@ -512,6 +651,13 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 | `POST` | `/api/orquestrador/handoffs/auto` | Dispara handoff automático |
 | `PUT` | `/api/orquestrador/instancias/:id/modo` | Altera modo de autonomia |
 
+**Exemplo - handoff automático:**
+```bash
+curl -X POST http://localhost:3150/api/orquestrador/handoffs/auto \
+  -H "Content-Type: application/json" \
+  -d '{"tarefaId": "TAR-2026-00001", "agenteId": "backend"}'
+```
+
 ---
 
 ## Admin
@@ -520,13 +666,25 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 |---|---|---|
 | `GET` | `/api/admin/transicoes` | Lista transições de estado |
 | `PUT` | `/api/admin/transicoes/:origem` | Atualiza transições |
-| `GET` | `/api/admin/transicoes/validar` | Valida transição |
+| `GET` | `/api/admin/transicoes/validar` | Valida transição (`origem` e `destino` query) |
 | `GET` | `/api/admin/cors` | Obtém configuração CORS |
 | `PUT` | `/api/admin/cors` | Atualiza configuração CORS |
 | `GET` | `/api/admin/metricas` | Obtém métricas do sistema |
 | `POST` | `/api/admin/backup` | Cria backup |
 | `GET` | `/api/admin/readiness` | Verifica readiness |
 | `GET` | `/api/admin/estado-projeto` | Obtém estado completo do projeto |
+
+**Exemplo - atualizar transição:**
+```bash
+curl -X PUT http://localhost:3150/api/admin/transicoes/PENDENTE \
+  -H "Content-Type: application/json" \
+  -d '{"destinos": ["EM_EXECUCAO", "CANCELADO"]}'
+```
+
+**Exemplo - validar transição:**
+```bash
+curl "http://localhost:3150/api/admin/transicoes/validar?origem=PENDENTE&destino=EM_EXECUCAO"
+```
 
 ---
 
@@ -536,14 +694,10 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 |---|---|---|
 | `GET` | `/api/health` | Health check completo |
 
----
-
-## Handoffs Centrais
-
-| Método | Caminho | Descrição |
-|---|---|---|
-| `GET` | `/api/handoffs-centrais/pendentes` | Lista handoffs pendentes |
-| `GET` | `/api/handoffs-centrais/priorizados` | Lista handoffs priorizados |
+**Exemplo:**
+```bash
+curl http://localhost:3150/api/health
+```
 
 ---
 
@@ -553,6 +707,11 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 |---|---|---|
 | `GET` | `/api/observabilidade/metricas` | Obtém métricas de ferramentas e agentes |
 
+**Exemplo:**
+```bash
+curl http://localhost:3150/api/observabilidade/metricas
+```
+
 ---
 
 ## Temporários
@@ -560,8 +719,15 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 | Método | Caminho | Descrição |
 |---|---|---|
 | `GET` | `/api/temp/arquivos` | Lista arquivos temporários |
-| `POST` | `/api/temp/limpar` | Limpa arquivos temporários |
+| `POST` | `/api/temp/limpar` | Limpa arquivos temporários (`olderThanDays` no body) |
 | `GET` | `/api/temp/caminho` | Retorna caminho da pasta temp |
+
+**Exemplo - limpar temporários:**
+```bash
+curl -X POST http://localhost:3150/api/temp/limpar \
+  -H "Content-Type: application/json" \
+  -d '{"olderThanDays": 7}'
+```
 
 ---
 
@@ -573,6 +739,17 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 | `GET` | `/api/auditoria` | Lista eventos de auditoria |
 | `GET` | `/api/estado-projeto` | Obtém estado calculado do projeto |
 | `GET` | `/api/integridade` | Verifica integridade do projeto |
+| `GET` | `/api/monitor` | Visão consolidada do monitoramento |
+
+**Exemplo - estado do projeto:**
+```bash
+curl http://localhost:3150/api/estado-projeto
+```
+
+**Exemplo - monitor consolidado:**
+```bash
+curl http://localhost:3150/api/monitor
+```
 
 ---
 
@@ -611,3 +788,14 @@ Todas as respostas seguem o padrão `ResultadoOperacao<T>`:
 | `DUPLICATE_MESSAGE` | Mensagem duplicada (idempotency) |
 | `UNKNOWN_SESSION` | Sessão Kilo desconhecida |
 | `NO_PROJECT_OPEN` | Nenhum projeto aberto |
+| `INVALID_BODY` | Body inválido |
+| `CONFIRMATION_REQUIRED` | Confirmação necessária |
+| `FORBIDDEN` | Sem permissão |
+| `MISSING_PATH` | Caminho obrigatório faltando |
+| `PARSE_ERROR` | Erro ao parsear JSON |
+| `PROJECT_STATE_UNAVAILABLE` | Estado do projeto indisponível |
+| `HEALTH_CHECK_FAILED` | Falha no health check |
+| `DIR_NOT_FOUND` | Diretório não encontrado |
+| `INVALID_PATH` | Caminho inválido |
+| `LIST_ERROR` | Erro ao listar |
+| `NOT_OPEN` | Projeto não está aberto |
