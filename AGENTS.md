@@ -48,7 +48,7 @@ Acesse: http://localhost:3150
 ## Estrutura de um projeto gerenciado
 
 Cada projeto recebe uma pasta `.ia/` com a estrutura completa de governança.
-Veja: `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md`
+Veja: `PLANO GERAL/arquivo/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md`
 
 ## Regra obrigatória: fluxo e dependências
 
@@ -138,7 +138,7 @@ Além dos eventos automáticos, o sistema permite criar eventos customizados via
 
 O AgentMap é consumido pelo **Kilo Code** via **MCP** (Model Context Protocol).
 
-- **Transporte:** STDIO local (`npx tsx src/mcp-server/index.ts`)
+- **Transporte:** STDIO local (`cd backend && npx tsx --tsconfig backend/tsconfig.json src/mcp-server/index.ts`)
 - **SDK:** `@modelcontextprotocol/sdk` v1.30.0
 - **Tools:** 169 tools registradas com `registerTracedTool` / `registerWorkflowTool`, seguindo o padrão MCP 2026:
   - `outputSchema` + `structuredContent` para dados estruturados
@@ -220,7 +220,7 @@ Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-
 
 ## Especificação
 
-- `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md` — spec autoritativa
-- `PLANO GERAL/MODELOS JSON DO GERENCIADOR LOCAL DE PROJETOS PARA AGENTES.md` — schemas JSON
-- `PLANO GERAL/GERENCIADOR LOCAL DE PROJETOS PARA AGENTES - IDEIA GERAL AMPLA.md` — visão ampla
+- `PLANO GERAL/arquivo/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENTACAO.md` — spec autoritativa
+- `PLANO GERAL/arquivo/MODELOS JSON DO GERENCIADOR LOCAL DE PROJETOS PARA AGENTES.md` — schemas JSON
+- `PLANO GERAL/arquivo/GERENCIADOR LOCAL DE PROJETOS PARA AGENTES DE IA - IDEIA GERAL AMPLA.md` — visão ampla
 - `README.md` — origem do AgentMap

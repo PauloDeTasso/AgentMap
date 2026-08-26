@@ -1,5 +1,5 @@
 import { ProjetoConfig, GerenciadorConfig, AmbienteConfig, AmbienteDef, Proprietario } from '../../tipos';
-import { AGENTES_INICIAIS, ESTADOS_TAREFA } from '../../tipos';
+import { ESTADOS_TAREFA } from '../../tipos';
 
 export function criarProjetoConfig(
   id: string,
@@ -39,13 +39,13 @@ export function criarProjetoConfig(
       testes: '/testes',
       documentacao: '/docs'
     },
-      configuracaoIa: {
-        diretorio: '/.ia',
-        contratoPrincipal: '/.ia/contratos/contrato-projeto.json',
-        estadoAtual: '/.ia/estado/estado-atual.json'
-      },
-      ambiente: 'desenvolvimento',
-      datas: { criacao: hoje, ultimaAtualizacao: hoje }
+    configuracaoIa: {
+      diretorio: '/.ia',
+      contratoPrincipal: '/.ia/contratos/contrato-projeto.json',
+      estadoAtual: '/.ia/estado/estado-atual.json'
+    },
+    ambiente: 'desenvolvimento',
+    datas: { criacao: hoje, ultimaAtualizacao: hoje }
   };
 }
 

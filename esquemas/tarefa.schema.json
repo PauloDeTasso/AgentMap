@@ -11,7 +11,7 @@
     "tipo": { "type": "string" },
     "estado": {
       "type": "string",
-      "enum": ["RASCUNHO", "PLANEJADA", "PRONTA", "EM_EXECUCAO", "EM_TESTE", "EM_REVISAO", "AGUARDANDO_APROVACAO", "CONCLUIDA", "BLOQUEADA", "CANCELADA", "REJEITADA", "ORFA", "RECUPERANDO"]
+      "enum": ["RASCUNHO", "PENDENTE", "PLANEJADA", "PRONTA", "PREPARANDO", "EM_EXECUCAO", "PAUSANDO", "CANCELANDO", "EM_TESTE", "EM_REVISAO", "AGUARDANDO_APROVACAO", "CONCLUIDA", "BLOQUEADA", "TIMEOUT", "ORFA", "RECUPERANDO", "CANCELADA", "REJEITADA"]
     },
     "prioridade": { "type": "string", "enum": ["BAIXA", "MEDIA", "ALTA", "CRITICA"] },
     "agenteResponsavel": { "type": "string" },
@@ -29,6 +29,9 @@
     "restricoes": { "type": "array", "items": { "type": "string" } },
     "condicoesDeParada": { "type": "array", "items": { "type": "string" } },
     "criteriosConclusao": { "type": "array", "items": { "type": "string" } },
+    "estimativaHoras": { "type": "number" },
+    "dataLimite": { "type": "string" },
+    "tags": { "type": "array", "items": { "type": "string" } },
     "resultado": {
       "type": "object",
       "properties": {
@@ -56,7 +59,9 @@
       "type": "object",
       "properties": {
         "criacao": { "type": ["string", "null"], "format": "date-time" },
+        "criadoEm": { "type": ["string", "null"], "format": "date-time" },
         "inicio": { "type": ["string", "null"], "format": "date-time" },
+        "atualizadaEm": { "type": ["string", "null"], "format": "date-time" },
         "ultimaAtualizacao": { "type": ["string", "null"], "format": "date-time" },
         "conclusao": { "type": ["string", "null"], "format": "date-time" }
       }

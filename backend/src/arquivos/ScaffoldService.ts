@@ -46,7 +46,7 @@ const AGENTE_ARQUIVOS_MD: Record<string, string> = {
 };
 
 const PAPEIS = [
-  'planejador',
+  'planejador-arquiteto',
   'gerente-projeto',
   'analista-sistemas',
   'analista-negocios',
@@ -60,6 +60,8 @@ const PAPEIS = [
   'android',
   'infraestrutura',
   'seguranca',
+  'devops',
+  'technical-writer',
   'testes',
   'revisor',
   'documentacao',

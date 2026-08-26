@@ -20,7 +20,7 @@ export interface AgenteInicial {
 export const AGENTES_BASE: AgenteInicial[] = [
   {
     id: 'planejador-arquiteto', nome: 'Planejador / Arquiteto', funcao: 'planejamento',
-    subpasta: 'planejador', perfilId: 'planejador', estado: 'ativo',
+    subpasta: 'planejador-arquiteto', perfilId: 'planejador-arquiteto', estado: 'ativo',
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: true, aprovar: false, implantar: false },
     diretoriosPermitidos: ['/.ia/**', '/docs/arquitetura/**'],
     diretoriosProibidos: ['/frontend/**', '/backend/**', '/android/**', '/infraestrutura/**'],

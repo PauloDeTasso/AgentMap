@@ -105,7 +105,7 @@
 
 		"openrouter": {
 			"options": {
-				"apiKey": "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"
+				"apiKey": "${OPENROUTER_API_KEY}"
 			},
 
 			"models": {
