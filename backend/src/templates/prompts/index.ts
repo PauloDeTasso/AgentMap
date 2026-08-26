@@ -20,7 +20,7 @@ const FASES = [
 type FaseKey = typeof FASES[number];
 
 const PAPEIS_POR_FASE: Record<FaseKey, string[]> = {
-  'fase-1-planejamento': ['project-manager', 'product-owner', 'business-analyst', 'stakeholder', 'scrum-master', 'risk-manager', 'technical-lead'],
+  'fase-1-planejamento': ['project-manager', 'product-owner', 'business-analyst', 'stakeholder', 'scrum-master', 'risk-manager', 'technical-lead', 'gerente-projeto', 'analista-sistemas', 'analista-negocios', 'engenheiro-software', 'analista-banco-dados', 'testador-qa', 'documentador-tecnico', 'seguranca'],
   'fase-2-viabilidade': ['project-manager', 'software-architect', 'business-analyst', 'financial-analyst', 'legal-consultant', 'technical-lead', 'domain-expert', 'risk-analyst', 'operations-manager'],
   'fase-3-requisitos': ['business-analyst', 'product-owner', 'project-manager', 'technical-lead', 'stakeholder', 'qa-lead', 'ux-designer', 'domain-expert', 'security-analyst'],
   'fase-4-design-contratos': ['software-architect', 'system-architect', 'technical-lead', 'backend-developer', 'frontend-developer', 'database-architect', 'devops-engineer', 'qa-lead', 'security-architect'],

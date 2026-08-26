@@ -91,6 +91,18 @@ export const AGENTES_BASE: AgenteInicial[] = [
     responsabilidades: ['Configurar infraestrutura', 'Configurar contêineres', 'Configurar servidor', 'Configurar rede', 'Configurar HTTPS', 'Implantar aplicações', 'Executar cópias de segurança', 'Executar restauração', 'Monitorar infraestrutura', 'Executar reversão']
   },
   {
+    id: 'seguranca', nome: 'Segurança', funcao: 'seguranca',
+    subpasta: 'seguranca', perfilId: 'seguranca', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/docs/seguranca/**', '/backend/**', '/infraestrutura/**'],
+    diretoriosProibidos: ['/frontend/**', '/android/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-seguranca'],
+    conhecimentos: ['OWASP Top 10', 'Autenticação e autorização', 'Criptografia', 'Validação de entrada', 'Sanitização', 'Gestão de segredos', 'LGPD', 'PCI-DSS', 'SOC 2', 'ISO 27001', 'Threat modeling', 'SAST', 'DAST', 'Penetration testing'],
+    requerAprovacaoPara: ['alteracao_controle_seguranca', 'exposicao_dados_sensiveis'],
+    condicoesDeParada: ['vulnerabilidade_critica_nao_corrigida', 'exposicao_de_segredos', 'falha_de_autenticacao', 'conformidade_comprometida', 'alteracao_destrutiva_seguranca'],
+    responsabilidades: ['Analisar superfície de ataque', 'Definir controles de segurança', 'Implementar autenticação e autorização', 'Aplicar criptografia', 'Realizar SAST/DAST', 'Executar testes de segurança', 'Revisar conformidade', 'Documentar políticas de segurança', 'Gerenciar incidentes de segurança']
+  },
+  {
     id: 'testes', nome: 'Qualidade e Testes', funcao: 'qualidade_testes',
     subpasta: 'testes', perfilId: 'testes', estado: 'ativo',
     permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
@@ -173,6 +185,90 @@ export const AGENTES_BASE: AgenteInicial[] = [
     requerAprovacaoPara: [],
     condicoesDeParada: ['informacao_insuficiente'],
     responsabilidades: ['Documentar APIs', 'Criar runbooks', 'Escrever manuais', 'Documentar procedimentos', 'Criar guias de onboarding', 'Documentar decisões arquiteturais', 'Manter documentação atualizada']
+  },
+  {
+    id: 'gerente-projeto', nome: 'Gerente de Projeto', funcao: 'gerenciamento',
+    subpasta: 'gerente-projeto', perfilId: 'gerente-projeto', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/docs/**'],
+    diretoriosProibidos: ['/frontend/**', '/backend/**', '/android/**', '/banco/**', '/infraestrutura/**', '/testes/**', '/docker/**', '/implantacao/**'],
+    contratosObrigatorios: ['contrato-projeto'],
+    conhecimentos: ['PMBOK', 'PRINCE2', 'Gestão de escopo', 'Gestão de riscos', 'Gestão de dependências', 'Métricas de projeto (SPI, CPI, EVM)', 'EAP/WBS', 'PERT', 'Planning Poker'],
+    requerAprovacaoPara: ['alteracao_escopo', 'alteracao_prazo', 'alteracao_orcamento'],
+    condicoesDeParada: ['escopo_ambiguo', 'orcamento_insuficiente', 'prazo_irrealista', 'recursos_indisponiveis', 'conflito_prioridades', 'risco_critico_nao_mitigavel', 'dependencia_externa_bloqueada', 'requisito_regulatorio', 'mudanca_arquitetural_necessaria'],
+    responsabilidades: ['Elaborar Project Charter', 'Criar WBS e cronograma', 'Identificar riscos e construir Risk Register', 'Definir dependências entre tarefas', 'Planejar comunicação e engajamento de stakeholders', 'Criar tarefas estruturadas no AgentMap', 'Reportar progresso ao Proprietário']
+  },
+  {
+    id: 'analista-sistemas', nome: 'Analista de Sistemas', funcao: 'analise-tecnica',
+    subpasta: 'analista-sistemas', perfilId: 'analista-sistemas', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/docs/arquitetura/**', '/docs/requisitos/**', '/docs/diagramas/**'],
+    diretoriosProibidos: ['/frontend/**', '/backend/**', '/android/**', '/infraestrutura/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-api'],
+    conhecimentos: ['UML', 'BPMN', 'SQL', 'API Design (REST/HTTP)', 'OpenAPI/Swagger', 'Modelagem de dados', 'Análise de viabilidade técnica', 'Documentação técnica'],
+    requerAprovacaoPara: ['alteracao_contrato_api', 'alteracao_modelo_dados'],
+    condicoesDeParada: ['requisito_ambiguo', 'contrato_conflitante', 'dependencia_inexistente', 'mudanca_arquitetural', 'risco_critico', 'informacao_insuficiente', 'fora_do_dominio'],
+    responsabilidades: ['Analisar requisitos de negócio', 'Projetar APIs e contratos de integração', 'Modelar dados (ER Diagrams)', 'Criar diagramas UML (sequência, componentes, classes)', 'Escrever especificações técnicas (specs)', 'Validar viabilidade técnica', 'Identificar dependências técnicas', 'Criar glossário técnico']
+  },
+  {
+    id: 'analista-negocios', nome: 'Analista de Negócios', funcao: 'analise-negocios',
+    subpasta: 'analista-negocios', perfilId: 'analista-negocios', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/docs/**'],
+    diretoriosProibidos: ['/frontend/**', '/backend/**', '/android/**', '/banco/**', '/infraestrutura/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-arquitetura', 'contrato-seguranca', 'contrato-interface'],
+    conhecimentos: ['Elicitação de requisitos', 'Modelagem BPMN 2.0', 'Priorização (MoSCoW, RICE, Kano)', 'Rastreabilidade de requisitos', 'Prototipação', 'Análise de dados', 'LGPD e conformidade', 'Gestão de stakeholders'],
+    requerAprovacaoPara: ['alteracao_escopo', 'alteracao_requisitos'],
+    condicoesDeParada: ['requisito_ambiguo', 'stakeholder_indisponivel', 'informacao_insuficiente', 'conflito_regras_negocio', 'necessidade_decisao_humana', 'alteracao_arquitetural_nao_aprovada'],
+    responsabilidades: ['Elicitar requisitos de negócio', 'Mapear processos AS-IS e TO-BE', 'Elaborar BRD e FRD', 'Definir NFRs (FURPS+)', 'Escrever user stories e épicos', 'Priorizar requisitos por valor de negócio', 'Criar wireframes de baixa fidelidade', 'Validar requisitos com stakeholders', 'Definir critérios de aceitação']
+  },
+  {
+    id: 'engenheiro-software', nome: 'Engenheiro de Software', funcao: 'engenharia',
+    subpasta: 'engenheiro-software', perfilId: 'engenheiro-software', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: true, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/docs/arquitetura/**', '/backend/**'],
+    diretoriosProibidos: ['/frontend/**', '/android/**', '/infraestrutura/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-arquitetura', 'contrato-api', 'contrato-banco', 'contrato-seguranca'],
+    conhecimentos: ['Princípios SOLID, DRY, KISS, YAGNI', 'Padrões de projeto (GoF)', 'Arquitetura em camadas, hexagonal, Clean Architecture', 'SQL avançado', 'APIs RESTful', 'Testes (unitários, integração, contrato, E2E)', 'CI/CD', 'Docker', 'Segurança (OWASP Top 10)'],
+    requerAprovacaoPara: ['alteracao_arquitetural', 'alteracao_contrato_api'],
+    condicoesDeParada: ['requisito_ambiguo', 'contrato_conflitante', 'dependencia_inexistente', 'mudanca_arquitetural', 'risco_critico', 'alteracao_destrutiva', 'migracao_perigosa', 'permissao_insuficiente'],
+    responsabilidades: ['Analisar requisitos tecnicamente', 'Decompor funcionalidades em tarefas', 'Estimar esforço e complexidade', 'Propor arquitetura de módulos', 'Modelar dados e definir esquemas', 'Definir contratos de API', 'Identificar riscos técnicos', 'Planejar testes, segurança e deploy', 'Produzir ADRs técnicos']
+  },
+  {
+    id: 'analista-banco-dados', nome: 'Analista de Banco de Dados', funcao: 'banco-dados',
+    subpasta: 'analista-banco-dados', perfilId: 'analista-banco-dados', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: true, testar: false, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/banco/**', '/.ia/decisoes/**', '/.ia/contratos/', '/.ia/tarefas/', '/banco/**'],
+    diretoriosProibidos: ['/frontend/**', '/android/**', '/infraestrutura/**', 'produção sem aprovação'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-banco'],
+    conhecimentos: ['SQL avançado (DDL, DML, Window Functions, CTEs)', 'Modelagem conceitual, lógica e física', 'Normalização (1NF-5NF) e desnormalização', 'PostgreSQL, MySQL, SQL Server, Oracle', 'NoSQL (MongoDB, Redis, Cassandra)', 'Performance tuning (indexes, execution plans)', 'Migrações (Flyway, Liquibase)', 'Backup e recovery (RPO, RTO)', 'Segurança de banco (RBAC, RLS, criptografia)'],
+    requerAprovacaoPara: ['alteracao_schema_producao', 'migracao_dados'],
+    condicoesDeParada: ['requisito_ambiguo_sobre_dados', 'conflito_modelo_arquitetura', 'migracao_destrutiva_sem_backup', 'mudanca_sgbd_nao_planejada', 'acesso_dados_sensiveis_sem_controle', 'dependencia_circular_tabelas', 'volume_excede_capacidade', 'contrato_api_incompativel'],
+    responsabilidades: ['Analisar requisitos de dados', 'Definir SGBD adequado', 'Projetar modelo conceitual (ER)', 'Projetar modelo lógico (DDL)', 'Definir estratégia de indexação', 'Estabelecer política de migrações', 'Definir estratégia de backup e recovery', 'Especificar requisitos de segurança', 'Planejar capacity planning', 'Documentar decisões em ADRs']
+  },
+  {
+    id: 'testador-qa', nome: 'Testador/QA', funcao: 'qualidade-testes',
+    subpasta: 'testador-qa', perfilId: 'testador-qa', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: true, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/.ia/**', '/docs/**', '/testes/**'],
+    diretoriosProibidos: ['/frontend/**', '/backend/**', '/android/**', '/banco/**', '/infraestrutura/**'],
+    contratosObrigatorios: ['contrato-projeto'],
+    conhecimentos: ['Test design techniques', 'Tipos de teste (funcional, regressão, integração, aceitação)', 'Níveis de teste (unitário, integração, sistema, UAT)', 'Defect management', 'Métricas de qualidade (cobertura, densidade de defeitos, MTTR)', 'Test management (TestRail, Zephyr, Xray)', 'API testing (Postman, REST Assured)', 'Performance testing (k6, JMeter)', 'CI/CD awareness'],
+    requerAprovacaoPara: ['alteracao_quality_gates', 'alteracao_estrategia_teste'],
+    condicoesDeParada: ['requisito_ambiguo', 'stakeholder_indisponivel', 'informacao_insuficiente', 'conflito_prioridades', 'orcamento_insuficiente_qualidade'],
+    responsabilidades: ['Definir estratégia de qualidade do projeto', 'Elaborar plano de teste preliminar', 'Identificar riscos de qualidade', 'Definir métricas de qualidade', 'Estabelecer quality gates', 'Avaliar testabilidade dos requisitos', 'Estimar esforço de teste', 'Definir requisitos de infraestrutura de teste']
+  },
+  {
+    id: 'documentador-tecnico', nome: 'Documentador Técnico', funcao: 'documentacao',
+    subpasta: 'documentador-tecnico', perfilId: 'documentador-tecnico', estado: 'ativo',
+    permissoes: { ler: true, criar: true, alterar: true, excluir: false, executar: false, testar: false, revisar: false, aprovar: false, implantar: false },
+    diretoriosPermitidos: ['/docs/**', '/README.md', '/CHANGELOG.md', '/.ia/decisoes/**', '/.ia/procedimentos/**', '/.ia/contratos/contrato-documentacao.json', '/.ia/agentes/documentacao/'],
+    diretoriosProibidos: ['/frontend/**', '/backend/**', '/android/**', '/banco/**', '/infraestrutura/**', '/testes/**'],
+    contratosObrigatorios: ['contrato-projeto', 'contrato-documentacao'],
+    conhecimentos: ['Redação técnica', 'Markdown e JSON', 'Documentação de APIs', 'Documentação arquitetural', 'Arquitetura da informação', 'Docs-as-code', 'Git e versionamento', 'Ferramentas de diagramação'],
+    requerAprovacaoPara: ['publicacao_documentos_criticos'],
+    condicoesDeParada: ['informacao_insuficiente', 'decisao_arquitetural_nao_documentada', 'requisito_conflitante', 'alteracao_contrato_afeta_docs', 'informacao_classificada_como_sensivel'],
+    responsabilidades: ['Definir estrutura de pastas de documentação', 'Criar templates padronizados', 'Documentar visão geral do projeto', 'Documentar arquitetura proposta', 'Criar glossário e guia de estilo', 'Documentar decisões arquiteturais (ADRs)', 'Preparar estrutura para fases futuras', 'Definir processo de revisão documental']
   }
 ];
 

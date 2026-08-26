@@ -90,7 +90,7 @@ Cada agente possui documento de preparação e entrega em `.ia/procedimentos/`:
 - `entrega-<papel>.md` — o que registrar e entregar depois de terminar
 
 Papéis cobertos:
-planejador, backend, banco, frontend, android, infraestrutura, testes, revisor, documentacao, observabilidade, desempenho
+planejador, planejador-arquiteto, gerente-projeto, analista-sistemas, analista-negocios, engenheiro-software, analista-banco-dados, testador-qa, documentador-tecnico, seguranca, backend, banco, frontend, android, infraestrutura, testes, revisor, documentacao, observabilidade, desempenho
 
 ## Regra de corporação/equipe
 
