@@ -192,7 +192,7 @@ describe.skip('Orquestrador API — testes de integração', () => {
     excluir: () => ({ sucesso: true })
   };
   const monitoramento = new MonitoramentoService(fsMock as any, null as any, null as any);
-  const app = createApp(monitoramento);
+  const app = createApp(() => monitoramento);
   const server = app.listen(PORTA, async () => {
     const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
     const validator = new SchemaValidator(esquemasPath);

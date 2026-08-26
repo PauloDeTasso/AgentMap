@@ -37,6 +37,10 @@ import { OrquestradorService } from 'servicios/OrquestradorService';
 import { KiloDiscoveryService } from 'servicios/KiloDiscoveryService';
 import { KiloReconciliationService } from 'servicios/KiloReconciliationService';
 import { TaskContextBuilder } from 'servicios/TaskContextBuilder';
+import { ProjectOrchestrator } from 'servicios/ProjectOrchestrator';
+import { PhaseStateMachine } from 'servicios/PhaseStateMachine';
+import { CheckpointValidator } from 'servicios/CheckpointValidator';
+import { HandoffManager } from 'servicios/HandoffManager';
 import { globalEventBus } from './events/event-bus';
 import { GERENCIADOR_DIR } from 'config';
 import * as path from 'path';
@@ -95,6 +99,25 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
         new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
         new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
         new DependenciaService(projeto.fileService, projeto.auditoria, validator)
+      ),
+      projectOrchestrator: new ProjectOrchestrator(
+        projeto.fileService,
+        projeto.auditoria,
+        new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
+        new DependenciaService(projeto.fileService, projeto.auditoria, validator),
+        new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
+        eventoService,
+        { projetoId: projeto.id, projetoNome: projeto.nome, caminhoRaiz: projeto.caminhoRaiz }
+      ),
+      phaseStateMachine: new PhaseStateMachine(projeto.fileService, projeto.auditoria, projeto.id, projeto.nome),
+      checkpointValidator: new CheckpointValidator(projeto.fileService, projeto.auditoria, validator),
+      handoffManager: new HandoffManager(
+        projeto.fileService,
+        projeto.auditoria,
+        validator,
+        new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService),
+        eventoService,
+        monitoramento
       ),
       kiloDiscovery: projeto.kiloDiscovery,
       kiloReconciliation: projeto.kiloReconciliation,

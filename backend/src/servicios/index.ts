@@ -29,9 +29,14 @@ export * from './ContatoService';
 export * from './CorsService';
 export * from './ContractValidatorService';
 export * from './BackupService';
+export * from './CheckpointValidator';
+export * from './HandoffManager';
 export * from './KiloAgentGeneratorService';
 export * from './KiloDiscoveryService';
 export * from './KiloReconciliationService';
+export * from './OrquestradorService';
+export * from './PhaseStateMachine';
+export * from './ProjectOrchestrator';
 export * from './TaskContextBuilder';
 export * from './FluxoService';
 

@@ -101,7 +101,7 @@ describe('Integridade API — CRUD de regras e verificação', () => {
     const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
     const validator = new SchemaValidator(esquemasPath);
     const monitoramento = new MonitoramentoService(fileService, auditoria, validator);
-    const app = createApp(monitoramento);
+    const app = createApp(() => monitoramento);
     server = app.listen(PORTA, async () => {
       const res = await request({ hostname: '127.0.0.1', port: PORTA, path: `/api/projetos/${encodeURIComponent(projectRoot)}/abrir`, method: 'POST', body: {} });
       if (!res.data.sucesso) console.error('[test] falha ao abrir projeto:', res.data);

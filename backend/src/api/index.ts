@@ -35,6 +35,7 @@ import { criarMonitoramentoRouter } from './monitoramento';
 import { criarGerenciadorAgentesRouter } from './gerenciador-agentes';
 import { criarInstanciaRouter } from './instancias';
 import { criarOrquestradorRouter } from './orquestrador';
+import { criarOrchestracaoRouter } from './orchestracao';
 import { criarObservabilidadeRouter } from './observabilidade';
 import { criarTempRouter } from './temp';
 import { GERENCIADOR_DIR } from '../config';
@@ -124,6 +125,7 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
   router.use('/api/handoffs-centrais', criarHandoffsCentraisRouter());
   router.use('/api/instancias', criarInstanciaRouter());
   router.use('/api/orquestrador', criarOrquestradorRouter());
+  router.use('/api/orquestracao', criarOrchestracaoRouter());
 
   router.get('/api/estado-projeto', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.integridade.calcularEstadoProjeto(req.servicos!.projeto.id);

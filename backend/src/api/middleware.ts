@@ -36,6 +36,10 @@ import { TaskContextBuilder } from '../servicios/TaskContextBuilder';
 import { ResultadoOperacao } from '../tipos';
 import { AuditoriaService } from '../servicios';
 import { EstadoService } from '../servicios';
+import { ProjectOrchestrator } from '../servicios/ProjectOrchestrator';
+import { PhaseStateMachine } from '../servicios/PhaseStateMachine';
+import { CheckpointValidator } from '../servicios/CheckpointValidator';
+import { HandoffManager } from '../servicios/HandoffManager';
 
 export interface Servicos {
   projeto: ProjetoAberto;
@@ -70,6 +74,10 @@ export interface Servicos {
   fluxo: FluxoService;
   instancia: InstanciaService;
   orquestrador: OrquestradorService;
+  projectOrchestrator: ProjectOrchestrator;
+  phaseStateMachine: PhaseStateMachine;
+  checkpointValidator: CheckpointValidator;
+  handoffManager: HandoffManager;
   kiloDiscovery: KiloDiscoveryService;
   kiloReconciliation: KiloReconciliationService;
   taskContextBuilder: TaskContextBuilder;
@@ -134,6 +142,25 @@ export function projectMiddleware(projetoService: ProjetoService) {
         new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
         new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
         new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator)
+      ),
+      projectOrchestrator: new ProjectOrchestrator(
+        projeto.fileService,
+        projeto.auditoria,
+        new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
+        new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        { projetoId: projeto.id, projetoNome: projeto.nome, caminhoRaiz: projeto.caminhoRaiz }
+      ),
+      phaseStateMachine: new PhaseStateMachine(projeto.fileService, projeto.auditoria, projeto.id, projeto.nome),
+      checkpointValidator: new CheckpointValidator(projeto.fileService, projeto.auditoria, projeto.validator),
+      handoffManager: new HandoffManager(
+        projeto.fileService,
+        projeto.auditoria,
+        projeto.validator,
+        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
+        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
+        monitoramento
       ),
       kiloDiscovery: projeto.kiloDiscovery,
       kiloReconciliation: projeto.kiloReconciliation,

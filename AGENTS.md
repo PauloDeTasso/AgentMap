@@ -53,9 +53,24 @@ Veja: `PLANO GERAL/GERENCIADOR_LOCAL_DE_AGENTES_DE_IA-ESPECIFICACAO_DE_IMPLEMENT
 ## Regra obrigatória: fluxo e dependências
 
 Novos projetos devem respeitar o fluxo padrão definido em `.ia/fluxo-trabalho.md`.
-O planejador deve criar tarefas e dependências explicitamente antes de iniciar implementações.
-Agentes devem consultar dependências no início de cada ciclo e só prosseguir quando elas estiverem concluídas.
-Sem dependências, tarefas podem executar em paralelo; com dependências, a execução é sequencial.
+O **ProjectOrchestrator** (serviço backend) controla a execução fase a fase.
+Agentes são Custom Subagents em `.kilo/agent/` executados dentro de worktrees por fase.
+Nenhuma fase avança sem aprovação explícita do checkpoint.
+
+**Ordem de execução obrigatória:**
+1. Planejamento de Projeto
+2. Análise de Viabilidade
+3. Requisitos
+4. Design e Contratos
+5. Design UX/UI
+6. Banco de Dados
+7. Implementação
+8. Testes e Qualidade
+9. DevSecOps / Segurança
+10. Deploy e Infraestrutura
+11. Documentação e Manutenção
+
+Documentação completa: `docs/plano-final-implementacao.md`
 
 ## Checklist automático de novos projetos
 
