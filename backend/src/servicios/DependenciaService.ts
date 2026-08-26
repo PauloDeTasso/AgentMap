@@ -28,7 +28,7 @@ export class DependenciaService {
   private carregarRegistry(): ResultadoOperacao<DependenciasRegistry> {
     const result = this.fs.lerJson<DependenciasRegistry>(this.getRegistryPath());
     if (!result.sucesso || !result.dados) {
-      return { sucesso: false, erro: result.erro || 'Erro ao carregar registro', codigoErro: result.codigoErro || 'REGISTRY_ERROR' };
+      return { sucesso: true, dados: { dependencias: [] } };
     }
     return result;
   }

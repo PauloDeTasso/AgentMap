@@ -41,10 +41,7 @@ export class EstadoService {
   listar(): ResultadoOperacao<EstadoNota[]> {
     const result = this.fs.lerJson<EstadoNotasRegistry>(this.registryPath);
     if (!result.sucesso || !result.dados) {
-      if (result.codigoErro === 'FILE_NOT_FOUND') {
-        return { sucesso: true, dados: [] };
-      }
-      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+      return { sucesso: true, dados: [] };
     }
     return { sucesso: true, dados: result.dados.notas };
   }

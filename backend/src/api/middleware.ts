@@ -189,9 +189,5 @@ declare global {
 }
 
 export function responder(res: Response, result: ResultadoOperacao<any>, status = 200): Response {
-  if (!result.sucesso) {
-    const errorStatus = status === 200 ? 400 : status;
-    return res.status(errorStatus).json({ sucesso: false, erro: result.erro, codigoErro: result.codigoErro });
-  }
-  return res.status(status).json({ sucesso: true, dados: result.dados });
+  return res.status(status).json({ sucesso: result.sucesso, dados: result.dados, erro: result.erro, codigoErro: result.codigoErro });
 }

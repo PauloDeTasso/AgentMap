@@ -17,8 +17,7 @@ export class AgenteService {
       path.win32.join('.ia', 'agentes', 'agentes.json')
     );
     if (!result.sucesso || !result.dados) {
-      console.error('[AgenteService.listar] erro ao ler agentes.json:', result.erro);
-      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+      return { sucesso: true, dados: [] };
     }
     console.log('[AgenteService.listar] agentes encontrados:', result.dados.agentes.length);
     return { sucesso: true, dados: result.dados.agentes };

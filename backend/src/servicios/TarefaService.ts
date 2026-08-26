@@ -41,7 +41,7 @@ export class TarefaService {
       path.win32.join('.ia', 'tarefas', 'tarefas.json')
     );
     if (!result.sucesso || !result.dados) {
-      return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
+      return { sucesso: true, dados: [] };
     }
     return { sucesso: true, dados: result.dados.tarefas };
   }
