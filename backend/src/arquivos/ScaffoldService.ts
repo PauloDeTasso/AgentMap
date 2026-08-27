@@ -122,6 +122,9 @@ export class ScaffoldService {
     fsSync.mkdirSync(path.join(iaRoot, 'conflitos'), { recursive: true });
     fsSync.mkdirSync(path.join(iaRoot, 'checkpoints'), { recursive: true });
     fsSync.mkdirSync(path.join(iaRoot, 'solicitacoes'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'eventos'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'criterios'), { recursive: true });
+    fsSync.mkdirSync(path.join(iaRoot, 'instancias'), { recursive: true });
 
     // Configuração
     fsSync.writeFileSync(path.join(iaRoot, 'configuracao', 'projeto.json'), JSON.stringify(criarProjetoConfig(projetoId, nome, descricao), null, 2), 'utf-8');
@@ -206,6 +209,18 @@ export class ScaffoldService {
 
     // Solicitações
     fsSync.writeFileSync(path.join(iaRoot, 'solicitacoes', 'solicitacoes.json'), JSON.stringify({ solicitacoes: [] }, null, 2), 'utf-8');
+
+    // Eventos
+    fsSync.writeFileSync(path.join(iaRoot, 'eventos', 'eventos.json'), JSON.stringify({ eventos: [] }, null, 2), 'utf-8');
+
+    // Critérios
+    fsSync.writeFileSync(path.join(iaRoot, 'criterios', 'criterios.json'), JSON.stringify({ criterios: [] }, null, 2), 'utf-8');
+
+    // Instâncias
+    fsSync.writeFileSync(path.join(iaRoot, 'instancias', 'instancias.json'), JSON.stringify({ instancias: [] }, null, 2), 'utf-8');
+
+    // Estado - notas
+    fsSync.writeFileSync(path.join(iaRoot, 'estado', 'estado-notas.json'), JSON.stringify({ notas: [], estatisticas: { total: 0, ativas: 0, arquivadas: 0, resolvidas: 0 } }, null, 2), 'utf-8');
 
     // Fluxo obrigatório
     fsSync.writeFileSync(path.join(iaRoot, 'fluxo-desenvolvimento.json'), JSON.stringify({
