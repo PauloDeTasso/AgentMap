@@ -74,6 +74,7 @@ import type { Plugin, PluginInput } from "@kilocode/plugin";
 const AGENTMAP_API_URL = process.env.AGENTMAP_API_URL || "http://localhost:3150";
 const AGENTMAP_API_KEY = process.env.AGENTMAP_API_KEY || "";
 const DEBOUNCE_MS = Number(process.env.AGENTMAP_WAKEUP_DEBOUNCE_MS) || 3000;
+const RESPONSE_LIMIT_PROMPT = "ERRO DE Limite de resposta atingido antes da conclusao, CONTINUE DE ONDE PAROU";
 
 const TIPOS_RELEVANTES = new Set([
   "KILO_CHAT_REPLY","KILO_REPLY","KILO_RESULT","KILO_CHAT","WAKEUP_PARENT",
@@ -115,6 +116,8 @@ interface EstadoSessao {
   recoveryAtivo: boolean;
   recoveryTimer: ReturnType<typeof setTimeout> | null;
   operacaoEmAndamento: string;
+  outputLimitHit: boolean;
+  stepFinishReason: string | null;
 }
 
 const sessoes = new Map<string, EstadoSessao>();
@@ -127,11 +130,12 @@ function obterOuCriarEstado(projectId: string, sessionId: string): EstadoSessao 
   const key = chaveSessao(projectId, sessionId);
   let estado = sessoes.get(key);
   if (!estado) {
-    estado = {
-      sessionId, projectId, isChildSession: false, status: "unknown",
-      cursorEventSequence: 0, debounceTimer: null, recoveryAtivo: false,
-      recoveryTimer: null, operacaoEmAndamento: "idle",
-    };
+     estado = {
+       sessionId, projectId, isChildSession: false, status: "unknown",
+       cursorEventSequence: 0, debounceTimer: null, recoveryAtivo: false,
+       recoveryTimer: null, operacaoEmAndamento: "idle",
+       outputLimitHit: false, stepFinishReason: null,
+     };
     sessoes.set(key, estado);
   }
   return estado;
@@ -215,6 +219,32 @@ function extrairParentId(event: any): string | null {
   return typeof parentId === "string" ? parentId : null;
 }
 
+function extrairFinishReason(event: any): string | null {
+  const props = event?.properties || {};
+  const finish = typeof props?.finish === "string" ? props.finish : null;
+  const dataFinish = typeof event?.data?.finish === "string" ? event.data.finish : null;
+  return finish || dataFinish;
+}
+
+async function injetarContinue(projectId: string, sessionId: string, estado: EstadoSessao, client: PluginInput["client"]) {
+  if (estado.isChildSession) return;
+  console.log("[agentmap-wakeup] Injetando continue (limite de resposta): " + sessionId);
+  estado.operacaoEmAndamento = "continue";
+  try {
+    const metodo = client.session;
+    const chamar = typeof metodo.prompt === "function" ? metodo.prompt : typeof metodo.promptAsync === "function" ? metodo.promptAsync : null;
+    if (chamar) {
+      await chamar({ path: { id: sessionId }, body: { parts: [{ type: "text", text: RESPONSE_LIMIT_PROMPT }] } });
+    }
+  } catch (err) {
+    console.error("[agentmap-wakeup] Falha no continue:", err);
+  } finally {
+    estado.operacaoEmAndamento = "idle";
+    estado.outputLimitHit = false;
+    estado.stepFinishReason = null;
+  }
+}
+
 const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
   const projectId = ctx.project?.id || ctx.directory;
   console.log("[agentmap-wakeup] Plugin carregado — diretorio: " + ctx.directory + ", projeto: " + projectId);
@@ -248,6 +278,22 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         return;
       }
 
+      if (eventType === "session.next.step.started") {
+        estado.outputLimitHit = false;
+        estado.stepFinishReason = null;
+        return;
+      }
+
+      if (eventType === "session.next.step.ended") {
+        const finish = extrairFinishReason(event);
+        estado.stepFinishReason = finish;
+        if (finish === "length") {
+          estado.outputLimitHit = true;
+          console.log("[agentmap-wakeup] session.next.step.ended finish=length: " + sessionId);
+        }
+        return;
+      }
+
       if (eventType === "session.status") {
         const status = typeof (event as any)?.properties?.status === "string"
           ? (event as any).properties.status
@@ -260,6 +306,9 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         if (estado.status === "idle" && estado.operacaoEmAndamento !== "idle") {
           estado.operacaoEmAndamento = "idle";
         }
+        if (estado.status === "idle" && estado.outputLimitHit && !estado.isChildSession) {
+          await injetarContinue(projectId, sessionId, estado, ctx.client);
+        }
         return;
       }
 
@@ -270,6 +319,9 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         }
         estado.status = "idle";
         estado.operacaoEmAndamento = "idle";
+        if (estado.outputLimitHit) {
+          await injetarContinue(projectId, sessionId, estado, ctx.client);
+        }
         agendarVerificacao(projectId, sessionId, ctx.client);
         return;
       }
@@ -289,6 +341,26 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         const ehInterrupcao = nomeErro === "MessageAbortedError" || /abort|cancel|interrompid|interrupt|stopped|user/i.test(nomeErro + " " + mensagemErro);
         if (ehInterrupcao) {
           console.log("[agentmap-wakeup] session.error suprimido (interrupcao): " + sessionId);
+          return;
+        }
+
+        const ehLimiteResposta = nomeErro === "MessageOutputLengthError" || /output.*length|length.*output|exceeds.*max|output.*limit/i.test(nomeErro + " " + mensagemErro);
+        if (ehLimiteResposta && !estado.isChildSession) {
+          console.log("[agentmap-wakeup] session.error (limite de resposta): " + sessionId);
+          estado.outputLimitHit = false;
+          estado.stepFinishReason = null;
+          estado.operacaoEmAndamento = "continue";
+          try {
+            const metodo = client.session;
+            const chamar = typeof metodo.prompt === "function" ? metodo.prompt : typeof metodo.promptAsync === "function" ? metodo.promptAsync : null;
+            if (chamar) {
+              await chamar({ path: { id: sessionId }, body: { parts: [{ type: "text", text: RESPONSE_LIMIT_PROMPT }] } });
+            }
+          } catch (err) {
+            console.error("[agentmap-wakeup] Falha no continue:", err);
+          } finally {
+            estado.operacaoEmAndamento = "idle";
+          }
           return;
         }
 

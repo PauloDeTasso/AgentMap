@@ -27,6 +27,9 @@ const INTERRUPT_CLEANUP_MS = 5 * 60 * 1000;
 const CONFIRM_TIMEOUT_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_CONFIRM_MS || "10000");
 const MEMORIA_ENVIO_THRESHOLD = 3;
 
+const RESPONSE_LIMIT_PROMPT =
+  "ERRO DE Limite de resposta atingido antes da conclusão, CONTINUE DE ONDE PAROU";
+
 const TIPOS_RELEVANTES = new Set([
   "KILO_CHAT_REPLY", "KILO_REPLY", "KILO_RESULT", "KILO_CHAT", "WAKEUP_PARENT",
   "HANDOFF_CRIADO", "HANDOFF_ACEITO", "HANDOFF_CONCLUIDO",
@@ -62,7 +65,7 @@ const TIPOS_RELEVANTES = new Set([
 // ---------------------------------------------------------------------------
 
 type SessionStatus = "idle" | "busy" | "retry" | "unknown";
-type Operacao = "idle" | "wakeup" | "recovery" | "heartbeat";
+type Operacao = "idle" | "wakeup" | "recovery" | "heartbeat" | "continue";
 
 interface SessionWakeupState {
   sessionId: string;
@@ -73,6 +76,8 @@ interface SessionWakeupState {
   cursorEventSequence: number;
   operacaoEmAndamento: Operacao;
   recoveryAtivo: boolean;
+  outputLimitHit: boolean;
+  stepFinishReason: string | null;
   debounceTimer: ReturnType<typeof setTimeout> | null;
   heartbeatTimer: ReturnType<typeof setInterval> | null;
   recoveryTimer: ReturnType<typeof setTimeout> | null;
@@ -169,7 +174,7 @@ function obterOuCriarEstado(projectId: string, sessionId: string): SessionWakeup
   const key = chaveSessao(projectId, sessionId);
   let estado = sessoes.get(key);
   if (!estado) {
-    estado = {
+     estado = {
       sessionId,
       projectId,
       isChildSession: false,
@@ -178,6 +183,8 @@ function obterOuCriarEstado(projectId: string, sessionId: string): SessionWakeup
       cursorEventSequence: 0,
       operacaoEmAndamento: "idle",
       recoveryAtivo: false,
+      outputLimitHit: false,
+      stepFinishReason: null,
       debounceTimer: null,
       heartbeatTimer: null,
       recoveryTimer: null,
@@ -683,6 +690,38 @@ function extrairEventType(event: any): string {
   return typeof event?.type === "string" ? event.type : "";
 }
 
+function extrairFinishReason(event: any): string | null {
+  const props = event?.properties || {};
+  const finish = typeof props?.finish === "string" ? props.finish : null;
+  const dataFinish = typeof event?.data?.finish === "string" ? event.data.finish : null;
+  return finish || dataFinish;
+}
+
+// ---------------------------------------------------------------------------
+// Continue prompt (when output limit / length cap is hit)
+// ---------------------------------------------------------------------------
+
+async function injetarContinue(
+  projectId: string,
+  sessionId: string,
+  client: PluginInput["client"],
+  directory: string,
+  estado: SessionWakeupState
+) {
+  if (ehSessaoFilha(estado)) {
+    console.log(`[agentmap-wakeup] Continue suprimido (sessao-filha): ${sessionId}`);
+    return;
+  }
+
+  console.log(`[agentmap-wakeup] Injetando continue (limite de resposta) na sessao ${sessionId}`);
+  await logEmArquivo(directory, `[agentmap-wakeup] Injetando continue (limite de resposta): sessao ${sessionId}`);
+
+  await injetarPrompt(sessionId, client, directory, RESPONSE_LIMIT_PROMPT, "continue", estado);
+
+  estado.outputLimitHit = false;
+  estado.stepFinishReason = null;
+}
+
 async function handleSessionStatus(
   projectId: string,
   sessionId: string,
@@ -783,6 +822,26 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         return;
       }
 
+      // session.next.step.started — reinicia monitoramento de limite de resposta
+      if (eventType === "session.next.step.started") {
+        estado.outputLimitHit = false;
+        estado.stepFinishReason = null;
+        return;
+      }
+
+      // session.next.step.ended — detecta se o limite de resposta foi atingido
+      if (eventType === "session.next.step.ended") {
+        const finish = extrairFinishReason(input.event);
+        estado.stepFinishReason = finish;
+        if (finish === "length") {
+          estado.outputLimitHit = true;
+          const logLen = `[agentmap-wakeup] session.next.step.ended finish=length (limite de resposta atingido): ${sessionId}`;
+          console.log(logLen);
+          await logEmArquivo(ctx.directory, logLen);
+        }
+        return;
+      }
+
       // session.status — status real da sessão
       if (eventType === "session.status") {
         const status = typeof (input.event as any)?.properties?.status === "string"
@@ -794,6 +853,11 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
 
         if (estado.status === "idle" && estado.operacaoEmAndamento !== "idle") {
           estado.operacaoEmAndamento = "idle";
+        }
+
+        // Se a sessão ficou idle após limite de resposta atingido, injeta continue
+        if (estado.status === "idle" && estado.outputLimitHit && !ehSessaoFilha(estado)) {
+          await injetarContinue(projectId, sessionId, ctx.client, ctx.directory, estado);
         }
         return;
       }
@@ -815,6 +879,11 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         if (estado.interruptCleanupTimer) {
           clearTimeout(estado.interruptCleanupTimer);
           estado.interruptCleanupTimer = null;
+        }
+
+        // Se o limite de resposta foi atingido antes da session.idle, injeta continue
+        if (estado.outputLimitHit && !ehSessaoFilha(estado)) {
+          await injetarContinue(projectId, sessionId, ctx.client, ctx.directory, estado);
         }
 
         agendarVerificacao(projectId, sessionId, ctx.client, ctx.directory);
@@ -864,6 +933,27 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
           const logInterrupcao = `[agentmap-wakeup] session.error suprimido (interrupcao): ${nomeErro || "desconhecido"} na sessao ${sessionId}.`;
           console.log(logInterrupcao);
           await logEmArquivo(ctx.directory, logInterrupcao);
+          return;
+        }
+
+        // MessageOutputLengthError — limite de resposta atingido via erro do provedor
+        const ehLimiteResposta =
+          nomeErro === "MessageOutputLengthError" ||
+          /output.*length|length.*output|output.*limit|limit.*output|exceeds.*max|max.*tokens.*output/i.test(`${nomeErro} ${mensagemErro}`);
+
+        if (ehLimiteResposta && !ehSessaoFilha(estado)) {
+          const logLimite = `[agentmap-wakeup] session.error (limite de resposta): ${nomeErro || "desconhecido"} na sessao ${sessionId}. Injetando continue.`;
+          console.log(logLimite);
+          await logEmArquivo(ctx.directory, logLimite);
+
+          await injetarContinue(projectId, sessionId, ctx.client, ctx.directory, estado);
+
+          const recoveryTimer = estado.recoveryTimer;
+          if (recoveryTimer) {
+            clearTimeout(recoveryTimer);
+            estado.recoveryTimer = null;
+          }
+          pararHeartbeat(projectId, sessionId, ctx.directory);
           return;
         }
 
