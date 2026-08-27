@@ -96,8 +96,9 @@ export function registerTracedTool(
   options?: ToolTraceOptions
 ): void {
   const sanitizedSchema = { ...schema };
+  const outputSchema = sanitizedSchema.outputSchema;
   delete sanitizedSchema.outputSchema;
-  server.registerTool(name, sanitizedSchema, async (...args: any[]) => {
+  server.registerTool(name, { ...sanitizedSchema, outputSchema }, async (...args: any[]) => {
     const receivedArgs = args;
     let input = receivedArgs[0] ?? {};
     if (input && typeof input === 'object' && 'dados' in input && input.dados && typeof input.dados === 'object') {

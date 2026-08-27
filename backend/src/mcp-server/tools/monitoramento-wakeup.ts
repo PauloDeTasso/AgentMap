@@ -2,6 +2,7 @@ import { mcpServer } from '../server';
 import { toMcpStructured, mcpError } from '../utils/helpers';
 import { projetoService } from '../server';
 import { carregarContexto } from '../contexto';
+import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
@@ -129,8 +130,10 @@ registerTracedTool(mcpServer, 'agentmap_monitoramento_verificar_pendentes', {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
 
+  const { projeto } = ctx.dados!;
+  const auditoria = createMcpAuditoria(projeto.auditoria);
   const monitoramento = ctx.dados!.servicos.monitoramento;
-  const limite = input.limite || 20;
+  const limite = typeof input.limite === 'number' ? input.limite : 20;
   const after = input.aposEventSequence;
 
   let resultado;
@@ -145,7 +148,7 @@ registerTracedTool(mcpServer, 'agentmap_monitoramento_verificar_pendentes', {
     };
   }
 
-  const mensagens = resultado.mensagens.map((m: any) => ({
+  const mensagens = (resultado.mensagens || []).map((m: any) => ({
     id: m.id,
     eventSequence: m.eventSequence || 0,
     tipo: m.tipo,
@@ -156,9 +159,12 @@ registerTracedTool(mcpServer, 'agentmap_monitoramento_verificar_pendentes', {
     timestamp: m.timestamp
   }));
 
-  return toMcpStructured({
+  const saida = {
     temNovidades: mensagens.length > 0,
     ultimoEventSequence: resultado.ultimoEventSequence,
     mensagens
-  });
+  };
+
+  auditoria.registrarToolCall('agentmap_monitoramento_verificar_pendentes', projeto, input, { sucesso: true, dados: saida });
+  return toMcpStructured(saida);
 });

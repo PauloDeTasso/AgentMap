@@ -38,13 +38,10 @@ registerTracedTool(mcpServer, 'agentmap_orquestracao_listar_fases', {
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
 
-  const estadoPath = path.posix.join('.ia', 'estado', 'estado-fases.json');
-  const estadoResult = projeto.fileService.lerJson<any>(estadoPath);
-  const estado = estadoResult.sucesso && estadoResult.dados ? estadoResult.dados : null;
-
   const fasesPath = path.posix.join('.ia', 'estado', 'estado-fases.json');
   const fasesRaw = projeto.fileService.lerJson<any>(fasesPath);
   const fases = (fasesRaw.sucesso && fasesRaw.dados && Array.isArray(fasesRaw.dados.fases)) ? fasesRaw.dados.fases : [];
+  const estado = fasesRaw.sucesso && fasesRaw.dados ? fasesRaw.dados : null;
 
   const dados = {
     fases: fases.map((f: any) => ({

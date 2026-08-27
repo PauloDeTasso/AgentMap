@@ -51,7 +51,8 @@ registerTracedTool(mcpServer, 'kilohub_report_status', {
   }
 
   const monitoramento = projeto.fileService;
-  const statusPath = `.ia/contexto/status/${sessaoEncontrada.agenteId || sessionId}.json`;
+  const identificador = sessaoEncontrada.agenteId || sessionId || 'unknown';
+  const statusPath = `.ia/contexto/status/${identificador}.json`;
   const existingResult = monitoramento.lerJson<Record<string, unknown>>(statusPath);
   const baseStatusData: Record<string, unknown> = existingResult.sucesso && existingResult.dados
     ? existingResult.dados
@@ -59,7 +60,7 @@ registerTracedTool(mcpServer, 'kilohub_report_status', {
 
   const statusData: Record<string, unknown> = {
     ...baseStatusData,
-    status: status === 'ativo' ? 'ATIVO' : status === 'pausado' ? 'AGUARDANDO' : status === 'finalizado' ? 'DISPONIVEL' : 'ERRO',
+    status: status === 'ativo' ? 'ATIVO' : status === 'pausado' ? 'AGUARDANDO' : status === 'finalizado' ? 'DISPONIVEL' : status.toUpperCase(),
     sessionId,
     ultimaAtividade: new Date().toISOString(),
     ultimoHeartbeat: new Date().toISOString()

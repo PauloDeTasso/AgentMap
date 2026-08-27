@@ -16,11 +16,9 @@ interface ConhecimentoHit {
 }
 
 registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
-  description:
-      'Busca termos na base de conhecimento do projeto (.ia/conhecimento, conhecimentos de agentes, procedimentos, decisões, documentação).',
-    inputSchema: SchemaBuscarConhecimento,
-  },
-  async (args) => {
+  description: 'Busca termos na base de conhecimento do projeto (.ia/conhecimento, conhecimentos de agentes, procedimentos, decisões, documentação).',
+  inputSchema: SchemaBuscarConhecimento,
+}, async (args) => {
     const { termo, limite, incluirProjetos } = args as {
       termo: string;
       limite?: number;
@@ -35,8 +33,8 @@ registerTracedTool(mcpServer, 'agentmap_buscar_conhecimento', {
     const { projeto } = ctx.dados;
     const auditoria = createMcpAuditoria(projeto.auditoria);
     const config = getMcpConfig();
-    const searchLimite = limite || config.limites.maxSearchResults;
-    const termoLower = (termo || '').toLowerCase();
+    const searchLimite = typeof limite === 'number' ? limite : config.limites.maxSearchResults;
+    const termoLower = String(termo || '').toLowerCase();
     const pathValidator = createPathValidator(projeto.caminhoRaiz, DEFAULT_PATH_VALIDATOR_OPTIONS);
 
     if (!termoLower || termoLower.length < 2) {

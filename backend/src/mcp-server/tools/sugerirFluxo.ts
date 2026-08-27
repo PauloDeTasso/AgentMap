@@ -33,7 +33,7 @@ const fluxos = {
   monitoramento: [
     'resources/subscribe',
     'resources/read',
-    'agentmap_obter_mapa_projeto',
+    'agentmap_workflows_obter_mapa_projeto',
     'agentmap_auditoria_listar'
   ],
   bloqueio: [

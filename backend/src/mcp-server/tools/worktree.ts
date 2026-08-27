@@ -137,7 +137,7 @@ registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
     status: 'PENDENTE'
   };
 
-  const intentionsPath = path.win32.join('.ia', 'contexto', 'worktree-intentions.json');
+  const intentionsPath = path.posix.join('.ia', 'contexto', 'worktree-intentions.json');
   const intentionsResult = projeto.fileService.lerJson<{ intencoes: typeof intention[] }>(intentionsPath);
   const intentionsData = intentionsResult.sucesso && intentionsResult.dados
     ? intentionsResult.dados
@@ -149,7 +149,12 @@ registerTracedTool(mcpServer, 'agentmap_abrir_worktree', {
   } else {
     intentionsData.intencoes.push(intention);
   }
-  projeto.fileService.escreverJson(intentionsPath, intentionsData);
+  const writeResult = projeto.fileService.escreverJson(intentionsPath, intentionsData);
+  if (!writeResult.sucesso) {
+    const resultado = { sucesso: false, erro: writeResult.erro || 'Falha ao salvar intencao de worktree', codigoErro: writeResult.codigoErro || 'WRITE_ERROR' };
+    auditoria.registrarToolCall('agentmap_abrir_worktree', projeto, { messageId, tarefaId }, resultado);
+    return mcpError(resultado);
+  }
 
   await idempotency.marcarProcessado(messageId, 'agentmap_abrir_worktree', tarefaId);
 
