@@ -292,13 +292,12 @@ async function logEmArquivo(directory: string, mensagem: string) {
 // ---------------------------------------------------------------------------
 
 interface PluginCtx {
-  client?: { session?: { promptAsync?: (prompt: string, opts?: any) => Promise<any> } };
   directory: string;
 }
 
 const toolExecutionCache: Map<string, { lastTool: string; lastResult: any; lastTime: number }> = new Map();
 
-async function reportarToolExecution(input: any, sessionId: string, projectId: string, ctx: PluginCtx): Promise<void> {
+async function reportarToolExecution(input: any, sessionId: string, projectId: string, directory: string): Promise<void> {
   const props = (input && input.event && typeof input.event === "object" && input.event.properties) ? input.event.properties : (input && typeof input === "object" ? input : {});
   const toolName = props.tool?.name || props.toolName || props.name || "unknown-tool";
   const isErro = props.error === true || props.status === "error" || props.success === false;
@@ -337,15 +336,15 @@ async function reportarToolExecution(input: any, sessionId: string, projectId: s
     });
     if (!res.ok) {
       console.warn(`[agentmap-wakeup] reportarToolExecution: HTTP ${res.status}`);
-      await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarToolExecution: HTTP ${res.status} para ${toolName}`);
+      await logEmArquivo(directory, `[agentmap-wakeup] reportarToolExecution: HTTP ${res.status} para ${toolName}`);
     }
   } catch (err) {
     console.warn(`[agentmap-wakeup] reportarToolExecution: HTTP falhou: ${err}`);
-    await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarToolExecution: HTTP falhou para ${toolName}: ${err}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] reportarToolExecution: HTTP falhou para ${toolName}: ${err}`);
   }
 }
 
-async function reportarChatMessage(input: any, sessionId: string, projectId: string, ctx: PluginCtx): Promise<void> {
+async function reportarChatMessage(input: any, sessionId: string, projectId: string, directory: string): Promise<void> {
   const props = (input && input.event && typeof input.event === "object" && input.event.properties) ? input.event.properties : (input && typeof input === "object" ? input : {});
   const tipo = props.tipo || input.type || props.type || "chat.message";
   const content = props.content || props.message || props.text || "";
@@ -376,11 +375,11 @@ async function reportarChatMessage(input: any, sessionId: string, projectId: str
     });
     if (!res.ok) {
       console.warn(`[agentmap-wakeup] reportarChatMessage: HTTP ${res.status}`);
-      await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarChatMessage: HTTP ${res.status} para mensagem tipo=${tipo}`);
+      await logEmArquivo(directory, `[agentmap-wakeup] reportarChatMessage: HTTP ${res.status} para mensagem tipo=${tipo}`);
     }
   } catch (err) {
     console.warn(`[agentmap-wakeup] reportarChatMessage: HTTP falhou: ${err}`);
-    await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarChatMessage: HTTP falhou para tipo=${tipo}: ${err}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] reportarChatMessage: HTTP falhou para tipo=${tipo}: ${err}`);
   }
 }
 
@@ -1615,13 +1614,13 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
 
     "tool.execute.after": async (input: { sessionID?: string; tool?: any; result?: any }) => {
       if (input.sessionID && typeof reportarToolExecution === "function") {
-        await reportarToolExecution(input, input.sessionID, projectIdGlobal || "", ctx);
+        await reportarToolExecution(input, input.sessionID, projectIdGlobal || "", ctx.directory);
       }
     },
 
     "chat.message": async (input: { sessionID?: string; message?: any; type?: string }) => {
       if (input.sessionID && typeof reportarChatMessage === "function") {
-        await reportarChatMessage(input, input.sessionID, projectIdGlobal || "", ctx);
+        await reportarChatMessage(input, input.sessionID, projectIdGlobal || "", ctx.directory);
       }
     },
 
