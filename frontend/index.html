@@ -858,39 +858,45 @@
     </div>
   </div>
 
-   <div class="modal" id="modal-resultado" style="display:none;">
-     <div class="modal__conteudo">
+   <!-- Modal: Resultado -->
+   <div class="modal modal--grande" id="modal-resultado" style="display:none;">
+     <div class="modal__conteudo modal__conteudo--cheio">
        <button class="modal__fechar" onclick="hideModal('modal-resultado')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-resultado">Novo Resultado</h3>
+       <div class="modal__cabecalho">
+         <h3 class="modal__titulo" id="titulo-resultado">Novo Resultado</h3>
+         <button class="btn btn--small btn--ghost" onclick="hideModal('modal-resultado')">Fechar</button>
+       </div>
        <form class="form" id="form-resultado">
          <input type="hidden" id="resultado-id">
-         <div class="form__grupo">
-           <label class="form__label" for="resultado-tarefa-id">Tarefa ID</label>
-           <input class="form__input" type="text" id="resultado-tarefa-id">
-         </div>
-         <div class="form__grupo">
-           <label class="form__label" for="resultado-agente-id">Agente ID</label>
-           <input class="form__input" type="text" id="resultado-agente-id">
-         </div>
-         <div class="form__grupo form__grupo_full">
-           <label class="form__label" for="resultado-resumo">Resumo</label>
-           <textarea class="form__textarea" id="resultado-resumo" rows="2"></textarea>
-         </div>
-         <div class="form__grupo">
-           <label class="form__label" for="resultado-estado">Estado</label>
-           <select class="form__input" id="resultado-estado">
-             <option value="COMPLETO">COMPLETO</option>
-             <option value="PARCIAL">PARCIAL</option>
-             <option value="INCOMPLETO">INCOMPLETO</option>
-           </select>
-         </div>
-         <div class="form__grupo form__grupo_full">
-           <label class="form__label" for="resultado-observacoes">Observações</label>
-           <textarea class="form__textarea" id="resultado-observacoes" rows="2"></textarea>
+         <div class="form__grid">
+           <div class="form__grupo">
+             <label class="form__label" for="resultado-tarefa-id">Tarefa ID</label>
+             <input class="form__input" type="text" id="resultado-tarefa-id">
+           </div>
+           <div class="form__grupo">
+             <label class="form__label" for="resultado-agente-id">Agente ID</label>
+             <input class="form__input" type="text" id="resultado-agente-id">
+           </div>
+           <div class="form__grupo form__grupo_full">
+             <label class="form__label" for="resultado-resumo">Resumo</label>
+             <textarea class="form__textarea" id="resultado-resumo" rows="2"></textarea>
+           </div>
+           <div class="form__grupo">
+             <label class="form__label" for="resultado-estado">Estado</label>
+             <select class="form__input" id="resultado-estado">
+               <option value="COMPLETO">COMPLETO</option>
+               <option value="PARCIAL">PARCIAL</option>
+               <option value="INCOMPLETO">INCOMPLETO</option>
+             </select>
+           </div>
+           <div class="form__grupo form__grupo_full">
+             <label class="form__label" for="resultado-observacoes">Observações</label>
+             <textarea class="form__textarea" id="resultado-observacoes" rows="2"></textarea>
+           </div>
          </div>
          <div class="form__acoes">
            <button class="btn btn--primario" type="submit">Salvar</button>
-            <button class="btn btn--ghost" type="button" id="btn-cancelar-resultado" onclick="hideModal('modal-resultado')">Cancelar</button>
+           <button class="btn btn--ghost" type="button" id="btn-cancelar-resultado" onclick="hideModal('modal-resultado')">Cancelar</button>
          </div>
        </form>
      </div>
@@ -1294,49 +1300,54 @@
     </div>
    </div>
 
-   <!-- Modal: Handoff -->
-   <div class="modal" id="modal-handoff" style="display:none;">
-     <div class="modal__conteudo">
-       <button class="modal__fechar" onclick="hideModal('modal-handoff')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-handoff">Nova Transferência</h3>
-       <form class="form" id="form-handoff">
-         <input type="hidden" id="handoff-id">
-         <div class="form__grupo">
-           <label class="form__label" for="handoff-origem">Origem *</label>
-           <input class="form__input" type="text" id="handoff-origem" required>
-         </div>
-         <div class="form__grupo">
-           <label class="form__label" for="handoff-destino">Destino *</label>
-           <input class="form__input" type="text" id="handoff-destino" required>
-         </div>
-         <div class="form__grupo">
-           <label class="form__label" for="handoff-tarefa-id">Tarefa ID</label>
-           <input class="form__input" type="text" id="handoff-tarefa-id">
-         </div>
-         <div class="form__grupo form__grupo_full">
-           <label class="form__label" for="handoff-resumo">Resumo *</label>
-           <textarea class="form__textarea" id="handoff-resumo" rows="2" required></textarea>
-         </div>
-         <div class="form__grupo">
-           <label class="form__label" for="handoff-estado">Estado</label>
-           <select class="form__input" id="handoff-estado">
-             <option value="PENDENTE">Pendente</option>
-             <option value="ACEITO">Aceito</option>
-             <option value="CONCLUIDO">Concluído</option>
-              <option value="RECUSADO">Recusado</option>
-           </select>
-         </div>
-         <div class="form__grupo form__grupo_full">
-           <label class="form__label" for="handoff-observacoes">Observações</label>
-           <textarea class="form__textarea" id="handoff-observacoes" rows="2"></textarea>
-         </div>
-         <div class="form__acoes">
-           <button class="btn btn--primario" type="submit">Salvar</button>
-           <button class="btn btn--ghost" type="button" onclick="hideModal('modal-handoff')">Cancelar</button>
-         </div>
-       </form>
-     </div>
-   </div>
+    <!-- Modal: Handoff -->
+    <div class="modal modal--grande" id="modal-handoff" style="display:none;">
+      <div class="modal__conteudo modal__conteudo--cheio">
+        <button class="modal__fechar" onclick="hideModal('modal-handoff')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo" id="titulo-handoff">Nova Transferência</h3>
+          <button class="btn btn--small btn--ghost" onclick="hideModal('modal-handoff')">Fechar</button>
+        </div>
+        <form class="form" id="form-handoff">
+          <input type="hidden" id="handoff-id">
+          <div class="form__grid">
+            <div class="form__grupo">
+              <label class="form__label" for="handoff-origem">Origem *</label>
+              <input class="form__input" type="text" id="handoff-origem" required>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="handoff-destino">Destino *</label>
+              <input class="form__input" type="text" id="handoff-destino" required>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="handoff-tarefa-id">Tarefa ID</label>
+              <input class="form__input" type="text" id="handoff-tarefa-id">
+            </div>
+            <div class="form__grupo form__grupo_full">
+              <label class="form__label" for="handoff-resumo">Resumo *</label>
+              <textarea class="form__textarea" id="handoff-resumo" rows="2" required></textarea>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="handoff-estado">Estado</label>
+              <select class="form__input" id="handoff-estado">
+                <option value="PENDENTE">Pendente</option>
+                <option value="ACEITO">Aceito</option>
+                <option value="CONCLUIDO">Concluído</option>
+                <option value="RECUSADO">Recusado</option>
+              </select>
+            </div>
+            <div class="form__grupo form__grupo_full">
+              <label class="form__label" for="handoff-observacoes">Observações</label>
+              <textarea class="form__textarea" id="handoff-observacoes" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="form__acoes">
+            <button class="btn btn--primario" type="submit">Salvar</button>
+            <button class="btn btn--ghost" type="button" onclick="hideModal('modal-handoff')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Modal: Validação -->
     <div class="modal modal--grande" id="modal-validacao" style="display:none;">

@@ -307,6 +307,39 @@ a:focus-visible {
   flex-shrink: 0;
 }
 
+.modal--grande {
+  align-items: flex-start;
+  padding-top: 24px;
+}
+
+.painel-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.painel-filtros {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: var(--surface-alt);
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+}
+
+.form__input--sm {
+  max-width: 200px;
+}
+
+.form__input--md {
+  max-width: 160px;
+}
+
 .form__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

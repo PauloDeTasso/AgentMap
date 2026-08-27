@@ -74,8 +74,51 @@ function isProjetoAgentMap(caminhoRaiz) {
   return proj === gerenciador || proj.startsWith(gerenciador + '/');
 }
 
-function showModal(id) { $(id).style.display = 'flex'; }
-function hideModal(id) { $(id).style.display = 'none'; }
+let lastFocusedElement = null;
+const modalFocusHandlers = new Map();
+
+function showModal(id) {
+  lastFocusedElement = document.activeElement;
+  const modal = $(id);
+  modal.style.display = 'flex';
+  trapFocus(modal);
+}
+
+function hideModal(id) {
+  const modal = $(id);
+  modal.style.display = 'none';
+  if (lastFocusedElement) {
+    lastFocusedElement.focus();
+    lastFocusedElement = null;
+  }
+}
+
+function trapFocus(modal) {
+  const existingHandler = modalFocusHandlers.get(modal);
+  if (existingHandler) {
+    modal.removeEventListener('keydown', existingHandler);
+  }
+  const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  function handler(e) {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+  modal.addEventListener('keydown', handler);
+  modalFocusHandlers.set(modal, handler);
+}
 
 function agenteNomePorId(id) {
   if (!id) return '-';
@@ -1220,16 +1263,16 @@ async function renderizarSolicitacoes(el) {
       });
     }
 
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+    el.innerHTML = `<div class="painel-cabecalho">
       <h3 style="margin:0;">Solicitações de Alteração (${solicitacoes.length} de ${todas.length})</h3>
       <div>
         <button class="btn btn--small btn--primario" onclick="abrirModalSolicitacao()">+ Nova Solicitação</button>
         ${todas.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosSolicitacoes()">Excluir Todos</button>` : ''}
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;padding:8px;background:#1a1a2e;border-radius:6px;">
-      <input class="form__input" type="text" id="filtro-agente-id" placeholder="ID do agente (ex: AGENTE-01)" style="max-width:200px;" value="${escapeAttr(estado.filtroAgenteSolicitacoes?.agenteId || '')}" />
-      <select class="form__input" id="filtro-agente-tipo" style="max-width:160px;">
+    <div class="painel-filtros">
+      <input class="form__input form__input--sm" type="text" id="filtro-agente-id" placeholder="ID do agente (ex: AGENTE-01)" value="${escapeAttr(estado.filtroAgenteSolicitacoes?.agenteId || '')}" />
+      <select class="form__input form__input--md" id="filtro-agente-tipo">
         <option value="todos" ${!estado.filtroAgenteSolicitacoes?.tipo || estado.filtroAgenteSolicitacoes?.tipo === 'todos' ? 'selected' : ''}>Todas</option>
         <option value="solicitante" ${estado.filtroAgenteSolicitacoes?.tipo === 'solicitante' ? 'selected' : ''}>Sou o Solicitante</option>
         <option value="responsavel" ${estado.filtroAgenteSolicitacoes?.tipo === 'responsavel' ? 'selected' : ''}>Sou o Responsável</option>
@@ -1484,10 +1527,10 @@ async function renderizarResultados(el) {
     const res = await api.getResultados();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    el.innerHTML = `<div class="painel-cabecalho">
       <h3 style="margin:0;">✅ Resultados (${items.length})</h3>
       <div>
-        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-resultado')">+ Novo Resultado</button>
+        <button class="btn btn--small btn--primario" onclick="abrirModalResultado()">+ Novo Resultado</button>
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosResultados()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
@@ -1518,7 +1561,7 @@ async function renderizarArtefatos(el) {
     const res = await api.getArtefatos();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    el.innerHTML = `<div class="painel-cabecalho">
       <h3 style="margin:0;">📦 Artefatos (${items.length})</h3>
       <div>
         <button class="btn btn--small btn--primario" onclick="abrirModalArtefato()">+ Novo Artefato</button>
@@ -1551,10 +1594,10 @@ async function renderizarHandoffs(el) {
     const res = await api.getHandoffs();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    el.innerHTML = `<div class="painel-cabecalho">
       <h3 style="margin:0;">🤝 Transferências (${items.length})</h3>
       <div>
-        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-handoff')">+ Nova Transferência</button>
+        <button class="btn btn--small btn--primario" onclick="abrirModalHandoff()">+ Nova Transferência</button>
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosHandoffs()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
@@ -1584,7 +1627,7 @@ async function renderizarValidacoes(el) {
     const res = await api.getValidacoes();
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const items = res.dados || [];
-    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    el.innerHTML = `<div class="painel-cabecalho">
       <h3 style="margin:0;">🔒 Validações (${items.length})</h3>
       <div><button class="btn btn--small btn--primario" onclick="abrirModalValidacao()">+ Nova Validação</button>${items.length > 0 ? '<button class="btn btn--small btn--danger" onclick="excluirTodosValidacoes()">Excluir Todos</button>' : ''}</div>
     </div>`;
@@ -2243,19 +2286,28 @@ window.verResultado = async function(id) {
   }
 };
 
+window.abrirModalResultado = function(resultado = null) {
+  $('form-resultado').reset();
+  $('resultado-id').value = '';
+  if (resultado) {
+    $('resultado-id').value = resultado.id;
+    $('resultado-tarefa-id').value = resultado.tarefaId || '';
+    $('resultado-agente-id').value = resultado.agenteId || '';
+    $('resultado-resumo').value = resultado.resumo || '';
+    $('resultado-estado').value = resultado.estado || 'COMPLETO';
+    $('resultado-observacoes').value = resultado.observacoes || '';
+    $('titulo-resultado').textContent = `Editar: ${escapeHtml(resultado.id)}`;
+  } else {
+    $('titulo-resultado').textContent = 'Novo Resultado';
+  }
+  showModal('modal-resultado');
+};
+
 window.editarResultado = async function(id) {
   try {
     const res = await api.getResultado(id);
     if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    const r = res.dados;
-    $('resultado-id').value = r.id;
-    $('resultado-tarefa-id').value = r.tarefaId || '';
-    $('resultado-agente-id').value = r.agenteId || '';
-    $('resultado-resumo').value = r.resumo || '';
-    $('resultado-estado').value = r.estado || 'COMPLETO';
-    $('resultado-observacoes').value = r.observacoes || '';
-    $('titulo-resultado').textContent = `Editar: ${escapeHtml(r.id)}`;
-    showModal('modal-resultado');
+    abrirModalResultado(res.dados);
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
   }
@@ -4009,20 +4061,29 @@ window.verHandoff = async function(id) {
   }
 };
 
+window.abrirModalHandoff = function(handoff = null) {
+  $('form-handoff').reset();
+  $('handoff-id').value = '';
+  if (handoff) {
+    $('handoff-id').value = handoff.id;
+    $('handoff-origem').value = handoff.origem || '';
+    $('handoff-destino').value = handoff.destino || '';
+    $('handoff-tarefa-id').value = handoff.tarefaId || '';
+    $('handoff-resumo').value = handoff.resumo || '';
+    $('handoff-estado').value = handoff.estado || 'PENDENTE';
+    $('handoff-observacoes').value = handoff.observacoes || '';
+    $('titulo-handoff').textContent = `Editar: ${escapeHtml(handoff.id)}`;
+  } else {
+    $('titulo-handoff').textContent = 'Nova Transferência';
+  }
+  showModal('modal-handoff');
+};
+
 window.editarHandoff = async function(id) {
   try {
     const res = await api.getHandoff(id);
     if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    const h = res.dados;
-    $('handoff-id').value = h.id;
-    $('handoff-origem').value = h.origem || '';
-    $('handoff-destino').value = h.destino || '';
-    $('handoff-tarefa-id').value = h.tarefaId || '';
-    $('handoff-resumo').value = h.resumo || '';
-    $('handoff-estado').value = h.estado || 'PENDENTE';
-    $('handoff-observacoes').value = h.observacoes || '';
-    $('titulo-handoff').textContent = `Editar: ${escapeHtml(h.id)}`;
-    showModal('modal-handoff');
+    abrirModalHandoff(res.dados);
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
   }
