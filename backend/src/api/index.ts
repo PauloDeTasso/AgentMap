@@ -42,6 +42,8 @@ import { GERENCIADOR_DIR } from '../config';
 
 type GetMonitoramentoAtual = (projetoId?: string) => Promise<any> | any;
 
+import { criarEstadoRouter } from './estado';
+
 export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual: GetMonitoramentoAtual): Router {
   const router = Router();
 
@@ -66,6 +68,8 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
       path.win32.join('.ia', 'estado', 'estado-atual.json')
     ));
   }));
+
+  router.use('/api/estado', criarEstadoRouter());
 
   router.get('/api/auditoria', asyncHandler(async (req: Request, res: Response) => {
     return responder(res, { sucesso: true, dados: req.servicos!.auditoria.listar(200) });

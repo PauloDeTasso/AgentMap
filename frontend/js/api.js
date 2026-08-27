@@ -301,6 +301,40 @@ class ApiClient {
     return this.request('/estado');
   }
 
+  async getEstadoNotas() {
+    return this.request('/estado/notas');
+  }
+
+  async getEstadoNota(id) {
+    return this.request(`/estado/notas/${encodeURIComponent(id)}`);
+  }
+
+  async criarEstadoNota(dados) {
+    return this.request('/estado/notas', {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async atualizarEstadoNota(id, dados) {
+    return this.request(`/estado/notas/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async excluirEstadoNota(id) {
+    return this.request(`/estado/notas/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async excluirTodasEstadoNotas() {
+    return this.request('/estado/notas', {
+      method: 'DELETE'
+    });
+  }
+
   async getAuditoria() {
     return this.request('/auditoria');
   }
