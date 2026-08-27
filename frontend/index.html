@@ -1113,12 +1113,19 @@
      </div>
    </div>
 
-<div class="modal" id="modal-responsabilidade" style="display:none;">
-     <div class="modal__conteudo">
+<div class="modal modal--grande" id="modal-responsabilidade" style="display:none;">
+     <div class="modal__conteudo modal__conteudo--cheio">
        <button class="modal__fechar" onclick="hideModal('modal-responsabilidade')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-responsabilidade">Nova Responsabilidade</h3>
+       <div class="modal__cabecalho">
+         <h3 class="modal__titulo" id="titulo-responsabilidade">Nova Responsabilidade</h3>
+         <button class="btn btn--small btn--ghost" onclick="hideModal('modal-responsabilidade')">Fechar</button>
+       </div>
        <form class="form" id="form-responsabilidade">
          <input type="hidden" id="responsabilidade-id">
+         <div class="form__grupo">
+           <label class="form__label" for="responsabilidade-id-input">ID *</label>
+           <input class="form__input" type="text" id="responsabilidade-id-input" required>
+         </div>
          <div class="form__grupo">
            <label class="form__label" for="responsabilidade-agente-id">Agente ID *</label>
            <input class="form__input" type="text" id="responsabilidade-agente-id" required>
@@ -1148,12 +1155,19 @@
      </div>
    </div>
 
-<div class="modal" id="modal-bloqueio" style="display:none;">
-     <div class="modal__conteudo">
+<div class="modal modal--grande" id="modal-bloqueio" style="display:none;">
+     <div class="modal__conteudo modal__conteudo--cheio">
        <button class="modal__fechar" onclick="hideModal('modal-bloqueio')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-bloqueio">Novo Bloqueio</h3>
+       <div class="modal__cabecalho">
+         <h3 class="modal__titulo" id="titulo-bloqueio">Novo Bloqueio</h3>
+         <button class="btn btn--small btn--ghost" onclick="hideModal('modal-bloqueio')">Fechar</button>
+       </div>
        <form class="form" id="form-bloqueio">
          <input type="hidden" id="bloqueio-id">
+         <div class="form__grupo">
+           <label class="form__label" for="bloqueio-id-input">ID *</label>
+           <input class="form__input" type="text" id="bloqueio-id-input" required>
+         </div>
          <div class="form__grupo">
            <label class="form__label" for="bloqueio-tarefa-id">Tarefa ID *</label>
            <input class="form__input" type="text" id="bloqueio-tarefa-id" required>
@@ -1206,12 +1220,19 @@
      </div>
    </div>
 
-<div class="modal" id="modal-sessao" style="display:none;">
-    <div class="modal__conteudo">
-      <button class="modal__fechar" onclick="hideModal('modal-sessao')">&times;</button>
-      <h3 class="modal__titulo" id="titulo-sessao">Nova Sessao</h3>
-      <form class="form" id="form-sessao">
-        <input type="hidden" id="sessao-id">
+<div class="modal modal--grande" id="modal-sessao" style="display:none;">
+     <div class="modal__conteudo modal__conteudo--cheio">
+       <button class="modal__fechar" onclick="hideModal('modal-sessao')">&times;</button>
+       <div class="modal__cabecalho">
+         <h3 class="modal__titulo" id="titulo-sessao">Nova Sessao</h3>
+         <button class="btn btn--small btn--ghost" onclick="hideModal('modal-sessao')">Fechar</button>
+       </div>
+       <form class="form" id="form-sessao">
+         <input type="hidden" id="sessao-id">
+         <div class="form__grupo">
+           <label class="form__label" for="sessao-id-input">ID *</label>
+           <input class="form__input" type="text" id="sessao-id-input" required>
+         </div>
         <div class="form__grupo">
           <label class="form__label" for="sessao-agente-id">Agente ID *</label>
           <input class="form__input" type="text" id="sessao-agente-id" required>

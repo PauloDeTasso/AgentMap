@@ -4651,14 +4651,18 @@ window.verDependencia = async function(id) {
 window.abrirModalResponsabilidade = function(responsabilidade = null) {
   $('form-responsabilidade').reset();
   $('responsabilidade-id').value = '';
+  $('responsabilidade-id-input').disabled = false;
   if (responsabilidade) {
     $('responsabilidade-id').value = responsabilidade.id;
+    $('responsabilidade-id-input').value = responsabilidade.id;
+    $('responsabilidade-id-input').disabled = true;
     $('responsabilidade-agente-id').value = responsabilidade.agenteId || '';
     $('responsabilidade-alvo-id').value = responsabilidade.alvoId || '';
     $('responsabilidade-alvo-tipo').value = responsabilidade.alvoTipo || '';
     $('responsabilidade-nivel').value = responsabilidade.nivel || 'RESPONSAVEL';
     $('titulo-responsabilidade').textContent = `Editar: ${escapeHtml(responsabilidade.id)}`;
   } else {
+    $('responsabilidade-id-input').value = '';
     $('titulo-responsabilidade').textContent = 'Nova Responsabilidade';
   }
   showModal('modal-responsabilidade');
@@ -4731,8 +4735,11 @@ window.verResponsabilidade = async function(id) {
 window.abrirModalBloqueio = function(bloqueio = null) {
   $('form-bloqueio').reset();
   $('bloqueio-id').value = '';
+  $('bloqueio-id-input').disabled = false;
   if (bloqueio) {
     $('bloqueio-id').value = bloqueio.id;
+    $('bloqueio-id-input').value = bloqueio.id;
+    $('bloqueio-id-input').disabled = true;
     $('bloqueio-tarefa-id').value = bloqueio.tarefaId || '';
     $('bloqueio-tipo').value = bloqueio.tipo || 'CONTRATO';
     $('bloqueio-gravidade').value = bloqueio.gravidade || 'MEDIA';
@@ -4742,10 +4749,46 @@ window.abrirModalBloqueio = function(bloqueio = null) {
     $('bloqueio-estado').value = bloqueio.estado || 'ATIVO';
     $('titulo-bloqueio').textContent = `Editar: ${escapeHtml(bloqueio.id)}`;
   } else {
+    $('bloqueio-id-input').value = '';
     $('titulo-bloqueio').textContent = 'Novo Bloqueio';
   }
   showModal('modal-bloqueio');
 };
+
+$('form-bloqueio').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-bloqueio').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('bloqueio-id').value;
+  const dados = {
+    tarefaId: $('bloqueio-tarefa-id').value.trim(),
+    tipo: $('bloqueio-tipo').value,
+    gravidade: $('bloqueio-gravidade').value,
+    descricao: $('bloqueio-descricao').value.trim(),
+    origem: $('bloqueio-origem').value.trim(),
+    responsavelResolucao: $('bloqueio-responsavel').value.trim(),
+    estado: $('bloqueio-estado').value
+  };
+  if (!dados.tarefaId || !dados.descricao || !dados.origem || !dados.responsavelResolucao) {
+    showToast('Campos obrigatórios não preenchidos', 'erro');
+    restoreButton(btn);
+    return;
+  }
+  try {
+    const res = id ? await api.atualizarBloqueio(id, dados) : await api.criarBloqueio(dados);
+    if (res.sucesso) {
+      showToast('Bloqueio salvo!', 'sucesso');
+      hideModal('modal-bloqueio');
+      carregarPainel('bloqueios');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar bloqueio', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
 
 window.editarBloqueio = async function(id) {
   try {
@@ -4836,23 +4879,65 @@ window.resolverBloqueio = async function(id) {
 
 
 window.abrirModalSessao = function(sessao = null) {
-  const titulo = $('titulo-sessao');
+  $('form-sessao').reset();
+  $('sessao-id').value = '';
+  $('sessao-id-input').disabled = false;
   if (sessao) {
-    titulo.textContent = 'Editar Sessao';
     $('sessao-id').value = sessao.id;
+    $('sessao-id-input').value = sessao.id;
+    $('sessao-id-input').disabled = true;
     $('sessao-agente-id').value = sessao.agenteId || '';
     $('sessao-tarefa-id').value = sessao.tarefaId || '';
     $('sessao-projeto-id').value = sessao.projetoId || '';
     $('sessao-estado-final').value = sessao.estadoFinal || 'ATIVA';
     $('sessao-contexto').value = sessao.contextoConsultado ? JSON.stringify(sessao.contextoConsultado, null, 2) : '';
     $('sessao-registros').value = (sessao.registrosProduzidos || []).join('\n');
+    $('titulo-sessao').textContent = `Editar: ${escapeHtml(sessao.id)}`;
   } else {
-    titulo.textContent = 'Nova Sessao';
-    $('sessao-id').value = '';
-    $('form-sessao').reset();
+    $('sessao-id-input').value = '';
+    $('titulo-sessao').textContent = 'Nova Sessao';
   }
   showModal('modal-sessao');
 };
+
+$('form-sessao').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-sessao').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('sessao-id').value;
+  const dados = {
+    agenteId: $('sessao-agente-id').value.trim(),
+    tarefaId: $('sessao-tarefa-id').value.trim() || null,
+    projetoId: $('sessao-projeto-id').value.trim(),
+    estadoFinal: $('sessao-estado-final').value,
+    contextoConsultado: (() => {
+      try {
+        const raw = $('sessao-contexto').value.trim();
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    })(),
+    registrosProduzidos: ($('sessao-registros').value || '').split('\n').map(s => s.trim()).filter(Boolean)
+  };
+  if (!dados.agenteId || !dados.projetoId) {
+    showToast('Agente ID e Projeto ID são obrigatórios', 'erro');
+    restoreButton(btn);
+    return;
+  }
+  try {
+    const res = id ? await api.atualizarSessao(id, dados) : await api.criarSessao(dados);
+    if (res.sucesso) {
+      showToast('Sessão salva!', 'sucesso');
+      hideModal('modal-sessao');
+      carregarPainel('sessoes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar sessão', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
 
 window.editarSessao = async function(id) {
   try {
@@ -4966,65 +5051,6 @@ window.excluirTodosResponsabilidades = async function() {
     }
   } catch (err) {
     showToast(err?.message || 'Erro ao excluir responsabilidades', 'erro');
-  }
-};
-
-window.abrirModalBloqueio = function(bloqueio = null) {
-  $('form-bloqueio').reset();
-  $('bloqueio-id').value = '';
-  if (bloqueio) {
-    $('bloqueio-id').value = bloqueio.id;
-    $('bloqueio-tarefa-id').value = bloqueio.tarefaId || '';
-    $('bloqueio-tipo').value = bloqueio.tipo || 'CONTRATO';
-    $('bloqueio-gravidade').value = bloqueio.gravidade || 'MEDIA';
-    $('bloqueio-descricao').value = bloqueio.descricao || '';
-    $('bloqueio-origem').value = bloqueio.origem || '';
-    $('bloqueio-responsavel').value = bloqueio.responsavelResolucao || '';
-    $('bloqueio-estado').value = bloqueio.estado || 'ATIVO';
-    $('titulo-bloqueio').textContent = `Editar: ${escapeHtml(bloqueio.id)}`;
-  } else {
-    $('titulo-bloqueio').textContent = 'Novo Bloqueio';
-  }
-  showModal('modal-bloqueio');
-};
-
-window.editarBloqueio = async function(id) {
-  try {
-    const res = await api.getBloqueio(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    abrirModalBloqueio(res.dados);
-  } catch (err) {
-    showToast(err?.message || 'Erro', 'erro');
-  }
-};
-
-window.excluirBloqueio = async function(id) {
-  if (!confirm(`Excluir bloqueio "${id}"? Esta ação não pode ser revertida.`)) return;
-  try {
-    const res = await api.excluirBloqueio(id);
-    if (res.sucesso) {
-      showToast('Bloqueio excluído!', 'sucesso');
-      carregarPainel('bloqueios');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao excluir bloqueio', 'erro');
-  }
-};
-
-window.excluirTodosBloqueios = async function() {
-  if (!confirm('Excluir TODOS os bloqueios? Esta ação não pode ser revertida.')) return;
-  try {
-    const res = await api.excluirTodosBloqueios();
-    if (res.sucesso) {
-      showToast('Todos os bloqueios foram excluídos!', 'sucesso');
-      carregarPainel('bloqueios');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.erro || 'Erro ao excluir bloqueios', 'erro');
   }
 };
 
@@ -5345,46 +5371,6 @@ window.excluirContrato = async function(id) {
   });
 
 $('btn-cancelar-tarefa')?.addEventListener('click', () => hideModal('modal-tarefa'));
-
-window.editarSessao = async function(id) {
-  try {
-    const res = await api.getSessao(id);
-    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
-    abrirModalSessao(res.dados);
-  } catch (err) {
-    showToast(err?.message || err, 'erro');
-  }
-};
-
-window.excluirSessao = async function(id) {
-  if (!confirm('Excluir sessao ' + id + '?')) return;
-  try {
-    const res = await api.excluirSessao(id);
-    if (res.sucesso) {
-      showToast('Sessao excluida.', 'sucesso');
-      await carregarPainel('sessoes');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.message || err, 'erro');
-  }
-};
-
-window.excluirTodasSessoes = async function() {
-  if (!confirm('Excluir TODAS as sessoes? Esta ação não pode ser revertida.')) return;
-  try {
-    const res = await api.excluirTodasSessoes();
-    if (res.sucesso) {
-      showToast('Todas as sessoes foram excluídas.', 'sucesso');
-      await carregarPainel('sessoes');
-    } else {
-      showToast(res.erro, 'erro');
-    }
-  } catch (err) {
-    showToast(err?.message || err, 'erro');
-  }
-};
 
 window.finalizarSessao = async function(id) {
   try {
