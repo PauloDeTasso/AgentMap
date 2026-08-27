@@ -58,6 +58,7 @@ System Volume Information/
 # ==========================================
 
 node_modules/
+dev/
 
 npm-debug.log*
 yarn-debug.log*
