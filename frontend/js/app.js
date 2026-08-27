@@ -1097,61 +1097,61 @@ window.excluirTodosHandoffs = async function() {
 
 window.abrirModalEstadoNota = function(nota = null) {
   const isEdit = nota !== null;
-  let html = `<div id="modal-estado-nota" class="modal-overlay active">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">${isEdit ? 'Editar Nota de Estado' : 'Nova Nota de Estado'}</h3>
-        <button class="modal-close" onclick="fecharModalEstadoNota()">&times;</button>
+  let html = `<div id="modal-estado-nota" class="modal" style="display:none;">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="fecharModalEstadoNota()">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo">${isEdit ? 'Editar Nota de Estado' : 'Nova Nota de Estado'}</h3>
       </div>
-      <div class="modal-body">
-        <form id="form-estado-nota">
-          <div class="form-group">
-            <label class="form-label">Título <span class="required">*</span></label>
-            <input type="text" id="estado-nota-titulo" class="form-input" value="${isEdit ? escapeAttr(nota.titulo) : ''}" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Conteúdo <span class="required">*</span></label>
-            <textarea id="estado-nota-conteudo" class="form-textarea" rows="5" required>${isEdit ? escapeHtml(nota.conteudo) : ''}</textarea>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="form-group">
-              <label class="form-label">Categoria</label>
-              <select id="estado-nota-categoria" class="form-select">
-                <option value="GERAL" ${isEdit && nota.categoria === 'GERAL' ? 'selected' : ''}>Geral</option>
-                <option value="PROBLEMA" ${isEdit && nota.categoria === 'PROBLEMA' ? 'selected' : ''}>Problema</option>
-                <option value="DECISAO" ${isEdit && nota.categoria === 'DECISAO' ? 'selected' : ''}>Decisão</option>
-                <option value="OBSERVACAO" ${isEdit && nota.categoria === 'OBSERVACAO' ? 'selected' : ''}>Observação</option>
-                <option value="RISCO" ${isEdit && nota.categoria === 'RISCO' ? 'selected' : ''}>Risco</option>
-                <option value="MELHORIA" ${isEdit && nota.categoria === 'MELHORIA' ? 'selected' : ''}>Melhoria</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Prioridade</label>
-              <select id="estado-nota-prioridade" class="form-select">
-                <option value="BAIXA" ${isEdit && nota.prioridade === 'BAIXA' ? 'selected' : ''}>Baixa</option>
-                <option value="MEDIA" ${!isEdit || nota.prioridade === 'MEDIA' ? 'selected' : ''}>Média</option>
-                <option value="ALTA" ${isEdit && nota.prioridade === 'ALTA' ? 'selected' : ''}>Alta</option>
-                <option value="CRITICA" ${isEdit && nota.prioridade === 'CRITICA' ? 'selected' : ''}>Crítica</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Estado</label>
-            <select id="estado-nota-estado" class="form-select">
-              <option value="ATIVO" ${!isEdit || nota.estado === 'ATIVO' ? 'selected' : ''}>Ativo</option>
-              <option value="ARQUIVADO" ${isEdit && nota.estado === 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
-              <option value="RESOLVIDO" ${isEdit && nota.estado === 'RESOLVIDO' ? 'selected' : ''}>Resolvido</option>
+      <form id="form-estado-nota" class="form">
+        <div class="form__grupo">
+          <label class="form__label">Título <span class="required">*</span></label>
+          <input type="text" id="estado-nota-titulo" class="form__input" value="${isEdit ? escapeAttr(nota.titulo) : ''}" required>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label">Conteúdo <span class="required">*</span></label>
+          <textarea id="estado-nota-conteudo" class="form__textarea" rows="5" required>${isEdit ? escapeHtml(nota.conteudo) : ''}</textarea>
+        </div>
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label">Categoria</label>
+            <select id="estado-nota-categoria" class="form__input">
+              <option value="GERAL" ${isEdit && nota.categoria === 'GERAL' ? 'selected' : ''}>Geral</option>
+              <option value="PROBLEMA" ${isEdit && nota.categoria === 'PROBLEMA' ? 'selected' : ''}>Problema</option>
+              <option value="DECISAO" ${isEdit && nota.categoria === 'DECISAO' ? 'selected' : ''}>Decisão</option>
+              <option value="OBSERVACAO" ${isEdit && nota.categoria === 'OBSERVACAO' ? 'selected' : ''}>Observação</option>
+              <option value="RISCO" ${isEdit && nota.categoria === 'RISCO' ? 'selected' : ''}>Risco</option>
+              <option value="MELHORIA" ${isEdit && nota.categoria === 'MELHORIA' ? 'selected' : ''}>Melhoria</option>
             </select>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="fecharModalEstadoNota()">Cancelar</button>
-        <button class="btn btn-primary" onclick="salvarEstadoNota(${isEdit ? "'" + nota.id + "'" : 'null'})">${isEdit ? 'Atualizar' : 'Criar'}</button>
+          <div class="form__grupo">
+            <label class="form__label">Prioridade</label>
+            <select id="estado-nota-prioridade" class="form__input">
+              <option value="BAIXA" ${isEdit && nota.prioridade === 'BAIXA' ? 'selected' : ''}>Baixa</option>
+              <option value="MEDIA" ${!isEdit || nota.prioridade === 'MEDIA' ? 'selected' : ''}>Média</option>
+              <option value="ALTA" ${isEdit && nota.prioridade === 'ALTA' ? 'selected' : ''}>Alta</option>
+              <option value="CRITICA" ${isEdit && nota.prioridade === 'CRITICA' ? 'selected' : ''}>Crítica</option>
+            </select>
+          </div>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label">Estado</label>
+          <select id="estado-nota-estado" class="form__input">
+            <option value="ATIVO" ${!isEdit || nota.estado === 'ATIVO' ? 'selected' : ''}>Ativo</option>
+            <option value="ARQUIVADO" ${isEdit && nota.estado === 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
+            <option value="RESOLVIDO" ${isEdit && nota.estado === 'RESOLVIDO' ? 'selected' : ''}>Resolvido</option>
+          </select>
+        </div>
+      </form>
+      <div class="form__acoes">
+        <button class="btn btn--ghost" onclick="fecharModalEstadoNota()">Cancelar</button>
+        <button class="btn btn--primario" onclick="salvarEstadoNota(${isEdit ? "'" + nota.id + "'" : 'null'})">${isEdit ? 'Atualizar' : 'Criar'}</button>
       </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
+  const modal = document.getElementById('modal-estado-nota');
+  if (modal) modal.style.display = 'flex';
 };
 
 window.fecharModalEstadoNota = function() {
@@ -1207,11 +1207,11 @@ window.verEstadoNota = async function(id) {
     const n = res.dados;
     const dataCriacao = n.datas?.criacao ? formatDate(n.datas.criacao) : '-';
     const dataAtualizacao = n.datas?.ultimaAtualizacao ? formatDate(n.datas.ultimaAtualizacao) : '-';
-    let html = `<div id="modal-ver-estado-nota" class="modal-overlay active">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 class="modal-title">${escapeHtml(n.titulo)}</h3>
-          <button class="modal-close" onclick="document.getElementById('modal-ver-estado-nota').remove()">&times;</button>
+    let html = `<div id="modal-ver-estado-nota" class="modal" style="display:none;">
+      <div class="modal__conteudo">
+        <button class="modal__fechar" onclick="document.getElementById('modal-ver-estado-nota').remove()">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo">${escapeHtml(n.titulo)}</h3>
         </div>
         <div class="modal-body">
           <p><strong>ID:</strong> ${escapeHtml(n.id)}</p>
@@ -1224,13 +1224,15 @@ window.verEstadoNota = async function(id) {
           <p><strong>Conteúdo:</strong></p>
           <div style="background:#1a1a2e;padding:12px;border-radius:6px;white-space:pre-wrap;">${escapeHtml(n.conteudo)}</div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-ghost" onclick="document.getElementById('modal-ver-estado-nota').remove()">Fechar</button>
-          <button class="btn btn-primary" onclick="document.getElementById('modal-ver-estado-nota').remove();editarEstadoNota('${escapeAttr(n.id)}')">Editar</button>
+        <div class="form__acoes">
+          <button class="btn btn--ghost" onclick="document.getElementById('modal-ver-estado-nota').remove()">Fechar</button>
+          <button class="btn btn--primario" onclick="document.getElementById('modal-ver-estado-nota').remove();editarEstadoNota('${escapeAttr(n.id)}')">Editar</button>
         </div>
       </div>
     </div>`;
     document.body.insertAdjacentHTML('beforeend', html);
+    const modal = document.getElementById('modal-ver-estado-nota');
+    if (modal) modal.style.display = 'flex';
   } catch (err) {
     showToast(err?.message || 'Erro ao carregar nota.', 'erro');
   }
