@@ -896,12 +896,15 @@
      </div>
    </div>
 
-   <!-- Modal: Reserva -->
-   <div class="modal" id="modal-reserva" style="display:none;">
-     <div class="modal__conteudo">
-       <button class="modal__fechar" onclick="hideModal('modal-reserva')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-reserva">Nova Reserva</h3>
-       <form class="form" id="form-reserva">
+    <!-- Modal: Reserva -->
+    <div class="modal" id="modal-reserva" style="display:none;">
+      <div class="modal__conteudo">
+        <button class="modal__fechar" onclick="hideModal('modal-reserva')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo" id="titulo-reserva">Nova Reserva</h3>
+          <button class="btn btn--small btn--ghost" onclick="hideModal('modal-reserva')">Fechar</button>
+        </div>
+        <form class="form" id="form-reserva">
          <input type="hidden" id="reserva-id">
          <div class="form__grupo">
            <label class="form__label" for="reserva-alvo">Alvo</label>
@@ -939,12 +942,15 @@
      </div>
    </div>
 
-   <!-- Modal: Decisão -->
-   <div class="modal" id="modal-decisao" style="display:none;">
-     <div class="modal__conteudo">
-       <button class="modal__fechar" onclick="hideModal('modal-decisao')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-decisao">Nova Decisão</h3>
-       <form class="form" id="form-decisao">
+    <!-- Modal: Decisão -->
+    <div class="modal" id="modal-decisao" style="display:none;">
+      <div class="modal__conteudo">
+        <button class="modal__fechar" onclick="hideModal('modal-decisao')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo" id="titulo-decisao">Nova Decisão</h3>
+          <button class="btn btn--small btn--ghost" onclick="hideModal('modal-decisao')">Fechar</button>
+        </div>
+        <form class="form" id="form-decisao">
          <input type="hidden" id="decisao-id">
          <div class="form__grupo">
            <label class="form__label" for="decisao-titulo">Título</label>
@@ -1066,11 +1072,15 @@
 
 
 
-<div class="modal" id="modal-dependencia" style="display:none;">
-     <div class="modal__conteudo">
-       <button class="modal__fechar" onclick="hideModal('modal-dependencia')">&times;</button>
-       <h3 class="modal__titulo" id="titulo-dependencia">Nova Dependência</h3>
-       <form class="form" id="form-dependencia">
+    <!-- Modal: Dependência -->
+    <div class="modal" id="modal-dependencia" style="display:none;">
+      <div class="modal__conteudo">
+        <button class="modal__fechar" onclick="hideModal('modal-dependencia')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo" id="titulo-dependencia">Nova Dependência</h3>
+          <button class="btn btn--small btn--ghost" onclick="hideModal('modal-dependencia')">Fechar</button>
+        </div>
+        <form class="form" id="form-dependencia">
          <input type="hidden" id="dependencia-id">
          <div class="form__grupo">
            <label class="form__label" for="dependencia-fonte-id">Fonte ID *</label>

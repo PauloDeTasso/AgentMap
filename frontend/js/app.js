@@ -1677,7 +1677,7 @@ async function renderizarReservas(el) {
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🔒 Reservas (${items.length})</h3>
       <div>
-        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-reserva')">+ Nova Reserva</button>
+        <button class="btn btn--small btn--primario" onclick="abrirModalReserva()">+ Nova Reserva</button>
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosReservas()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
@@ -1712,7 +1712,7 @@ async function renderizarDecisoes(el) {
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">💭 Decisões (${items.length})</h3>
       <div>
-        <button class="btn btn--small btn--primario" onclick="abrirModal('modal-decisao')">+ Nova Decisão</button>
+        <button class="btn btn--small btn--primario" onclick="abrirModalDecisao()">+ Nova Decisão</button>
         ${items.length > 0 ? `<button class="btn btn--small btn--danger" onclick="excluirTodosDecisoes()">Excluir Todos</button>` : ''}
       </div>
     </div>`;
@@ -2312,6 +2312,23 @@ window.verReserva = async function(id) {
   }
 };
 
+window.abrirModalReserva = function(reserva = null) {
+  if (reserva) {
+    $('reserva-id').value = reserva.id;
+    $('reserva-alvo').value = reserva.alvo || '';
+    $('reserva-tipo-alvo').value = reserva.tipoAlvo || 'ARQUIVO';
+    $('reserva-agente-id').value = reserva.agenteId || '';
+    $('reserva-estado').value = reserva.estado || 'ATIVA';
+    $('reserva-observacoes').value = reserva.observacoes || '';
+    $('titulo-reserva').textContent = `Editar: ${escapeHtml(reserva.id)}`;
+  } else {
+    $('form-reserva').reset();
+    $('reserva-id').value = '';
+    $('titulo-reserva').textContent = 'Nova Reserva';
+  }
+  showModal('modal-reserva');
+};
+
 window.editarReserva = async function(id) {
   try {
     const res = await api.getReserva(id);
@@ -2378,6 +2395,25 @@ window.verDecisao = async function(id) {
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
   }
+};
+
+window.abrirModalDecisao = function(decisao = null) {
+  if (decisao) {
+    $('decisao-id').value = decisao.id;
+    $('decisao-titulo').value = decisao.titulo || '';
+    $('decisao-estado').value = decisao.estado || 'ATIVA';
+    $('decisao-data').value = decisao.data || '';
+    $('decisao-problema').value = decisao.problema || '';
+    $('decisao-contexto').value = decisao.contexto || '';
+    $('decisao-decisao').value = decisao.decisao || '';
+    $('decisao-justificativa').value = decisao.justificativa || '';
+    $('titulo-decisao').textContent = `Editar: ${escapeHtml(decisao.id)}`;
+  } else {
+    $('form-decisao').reset();
+    $('decisao-id').value = '';
+    $('titulo-decisao').textContent = 'Nova Decisão';
+  }
+  showModal('modal-decisao');
 };
 
 window.editarDecisao = async function(id) {
