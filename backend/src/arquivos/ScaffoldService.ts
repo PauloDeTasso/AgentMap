@@ -31,6 +31,12 @@ import {
 } from './templates/governanca';
 import { ResultadoOperacao } from '../tipos';
 import { FileService } from './FileService';
+import { GERENCIADOR_DIR } from '../config';
+import {
+  AGENTES_MD,
+  KILO_AGENTMAP_JSON,
+  AGENTMAP_WAKEUP_PLUGIN_TS
+} from './templates/projeto-kilo';
 
 const AGENTE_ARQUIVOS_MD: Record<string, string> = {
   instrucoes: INSTRUCOES_MD,
@@ -67,6 +73,9 @@ export class ScaffoldService {
       fsSync.mkdirSync(path.join(caminhoRaiz, '.ia', '.backups'), { recursive: true });
 
       this.criarEstruturaIa(projetoId, nome, descricao, caminhoRaiz);
+
+      this.criarIntegracaoKilo(caminhoRaiz, nome);
+      this.copiarFrontendCorrigido(caminhoRaiz);
 
       const readmeContent = `# ${nome}\n\n${descricao || ''}\n\nEste projeto é gerenciado pelo **Gerenciador Local de Projetos para Agentes de IA**.\n`;
       fsSync.writeFileSync(path.join(caminhoRaiz, 'README.md'), readmeContent, 'utf-8');
@@ -220,5 +229,60 @@ export class ScaffoldService {
     // Versão legível do contrato-projeto
     const projetoReadable = `# Contrato do Projeto\n\nEste é o contrato constitucional do projeto. Todos os agentes devem respeitá-lo.\n`;
     fsSync.writeFileSync(path.join(contratosDir, 'contrato-projeto.md'), projetoReadable, 'utf-8');
+  }
+
+  /**
+   * Gera os arquivos de integração com o Kilo Code (.kilo/) e o kilo.jsonc.
+   * O kilo.jsonc NÃO contém API key hardcoded: a chave é lida de
+   * process.env.AGENTMAP_API_KEY (ver plugin agentmap-wakeup.ts).
+   */
+  private criarIntegracaoKilo(caminhoRaiz: string, nome: string): void {
+    try {
+      // kilo.jsonc (sem API key hardcoded; usa env var no plugin)
+      const kiloPath = path.join(caminhoRaiz, 'kilo.jsonc');
+      if (!fsSync.existsSync(kiloPath)) {
+        const kiloConfig = KILO_AGENTMAP_JSON(GERENCIADOR_DIR);
+        fsSync.writeFileSync(kiloPath, JSON.stringify(kiloConfig, null, 2), 'utf-8');
+      }
+
+      // Plugin de wake-up automático
+      const pluginDir = path.join(caminhoRaiz, '.kilo', 'plugin');
+      fsSync.mkdirSync(pluginDir, { recursive: true });
+      const wakeupPath = path.join(pluginDir, 'agentmap-wakeup.ts');
+      if (!fsSync.existsSync(wakeupPath)) {
+        fsSync.writeFileSync(wakeupPath, AGENTMAP_WAKEUP_PLUGIN_TS, 'utf-8');
+      }
+
+      // Documento de governança para agentes Kilo
+      const agentesMdPath = path.join(caminhoRaiz, 'AGENTES.md');
+      if (!fsSync.existsSync(agentesMdPath)) {
+        fsSync.writeFileSync(agentesMdPath, AGENTES_MD(nome, 'AgentMap'), 'utf-8');
+      }
+    } catch (e) {
+      console.error('[ScaffoldService] Falha ao criar integração Kilo:', (e as Error).message);
+    }
+  }
+
+  /**
+   * Copia o frontend corrigido (index.html, css/style.css, js/app.js, etc.)
+   * do Gerenciador para o novo projeto, garantindo que ele nasça com a
+   * interface moderna e sem os bugs conhecidos (ex.: modais estáticos, abrirModal).
+   */
+  private copiarFrontendCorrigido(caminhoRaiz: string): void {
+    try {
+      const origem = path.join(GERENCIADOR_DIR, 'frontend');
+      if (!fsSync.existsSync(origem)) {
+        console.warn('[ScaffoldService] Frontend de origem não encontrado em', origem);
+        return;
+      }
+      const destino = path.join(caminhoRaiz, 'frontend');
+      if (fsSync.existsSync(destino)) {
+        return;
+      }
+      fsSync.mkdirSync(path.dirname(destino), { recursive: true });
+      fsSync.cpSync(origem, destino, { recursive: true });
+    } catch (e) {
+      console.error('[ScaffoldService] Falha ao copiar frontend corrigido:', (e as Error).message);
+    }
   }
 }
