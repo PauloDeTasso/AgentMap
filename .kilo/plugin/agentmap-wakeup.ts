@@ -35,7 +35,21 @@ const HEALTH_CHECK_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTM
 const HTTP_TIMEOUT_MS = Number((globalThis as any).process?.env?.AGENTMAP_HTTP_TIMEOUT_MS || String(8000));
 const HTTP_RESTART_RETRY_MS = Number((globalThis as any).process?.env?.AGENTMAP_HTTP_RESTART_RETRY_MS || String(5000));
 const MCP_RECONNECT_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_MCP_RECONNECT_MS || String(10000));
-const BACKEND_DIR = (globalThis as any).process?.env?.AGENTMAP_BACKEND_DIR || "backend";
+const BACKEND_DIR = (() => {
+  const envDir = (globalThis as any).process?.env?.AGENTMAP_BACKEND_DIR;
+  if (envDir) return require("path").resolve(envDir);
+
+  const dir = "backend";
+  const { existsSync } = require("fs");
+  const { resolve, join } = require("path");
+  if (existsSync(resolve(dir))) return resolve(dir);
+  for (const base of process?.cwd ? [process.cwd(), process?.env?.PROJECT_ROOT || "", require("path").dirname(require("path").dirname(__dirname))] : []) {
+    if (base && existsSync(join(base, "backend")) && existsSync(join(base, "src/mcp-server/index.ts"))) {
+      return resolve(join(base, "backend"));
+    }
+  }
+  return resolve(dir);
+})();
 const AGENT_MAP_INSTANCE_ID = `agentmap-${Date.now()}`;
 
 const MCP_SERVER_NAME = "agentmap";
@@ -270,6 +284,103 @@ async function logEmArquivo(directory: string, mensagem: string) {
     await promises.appendFile(logPath, linha, "utf-8");
   } catch {
     // silencioso
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Report HTTP direto para filhos → AgentMap
+// ---------------------------------------------------------------------------
+
+interface PluginCtx {
+  client?: { session?: { promptAsync?: (prompt: string, opts?: any) => Promise<any> } };
+  directory: string;
+}
+
+const toolExecutionCache: Map<string, { lastTool: string; lastResult: any; lastTime: number }> = new Map();
+
+async function reportarToolExecution(input: any, sessionId: string, projectId: string, ctx: PluginCtx): Promise<void> {
+  const props = (input && input.event && typeof input.event === "object" && input.event.properties) ? input.event.properties : (input && typeof input === "object" ? input : {});
+  const toolName = props.tool?.name || props.toolName || props.name || "unknown-tool";
+  const isErro = props.error === true || props.status === "error" || props.success === false;
+  const cacheKey = `${projectId}:${sessionId}`;
+
+  const cache = toolExecutionCache.get(cacheKey);
+  const now = Date.now();
+  if (cache && cache.lastTool === toolName && cache.lastTime > now - 5000) {
+    return; // evita spam de ferramentas repetidas em sequência muito rápida
+  }
+
+  toolExecutionCache.set(cacheKey, { lastTool: toolName, lastResult: props.result, lastTime: now });
+
+  const payload: Record<string, unknown> = {
+    tipo: "KILO_RESULT",
+    agenteOrigem: sessionId,
+    resumo: `Ferramenta '${toolName}' executada${isErro ? " com erro" : ""}.`,
+    conteudo: JSON.stringify({
+      tool: toolName,
+      error: isErro,
+      resultType: props.result?.type || props.resultType || typeof props.result,
+      hasOutput: !!props.result?.output || !!props.result?.data,
+      timestamp: new Date().toISOString(),
+    }),
+    projetoId: projectId,
+  };
+
+  try {
+    const res = await fetchComTimeout(`${AGENTMAP_API_URL}/api/monitoramento/mensagens`, {
+      method: "POST",
+      headers: {
+        ...(AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : {}),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      console.warn(`[agentmap-wakeup] reportarToolExecution: HTTP ${res.status}`);
+      await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarToolExecution: HTTP ${res.status} para ${toolName}`);
+    }
+  } catch (err) {
+    console.warn(`[agentmap-wakeup] reportarToolExecution: HTTP falhou: ${err}`);
+    await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarToolExecution: HTTP falhou para ${toolName}: ${err}`);
+  }
+}
+
+async function reportarChatMessage(input: any, sessionId: string, projectId: string, ctx: PluginCtx): Promise<void> {
+  const props = (input && input.event && typeof input.event === "object" && input.event.properties) ? input.event.properties : (input && typeof input === "object" ? input : {});
+  const tipo = props.tipo || input.type || props.type || "chat.message";
+  const content = props.content || props.message || props.text || "";
+  const isUser = props.role === "user" || props.sender === "user" || props.isUser === true;
+  const isAssistant = props.role === "assistant" || props.sender === "assistant" || props.isAssistant === true;
+
+  // Só reporta se for conteúdo substancial (não apenas eventos internos vazios)
+  if (typeof content !== "string" || content.length < 5) {
+    return;
+  }
+
+  const payload: Record<string, unknown> = {
+    tipo: isUser ? "KILO_CHAT" : "KILO_REPLY",
+    agenteOrigem: sessionId,
+    resumo: `Mensagem de chat ${isUser ? "do usuário" : "do agente"} (${content.substring(0, 120)}${content.length > 120 ? "..." : ""})`,
+    conteudo: content.substring(0, 2000),
+    projetoId: projectId,
+  };
+
+  try {
+    const res = await fetchComTimeout(`${AGENTMAP_API_URL}/api/monitoramento/mensagens`, {
+      method: "POST",
+      headers: {
+        ...(AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : {}),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      console.warn(`[agentmap-wakeup] reportarChatMessage: HTTP ${res.status}`);
+      await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarChatMessage: HTTP ${res.status} para mensagem tipo=${tipo}`);
+    }
+  } catch (err) {
+    console.warn(`[agentmap-wakeup] reportarChatMessage: HTTP falhou: ${err}`);
+    await logEmArquivo(ctx.directory, `[agentmap-wakeup] reportarChatMessage: HTTP falhou para tipo=${tipo}: ${err}`);
   }
 }
 
@@ -901,55 +1012,18 @@ async function reiniciarBackend(client: PluginInput["client"], directory: string
     console.log(`[agentmap-health] Reiniciando backend HTTP (tentativa ${conexaoSaudavel.tentativaRestartHttp})...`);
     await logEmArquivo(directory, `[agentmap-health] Reiniciando backend HTTP (tentativa ${conexaoSaudavel.tentativaRestartHttp})`);
 
-    let backendIniciado = false;
+    const backendPath = BACKEND_DIR;
+    const isWindows = (globalThis as any).process?.platform === "win32";
+    const script = isWindows ? "npm.cmd" : "npm";
+    const args = ["run", "dev"];
 
-    // Tentativa 1: BunShell (se disponível)
-    const shell = (ctx as any).$;
-    if (typeof shell === "function" && !backendIniciado) {
-      try {
-        const backendPath = BACKEND_DIR;
-        const proc = shell`cd ${backendPath} && npm run dev`;
-        if (proc && typeof proc.then === "function") {
-          proc.then((output: any) => {
-            console.log(`[agentmap-health] Backend stdout: ${output?.text?.()?.slice(0, 200)}`);
-          }).catch((err: any) => {
-            console.error("[agentmap-health] Backend shell error:", err);
-          });
-          backendIniciado = true;
-        }
-      } catch (err) {
-        console.warn("[agentmap-health] BunShell falhou, tentando child_process...");
-      }
-    }
-
-    // Tentativa 2: child_process nativo (fallback para Windows/outros)
-    if (!backendIniciado && typeof childProcess?.spawn === "function") {
-      try {
-        const backendPath = BACKEND_DIR;
-        const isWindows = (globalThis as any).process?.platform === "win32";
-        const script = isWindows ? "npm.cmd" : "npm";
-        const args = ["run", "dev"];
-        
-        const proc = childProcess.spawn(script, args, {
+    const proc = childProcess.spawn(script, args, {
           cwd: backendPath,
           detached: true,
           stdio: "ignore",
           windowsHide: true,
           env: { ...(globalThis as any).process?.env, NODE_ENV: "production" },
         });
-        
-        proc.unref();
-        backendIniciado = true;
-        console.log(`[agentmap-health] Backend iniciado via child_process (PID ${proc.pid})`);
-      } catch (err) {
-        console.error("[agentmap-health] child_process spawn falhou:", err);
-      }
-    }
-
-    if (!backendIniciado) {
-      console.warn("[agentmap-health] Nenhum metodo de spawn disponivel, restart automatico desabilitado");
-      await logEmArquivo(directory, "[agentmap-health] Nenhum metodo de spawn disponivel");
-    }
 
     conexaoSaudavel.backendProcessoIniciado = true;
 
@@ -1539,21 +1613,15 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
       }
     },
 
-    "tool.execute.after": async (input: { sessionID?: string }) => {
-      if (input.sessionID) {
-        const estado = obterEstado(projectIdGlobal || "", input.sessionID);
-        if (estado) {
-          // Status already reflects real state via session.status events
-        }
+    "tool.execute.after": async (input: { sessionID?: string; tool?: any; result?: any }) => {
+      if (input.sessionID && typeof reportarToolExecution === "function") {
+        await reportarToolExecution(input, input.sessionID, projectIdGlobal || "", ctx);
       }
     },
 
-    "chat.message": async (input: { sessionID?: string }) => {
-      if (input.sessionID) {
-        const estado = obterEstado(projectIdGlobal || "", input.sessionID);
-        if (estado) {
-          // Status already reflects real state via session.status events
-        }
+    "chat.message": async (input: { sessionID?: string; message?: any; type?: string }) => {
+      if (input.sessionID && typeof reportarChatMessage === "function") {
+        await reportarChatMessage(input, input.sessionID, projectIdGlobal || "", ctx);
       }
     },
 
