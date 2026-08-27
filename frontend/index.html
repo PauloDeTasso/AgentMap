@@ -135,7 +135,7 @@
   <input type="file" id="file-folder-picker" webkitdirectory directory style="display:none;">
 
   <!-- Modal: Novo/Editar Agente -->
-  <div class="modal modal--grande" id="modal-agente" style="display:none;">
+  <div class="modal modal--grande" id="modal-agente">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-agente')">&times;</button>
       <div class="modal__cabecalho">
@@ -159,7 +159,7 @@
           </div>
           <div class="form__grupo">
             <label class="form__label" for="agente-estado">Estado *</label>
-            <select class="form__input" id="agente-estado" required>
+            <select class="form__select" id="agente-estado" required>
               <option value="ativo">Ativo</option>
               <option value="disponivel">Disponível</option>
               <option value="inativo">Inativo</option>
@@ -213,7 +213,7 @@
           </div>
           <div class="form__grupo">
             <label class="form__label" for="agente-dominio">Domínio *</label>
-            <select class="form__input" id="agente-dominio" required>
+            <select class="form__select" id="agente-dominio" required>
               <option value="frontend">Frontend</option>
               <option value="backend">Backend</option>
               <option value="banco">Banco de Dados</option>
@@ -283,7 +283,7 @@
   </div>
 
   <!-- Modal: Nova Tarefa -->
-  <div class="modal" id="modal-tarefa" style="display:none;">
+  <div class="modal" id="modal-tarefa">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-tarefa')">&times;</button>
       <h3 class="modal__titulo" id="titulo-tarefa">Nova Tarefa</h3>
@@ -303,7 +303,7 @@
         </div>
         <div class="form__grupo">
           <label class="form__label" for="tarefa-agente">Agente Responsável *</label>
-          <select class="form__input" id="tarefa-agente" required></select>
+          <select class="form__select" id="tarefa-agente" required></select>
         </div>
         <div class="form__grupo">
           <label class="form__label" for="tarefa-dominio">Domínio *</label>
@@ -311,7 +311,7 @@
         </div>
         <div class="form__grupo">
           <label class="form__label" for="tarefa-prioridade">Prioridade</label>
-          <select class="form__input" id="tarefa-prioridade">
+          <select class="form__select" id="tarefa-prioridade">
             <option value="baixa">Baixa</option>
             <option value="media" selected>Média</option>
             <option value="alta">Alta</option>
@@ -390,7 +390,7 @@
   </div>
 
   <!-- Modal: Contrato -->
-  <div class="modal modal--grande" id="modal-contrato" style="display:none;">
+  <div class="modal modal--grande" id="modal-contrato">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-contrato')">&times;</button>
       <div class="modal__cabecalho">
@@ -414,7 +414,7 @@
           </div>
           <div class="form__grupo">
             <label class="form__label" for="contrato-estado">Estado *</label>
-            <select class="form__input" id="contrato-estado" required>
+            <select class="form__select" id="contrato-estado" required>
               <option value="ativo">Ativo</option>
               <option value="revisao">Em Revisão</option>
               <option value="arquivado">Arquivado</option>

@@ -74,8 +74,12 @@ function isProjetoAgentMap(caminhoRaiz) {
   return proj === gerenciador || proj.startsWith(gerenciador + '/');
 }
 
-function showModal(id) { $(id).style.display = 'flex'; }
-function hideModal(id) { $(id).style.display = 'none'; }
+function showModal(id) {
+  const el = $(id); if (el) { el.style.display = ''; el.classList.add('modal--aberto'); }
+}
+function hideModal(id) {
+  const el = $(id); if (el) { el.classList.remove('modal--aberto'); }
+}
 
 function agenteNomePorId(id) {
   if (!id) return '-';
@@ -754,7 +758,7 @@ function renderizarDashboard() {
   principal.innerHTML = '<p style="color:var(--text-muted);">Selecione uma opção ao lado.</p>';
 
   function closeModals() {
-    document.querySelectorAll('[id^="modal-"]').forEach((m) => { m.style.display = 'none'; });
+    document.querySelectorAll('[id^="modal-"]').forEach((m) => { m.classList.remove('modal--aberto'); });
   }
 
   lateral.querySelectorAll('[data-painel]').forEach((item) => {
@@ -1097,7 +1101,7 @@ window.excluirTodosHandoffs = async function() {
 
 window.abrirModalEstadoNota = function(nota = null) {
   const isEdit = nota !== null;
-  let html = `<div id="modal-estado-nota" class="modal" style="display:none;">
+  let html = `<div id="modal-estado-nota" class="modal">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="fecharModalEstadoNota()">&times;</button>
       <div class="modal__cabecalho">
@@ -1115,7 +1119,7 @@ window.abrirModalEstadoNota = function(nota = null) {
         <div class="form__grid">
           <div class="form__grupo">
             <label class="form__label">Categoria</label>
-            <select id="estado-nota-categoria" class="form__input">
+            <select id="estado-nota-categoria" class="form__select">
               <option value="GERAL" ${isEdit && nota.categoria === 'GERAL' ? 'selected' : ''}>Geral</option>
               <option value="PROBLEMA" ${isEdit && nota.categoria === 'PROBLEMA' ? 'selected' : ''}>Problema</option>
               <option value="DECISAO" ${isEdit && nota.categoria === 'DECISAO' ? 'selected' : ''}>Decisão</option>
@@ -1126,7 +1130,7 @@ window.abrirModalEstadoNota = function(nota = null) {
           </div>
           <div class="form__grupo">
             <label class="form__label">Prioridade</label>
-            <select id="estado-nota-prioridade" class="form__input">
+            <select id="estado-nota-prioridade" class="form__select">
               <option value="BAIXA" ${isEdit && nota.prioridade === 'BAIXA' ? 'selected' : ''}>Baixa</option>
               <option value="MEDIA" ${!isEdit || nota.prioridade === 'MEDIA' ? 'selected' : ''}>Média</option>
               <option value="ALTA" ${isEdit && nota.prioridade === 'ALTA' ? 'selected' : ''}>Alta</option>
@@ -1136,7 +1140,7 @@ window.abrirModalEstadoNota = function(nota = null) {
         </div>
         <div class="form__grupo">
           <label class="form__label">Estado</label>
-          <select id="estado-nota-estado" class="form__input">
+          <select id="estado-nota-estado" class="form__select">
             <option value="ATIVO" ${!isEdit || nota.estado === 'ATIVO' ? 'selected' : ''}>Ativo</option>
             <option value="ARQUIVADO" ${isEdit && nota.estado === 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
             <option value="RESOLVIDO" ${isEdit && nota.estado === 'RESOLVIDO' ? 'selected' : ''}>Resolvido</option>
@@ -1151,7 +1155,7 @@ window.abrirModalEstadoNota = function(nota = null) {
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
   const modal = document.getElementById('modal-estado-nota');
-  if (modal) modal.style.display = 'flex';
+  if (modal) modal.classList.add('modal--aberto');
 };
 
 window.fecharModalEstadoNota = function() {
@@ -1207,22 +1211,22 @@ window.verEstadoNota = async function(id) {
     const n = res.dados;
     const dataCriacao = n.datas?.criacao ? formatDate(n.datas.criacao) : '-';
     const dataAtualizacao = n.datas?.ultimaAtualizacao ? formatDate(n.datas.ultimaAtualizacao) : '-';
-    let html = `<div id="modal-ver-estado-nota" class="modal" style="display:none;">
+    let html = `<div id="modal-ver-estado-nota" class="modal">
       <div class="modal__conteudo">
         <button class="modal__fechar" onclick="document.getElementById('modal-ver-estado-nota').remove()">&times;</button>
         <div class="modal__cabecalho">
           <h3 class="modal__titulo">${escapeHtml(n.titulo)}</h3>
         </div>
-        <div class="modal-body">
+        <div class="modal__corpo">
           <p><strong>ID:</strong> ${escapeHtml(n.id)}</p>
           <p><strong>Categoria:</strong> ${escapeHtml(n.categoria)}</p>
           <p><strong>Prioridade:</strong> ${escapeHtml(n.prioridade)}</p>
           <p><strong>Estado:</strong> ${escapeHtml(n.estado)}</p>
           <p><strong>Criada em:</strong> ${escapeHtml(dataCriacao)}</p>
           <p><strong>Última atualização:</strong> ${escapeHtml(dataAtualizacao)}</p>
-          <hr style="margin:12px 0;">
+          <hr class="modal__divisor">
           <p><strong>Conteúdo:</strong></p>
-          <div style="background:#1a1a2e;padding:12px;border-radius:6px;white-space:pre-wrap;">${escapeHtml(n.conteudo)}</div>
+          <div class="modal__nota-texto">${escapeHtml(n.conteudo)}</div>
         </div>
         <div class="form__acoes">
           <button class="btn btn--ghost" onclick="document.getElementById('modal-ver-estado-nota').remove()">Fechar</button>
@@ -1232,7 +1236,7 @@ window.verEstadoNota = async function(id) {
     </div>`;
     document.body.insertAdjacentHTML('beforeend', html);
     const modal = document.getElementById('modal-ver-estado-nota');
-    if (modal) modal.style.display = 'flex';
+    if (modal) modal.classList.add('modal--aberto');
   } catch (err) {
     showToast(err?.message || 'Erro ao carregar nota.', 'erro');
   }
@@ -1277,7 +1281,7 @@ async function renderizarAgentes(el) {
     if (!res.sucesso) { el.innerHTML = `<p class="painel-vazio">${escapeHtml(res.erro)}</p>`; return; }
     const agentes = Array.isArray(res.dados) ? res.dados : res.dados?.agentes || [];
     if (agentes.length === 0) {
-      el.innerHTML = '<p class="painel-vazio">Nenhum agente cadastrado.</p><button class="btn btn--primario" style="margin-top:12px" onclick="abrirModalAgente()">+ Novo Agente</button>';
+      el.innerHTML = '<p class="painel-vazio">Nenhum agente cadastrado.</p><button class="btn btn--primario mt-1" onclick="abrirModalAgente()">+ Novo Agente</button>';
       return;
     }
   el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -4302,14 +4306,14 @@ setupDirPicker('dir-proib');
 // Click outside modal to close
 document.addEventListener('click', function(e) {
   if (e.target.classList && e.target.classList.contains('modal')) {
-    e.target.style.display = 'none';
+    e.target.classList.remove('modal--aberto');
   }
 });
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal').forEach((m) => {
-      if (m.style.display === 'flex') m.style.display = 'none';
+      m.classList.remove('modal--aberto');
     });
   }
 });
