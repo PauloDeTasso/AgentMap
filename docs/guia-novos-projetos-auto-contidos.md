@@ -99,8 +99,25 @@ O plugin `.kilo/plugin/agentmap-wakeup.ts` é uma cópia exata do plugin oficial
 1. Escuta eventos do ciclo de vida do Kilo Code (`session.idle`, `session.created`, etc.)
 2. Consulta `http://localhost:3150/api/monitoramento/mensagens` por mensagens relevantes
 3. Injeta um prompt na sessão ociosa para acordar o agente automaticamente
+4. Monitora a saúde da conexão com o AgentMap (`/api/status`, `client.mcp.status`) e tenta recuperar automaticamente em caso de queda
+5. Em caso de queda do MCP, reconecta via `client.mcp.connect` / `client.mcp.add`
+6. Em caso de queda do HTTP backend, reinicia automaticamente usando BunShell ou `child_process.spawn` com fallback para Windows
+7. Notifica sessões ociosas da recuperação com um prompt automático
 
 O plugin usa `process.env.AGENTMAP_API_URL` (padrão: `http://localhost:3150`) para descobrir o AgentMap, não dependendo de caminhos hardcoded.
+
+### Variáveis de ambiente do plugin
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `AGENTMAP_API_URL` | `http://localhost:3150` | URL base do backend HTTP do AgentMap |
+| `AGENTMAP_API_KEY` | *(vazio)* | Chave API (`x-api-key`) enviada no header |
+| `AGENTMAP_WAKEUP_DEBOUNCE_MS` | `3000` | Janela de debounce entre verificações de wake-up (ms) |
+| `AGENTMAP_HEALTH_CHECK_INTERVAL_MS` | `15000` | Intervalo do health check de saúde MCP/HTTP (ms) |
+| `AGENTMAP_HTTP_TIMEOUT_MS` | `8000` | Timeout para requisições HTTP ao AgentMap (ms) |
+| `AGENTMAP_HTTP_RESTART_RETRY_MS` | `5000` | Intervalo mínimo entre tentativas de restart do HTTP backend (ms) |
+| `AGENTMAP_MCP_RECONNECT_MS` | `10000` | Intervalo mínimo entre tentativas de reconexão MCP (ms) |
+| `AGENTMAP_BACKEND_DIR` | `backend` | Diretório do backend para restart automático |
 
 ## Migrando projetos existentes
 

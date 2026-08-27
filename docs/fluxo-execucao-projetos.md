@@ -738,7 +738,7 @@ Cada transição entre fases exige a validação de um checklist mínimo:
 - `BRIEFING-7-AGENTES.md` — Contexto e restrições do projeto
 - `AGENTS.md` — Regras gerais do AgentMap
 - `docs/arquitetura-mcp.md` — Arquitetura MCP
-- `docs/comunicacao-agentmap-kilo.md` — Comunicação com Kilo
+- `docs/kilo-code-docs/comunicacao-agentmap-kilo.md` — Comunicação com Kilo
 - SDLC references: Atlassian, IBM, Microsoft, Netguru, Digisoft
 
 ---

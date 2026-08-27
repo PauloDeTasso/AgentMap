@@ -227,7 +227,7 @@ npm run mcp    # Inicia o servidor MCP via stdio
 
 ### Visão geral
 
-O plugin oficial `agentmap-wakeup` (arquivo `.kilo/plugin/agentmap-wakeup.ts`) roda **dentro do mesmo processo** do `kilo serve` — ou seja, dentro do processo que a extensão VS Code / CLI já sobe. Ele não é um script externo, não descobre porta alguma e não precisa de credencial de servidor. O plugin tem acesso nativo ao cliente interno do Kilo (`ctx.client`) e escuta o evento de ciclo de vida `session.idle`, acordando sessões ociosas quando o AgentMap tem novas mensagens para elas.
+O plugin oficial `agentmap-wakeup` (arquivo `.kilo/plugin/agentmap-wakeup.ts`) roda **dentro do mesmo processo** do `kilo serve` — ou seja, dentro do processo que a extensão VS Code / CLI já sobe. Ele não é um script externo, não descobre porta alguma e não precisa de credencial de servidor. O plugin tem acesso nativo ao cliente interno do Kilo (`ctx.client`), escuta eventos de ciclo de vida da sessão e também monitora a saúde da conexão MCP e do HTTP backend do AgentMap, reconectando automaticamente quando necessário.
 
 ### Flow completo
 
@@ -241,44 +241,58 @@ O plugin oficial `agentmap-wakeup` (arquivo `.kilo/plugin/agentmap-wakeup.ts`) r
   │  └────────┬─────────┘                                         │
   │           │                                                     │
   │           ▼  debounce 3000 ms (por sessionId)                  │
-  │  ┌─────────────────────────────┐                                │
-  │  │  Plugin agentmap-wakeup     │                                │
-  │  │  (.kilo/plugin/*.ts)        │                                │
-  │  └────────┬──────────────┬─────┘                                │
+  │  ┌────────────────────────────────────────┐                     │
+  │  │          Plugin agentmap-wakeup         │                     │
+  │  │  (.kilo/plugin/agentmap-wakeup.ts)     │                     │
+  │  └────────┬───────────────────────┬────────┘                     │
+  │           │ Monitoramento         │ HTTP / API                   │
+  │           │ de saúde              │ (localhost:3150)              │
+  │           │                       ▼                               │
+  │           │              ┌──────────────────────────┐            │
+  │           │              │  Health Check             │            │
+  │           │              │  - HTTP backend           │            │
+  │           │              │  - MCP server status      │            │
+  │           │              │  - Auto-reconexão MCP     │            │
+  │           │              │  - Restart backend HTTP   │            │
+  │           │              └──────────┬───────────────┘            │
+  │           │                         │                             │
   │           │ HTTP GET      │ MCP/REST (localhost:3150)           │
-  │           │              ▼                                        │
-  │           │  ┌──────────────────────────┐                       │
-  │           └─►│  AgentMap Backend        │                       │
-  │              │  GET /api/monitoramento/ │                       │
-  │              │       mensagens          │                       │
-  │              │  (query params: limite,  │                       │
-  │              │   after=eventSequence)   │                       │
-  │              └──────────┬───────────────┘                       │
-  │                         │  filtra por eventSequence >           │
-  │                         │  último processado (client-side)     │
-  │                         ▼                                        │
-  │              ┌──────────────────────────┐                       │
-  │              │  Mensagens pendentes?     │                       │
-  │              │  sim → injeta prompt      │                       │
-  │              └──────────┬───────────────┘                       │
-  │                         │                                        │
-  │                         ▼                                        │
-  │              ┌──────────────────────────┐                       │
-  │              │ client.session.promptAsync│                      │
-  │              │   ({ sessionID, parts })  │                       │
-  │              └──────────────────────────┘                       │
+  │           ▼              ▼                                       │
+  │  ┌──────────────────────────┐                                   │
+  │  │  AgentMap Backend        │                                   │
+  │  │  GET /api/monitoramento/ │                                   │
+  │  │       mensagens          │                                   │
+  │  │  GET /api/status         │                                   │
+  │  │  GET /api/health         │                                   │
+  │  └──────────┬───────────────┘                                   │
+  │             │  filtra por eventSequence >                        │
+  │             │  último processado (client-side)                  │
+  │             ▼                                                    │
+  │  ┌──────────────────────────┐                                   │
+  │  │  Mensagens pendentes?     │                                   │
+  │  │  sim → injeta prompt      │                                   │
+  │  └──────────┬───────────────┘                                   │
+  │             │                                                    │
+  │             ▼                                                    │
+  │  ┌──────────────────────────┐                                   │
+  │  │ client.session.promptAsync│                                  │
+  │  │   ({ sessionID, parts })  │                                   │
+  │  └──────────────────────────┘                                   │
   │                                                                │
   │  (Agent Manager worktrees — filhos do AgentMap, via HTTP)      │
   │  POST /api/monitoramento/mensagens  ←  relata resultado        │
   └────────────────────────────────────────────────────────────────┘
 ```
 
-1. **Disparador** — O Kilo gera o evento `session.idle` quando uma sessão não tem atividade há um intervalo configurado.
-2. **Debounce** — O plugin agrupa verificações por `sessionId` usando um timer de **3000 ms** (`DEBOUNCE_MS`). Se vários eventos `idle` chegarem em sequência para a mesma sessão, apenas a última execução realmente dispara a consulta, evitando acordar a sessão várias vezes seguidas.
-3. **Consulta ao AgentMap** — O plugin faz `GET /api/monitoramento/mensagens?limite=50` na API HTTP do AgentMap (`http://localhost:3150` por padrão). O header `x-api-key` é enviado quando `AGENTMAP_API_KEY` está definido, mantendo o plugin pronto para quando a validação de autenticação for implementada (ver RELATORIO-FINAL-AGENTMAP.md, seção 3, achado P0-1).
-4. **Filtragem incremental (`eventSequence`)** — Cada mensagem possui um campo `eventSequence` (número inteiro sequencial). O plugin mantém em memória `ultimoEventSequenceProcessado` e processa apenas mensagens cujo `eventSequence` seja **maior** que o último valor registrado. Isso garante polling incremental: o plugin nunca reprocessa mensagens já entregues. (Nota: hoje o endpoint REST ignora o parâmetro `?after=` — achado P0-3 — por isso o filtro é feito **client-side** no plugin; veja o TODO no código.)
-5. **Injeção do prompt** — Se houver mensagens pendentes, o plugin monta um resumo em texto e o injeta na sessão ociosa via `client.session.promptAsync({ sessionID, parts: [{ type: "text", text: resumo }] })`. O agente acorda já com o contexto das atualizações.
-6. **Atualização do cursor** — Após o envio com sucesso, `ultimoEventSequenceProcessado` é atualizado com o maior `eventSequence` recebido, garantindo idempotência: o mesmo lote não será reenviado em polling futuros.
+1. **Health check automático** — O plugin monitora periodicamente a saúde do HTTP backend (`/api/status`) e do MCP server (`client.mcp.status`). Se qualquer um ficar indisponível, ele registra o evento no AgentMap, notifica sessões ociosas e inicia a recuperação.
+2. **Auto-reconexão MCP** — Quando o MCP server fica indisponível, o plugin tenta reconectar usando `client.mcp.connect` e, como fallback, `client.mcp.add` com a configuração do `kilo.jsonc`.
+3. **Restart do HTTP backend** — Se o HTTP backend (`localhost:3150`) ficar indisponível, o plugin tenta reiniciá-lo automaticamente usando BunShell ou `child_process.spawn` (com fallback para Windows).
+4. **Disparador de wake-up** — O Kilo gera o evento `session.idle` quando uma sessão não tem atividade há um intervalo configurado.
+5. **Debounce** — O plugin agrupa verificações por `sessionId` usando um timer de **3000 ms** (`DEBOUNCE_MS`). Se vários eventos `idle` chegarem em sequência para a mesma sessão, apenas a última execução realmente dispara a consulta, evitando acordar a sessão várias vezes seguidas.
+6. **Consulta ao AgentMap** — O plugin faz `GET /api/monitoramento/mensagens?limite=50` na API HTTP do AgentMap (`http://localhost:3150` por padrão). O header `x-api-key` é enviado quando `AGENTMAP_API_KEY` está definido.
+7. **Filtragem incremental (`eventSequence`)** — Cada mensagem possui um campo `eventSequence` (número inteiro sequencial). O plugin mantém em memória `ultimoEventSequenceProcessado` e processa apenas mensagens cujo `eventSequence` seja **maior** que o último valor registrado.
+8. **Injeção do prompt** — Se houver mensagens pendentes, o plugin monta um resumo em texto e o injeta na sessão ociosa via `client.session.promptAsync({ sessionID, parts: [{ type: "text", text: resumo }] })`.
+9. **Atualização do cursor** — Após o envio com sucesso, `ultimoEventSequenceProcessado` é atualizado com o maior `eventSequence` recebido.
 
 ### Configuração
 
@@ -287,11 +301,18 @@ O plugin oficial `agentmap-wakeup` (arquivo `.kilo/plugin/agentmap-wakeup.ts`) r
 | `AGENTMAP_API_URL` | `http://localhost:3150` | URL base do backend HTTP do AgentMap |
 | `AGENTMAP_API_KEY` | *(vazio)* | Chave API (`x-api-key`) enviada no header; mantida para quando a validação for implementada |
 | `AGENTMAP_WAKEUP_DEBOUNCE_MS` | `3000` | Janela de debounce em milissegundos entre verificações de wake-up |
+| `AGENTMAP_HEALTH_CHECK_INTERVAL_MS` | `15000` | Intervalo do health check de saúde MCP/HTTP (ms) |
+| `AGENTMAP_HTTP_TIMEOUT_MS` | `8000` | Timeout para requisições HTTP ao AgentMap (ms) |
+| `AGENTMAP_HTTP_RESTART_RETRY_MS` | `5000` | Intervalo mínimo entre tentativas de restart do HTTP backend (ms) |
+| `AGENTMAP_MCP_RECONNECT_MS` | `10000` | Intervalo mínimo entre tentativas de reconexão MCP (ms) |
+| `AGENTMAP_BACKEND_DIR` | `backend` | Diretório do backend para restart automático |
 
 ### Características-chave
 
 - **Stateless por evento** — O plugin não mantém estado de projeto; a cada `idle`, consulta a fonte real de mensagens.
 - **Debounce coalescente** — Evita micro-acionamentos quando múltiplos filhos (Agent Manager worktrees) ficam ociosos quase ao mesmo tempo.
 - **Idempotência** — O `eventSequence` previne reprocessamento de mensagens já entregues.
+- **Monitoramento de saúde** — Verifica periodicamente HTTP backend e MCP server, com auto-reconexão e notificação de recuperação para sessões ociosas.
+- **Resiliência** — Usa SSE listener (`server.connected`) quando disponível e fallback polling; restart do backend usa BunShell ou `child_process.spawn` com suporte a Windows.
 - **Integração transparente** — Usa a mesma API HTTP `GET /api/monitoramento/mensagens` já existente para o painel Monitor, sem duplicação de endpoints.
 - **Zero configuração de rede** — Como o plugin roda dentro do processo do Kilo, não há necessidade de descobrir portas, handshakes ou credenciais externas (compare com abordagens baseadas em CLI externa descritas nos planos v1–v4).

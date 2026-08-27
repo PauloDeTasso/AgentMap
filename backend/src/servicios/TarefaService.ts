@@ -263,7 +263,12 @@ export class TarefaService {
         path.win32.join('.ia', 'tarefas', 'tarefas.json')
       );
       if (!registryResult.sucesso || !registryResult.dados) {
-        return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
+        const caminho = path.win32.join('.ia', 'tarefas', 'tarefas.json');
+        const criado = this.fs.escreverJson(caminho, { tarefas: [], estatisticas: { total: 0 } });
+        if (!criado.sucesso) {
+          return { sucesso: false, erro: criado.erro, codigoErro: criado.codigoErro };
+        }
+        return { sucesso: true, dados: 0 };
       }
       const registry = registryResult.dados;
       const tarefas = [...registry.tarefas];

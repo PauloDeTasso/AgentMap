@@ -13,6 +13,9 @@
 
 import type { Plugin, PluginInput } from "@kilocode/plugin";
 
+// Node built-ins disponíveis no runtime do plugin
+const childProcess = (globalThis as any).require?.("child_process") || (globalThis as any).process?.env?.NODE_CHILD_PROCESS;
+
 // ---------------------------------------------------------------------------
 // Configuração
 // ---------------------------------------------------------------------------
@@ -26,6 +29,16 @@ const RECOVERY_COOLDOWN_MS = 5 * 60 * 1000;
 const INTERRUPT_CLEANUP_MS = 5 * 60 * 1000;
 const CONFIRM_TIMEOUT_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_CONFIRM_MS || "10000");
 const MEMORIA_ENVIO_THRESHOLD = 3;
+const MEMORIA_ENVIO_RESET_MS = Number((globalThis as any).process?.env?.AGENTMAP_WAKEUP_MEMORIA_RESET_MS || String(5 * 60 * 1000));
+
+const HEALTH_CHECK_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_HEALTH_CHECK_INTERVAL_MS || String(15 * 1000));
+const HTTP_TIMEOUT_MS = Number((globalThis as any).process?.env?.AGENTMAP_HTTP_TIMEOUT_MS || String(8000));
+const HTTP_RESTART_RETRY_MS = Number((globalThis as any).process?.env?.AGENTMAP_HTTP_RESTART_RETRY_MS || String(5000));
+const MCP_RECONNECT_INTERVAL_MS = Number((globalThis as any).process?.env?.AGENTMAP_MCP_RECONNECT_MS || String(10000));
+const BACKEND_DIR = (globalThis as any).process?.env?.AGENTMAP_BACKEND_DIR || "backend";
+const AGENT_MAP_INSTANCE_ID = `agentmap-${Date.now()}`;
+
+const MCP_SERVER_NAME = "agentmap";
 
 const RESPONSE_LIMIT_PROMPT =
   "ERRO DE Limite de resposta atingido antes da conclusão, CONTINUE DE ONDE PAROU";
@@ -84,6 +97,8 @@ interface SessionWakeupState {
   interruptCleanupTimer: ReturnType<typeof setTimeout> | null;
   confirmTimer: ReturnType<typeof setTimeout> | null;
   memoriaEnvio: MemoriaEnvioMensagem;
+  ultimoHeartbeatPrompt: string;
+  memoriaResetTimer: ReturnType<typeof setTimeout> | null;
 }
 
 interface MemoriaEnvioMensagem {
@@ -98,6 +113,27 @@ interface MensagemPendente {
   conteudo?: string;
   eventSequence?: number;
   tipo?: string;
+}
+
+type McpServerStatus = "connected" | "failed" | "disabled" | "needs_auth" | "unknown";
+
+interface ConexaoSaudavelState {
+  mcpDesconectado: boolean;
+  httpDesconectado: boolean;
+  mcpStatus: McpServerStatus;
+  ultimaVerificacao: number;
+  tentativaReconexaoMcp: number;
+  tentativaRestartHttp: number;
+  healthTimer: ReturnType<typeof setInterval> | null;
+  sseAtivo: boolean;
+  backendProcessoIniciado: boolean;
+}
+
+interface SseEvent {
+  type: string;
+  properties?: Record<string, any>;
+  data?: Record<string, any>;
+  [key: string]: unknown;
 }
 
 // Tipos para resposta do AgentMap /api/estado-projeto
@@ -162,6 +198,18 @@ interface EstadoProjetoResponse {
 const sessoes = new Map<string, SessionWakeupState>();
 let projectIdGlobal: string | null = null;
 
+const conexaoSaudavel: ConexaoSaudavelState = {
+  mcpDesconectado: false,
+  httpDesconectado: false,
+  mcpStatus: "unknown",
+  ultimaVerificacao: 0,
+  tentativaReconexaoMcp: 0,
+  tentativaRestartHttp: 0,
+  healthTimer: null,
+  sseAtivo: false,
+  backendProcessoIniciado: false,
+};
+
 function chaveSessao(projectId: string, sessionId: string): string {
   return `${projectId}:${sessionId}`;
 }
@@ -174,24 +222,26 @@ function obterOuCriarEstado(projectId: string, sessionId: string): SessionWakeup
   const key = chaveSessao(projectId, sessionId);
   let estado = sessoes.get(key);
   if (!estado) {
-     estado = {
-      sessionId,
-      projectId,
-      isChildSession: false,
-      parentId: null,
-      status: "unknown",
-      cursorEventSequence: 0,
-      operacaoEmAndamento: "idle",
-      recoveryAtivo: false,
-      outputLimitHit: false,
-      stepFinishReason: null,
-      debounceTimer: null,
-      heartbeatTimer: null,
-      recoveryTimer: null,
-      interruptCleanupTimer: null,
-      confirmTimer: null,
-      memoriaEnvio: {},
-    };
+      estado = {
+        sessionId,
+        projectId,
+        isChildSession: false,
+        parentId: null,
+        status: "unknown",
+        cursorEventSequence: 0,
+        operacaoEmAndamento: "idle",
+        recoveryAtivo: false,
+        outputLimitHit: false,
+        stepFinishReason: null,
+        debounceTimer: null,
+        heartbeatTimer: null,
+        recoveryTimer: null,
+        interruptCleanupTimer: null,
+        confirmTimer: null,
+        memoriaEnvio: {},
+        ultimoHeartbeatPrompt: "",
+        memoriaResetTimer: null,
+      };
     sessoes.set(key, estado);
   }
   return estado;
@@ -237,9 +287,15 @@ async function buscarMensagensPendentes(estado: SessionWakeupState, projetoId: s
     url.searchParams.set("projetoId", projetoId);
   }
 
-  const res = await fetch(url, {
-    headers: AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : undefined,
-  });
+  let res: Response;
+  try {
+    res = await fetchComTimeout(url.toString(), {
+      headers: AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : undefined,
+    });
+  } catch (err) {
+    console.warn(`[agentmap-wakeup] HTTP falhou ao buscar mensagens (backend provavelmente desconectado): ${err}`);
+    return [];
+  }
 
   if (!res.ok) {
     console.error(`[agentmap-wakeup] AgentMap respondeu ${res.status} em ${url}`);
@@ -283,7 +339,7 @@ function montarResumo(mensagens: MensagemPendente[]): string {
 async function montarHeartbeatPrompt(): Promise<string> {
   try {
     const url = new URL("/api/estado-projeto", AGENTMAP_API_URL);
-    const res = await fetch(url, {
+    const res = await fetchComTimeout(url.toString(), {
       headers: AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : undefined,
     });
     if (!res.ok) return "";
@@ -342,6 +398,12 @@ async function injetarPrompt(
   const metodo = getPromptMethod(client);
   if (!metodo) {
     console.error("[agentmap-wakeup] Nenhum método de prompt disponível no SDK");
+    return false;
+  }
+
+  if (estaOcupado(estado)) {
+    console.log(`[agentmap-wakeup] ${tipo} suprimido (sessao ocupada - status=${estado.status}): sessao ${sessionId}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] ${tipo} suprimido (sessao ocupada): sessao ${sessionId}`);
     return false;
   }
 
@@ -407,8 +469,10 @@ function gerarChaveMemoria(mensagem: MensagemPendente): string {
   return `${tipo}:${conteudo}`;
 }
 
-function atualizarMemoriaEnvio(estado: SessionWakeupState, mensagens: MensagemPendente[]): boolean {
+function atualizarMemoriaEnvio(estado: SessionWakeupState, mensagens: MensagemPendente[]): { repetido: boolean; conteudoMudou: boolean } {
   const chavesAtuais = new Set(mensagens.map(gerarChaveMemoria));
+  const chavesAnteriores = new Set(Object.keys(estado.memoriaEnvio));
+  const conteudoMudou = chavesAtuais.size > 0 && [...chavesAtuais].some((chave) => !chavesAnteriores.has(chave));
 
   for (const chave of Object.keys(estado.memoriaEnvio)) {
     if (!chavesAtuais.has(chave)) {
@@ -420,11 +484,29 @@ function atualizarMemoriaEnvio(estado: SessionWakeupState, mensagens: MensagemPe
     estado.memoriaEnvio[chave] = (estado.memoriaEnvio[chave] || 0) + 1;
   }
 
-  return Object.values(estado.memoriaEnvio).some((count) => count >= MEMORIA_ENVIO_THRESHOLD);
+  const repetido = Object.values(estado.memoriaEnvio).some((count) => count >= MEMORIA_ENVIO_THRESHOLD);
+  return { repetido, conteudoMudou };
 }
 
 function resetarMemoriaEnvio(estado: SessionWakeupState): void {
   estado.memoriaEnvio = {};
+}
+
+function pararMemoriaResetTimer(estado: SessionWakeupState): void {
+  if (estado.memoriaResetTimer) {
+    clearTimeout(estado.memoriaResetTimer);
+    estado.memoriaResetTimer = null;
+  }
+}
+
+function agendarMemoriaReset(estado: SessionWakeupState, directory: string): void {
+  pararMemoriaResetTimer(estado);
+  estado.memoriaResetTimer = setTimeout(() => {
+    resetarMemoriaEnvio(estado);
+    estado.memoriaResetTimer = null;
+    console.log(`[agentmap-wakeup] Memoria de envio resetada por timeout: ${estado.sessionId}`);
+    logEmArquivo(directory, `[agentmap-wakeup] Memoria de envio resetada por timeout: ${estado.sessionId}`);
+  }, MEMORIA_ENVIO_RESET_MS);
 }
 
 async function executarWakeup(estado: SessionWakeupState, client: PluginInput["client"], directory: string) {
@@ -445,7 +527,7 @@ async function executarWakeup(estado: SessionWakeupState, client: PluginInput["c
     return;
   }
 
-  const repetido = atualizarMemoriaEnvio(estado, pendentes);
+  const { repetido, conteudoMudou } = atualizarMemoriaEnvio(estado, pendentes);
   if (repetido) {
     const tiposRepetidos = Object.entries(estado.memoriaEnvio)
       .filter(([, count]) => count >= MEMORIA_ENVIO_THRESHOLD)
@@ -453,7 +535,16 @@ async function executarWakeup(estado: SessionWakeupState, client: PluginInput["c
     const log = `[agentmap-wakeup] Wake-up suprimido (memoria de envio): mensagem repetida ${MEMORIA_ENVIO_THRESHOLD}x na sessao ${estado.sessionId}. Tipos: ${tiposRepetidos.join(", ")}`;
     console.log(log);
     await logEmArquivo(directory, log);
+    agendarMemoriaReset(estado, directory);
     return;
+  }
+
+  if (conteudoMudou) {
+    resetarMemoriaEnvio(estado);
+    pararMemoriaResetTimer(estado);
+    const logMudou = `[agentmap-wakeup] Memoria de envio resetada (conteudo mudou): ${estado.sessionId}`;
+    console.log(logMudou);
+    await logEmArquivo(directory, logMudou);
   }
 
   const resumo = montarResumo(pendentes);
@@ -497,6 +588,12 @@ async function injetarRecovery(
 ) {
   const estado = obterOuCriarEstado(projectId, sessionId);
 
+  if (estaOcupado(estado)) {
+    console.log(`[agentmap-wakeup] Recovery suprimido (sessao ocupada): sessao ${sessionId}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] Recovery suprimido (sessao ocupada): sessao ${sessionId}`);
+    return;
+  }
+
   if (estado.recoveryAtivo) {
     console.log(`[agentmap-wakeup] Recovery suprimido (cooldown ativo): sessao ${sessionId}`);
     return;
@@ -525,7 +622,7 @@ async function injetarRecovery(
 async function temTrabalhoPendente(): Promise<boolean> {
   try {
     const url = new URL("/api/estado-projeto", AGENTMAP_API_URL);
-    const res = await fetch(url, {
+    const res = await fetchComTimeout(url.toString(), {
       headers: AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : undefined,
     });
 
@@ -602,6 +699,13 @@ async function cicloHeartbeat(
     return;
   }
 
+  if (estado.ultimoHeartbeatPrompt === prompt) {
+    console.log(`[agentmap-wakeup] heartbeat suprimido (prompt repetido): sessao ${sessionId}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] heartbeat suprimido (prompt repetido): sessao ${sessionId}`);
+    return;
+  }
+
+  estado.ultimoHeartbeatPrompt = prompt;
   await injetarPrompt(sessionId, client, directory, prompt, "heartbeat", estado);
 }
 
@@ -659,6 +763,413 @@ function limparTimers(estado: SessionWakeupState) {
     clearTimeout(estado.confirmTimer);
     estado.confirmTimer = null;
   }
+  if (estado.memoriaResetTimer) {
+    clearTimeout(estado.memoriaResetTimer);
+    estado.memoriaResetTimer = null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Health Check & Auto-Reconnection (MCP + HTTP)
+// ---------------------------------------------------------------------------
+
+async function fetchComTimeout(url: string, opcoes: RequestInit = {}, timeoutMs: number = HTTP_TIMEOUT_MS): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...opcoes, signal: controller.signal, headers: { ...opcoes.headers } });
+    return res;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function verificarStatusHttp(): Promise<boolean> {
+  try {
+    const url = new URL("/api/status", AGENTMAP_API_URL);
+    const res = await fetchComTimeout(url.toString());
+    if (!res.ok) return false;
+    const body = await res.json().catch(() => null);
+    return body?.sucesso === true && body?.dados?.status === "online";
+  } catch {
+    return false;
+  }
+}
+
+async function verificarStatusMcp(client: PluginInput["client"]): Promise<McpServerStatus> {
+  const mcpClient = (client as any).mcp;
+  if (!mcpClient || typeof mcpClient.status !== "function") {
+    return "unknown";
+  }
+  try {
+    const result = await mcpClient.status({ query: { directory: "" } });
+    const raw = (result as any)?.data ?? (result as any)?.$outerBody ?? result;
+    const serverEntry = (raw as any)?.[MCP_SERVER_NAME];
+    const statusCandidate = typeof serverEntry?.status === "string"
+      ? serverEntry.status
+      : typeof raw?.status === "string"
+        ? raw.status
+        : "";
+    switch (statusCandidate) {
+      case "connected":
+      case "failed":
+      case "disabled":
+      case "needs_auth":
+      case "unknown":
+        return statusCandidate;
+      default:
+        return "unknown";
+    }
+  } catch (err) {
+    console.warn(`[agentmap-health] Erro ao consultar status MCP: ${err}`);
+    return "unknown";
+  }
+}
+
+async function reconectarMcp(client: PluginInput["client"], directory: string): Promise<boolean> {
+  const estado = conexaoSaudavel;
+  if (estado.tentativaReconexaoMcp > 0) {
+    const elapsed = Date.now() - estado.ultimaVerificacao;
+    if (elapsed < MCP_RECONNECT_INTERVAL_MS) return false;
+  }
+
+  estado.tentativaReconexaoMcp++;
+
+  try {
+    const result = await (client as any).mcp?.connect?.({ path: { name: MCP_SERVER_NAME } });
+    const sucesso = (result as any)?.data?.success !== false && (result as any)?.data !== false;
+    if (sucesso) {
+      console.log(`[agentmap-health] MCP reconectado com sucesso (tentativa ${estado.tentativaReconexaoMcp})`);
+      await logEmArquivo(directory, `[agentmap-health] MCP reconectado com sucesso (tentativa ${estado.tentativaReconexaoMcp})`);
+      estado.tentativaReconexaoMcp = 0;
+      estado.mcpDesconectado = false;
+      estado.mcpStatus = "connected";
+      return true;
+    }
+    console.error(`[agentmap-health] MCP connect retornou resultado sem sucesso:`, result);
+  } catch (err) {
+    console.error(`[agentmap-health] MCP connect falhou (tentativa ${estado.tentativaReconexaoMcp}):`, err);
+    await logEmArquivo(directory, `[agentmap-health] MCP connect falhou (tentativa ${estado.tentativaReconexaoMcp}): ${err}`);
+  }
+
+  try {
+    const addResult = await (client as any).mcp?.add?.({
+      body: {
+        name: MCP_SERVER_NAME,
+        config: {
+          type: "local",
+          command: ["cmd", "/c", "cd", BACKEND_DIR, "&&", "npx", "tsx", "--tsconfig", "backend/tsconfig.json", "backend/src/mcp-server/index.ts"],
+          environment: { NODE_ENV: "production" },
+          enabled: true,
+          timeout: 30000,
+        },
+      },
+      query: { directory: "" },
+    });
+    if (addResult) {
+      console.log(`[agentmap-health] MCP re-add concluido (tentativa ${estado.tentativaReconexaoMcp})`);
+      await logEmArquivo(directory, `[agentmap-health] MCP add concluido (tentativa ${estado.tentativaReconexaoMcp})`);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const status = await verificarStatusMcp(client);
+      if (status === "connected") {
+        estado.mcpDesconectado = false;
+        estado.mcpStatus = "connected";
+        estado.tentativaReconexaoMcp = 0;
+        return true;
+      }
+    }
+  } catch (err) {
+    console.error(`[agentmap-health] MCP add falhou (tentativa ${estado.tentativaReconexaoMcp}):`, err);
+    await logEmArquivo(directory, `[agentmap-health] MCP add falhou: ${err}`);
+  }
+
+  return false;
+}
+
+async function reiniciarBackend(client: PluginInput["client"], directory: string, ctx: PluginInput): Promise<boolean> {
+  if (conexaoSaudavel.tentativaRestartHttp > 0) {
+    const elapsed = Date.now() - conexaoSaudavel.ultimaVerificacao;
+    if (elapsed < HTTP_RESTART_RETRY_MS) return false;
+  }
+
+  conexaoSaudavel.tentativaRestartHttp++;
+
+  try {
+    console.log(`[agentmap-health] Reiniciando backend HTTP (tentativa ${conexaoSaudavel.tentativaRestartHttp})...`);
+    await logEmArquivo(directory, `[agentmap-health] Reiniciando backend HTTP (tentativa ${conexaoSaudavel.tentativaRestartHttp})`);
+
+    let backendIniciado = false;
+
+    // Tentativa 1: BunShell (se disponível)
+    const shell = (ctx as any).$;
+    if (typeof shell === "function" && !backendIniciado) {
+      try {
+        const backendPath = BACKEND_DIR;
+        const proc = shell`cd ${backendPath} && npm run dev`;
+        if (proc && typeof proc.then === "function") {
+          proc.then((output: any) => {
+            console.log(`[agentmap-health] Backend stdout: ${output?.text?.()?.slice(0, 200)}`);
+          }).catch((err: any) => {
+            console.error("[agentmap-health] Backend shell error:", err);
+          });
+          backendIniciado = true;
+        }
+      } catch (err) {
+        console.warn("[agentmap-health] BunShell falhou, tentando child_process...");
+      }
+    }
+
+    // Tentativa 2: child_process nativo (fallback para Windows/outros)
+    if (!backendIniciado && typeof childProcess?.spawn === "function") {
+      try {
+        const backendPath = BACKEND_DIR;
+        const isWindows = (globalThis as any).process?.platform === "win32";
+        const script = isWindows ? "npm.cmd" : "npm";
+        const args = ["run", "dev"];
+        
+        const proc = childProcess.spawn(script, args, {
+          cwd: backendPath,
+          detached: true,
+          stdio: "ignore",
+          windowsHide: true,
+          env: { ...(globalThis as any).process?.env, NODE_ENV: "production" },
+        });
+        
+        proc.unref();
+        backendIniciado = true;
+        console.log(`[agentmap-health] Backend iniciado via child_process (PID ${proc.pid})`);
+      } catch (err) {
+        console.error("[agentmap-health] child_process spawn falhou:", err);
+      }
+    }
+
+    if (!backendIniciado) {
+      console.warn("[agentmap-health] Nenhum metodo de spawn disponivel, restart automatico desabilitado");
+      await logEmArquivo(directory, "[agentmap-health] Nenhum metodo de spawn disponivel");
+    }
+
+    conexaoSaudavel.backendProcessoIniciado = true;
+
+    const startWait = Date.now();
+    while (Date.now() - startWait < 30000) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (await verificarStatusHttp()) {
+        console.log(`[agentmap-health] Backend HTTP restaurado (tentativa ${conexaoSaudavel.tentativaRestartHttp})`);
+        await logEmArquivo(directory, `[agentmap-health] Backend HTTP restaurado (tentativa ${conexaoSaudavel.tentativaRestartHttp})`);
+        conexaoSaudavel.tentativaRestartHttp = 0;
+        conexaoSaudavel.httpDesconectado = false;
+        return true;
+      }
+    }
+
+    console.error(`[agentmap-health] Backend HTTP nao respondeu em 30s (tentativa ${conexaoSaudavel.tentativaRestartHttp})`);
+    await logEmArquivo(directory, `[agentmap-health] Backend HTTP nao respondeu em 30s (tentativa ${conexaoSaudavel.tentativaRestartHttp})`);
+    return false;
+  } catch (err) {
+    console.error(`[agentmap-health] Erro ao reiniciar backend (tentativa ${conexaoSaudavel.tentativaRestartHttp}):`, err);
+    await logEmArquivo(directory, `[agentmap-health] Erro ao reiniciar backend: ${err}`);
+    return false;
+  }
+}
+
+async function notificarRecuperacao(client: PluginInput["client"], directory: string) {
+  const projetoId = projectIdGlobal || directory;
+  const recoveryPrompt =
+    "O sistema AgentMap foi restaurado após uma interrupcao. " +
+    "Verifique se suas ferramentas MCP (agentmap_*) estao disponiveis e " +
+    "consulte o monitor para quaisquer mensagens pendentes que podem ter sido perdidas. " +
+    "Use agentmap_monitoramento_verificar_pendentes para verificar atualizacoes.";
+
+  let count = 0;
+  for (const [key, estado] of Array.from(sessoes.entries())) {
+    if (ehSessaoFilha(estado)) continue;
+    if (estado.status !== "idle" && estado.status !== "unknown") continue;
+    if (estado.operacaoEmAndamento !== "idle") continue;
+
+    const sucesso = await injetarPrompt(estado.sessionId, client, directory, recoveryPrompt, "recovery", estado);
+    if (sucesso) {
+      console.log(`[agentmap-health] Recovery prompt injetado na sessao idle: ${estado.sessionId}`);
+      await logEmArquivo(directory, `[agentmap-health] Recovery prompt injetado na sessao idle: ${estado.sessionId}`);
+      count++;
+    }
+  }
+
+  if (count > 0) {
+    console.log(`[agentmap-health] Recovery notificado para ${count} sessao(s) idle(s)`);
+    await logEmArquivo(directory, `[agentmap-health] Recovery notificado para ${count} sessao(s) idle(s)`);
+  }
+}
+
+async function notificarDesconexao(client: PluginInput["client"], directory: string, motivo: string) {
+  const recoveryPrompt =
+    `URGENTE: Conexao AgentMap interrompida (${motivo}).\n` +
+    "O MCP server ou HTTP backend nao esta disponivel. " +
+    "Aguarde alguns segundos - o plugin de wake-up esta tentando reconectar automaticamente. " +
+    "Nao tente usar ferramentas agentmap_* ate que a conexao seja restaurada.";
+
+  let count = 0;
+  for (const [, estado] of Array.from(sessoes.entries())) {
+    if (ehSessaoFilha(estado)) continue;
+    if (estado.status !== "idle" && estado.status !== "unknown") continue;
+    if (estado.operacaoEmAndamento !== "idle") continue;
+
+    const sucesso = await injetarPrompt(estado.sessionId, client, directory, recoveryPrompt, "recovery", estado);
+    if (sucesso) count++;
+  }
+
+  if (count > 0) {
+    await logEmArquivo(directory, `[agentmap-health] Desconexao notificada: "${motivo}" para ${count} sessao(s)`);
+  }
+}
+
+async function registrarEventoInstancia(directory: string, tipo: string, dados: Record<string, any> = {}) {
+  try {
+    const url = new URL("/api/eventos/custom", AGENTMAP_API_URL);
+    await fetchComTimeout(url.toString(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(AGENTMAP_API_KEY ? { "x-api-key": AGENTMAP_API_KEY } : {}) },
+      body: JSON.stringify({
+        tipo,
+        emissor: AGENT_MAP_INSTANCE_ID,
+        conteudo: dados.mensagem || tipo,
+        dados: {
+          instanciaId: AGENT_MAP_INSTANCE_ID,
+          ...dados,
+        },
+      }),
+    });
+  } catch {
+    // silencioso
+  }
+}
+
+async function executarHealthCheck(client: PluginInput["client"], directory: string, ctx: PluginInput) {
+  conexaoSaudavel.ultimaVerificacao = Date.now();
+
+  const mcpStatus = await verificarStatusMcp(client);
+  const mcpConectado = mcpStatus === "connected";
+  conexaoSaudavel.mcpStatus = mcpStatus;
+
+  const httpOk = await verificarStatusHttp();
+
+  if (!mcpConectado) {
+    if (!conexaoSaudavel.mcpDesconectado) {
+      conexaoSaudavel.mcpDesconectado = true;
+      console.warn(`[agentmap-health] MCP desconectado (status: ${mcpStatus}). Iniciando reconexao...`);
+      await logEmArquivo(directory, `[agentmap-health] MCP desconectado (status: ${mcpStatus})`);
+      await registrarEventoInstancia(directory, "INSTANCIA_DESCONECTADA", { mensagem: "MCP desconectado", mcpStatus });
+      await notificarDesconexao(client, directory, `MCP ${mcpStatus}`);
+    }
+    await reconectarMcp(client, directory);
+  } else {
+    if (conexaoSaudavel.mcpDesconectado) {
+      conexaoSaudavel.mcpDesconectado = false;
+      conexaoSaudavel.tentativaReconexaoMcp = 0;
+      console.log("[agentmap-health] MCP reconectado com sucesso!");
+      await logEmArquivo(directory, "[agentmap-health] MCP reconectado com sucesso");
+      await registrarEventoInstancia(directory, "INSTANCIA_CONECTADA", { mensagem: "MCP reconectado" });
+      await notificarRecuperacao(client, directory);
+    }
+  }
+
+  if (!httpOk) {
+    if (!conexaoSaudavel.httpDesconectado) {
+      conexaoSaudavel.httpDesconectado = true;
+      console.warn("[agentmap-health] HTTP backend desconectado. Iniciando reinicio...");
+      await logEmArquivo(directory, "[agentmap-health] HTTP backend desconectado");
+      await registrarEventoInstancia(directory, "INSTANCIA_DESCONECTADA", { mensagem: "HTTP backend desconectado" });
+    }
+    await reiniciarBackend(client, directory, ctx);
+  } else {
+    if (conexaoSaudavel.httpDesconectado) {
+      conexaoSaudavel.httpDesconectado = false;
+      conexaoSaudavel.tentativaRestartHttp = 0;
+      console.log("[agentmap-health] HTTP backend restaurado!");
+      await logEmArquivo(directory, "[agentmap-health] HTTP backend restaurado");
+      await registrarEventoInstancia(directory, "INSTANCIA_CONECTADA", { mensagem: "HTTP backend restaurado" });
+    }
+  }
+}
+
+function iniciarHealthCheck(client: PluginInput["client"], directory: string, ctx: PluginInput) {
+  if (conexaoSaudavel.healthTimer) {
+    clearInterval(conexaoSaudavel.healthTimer);
+  }
+
+  console.log(`[agentmap-health] Monitor de saude iniciado (intervalo: ${HEALTH_CHECK_INTERVAL_MS}ms)`);
+  logEmArquivo(directory, `[agentmap-health] Monitor de saude iniciado (intervalo: ${HEALTH_CHECK_INTERVAL_MS}ms)`);
+
+  conexaoSaudavel.healthTimer = setInterval(async () => {
+    try {
+      await executarHealthCheck(client, directory, ctx);
+    } catch (err) {
+      console.error("[agentmap-health] Erro no health check:", err);
+      await logEmArquivo(directory, `[agentmap-health] Erro no health check: ${err}`);
+    }
+  }, HEALTH_CHECK_INTERVAL_MS);
+}
+
+function pararHealthCheck(directory: string) {
+  if (conexaoSaudavel.healthTimer) {
+    clearInterval(conexaoSaudavel.healthTimer);
+    conexaoSaudavel.healthTimer = null;
+    console.log("[agentmap-health] Monitor de saude parado");
+    logEmArquivo(directory, "[agentmap-health] Monitor de saude parado");
+  }
+}
+
+async function iniciarSseListener(client: PluginInput["client"], directory: string, ctx: PluginInput) {
+  if (conexaoSaudavel.sseAtivo) return;
+
+  const eventoClient = (client as any).event;
+  if (!eventoClient || typeof eventoClient.subscribe !== "function") {
+    console.warn("[agentmap-health] client.event.subscribe nao disponivel, usando polling apenas");
+    await logEmArquivo(directory, "[agentmap-health] client.event.subscribe nao disponivel, usando polling apenas");
+    return;
+  }
+
+  try {
+    conexaoSaudavel.sseAtivo = true;
+    const stream = await eventoClient.subscribe({ query: { directory: "" } });
+
+    if (stream && typeof stream[Symbol.asyncIterator] === "function") {
+      (async () => {
+        try {
+          for await (const evento of stream as AsyncIterable<SseEvent>) {
+            if (evento.type === "server.connected") {
+              console.log("[agentmap-health] server.connected detectado via SSE! Reexecutando health check...");
+              await logEmArquivo(directory, "[agentmap-health] server.connected detectado via SSE! Reexecutando health check");
+      await executarHealthCheck(client, directory, ctx);
+            } else if (evento.type === "server.instance.disposed") {
+              console.log("[agentmap-health] server.instance.disposed detectado via SSE");
+              await logEmArquivo(directory, "[agentmap-health] server.instance.disposed detectado via SSE");
+              conexaoSaudavel.mcpDesconectado = true;
+              conexaoSaudavel.httpDesconectado = true;
+            }
+          }
+        } catch (err) {
+          console.error("[agentmap-health] SSE stream erro:", err);
+          await logEmArquivo(directory, `[agentmap-health] SSE stream erro: ${err}`);
+        } finally {
+          conexaoSaudavel.sseAtivo = false;
+        }
+      })();
+    } else if (stream && typeof (stream as any).on === "function") {
+      (stream as any).on("data" as never, (evento: SseEvent) => {
+        if (evento.type === "server.connected") {
+          console.log("[agentmap-health] server.connected detectado via SSE (event-based)!");
+          logEmArquivo(directory, "[agentmap-health] server.connected detectado via SSE (event-based)");
+          executarHealthCheck(client, directory, ctx);
+        }
+      });
+    }
+    console.log("[agentmap-health] SSE listener iniciado");
+    await logEmArquivo(directory, "[agentmap-health] SSE listener iniciado");
+  } catch (err) {
+    conexaoSaudavel.sseAtivo = false;
+    console.error("[agentmap-health] Erro ao iniciar SSE listener:", err);
+    await logEmArquivo(directory, `[agentmap-health] Erro ao iniciar SSE listener: ${err}`);
+  }
 }
 
 function removerEstado(projectId: string, sessionId: string) {
@@ -713,6 +1224,12 @@ async function injetarContinue(
     return;
   }
 
+  if (estaOcupado(estado)) {
+    console.log(`[agentmap-wakeup] Continue suprimido (sessao ocupada): sessao ${sessionId}`);
+    await logEmArquivo(directory, `[agentmap-wakeup] Continue suprimido (sessao ocupada): sessao ${sessionId}`);
+    return;
+  }
+
   console.log(`[agentmap-wakeup] Injetando continue (limite de resposta) na sessao ${sessionId}`);
   await logEmArquivo(directory, `[agentmap-wakeup] Injetando continue (limite de resposta): sessao ${sessionId}`);
 
@@ -742,7 +1259,8 @@ async function handleSessionStatus(
 
   if (statusNormalizado === "busy" && anterior !== "busy" && anterior !== "unknown") {
     resetarMemoriaEnvio(estado);
-    const logReset = `[agentmap-wakeup] Memoria de envio resetada (novo ciclo de trabalho): ${sessionId}`;
+    estado.ultimoHeartbeatPrompt = "";
+    const logReset = `[agentmap-wakeup] Memoria de envio e heartbeat resetados (novo ciclo de trabalho): ${sessionId}`;
     console.log(logReset);
     await logEmArquivo(directory, logReset);
   }
@@ -792,6 +1310,9 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
   console.log(inicio);
   await logEmArquivo(ctx.directory, inicio);
 
+  iniciarHealthCheck(ctx.client, ctx.directory, ctx);
+  iniciarSseListener(ctx.client, ctx.directory, ctx);
+
   return {
     event: async (input: { event: any }) => {
       const sessionId = extrairSessionId(input.event);
@@ -800,6 +1321,22 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
 
       const logEvento = `[agentmap-wakeup] Evento: type=${eventType}, sessionID=${sessionId}, props=${JSON.stringify((input.event as any)?.properties || {}).slice(0, 200)}`;
       console.log(logEvento);
+
+      // server.connected — Kilo server (re)conectado após restart
+      if (eventType === "server.connected") {
+        console.log("[agentmap-wakeup] server.connected detectado — reexecutando health check e reconexao MCP");
+        await logEmArquivo(ctx.directory, "[agentmap-wakeup] server.connected detectado — reexecutando health check");
+        conexaoSaudavel.mcpDesconectado = true;
+        conexaoSaudavel.httpDesconectado = true;
+        setTimeout(async () => {
+          try {
+            await executarHealthCheck(ctx.client, ctx.directory, ctx);
+          } catch (err) {
+            console.error("[agentmap-wakeup] Erro no health check pós server.connected:", err);
+          }
+        }, 1000);
+        return;
+      }
 
       if (!sessionId) return;
 
@@ -875,6 +1412,7 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
 
         estado.status = "idle";
         estado.operacaoEmAndamento = "idle";
+        estado.ultimoHeartbeatPrompt = "";
 
         if (estado.interruptCleanupTimer) {
           clearTimeout(estado.interruptCleanupTimer);
@@ -942,6 +1480,16 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
           /output.*length|length.*output|output.*limit|limit.*output|exceeds.*max|max.*tokens.*output/i.test(`${nomeErro} ${mensagemErro}`);
 
         if (ehLimiteResposta && !ehSessaoFilha(estado)) {
+          if (estaOcupado(estado)) {
+            const logLimite = `[agentmap-wakeup] session.error (limite de resposta) suprimido (ocupado): sessao ${sessionId}`;
+            console.log(logLimite);
+            await logEmArquivo(ctx.directory, logLimite);
+            estado.outputLimitHit = false;
+            estado.stepFinishReason = null;
+            pararHeartbeat(projectId, sessionId, ctx.directory);
+            return;
+          }
+
           const logLimite = `[agentmap-wakeup] session.error (limite de resposta): ${nomeErro || "desconhecido"} na sessao ${sessionId}. Injetando continue.`;
           console.log(logLimite);
           await logEmArquivo(ctx.directory, logLimite);
@@ -965,6 +1513,13 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
         const logError = `[agentmap-wakeup] session.error: ${sessionId}`;
         console.error(logError);
         await logEmArquivo(ctx.directory, logError);
+
+        if (estaOcupado(estado)) {
+          console.log(`[agentmap-wakeup] session.error suprimido (sessao ocupada): sessao ${sessionId}`);
+          await logEmArquivo(ctx.directory, `[agentmap-wakeup] session.error suprimido (sessao ocupada): sessao ${sessionId}`);
+          pararHeartbeat(projectId, sessionId, ctx.directory);
+          return;
+        }
 
         await injetarRecovery(projectId, sessionId, ctx.client, ctx.directory);
         pararHeartbeat(projectId, sessionId, ctx.directory);
@@ -997,6 +1552,14 @@ const AgentMapWakeup: Plugin = async (ctx: PluginInput) => {
           // Status already reflects real state via session.status events
         }
       }
+    },
+
+    dispose: async () => {
+      for (const estado of Array.from(sessoes.values())) {
+        limparTimers(estado);
+      }
+      pararHealthCheck(ctx.directory);
+      conexaoSaudavel.sseAtivo = false;
     },
   };
 };

@@ -320,7 +320,14 @@ descobrir porta, senha ou autenticação externa do servidor da extensão.
 
 O plugin escuta o evento `session.idle` disparado pelo Kilo quando uma sessão fica ociosa, consulta
 a API do AgentMap em busca de mensagens pendentes e, se houver, injeta um prompt diretamente na mesma
-sessão via `client.session.promptAsync`. Veja a arquitetura completa em
+sessão via `client.session.promptAsync`.
+
+Além do wake-up, o plugin também monitora a saúde da conexão com o AgentMap: verifica periodicamente
+o HTTP backend (`/api/status`) e o MCP server (`client.mcp.status`), reconecta automaticamente em caso
+de queda e notifica sessões ociosas da recuperação. Quando o SSE listener está disponível, ele usa
+`client.event.subscribe` para detectar `server.connected` e acelerar a recuperação.
+
+Veja a arquitetura completa em
 `PLANO GERAL/UPDATE/v0019/RELATORIO-FINAL-AGENTMAP.md` (seção 1 e §4).
 
 ### Flow de wake-up bidirecional
@@ -332,17 +339,22 @@ Kilo Serve (processo único)
   ▼
 Plugin AgentMap (.kilo/plugin/agentmap-wakeup.ts)
   │  1. Captura sessionID de event.properties.sessionID
-  │  2. GET /api/monitoramento/mensagens?limite=50&after=<lastSeq>
-  │  3. Filtra por eventSequence > ultimo processado
-  │  4. Debounce por sessão (DEBOUNCE_MS, padrão 3s)
+  │  2. Verifica saúde MCP/HTTP (health check automático)
+  │  3. Se MCP/HTTP indisponível, tenta reconectar/reiniciar
+  │  4. GET /api/monitoramento/mensagens?limite=50&after=<lastSeq>
+  │  5. Filtra por eventSequence > ultimo processado
+  │  6. Debounce por sessão (DEBOUNCE_MS, padrão 3s)
   ▼
 client.session.promptAsync({ path: { id: sessionId }, body: { parts: [...] } })
   │
   └─→ Agente Principal acorda e processa a mensagem injetada
 ```
 
-Referência ao **flow de comunicação bidirecional** completo (incluindo como agentes filhos no
-Agent Manager enviam/recebem mensagens via HTTP): [`docs/comunicacao-agentmap-kilo.md`](../comunicacao-agentmap-kilo.md).
+**Resiliência:** se a conexão cair, o plugin registra o evento no AgentMap, notifica sessões ociosas
+e tenta recuperar automaticamente. Quando disponível, usa SSE (`client.event.subscribe`) para
+detectar `server.connected` e acelerar a reconexão.
+
+Referência ao **flow de comunicação bidirecional** completo: [`docs/kilo-code-docs/comunicacao-agentmap-kilo.md`](comunicacao-agentmap-kilo.md).
 
 ### Configuração do plugin
 
@@ -351,6 +363,11 @@ Agent Manager enviam/recebem mensagens via HTTP): [`docs/comunicacao-agentmap-ki
 | `AGENTMAP_API_URL` | `http://localhost:3150` | Endpoint base da API REST do AgentMap |
 | `AGENTMAP_API_KEY` | (vazio) | Chave enviada como header `x-api-key` (opcional em dev local) |
 | `AGENTMAP_WAKEUP_DEBOUNCE_MS` | `3000` | Janela de debounce por sessão para agrupar eventos idle rápidos |
+| `AGENTMAP_HEALTH_CHECK_INTERVAL_MS` | `15000` | Intervalo do health check de saúde MCP/HTTP (ms) |
+| `AGENTMAP_HTTP_TIMEOUT_MS` | `8000` | Timeout para requisições HTTP ao AgentMap (ms) |
+| `AGENTMAP_HTTP_RESTART_RETRY_MS` | `5000` | Intervalo mínimo entre tentativas de restart do HTTP backend (ms) |
+| `AGENTMAP_MCP_RECONNECT_MS` | `10000` | Intervalo mínimo entre tentativas de reconexão MCP (ms) |
+| `AGENTMAP_BACKEND_DIR` | `backend` | Diretório do backend para restart automático |
 
 ### Tipos de mensagem para wake-up
 
@@ -364,6 +381,14 @@ e responder via HTTP `POST /api/monitoramento/mensagens` com tipo `KILO_REPLY` o
 
 Este tipo é filtrado automaticamente pela tool
 `agentmap_monitoramento_verificar_pendentes`.
+
+#### INSTANCIA_CONECTADA / INSTANCIA_DESCONECTADA
+
+Eventos registrados pelo plugin durante monitoramento de saúde:
+- `INSTANCIA_DESCONECTADA` — emitido quando o MCP server ou HTTP backend ficam indisponíveis
+- `INSTANCIA_CONECTADA` — emitido quando a conexão é restaurada após reconexão/reinício automático
+
+Esses eventos ajudam a rastrear quedas e recuperações do AgentMap diretamente no histórico do projeto.
 
 #### AGENTE_FILHO_RESULTADO
 

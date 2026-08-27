@@ -5057,10 +5057,12 @@ async function limparTemp() {
         ${erros ? `<p style="margin-top:8px; color:#ff9e9e;">Erros:<br>${erros}</p>` : ''}
       `;
     } else {
-      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(res.erro || 'Falha ao limpar temporários')}</p>`;
+      const mensagemErro = typeof res.erro === 'string' ? res.erro : JSON.stringify(res.erro || res);
+      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(mensagemErro || 'Falha ao limpar temporários')}</p>`;
     }
   } catch (err) {
-    corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(err?.message || err)}</p>`;
+    const mensagemErro = err instanceof Error ? err.message : (typeof err === 'string' ? err : JSON.stringify(err));
+    corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(mensagemErro)}</p>`;
   } finally {
     showModal('modal-limpeza');
   }

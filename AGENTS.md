@@ -166,7 +166,7 @@ Além do MCP, o `kilo.jsonc` pode registrar um **plugin de wake-up** via chave `
 }
 ```
 
-O plugin é carregado pelo processo Kilo Code e implementa o wake-up automático. Veja a seção [Flow de Wake-up](#flow-de-wake-up) abaixo.
+O plugin é carregado pelo processo Kilo Code e implementa o wake-up automático, além de monitoramento de saúde da conexão com o AgentMap e recuperação automática em caso de queda. Veja a seção [Flow de Wake-up](#flow-de-wake-up) abaixo.
 
 ### Flow de Wake-up
 
@@ -188,6 +188,12 @@ sequenceDiagram
     P->>K: client.session.promptAsync(prompt)
     K->>K: agente reativado, processa resposta
 ```
+
+**Monitoramento de saúde e recuperação automática:**
+- O plugin verifica periodicamente o HTTP backend (`/api/status`) e o status do MCP server.
+- Em caso de queda do MCP, tenta reconectar via `client.mcp.connect` / `client.mcp.add`.
+- Em caso de queda do HTTP backend, tenta reiniciar automaticamente via BunShell ou `child_process.spawn` (com fallback para Windows).
+- Sessões ociosas são notificadas da recuperação com um prompt automático.
 
 **Características de segurança do plugin:**
 - Roda **dentro do processo Kilo Code** (mesmo runtime)

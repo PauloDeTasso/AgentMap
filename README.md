@@ -594,7 +594,9 @@ Além da API REST, o AgentMap expõe um WebSocket em `ws://localhost:3150/ws/mon
 
 ### Wake-up Automático
 
-O AgentMap suporta **wake-up automático** do agente principal via plugin Kilo. O plugin `.kilo/plugin/agentmap-wakeup.ts` escuta eventos de ciclo de vida da sessão (`session.idle`) e, ao detectar oscilação, consulta o AgentMap por mensagens pendentes. Se houver uma mensagem relevante (respostas de agentes filhos), o plugin injeta um prompt via `promptAsync`, acordando o agente automaticamente.
+O AgentMap suporta **wake-up automático** do agente principal via plugin Kilo. O plugin `.kilo/plugin/agentmap-wakeup.ts` escuta eventos de ciclo de vida da sessão (`session.idle`) e, ao detectar ociosidade, consulta o AgentMap por mensagens pendentes. Se houver uma mensagem relevante (respostas de agentes filhos), o plugin injeta um prompt via `promptAsync`, acordando o agente automaticamente.
+
+Além do wake-up, o plugin monitora a saúde da conexão com o AgentMap e tenta recuperar automaticamente em caso de queda: reconecta o MCP server, notifica sessões ociosas e, quando possível, reinicia o HTTP backend usando BunShell ou `child_process.spawn` com fallback para Windows.
 
 **Flow do plugin:**
 
@@ -611,6 +613,12 @@ sequenceDiagram
     K->>K: agente reativado, processa resposta
 ```
 
+**Monitoramento de saúde e recuperação automática:**
+- O plugin verifica periodicamente o HTTP backend (`/api/status`) e o status do MCP server.
+- Em caso de queda do MCP, tenta reconectar via `client.mcp.connect` / `client.mcp.add`.
+- Em caso de queda do HTTP backend, tenta reiniciar automaticamente via BunShell ou `child_process.spawn` (com fallback para Windows).
+- Sessões ociosas são notificadas da recuperação com um prompt automático.
+
 **Configuração do plugin em `kilo.jsonc`:**
 
 ```json
@@ -622,6 +630,19 @@ sequenceDiagram
 ```
 
 O plugin roda **dentro do processo Kilo Code** — não expõe portas de rede nem utiliza credenciais externas. Ele consome a API REST local do AgentMap (`http://localhost:3150`) e/ou a tool MCP `agentmap_monitoramento_verificar_pendentes` para consultar pendências.
+
+**Variáveis de ambiente do plugin:**
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `AGENTMAP_API_URL` | `http://localhost:3150` | URL base do backend HTTP do AgentMap |
+| `AGENTMAP_API_KEY` | *(vazio)* | Chave API (`x-api-key`) enviada no header |
+| `AGENTMAP_WAKEUP_DEBOUNCE_MS` | `3000` | Janela de debounce entre verificações de wake-up (ms) |
+| `AGENTMAP_HEALTH_CHECK_INTERVAL_MS` | `15000` | Intervalo do health check de saúde MCP/HTTP (ms) |
+| `AGENTMAP_HTTP_TIMEOUT_MS` | `8000` | Timeout para requisições HTTP ao AgentMap (ms) |
+| `AGENTMAP_HTTP_RESTART_RETRY_MS` | `5000` | Intervalo mínimo entre tentativas de restart do HTTP backend (ms) |
+| `AGENTMAP_MCP_RECONNECT_MS` | `10000` | Intervalo mínimo entre tentativas de reconexão MCP (ms) |
+| `AGENTMAP_BACKEND_DIR` | `backend` | Diretório do backend para restart automático |
 
 ### Comunicação Agent Manager HTTP
 

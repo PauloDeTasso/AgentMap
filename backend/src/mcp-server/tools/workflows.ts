@@ -59,7 +59,7 @@ registerWorkflowTool(mcpServer, 'agentmap_workflows_finalizar_trabalho', {
     tarefaId: z.string(),
     agenteId: z.string(),
     resumo: z.string().optional(),
-    estado: z.string().optional()
+    estado: z.enum(['COMPLETO', 'PARCIAL', 'INCOMPLETO', 'CONCLUIDA', 'concluido', 'finalizado']).optional()
   }).passthrough(),
   outputSchema: z.object({
     resultado: z.unknown(),
@@ -71,10 +71,24 @@ registerWorkflowTool(mcpServer, 'agentmap_workflows_finalizar_trabalho', {
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
   const { sessaoId, tarefaId, agenteId, ...resultadoDados } = dados;
+
+  const mapearEstado = (estado?: string): 'COMPLETO' | 'PARCIAL' | 'INCOMPLETO' => {
+    if (!estado) return 'COMPLETO';
+    const normalized = estado.toUpperCase();
+    if (['CONCLUIDA', 'CONCLUIDO', 'FINALIZADO'].includes(normalized)) return 'COMPLETO';
+    if (['COMPLETO', 'PARCIAL', 'INCOMPLETO'].includes(normalized)) return normalized as 'COMPLETO' | 'PARCIAL' | 'INCOMPLETO';
+    return 'COMPLETO';
+  };
+
+  const resultadoDadosMapeados = {
+    ...resultadoDados,
+    estado: mapearEstado(dados.estado as string | undefined)
+  };
+
   const resultado = await ctx.dados!.servicos.resultado.criar({
     tarefaId: String(tarefaId || ''),
     agenteId: String(agenteId || ''),
-    ...resultadoDados
+    ...resultadoDadosMapeados
   });
   if (!resultado.sucesso) {
     auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, resultado);
@@ -88,12 +102,22 @@ registerWorkflowTool(mcpServer, 'agentmap_workflows_finalizar_trabalho', {
     estado: 'PENDENTE'
   });
   if (sessaoId) {
-    const sessaoResult = await ctx.dados!.servicos.sessao.finalizar(String(sessaoId), { estadoFinal: String(dados.estado || 'CONCLUIDA') });
+    const estadoSessao = mapearEstado(dados.estado as string | undefined);
+    const sessaoResult = await ctx.dados!.servicos.sessao.finalizar(String(sessaoId), { estadoFinal: estadoSessao === 'COMPLETO' ? 'CONCLUIDA' : estadoSessao });
     if (!sessaoResult.sucesso) {
       auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, sessaoResult);
       return mcpError(sessaoResult);
     }
   }
+
+  if (tarefaId) {
+    const tarefaService = ctx.dados!.servicos.tarefa;
+    const estadoResultado = mapearEstado(dados.estado as string | undefined);
+    if (estadoResultado === 'COMPLETO') {
+      await tarefaService.alterarEstado(String(tarefaId), 'CONCLUIDA' as any);
+    }
+  }
+
   const finalResult = { sucesso: true, dados: { resultado: resultado.dados, handoff: handoff.dados } };
   auditoria.registrarToolCall('agentmap_workflows_finalizar_trabalho', projeto, dados, finalResult);
   return toMcpStructured(finalResult.dados);

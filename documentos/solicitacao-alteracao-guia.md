@@ -267,7 +267,8 @@ resultados via **HTTP direto**, consultando o fluxo completo em
 `POST http://localhost:3150/api/monitoramento/mensagens` com os tipos `KILO_CHAT`, `KILO_REPLY`,
 `KILO_RESULT` ou `KILO_CHAT_REPLY`. O agente pai (responsável pela solicitação) é acordado
 automaticamente pelo plugin `.kilo/plugin/agentmap-wakeup.ts` quando fica ociado (`session.idle`),
-que injeta um prompt via `promptAsync` se houver mensagens pendentes. Veja
+que injeta um prompt via `promptAsync` se houver mensagens pendentes. Além disso, o plugin monitora
+a saúde da conexão MCP/HTTP e tenta recuperar automaticamente em caso de queda. Veja
 [`docs/protocolo-mcp.md`](../docs/protocolo-mcp.md) — seção "Plugin Kilo e Wake-Up".
 
 ---
@@ -389,4 +390,4 @@ O sistema valida:
 |---|---|
 | [`docs/comunicacao-agentmap-kilo.md`](../docs/comunicacao-agentmap-kilo.md) | Flow bidirecional entre AgentMap e agentes no Agent Manager (HTTP/MCP) |
 | [`docs/protocolo-mcp.md`](../docs/protocolo-mcp.md) | Protocolo MCP do AgentMap, incluindo plugin de wake-up |
-| `.kilo/plugin/agentmap-wakeup.ts` | Plugin oficial de wake-up via `session.idle` → `promptAsync`
+| `.kilo/plugin/agentmap-wakeup.ts` | Plugin oficial de wake-up via `session.idle` → `promptAsync`, com monitoramento de saúde MCP/HTTP e auto-reconexão |

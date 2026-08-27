@@ -344,7 +344,7 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 - `KILO_RESULT` — resultado final de tarefa
 - `KILO_CHAT_REPLY` — resposta de chat simples
 
-Documentação completa: [`docs/comunicacao-agentmap-kilo.md`](docs/comunicacao-agentmap-kilo.md)
+Documentação completa: [`docs/kilo-code-docs/comunicacao-agentmap-kilo.md`](comunicacao-agentmap-kilo.md)
 
 #### Padrão Recomendado: Comunicação Bidirecional (Agent Manager Worktree)
 
@@ -409,7 +409,15 @@ O plugin `.kilo/plugin/agentmap-wakeup.ts` inclui **rastreamento de atividade** 
 - **Comportamento:** durante janela de atividade, heartbeats e verificações de wake-up são suprimidos
 - **Fallback:** se a sessão ficar ociosa por mais de 60s sem atividade, o plugin retoma o comportamento normal
 
-Isso evita que o plugin envie heartbeats ("Aviso do AgentMap...") enquanto o agente está trabalhando.
+Além do rastreamento de atividade, o plugin também monitora a saúde da conexão com o AgentMap:
+
+- **Health check periódico:** verifica HTTP backend (`/api/status`) e MCP server (`client.mcp.status`) a cada 15s (configurável)
+- **Auto-reconexão MCP:** tenta reconectar via `client.mcp.connect` / `client.mcp.add` se o MCP server ficar indisponível
+- **Restart do backend:** tenta reiniciar o HTTP backend automaticamente usando BunShell ou `child_process.spawn` com fallback para Windows
+- **Notificação de recuperação:** quando a conexão é restaurada, injeta um prompt de recovery nas sessões ociosas
+- **SSE listener:** quando disponível, usa `client.event.subscribe` para detectar `server.connected` e acelerar a recuperação
+
+Isso evita que o plugin envie heartbeats ("Aviso do AgentMap...") enquanto o agente está trabalhando e garante resiliência contra quedas do MCP/server/backend.
 
 ## Comportamento de Tools Multi-parâmetro
 
@@ -435,3 +443,18 @@ O AgentMap roda localmente e não exige autenticação. As rotas públicas inclu
 - `GET /api/temp/caminho`
 
 CORS está configurado para permitir origens de desenvolvimento local.
+
+## Variáveis de ambiente do plugin agentmap-wakeup
+
+O plugin `.kilo/plugin/agentmap-wakeup.ts` suporta as seguintes variáveis de ambiente para ajustar seu comportamento:
+
+| Variável | Padrão | Descrição |
+|---|---|---|
+| `AGENTMAP_API_URL` | `http://localhost:3150` | URL base do backend HTTP do AgentMap |
+| `AGENTMAP_API_KEY` | *(vazio)* | Chave API enviada no header `x-api-key` |
+| `AGENTMAP_WAKEUP_DEBOUNCE_MS` | `3000` | Janela de debounce entre verificações de wake-up (ms) |
+| `AGENTMAP_HEALTH_CHECK_INTERVAL_MS` | `15000` | Intervalo do health check de saúde MCP/HTTP (ms) |
+| `AGENTMAP_HTTP_TIMEOUT_MS` | `8000` | Timeout para requisições HTTP ao AgentMap (ms) |
+| `AGENTMAP_HTTP_RESTART_RETRY_MS` | `5000` | Intervalo mínimo entre tentativas de restart do HTTP backend (ms) |
+| `AGENTMAP_MCP_RECONNECT_MS` | `10000` | Intervalo mínimo entre tentativas de reconexão MCP (ms) |
+| `AGENTMAP_BACKEND_DIR` | `backend` | Diretório do backend para restart automático |

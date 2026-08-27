@@ -217,6 +217,8 @@ O plugin oficial `agentmap-wakeup` (arquivo `.kilo/plugin/agentmap-wakeup.ts`) r
 4. Se há mensagens pendentes relevantes, o plugin injeta um novo prompt na sessão via **`client.session.promptAsync({ sessionID, parts })`**, acordando o agente já com o contexto das atualizações.
 5. O cursor `eventSequence` é atualizado, garantindo **idempotência** — o mesmo lote de mensagens não será reenviado.
 
+Além do wake-up, o plugin também monitora a saúde da conexão com o AgentMap (`/api/status`, `client.mcp.status`) e tenta recuperar automaticamente em caso de queda: reconecta o MCP server, notifica sessões ociosas e, quando possível, reinicia o HTTP backend usando BunShell ou `child_process.spawn` com fallback para Windows.
+
 Esse fluxo completo é documentado em detalhes em `docs/arquitetura-mcp.md` (seção "Plugin agentmap-wakeup") e em `PLANO GERAL/UPDATE/v0019/RELATORIO-FINAL-AGENTMAP.md` (seções 1 e 4).
 
 ### (c) Comunicação bidirecional via HTTP — Agent Manager worktree ↔ AgentMap
@@ -251,5 +253,5 @@ Agentes filhos (criados pelo **Agent Manager** em worktrees isolados) não possu
   (agenteId, limite)
 ```
 
-Essa comunicação bidirecional é descrita na documentação oficial em `docs/comunicacao-agentmap-kilo.md`.
+Essa comunicação bidirecional é descrita em `docs/kilo-code-docs/comunicacao-agentmap-kilo.md`.
 

@@ -24,6 +24,8 @@ Os planos v1 a v4 desta conversa (baseados em `kilo run --attach` via CLI extern
 
 **Isso substitui o Gate -1/0 dos planos v1-v4 inteiro.** Em vez de um watcher externo tentando adivinhar porta/senha do servidor da extensão e chamar `kilo run --attach` de fora, um **plugin do AgentMap** (`.kilo/plugin/agentmap-wakeup.ts`) roda dentro do próprio Kilo, escuta `session.idle`, consulta a API do AgentMap (`agentmap_monitoramento_verificar_pendentes`, que já existe) e, se houver mensagem pendente, chama `promptAsync` diretamente — tudo dentro do mesmo processo, com acesso nativo ao `sessionID`, sem autenticação externa, sem descoberta de porta.
 
+Além do wake-up, o plugin também monitora a saúde da conexão MCP/HTTP, reconecta automaticamente em caso de queda e notifica sessões ociosas da recuperação, incluindo restart automático do HTTP backend quando possível.
+
 Isso não invalida o trabalho dos planos v1-v4 — o **Event Bus, o `eventSequence`, o filtro de relevância, o coalescing e os níveis de autonomia continuam exatamente como desenhados** (Gates 1 a 4). Só o transporte muda: de "CLI externa tentando entrar" para "plugin nativo já dentro".
 
 ---

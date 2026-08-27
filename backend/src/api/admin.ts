@@ -130,6 +130,29 @@ export function criarAdminRouter(): Router {
       erros: [] as string[],
     };
 
+    const registryVazioPorPasta: Record<string, string> = {
+      handoffs: JSON.stringify({ handoffs: [] }, null, 2),
+      tarefas: JSON.stringify({ tarefas: [], estatisticas: { total: 0 } }, null, 2),
+      contratos: JSON.stringify({ contratos: [] }, null, 2),
+      dependencias: JSON.stringify({ dependencias: [] }, null, 2),
+      auditoria: JSON.stringify({ eventos: [] }, null, 2),
+    };
+
+    const garantirPastaVazia = (pastaPath: string, nomePasta: string) => {
+      try {
+        if (!fs.existsSync(pastaPath)) {
+          fs.mkdirSync(pastaPath, { recursive: true });
+        }
+        const registryName = `${nomePasta}.json`;
+        const registryPath = path.win32.join(pastaPath, registryName);
+        if (registryVazioPorPasta[nomePasta]) {
+          fs.writeFileSync(registryPath, registryVazioPorPasta[nomePasta], 'utf-8');
+        }
+      } catch (err: any) {
+        resultado.erros.push(`Falha ao garantir pasta ${pastaPath}: ${err.message}`);
+      }
+    };
+
     const limparConteudoArquivo = (fullPath: string) => {
       try {
         if (!fs.existsSync(fullPath)) return false;
@@ -196,10 +219,9 @@ export function criarAdminRouter(): Router {
 
       for (const pasta of pastasParaLimpar) {
         const fullPath = getFilePath(pasta);
-        if (fs.existsSync(fullPath)) {
-          limparPasta(fullPath);
-          resultado.pastasLimpas.push(pasta);
-        }
+        garantirPastaVazia(fullPath, pasta);
+        limparPasta(fullPath);
+        resultado.pastasLimpas.push(pasta);
       }
 
       for (const arquivo of arquivosParaLimpar) {
@@ -224,10 +246,9 @@ export function criarAdminRouter(): Router {
 
     for (const pasta of pastasParaLimpar) {
       const fullPath = getFilePath(pasta);
-      if (fs.existsSync(fullPath)) {
-        limparPasta(fullPath);
-        resultado.pastasLimpas.push(pasta);
-      }
+      garantirPastaVazia(fullPath, pasta);
+      limparPasta(fullPath);
+      resultado.pastasLimpas.push(pasta);
     }
 
     for (const arquivo of arquivosParaLimpar) {

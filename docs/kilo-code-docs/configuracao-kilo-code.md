@@ -64,7 +64,7 @@ Se o usuário estiver em Linux ou macOS, ajuste o campo `command` para:
 | `mcp.agentmap.environment` | `object` | Variáveis de ambiente passadas ao processo. `NODE_ENV=production` é recomendado para estabilidade. |
 | `mcp.agentmap.enabled` | `boolean` | Habilita ou desabilita o servidor. Deve ser `true`. |
 | `mcp.agentmap.timeout` | `number` | Timeout em milissegundos para inicialização do processo. Padrão: `30000`. |
-| `plugin` | `string[]` | Caminhos para plugins Kilo. O plugin `agentmap-wakeup.ts` é obrigatório para wake-up automático do agente principal. |
+| `plugin` | `string[]` | Caminhos para plugins Kilo. O plugin `agentmap-wakeup.ts` é obrigatório para wake-up automático do agente principal e monitoramento de saúde da conexão com o AgentMap. |
 
 ## 5. Variáveis locais (não versionadas)
 
@@ -91,6 +91,8 @@ Configurações específicas da máquina, como coleção de dados e credenciais 
 | MCP aparece mas tools não carregam | Backend não foi iniciado ou porta `3150` ocupada | Execute `npm run dev` em `backend/` e confira `http://localhost:3150/api/health` |
 | `command` não é encontrado | Caminho relativo incorreto ou `npx` não disponível | Verifique se está na raiz do AgentMap; confira `npx --version` |
 | Plugin não carrega | Caminho `./.kilo/plugin/agentmap-wakeup.ts` inexistente | Verifique se o arquivo existe em `.kilo/plugin/` |
+| Tools caem após restart do backend | Plugin não está reconectando automaticamente | Verifique logs do plugin (`[agentmap-health]`); confira se `client.mcp.status` está disponível |
+| Backend não reinicia sozinho | `child_process.spawn` bloqueado no ambiente | Inicie o backend manualmente com `npm run dev`; o plugin continuará funcionando via HTTP |
 
 ## 7. Validação
 
@@ -103,7 +105,7 @@ Após configurar:
 
 ## 8. Referências
 
-- [`docs/comunicacao-agentmap-kilo.md`](comunicacao-agentmap-kilo.md) — Protocolo de comunicação HTTP/MCP entre AgentMap e agentes Kilo
-- [`docs/guia-agente-mcp.md`](guia-agente-mcp.md) — Guia do agente MCP
+- [`docs/kilo-code-docs/comunicacao-agentmap-kilo.md`](comunicacao-agentmap-kilo.md) — Protocolo de comunicação HTTP/MCP entre AgentMap e agentes Kilo
+- [`docs/kilo-code-docs/guia-agente-mcp.md`](guia-agente-mcp.md) — Guia do agente MCP
 - [`docs/arquitetura-mcp.md`](arquitetura-mcp.md) — Arquitetura MCP do AgentMap
 - `PLANO GERAL/arquivo/PLANO-WAKEUP-AGENTE-PRINCIPAL-KILOCODE.md` — Especificação do plugin de wake-up

@@ -487,10 +487,15 @@ curl "http://localhost:3150/api/monitoramento/kilo/receive-chat?agenteId=backend
 
 O plugin `agentmap-wakeup.ts` é o **mecanismo oficial de wake-up** entre Kilo Code / Agent
 Manager e AgentMap. Ele monitora o estado `session.idle` de cada sessão Kilo conectada.
-Quando uma sessão permanece inativa por período configurado, o plugin emite um evento
-`WAKEUP_PARENT` (tipo `KILO_CHAT` com `dados.wakeup=true`) que acorda o agente pai,
-permitindo que AgentMap reavalie pendências, envie novas instruções ou dispare o próximo
-handoff sem intervenção manual.
+Quando uma sessão permanece inativa por período configurado, o plugin consulta o AgentMap
+por mensagens pendentes e, se houver conteúdo relevante, injeta um prompt diretamente na
+sessão via `client.session.promptAsync`, acordando o agente sem intervenção manual.
+
+Além do wake-up, o plugin monitora a saúde da conexão MCP/HTTP: verifica periodicamente
+o HTTP backend (`/api/status`) e o status do MCP server, reconecta automaticamente em caso
+de queda e notifica sessões ociosas da recuperação com um prompt automático. Quando o SSE
+listener está disponível, ele usa `client.event.subscribe` para detectar `server.connected`
+e acelerar a recuperação.
 
 **Ler respostas (filho ← AgentMap):**
 ```

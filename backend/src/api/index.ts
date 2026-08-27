@@ -53,13 +53,13 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
 
   router.use('/api/monitoramento', criarMonitoramentoRouter());
 
-  router.use('/api/temp', criarTempRouter());
-
   router.use('/api/projetos', criarProjetoRouter(projetoService));
 
   router.use('/api/observabilidade', criarObservabilidadeRouter());
 
   router.use('/api/*', projectMiddleware(projetoService));
+
+  router.use('/api/temp', criarTempRouter());
 
   router.use('/api/gerenciador-agentes', criarGerenciadorAgentesRouter());
 

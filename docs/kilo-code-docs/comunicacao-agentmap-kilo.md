@@ -284,7 +284,7 @@ worktree e AgentMap.
 
 3. **KILO_CHAT** (Filho → AgentMap) — Pergunta sobre backend.
 4. **KILO_REPLY** (AgentMap → Filho) — Resposta sobre backend.
-5. **KILO_RESULT** (Filho → AgentMap) — Resultado final: `Concluido. Arquivos alterados: docs/comunicacao-agentmap-kilo.md, documentos/protocolo-agentes.md`
+5. **KILO_RESULT** (Filho → AgentMap) — Resultado final: `Concluido. Arquivos alterados: docs/kilo-code-docs/comunicacao-agentmap-kilo.md, documentos/protocolo-agentes.md`
 
 ### 11.4 eventSequence
 
@@ -308,6 +308,8 @@ O teste confirma que:
   com filtragem por `agenteId` e limite configurável.
 - O plugin `agentmap-wakeup.ts` acorda o agente via `session.idle` de forma confiável,
   iniciando o ciclo de comunicação sem intervenção manual.
+- O plugin também monitora a saúde da conexão MCP/HTTP, reconecta automaticamente em caso de queda
+  e notifica sessões ociosas da recuperação.
 
 ## 12. Logs de auditoria
 
