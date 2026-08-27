@@ -37,7 +37,7 @@
   </main>
 
   <!-- Modal: Novo Projeto -->
-  <div class="modal" id="modal-novo-projeto" style="display:none;">
+  <div class="modal" id="modal-novo-projeto" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-novo-projeto')">&times;</button>
        <h3 class="modal__titulo" id="titulo-projeto">Novo Projeto</h3>
@@ -111,14 +111,14 @@
   </div>
 
   <!-- Modal: Abrir Projeto -->
-  <div class="modal" id="modal-abrir-projeto" style="display:none;">
+  <div class="modal" id="modal-abrir-projeto" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-abrir-projeto')">&times;</button>
       <h3 class="modal__titulo">Abrir Projeto</h3>
       <form class="form" id="form-abrir-projeto">
         <div class="form__grupo">
           <label class="form__label" for="caminho-abrir">Caminho do Projeto</label>
-          <div style="display:flex;gap:8px;">
+          <div class="form__linha">
             <input class="form__input" type="text" id="caminho-abrir" placeholder="G:\Projetos\AgenteMap_Projetos" required>
             <button class="btn btn--small" type="button" id="btn-procurar-abrir" title="Procurar pasta" aria-label="Procurar pasta">📂</button>
           </div>
@@ -135,7 +135,7 @@
   <input type="file" id="file-folder-picker" webkitdirectory directory style="display:none;">
 
   <!-- Modal: Novo/Editar Agente -->
-  <div class="modal modal--grande" id="modal-agente" style="display:none;">
+  <div class="modal modal--grande" id="modal-agente" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-agente')">&times;</button>
       <div class="modal__cabecalho">
@@ -261,7 +261,7 @@
   </div>
 
   <!-- Modal: Novo Arquivo -->
-  <div class="modal" id="modal-novo-arquivo" style="display:none;">
+  <div class="modal" id="modal-novo-arquivo" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-novo-arquivo')">&times;</button>
       <h3 class="modal__titulo">Novo Arquivo</h3>
@@ -283,7 +283,7 @@
   </div>
 
   <!-- Modal: Nova Tarefa -->
-  <div class="modal" id="modal-tarefa" style="display:none;">
+  <div class="modal" id="modal-tarefa" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-tarefa')">&times;</button>
       <h3 class="modal__titulo" id="titulo-tarefa">Nova Tarefa</h3>
@@ -359,19 +359,19 @@
   </div>
 
   <!-- Modal: Contexto da Tarefa -->
-  <div class="modal modal--grande" id="modal-contexto" style="display:none;">
+  <div class="modal modal--grande" id="modal-contexto" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-contexto')">&times;</button>
       <div class="modal__cabecalho">
         <h3 class="modal__titulo">Contexto da Tarefa</h3>
         <button class="btn btn--small btn--ghost" onclick="hideModal('modal-contexto')">Fechar</button>
       </div>
-      <pre class="editor__texto" id="contexto-texto" style="min-height:400px;"></pre>
+      <pre class="editor__texto editor__texto--grande" id="contexto-texto"></pre>
     </div>
   </div>
 
   <!-- Modal: Editor de Arquivo -->
-   <div class="modal modal--grande" id="modal-editor" style="display:none;">
+   <div class="modal modal--grande" id="modal-editor" >
      <div class="modal__conteudo modal__conteudo--cheio">
        <button class="modal__fechar" onclick="hideModal('modal-editor')">&times;</button>
        <div class="modal__cabecalho">
@@ -390,7 +390,7 @@
   </div>
 
   <!-- Modal: Contrato -->
-  <div class="modal modal--grande" id="modal-contrato" style="display:none;">
+  <div class="modal modal--grande" id="modal-contrato" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-contrato')">&times;</button>
       <div class="modal__cabecalho">
@@ -449,7 +449,7 @@
   </div>
 
   <!-- Modal: Solicitação de Alteração -->
-  <div class="modal modal--grande" id="modal-solicitacao" style="display:none;">
+  <div class="modal modal--grande" id="modal-solicitacao" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-solicitacao')">&times;</button>
       <div class="modal__cabecalho">
@@ -591,7 +591,7 @@
   </div>
 
    <!-- Modal: Prompt do Agente -->
-  <div class="modal modal--grande" id="modal-prompt" style="display:none;">
+  <div class="modal modal--grande" id="modal-prompt" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-prompt')">&times;</button>
       <div class="modal__cabecalho">
@@ -626,7 +626,7 @@
   </div>
 
   <!-- Modal: Configuracoes -->
-  <div class="modal" id="modal-configuracao" style="display:none;">
+  <div class="modal" id="modal-configuracao" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-configuracao')">&times;</button>
       <h3 class="modal__titulo">Configuracoes</h3>
@@ -656,7 +656,7 @@
   </div>
 
   <!-- Modal: Confirmacao Rapida -->
-  <div class="modal" id="modal-confirmacao" style="display:none;">
+  <div class="modal" id="modal-confirmacao" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-confirmacao')">&times;</button>
       <h3 class="modal__titulo" id="confirmacao-titulo">Confirmacao</h3>
@@ -669,11 +669,11 @@
   </div>
 
   <!-- Modal: Resultado Limpeza -->
-   <div class="modal" id="modal-limpeza" style="display:none;">
+   <div class="modal" id="modal-limpeza" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-limpeza')">&times;</button>
       <h3 class="modal__titulo">Limpeza de Arquivos Temporários</h3>
-      <div id="limpeza-corpo" style="margin-bottom:12px;"></div>
+      <div id="limpeza-corpo" class="modal__corpo"></div>
       <div class="form__acoes">
         <button class="btn btn--primario" type="button" onclick="hideModal('modal-limpeza')">Fechar</button>
       </div>
@@ -681,7 +681,7 @@
   </div>
 
   <!-- Modal: Artefato -->
-  <div class="modal modal--grande" id="modal-artefato" style="display:none;">
+  <div class="modal modal--grande" id="modal-artefato" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-artefato')">&times;</button>
       <div class="modal__cabecalho">
@@ -743,7 +743,7 @@
   </div>
 
   <!-- Modal: Marco (Checkpoint) -->
-  <div class="modal modal--grande" id="modal-checkpoint" style="display:none;">
+  <div class="modal modal--grande" id="modal-checkpoint" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-checkpoint')">&times;</button>
       <div class="modal__cabecalho">
@@ -795,7 +795,7 @@
   </div>
 
   <!-- Modal: Aprendizado -->
-  <div class="modal modal--grande" id="modal-aprendizado" style="display:none;">
+  <div class="modal modal--grande" id="modal-aprendizado" >
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-aprendizado')">&times;</button>
       <div class="modal__cabecalho">
@@ -858,7 +858,7 @@
     </div>
   </div>
 
-   <div class="modal" id="modal-resultado" style="display:none;">
+   <div class="modal" id="modal-resultado" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-resultado')">&times;</button>
        <h3 class="modal__titulo" id="titulo-resultado">Novo Resultado</h3>
@@ -897,7 +897,7 @@
    </div>
 
    <!-- Modal: Reserva -->
-   <div class="modal" id="modal-reserva" style="display:none;">
+   <div class="modal" id="modal-reserva" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-reserva')">&times;</button>
        <h3 class="modal__titulo" id="titulo-reserva">Nova Reserva</h3>
@@ -940,7 +940,7 @@
    </div>
 
    <!-- Modal: Decisão -->
-   <div class="modal" id="modal-decisao" style="display:none;">
+   <div class="modal" id="modal-decisao" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-decisao')">&times;</button>
        <h3 class="modal__titulo" id="titulo-decisao">Nova Decisão</h3>
@@ -988,7 +988,7 @@
    </div>
 
    <!-- Modal: Risco -->
-   <div class="modal" id="modal-risco" style="display:none;">
+   <div class="modal" id="modal-risco" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-risco')">&times;</button>
        <h3 class="modal__titulo" id="titulo-risco">Novo Risco</h3>
@@ -1066,7 +1066,7 @@
 
 
 
-<div class="modal" id="modal-dependencia" style="display:none;">
+<div class="modal" id="modal-dependencia" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-dependencia')">&times;</button>
        <h3 class="modal__titulo" id="titulo-dependencia">Nova Dependência</h3>
@@ -1113,7 +1113,7 @@
      </div>
    </div>
 
-<div class="modal" id="modal-responsabilidade" style="display:none;">
+<div class="modal" id="modal-responsabilidade" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-responsabilidade')">&times;</button>
        <h3 class="modal__titulo" id="titulo-responsabilidade">Nova Responsabilidade</h3>
@@ -1148,7 +1148,7 @@
      </div>
    </div>
 
-<div class="modal" id="modal-bloqueio" style="display:none;">
+<div class="modal" id="modal-bloqueio" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-bloqueio')">&times;</button>
        <h3 class="modal__titulo" id="titulo-bloqueio">Novo Bloqueio</h3>
@@ -1206,7 +1206,7 @@
      </div>
    </div>
 
-<div class="modal" id="modal-sessao" style="display:none;">
+<div class="modal" id="modal-sessao" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-sessao')">&times;</button>
       <h3 class="modal__titulo" id="titulo-sessao">Nova Sessao</h3>
@@ -1248,7 +1248,7 @@
     </div>
   </div>
 
-<div class="modal" id="modal-criterio" style="display:none;">
+<div class="modal" id="modal-criterio" >
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-criterio')">&times;</button>
       <h3 class="modal__titulo" id="titulo-criterio">Novo Criterio</h3>
@@ -1295,7 +1295,7 @@
    </div>
 
    <!-- Modal: Handoff -->
-   <div class="modal" id="modal-handoff" style="display:none;">
+   <div class="modal" id="modal-handoff" >
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-handoff')">&times;</button>
        <h3 class="modal__titulo" id="titulo-handoff">Nova Transferência</h3>
@@ -1339,7 +1339,7 @@
    </div>
 
     <!-- Modal: Validação -->
-    <div class="modal modal--grande" id="modal-validacao" style="display:none;">
+    <div class="modal modal--grande" id="modal-validacao" >
       <div class="modal__conteudo modal__conteudo--cheio">
         <button class="modal__fechar" onclick="hideModal('modal-validacao')">&times;</button>
         <div class="modal__cabecalho">
@@ -1411,7 +1411,7 @@
     </div>
 
     <!-- Modal: Pendência -->
-    <div class="modal modal--grande" id="modal-pendencia" style="display:none;">
+    <div class="modal modal--grande" id="modal-pendencia" >
       <div class="modal__conteudo modal__conteudo--cheio">
         <button class="modal__fechar" onclick="hideModal('modal-pendencia')">&times;</button>
         <div class="modal__cabecalho">
@@ -1495,7 +1495,7 @@
     </div>
 
     <!-- Modal: Conflito -->
-    <div class="modal modal--grande" id="modal-conflito" style="display:none;">
+    <div class="modal modal--grande" id="modal-conflito" >
       <div class="modal__conteudo modal__conteudo--cheio">
         <button class="modal__fechar" onclick="hideModal('modal-conflito')">&times;</button>
         <div class="modal__cabecalho">

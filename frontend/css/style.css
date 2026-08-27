@@ -188,13 +188,13 @@ a:focus-visible {
 }
 
 .modal {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 500;
@@ -369,7 +369,42 @@ a:focus-visible {
   min-height: 1.2rem;
 }
 
-/* Painel de navegação lateral */
+.form__linha {
+  display: flex;
+  gap: 8px;
+}
+
+.editor__texto--grande {
+  min-height: 400px;
+}
+
+.modal__corpo {
+  margin-bottom: 12px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .painel-container { flex-direction: column; }
+  .painel-lateral { flex: 0 0 auto; }
+  .card__actions { flex-direction: column; }
+  .modal__conteudo {
+    width: 95%;
+    max-width: none;
+    padding: 16px;
+  }
+  .modal__conteudo--cheio {
+    width: 100%;
+    max-width: none;
+    padding: 12px;
+  }
+  .modal__fechar {
+    font-size: 1.25rem;
+    padding: 8px 12px;
+  }
+  .form__grid {
+    grid-template-columns: 1fr;
+  }
+}
 .painel-container {
   display: flex;
   gap: 16px;
