@@ -74,8 +74,8 @@ function isProjetoAgentMap(caminhoRaiz) {
   return proj === gerenciador || proj.startsWith(gerenciador + '/');
 }
 
-function showModal(id) { $(id).style.display = 'flex'; }
-function hideModal(id) { $(id).style.display = 'none'; }
+function showModal(id) { const el = $(id); if (el) { el.classList.remove('modal--hidden'); el.classList.add('modal--aberto'); } }
+function hideModal(id) { const el = $(id); if (el) { el.classList.add('modal--hidden'); el.classList.remove('modal--aberto'); } }
 
 function agenteNomePorId(id) {
   if (!id) return '-';
@@ -617,7 +617,7 @@ function setupEventListeners() {
         };
         res = await api.criarProjeto(nome, caminhoParental, descricao, dadosExtra);
         if (res.sucesso) {
-          showToast(`Projeto '${nome}' criado!`, 'sucesso');
+          showToast(`Projeto '${nome}' criado com sucesso! Abra a pasta em um editor (ex: VS Code) para usar o MCP do AgentMap.`, 'sucesso');
         }
       }
       if (res.sucesso) {
@@ -754,7 +754,7 @@ function renderizarDashboard() {
   principal.innerHTML = '<p style="color:var(--text-muted);">Selecione uma opção ao lado.</p>';
 
   function closeModals() {
-    document.querySelectorAll('[id^="modal-"]').forEach((m) => { m.style.display = 'none'; });
+    document.querySelectorAll('.modal').forEach((m) => { m.classList.add('modal--hidden'); m.classList.remove('modal--aberto'); });
   }
 
   lateral.querySelectorAll('[data-painel]').forEach((item) => {
@@ -834,11 +834,13 @@ async function renderizarProjetos(el) {
       const deleteBtn = isSystem
         ? ''
         : `<button class="btn btn--small btn--danger" onclick="excluirProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')">Excluir</button>`;
+      const limparBtn = `<button class="btn btn--small btn--danger" onclick="limparDadosProjeto('${escapeAttr(p.id)}', '${escapeAttr((p.nome || '').replace(/'/g, "\\'"))}')" title="Limpar tarefas, handoffs, pendências e dados obsoletos deste projeto">🗑️ Limpar Dados</button>`;
       tr.innerHTML = `<td>${escapeHtml(p.nome || '')}${badge}</td><td>${escapeHtml(caminho)}</td>
         <td>
           <button class="btn btn--small" onclick="verProjeto('${escapeAttr(p.id)}')">Ver</button>
           <button class="btn btn--small" onclick="abrirProjeto('${escapeAttr(p.id)}')">Abrir</button>
           <button class="btn btn--small" onclick="editarProjeto('${escapeAttr(p.id)}')">Editar</button>
+          ${limparBtn}
           ${deleteBtn}
         </td>`;
       tbody.appendChild(tr);
@@ -1090,6 +1092,178 @@ window.excluirTodosHandoffs = async function() {
     }
   } catch (err) {
     showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.abrirModalEstadoNota = function(nota = null) {
+  const isEdit = nota !== null;
+  let html = `<div id="modal-estado-nota" class="modal modal--hidden">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="fecharModalEstadoNota()">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo">${isEdit ? 'Editar Nota de Estado' : 'Nova Nota de Estado'}</h3>
+      </div>
+      <form id="form-estado-nota" class="form">
+        <div class="form__grupo">
+          <label class="form__label">Título <span class="required">*</span></label>
+          <input type="text" id="estado-nota-titulo" class="form__input" value="${isEdit ? escapeAttr(nota.titulo) : ''}" required>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label">Conteúdo <span class="required">*</span></label>
+          <textarea id="estado-nota-conteudo" class="form__textarea" rows="5" required>${isEdit ? escapeHtml(nota.conteudo) : ''}</textarea>
+        </div>
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label">Categoria</label>
+            <select id="estado-nota-categoria" class="form__input">
+              <option value="GERAL" ${isEdit && nota.categoria === 'GERAL' ? 'selected' : ''}>Geral</option>
+              <option value="PROBLEMA" ${isEdit && nota.categoria === 'PROBLEMA' ? 'selected' : ''}>Problema</option>
+              <option value="DECISAO" ${isEdit && nota.categoria === 'DECISAO' ? 'selected' : ''}>Decisão</option>
+              <option value="OBSERVACAO" ${isEdit && nota.categoria === 'OBSERVACAO' ? 'selected' : ''}>Observação</option>
+              <option value="RISCO" ${isEdit && nota.categoria === 'RISCO' ? 'selected' : ''}>Risco</option>
+              <option value="MELHORIA" ${isEdit && nota.categoria === 'MELHORIA' ? 'selected' : ''}>Melhoria</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label">Prioridade</label>
+            <select id="estado-nota-prioridade" class="form__input">
+              <option value="BAIXA" ${isEdit && nota.prioridade === 'BAIXA' ? 'selected' : ''}>Baixa</option>
+              <option value="MEDIA" ${!isEdit || nota.prioridade === 'MEDIA' ? 'selected' : ''}>Média</option>
+              <option value="ALTA" ${isEdit && nota.prioridade === 'ALTA' ? 'selected' : ''}>Alta</option>
+              <option value="CRITICA" ${isEdit && nota.prioridade === 'CRITICA' ? 'selected' : ''}>Crítica</option>
+            </select>
+          </div>
+        </div>
+        <div class="form__grupo">
+          <label class="form__label">Estado</label>
+          <select id="estado-nota-estado" class="form__input">
+            <option value="ATIVO" ${!isEdit || nota.estado === 'ATIVO' ? 'selected' : ''}>Ativo</option>
+            <option value="ARQUIVADO" ${isEdit && nota.estado === 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
+            <option value="RESOLVIDO" ${isEdit && nota.estado === 'RESOLVIDO' ? 'selected' : ''}>Resolvido</option>
+          </select>
+        </div>
+      </form>
+      <div class="form__acoes">
+        <button class="btn btn--ghost" onclick="fecharModalEstadoNota()">Cancelar</button>
+        <button class="btn btn--primario" onclick="salvarEstadoNota(${isEdit ? "'" + nota.id + "'" : 'null'})">${isEdit ? 'Atualizar' : 'Criar'}</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  showModal('modal-estado-nota');
+};
+
+window.fecharModalEstadoNota = function() {
+  const modal = document.getElementById('modal-estado-nota');
+  if (modal) { hideModal('modal-estado-nota'); setTimeout(() => modal.remove(), 300); }
+};
+
+window.salvarEstadoNota = async function(id) {
+  const titulo = document.getElementById('estado-nota-titulo').value.trim();
+  const conteudo = document.getElementById('estado-nota-conteudo').value.trim();
+  const categoria = document.getElementById('estado-nota-categoria').value;
+  const prioridade = document.getElementById('estado-nota-prioridade').value;
+  const estadoNota = document.getElementById('estado-nota-estado').value;
+
+  if (!titulo) { showToast('Título é obrigatório.', 'erro'); return; }
+  if (!conteudo) { showToast('Conteúdo é obrigatório.', 'erro'); return; }
+
+  const dados = { titulo, conteudo, categoria, prioridade, estado: estadoNota };
+
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarEstadoNota(id, dados);
+    } else {
+      res = await api.criarEstadoNota(dados);
+    }
+    if (res.sucesso) {
+      showToast(id ? 'Nota atualizada com sucesso!' : 'Nota criada com sucesso!', 'sucesso');
+      fecharModalEstadoNota();
+      carregarPainel('estado');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao salvar.', 'erro');
+  }
+};
+
+window.editarEstadoNota = async function(id) {
+  try {
+    const res = await api.getEstadoNota(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    abrirModalEstadoNota(res.dados);
+  } catch (err) {
+    showToast(err?.message || 'Erro ao carregar nota.', 'erro');
+  }
+};
+
+window.verEstadoNota = async function(id) {
+  try {
+    const res = await api.getEstadoNota(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const n = res.dados;
+    const dataCriacao = n.datas?.criacao ? formatDate(n.datas.criacao) : '-';
+    const dataAtualizacao = n.datas?.ultimaAtualizacao ? formatDate(n.datas.ultimaAtualizacao) : '-';
+    let html = `<div id="modal-ver-estado-nota" class="modal modal--hidden">
+      <div class="modal__conteudo">
+        <button class="modal__fechar" onclick="hideModal('modal-ver-estado-nota')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo">${escapeHtml(n.titulo)}</h3>
+        </div>
+        <div class="modal-body">
+          <p><strong>ID:</strong> ${escapeHtml(n.id)}</p>
+          <p><strong>Categoria:</strong> ${escapeHtml(n.categoria)}</p>
+          <p><strong>Prioridade:</strong> ${escapeHtml(n.prioridade)}</p>
+          <p><strong>Estado:</strong> ${escapeHtml(n.estado)}</p>
+          <p><strong>Criada em:</strong> ${escapeHtml(dataCriacao)}</p>
+          <p><strong>Última atualização:</strong> ${escapeHtml(dataAtualizacao)}</p>
+          <hr style="margin:12px 0;">
+          <p><strong>Conteúdo:</strong></p>
+          <div style="background:#1a1a2e;padding:12px;border-radius:6px;white-space:pre-wrap;">${escapeHtml(n.conteudo)}</div>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--ghost" onclick="hideModal('modal-ver-estado-nota')">Fechar</button>
+          <button class="btn btn--primario" onclick="hideModal('modal-ver-estado-nota');editarEstadoNota('${escapeAttr(n.id)}')">Editar</button>
+        </div>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    showModal('modal-ver-estado-nota');
+  } catch (err) {
+    showToast(err?.message || 'Erro ao carregar nota.', 'erro');
+  }
+};
+
+window.excluirEstadoNota = async function(id) {
+  if (!confirm('Excluir esta nota de estado? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirEstadoNota(id);
+    if (res.sucesso) {
+      showToast('Nota excluída com sucesso.', 'sucesso');
+      carregarPainel('estado');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir.', 'erro');
+  }
+};
+
+window.excluirTodasEstadoNotas = async function() {
+  if (!confirm('Excluir TODAS as notas de estado? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodasEstadoNotas();
+    if (res.sucesso) {
+      const removidas = typeof res.dados === 'number' ? res.dados : 0;
+      showToast(`${removidas} nota(s) excluída(s).`, 'sucesso');
+      carregarPainel('estado');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir.', 'erro');
   }
 };
 
@@ -1921,6 +2095,97 @@ async function renderizarIntegridade(el) {
   }
 }
 
+window.reverificarIntegridade = async function() {
+  try {
+    const res = await api.verificarIntegridade();
+    if (res.sucesso) {
+      showToast('Verificação de integridade concluída!', 'sucesso');
+      carregarPainel('integridade');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao verificar', 'erro');
+  }
+};
+
+window.abrirModalRegraIntegridade = function() {
+  $('form-regra-integridade').reset();
+  $('regra-integridade-id').value = '';
+  $('regra-integridade-severidade').value = 'MEDIA';
+  $('regra-integridade-ativo').value = 'true';
+  $('titulo-regra-integridade').textContent = 'Nova Regra de Integridade';
+  showModal('modal-regra-integridade');
+};
+
+window.editarRegraIntegridade = async function(id) {
+  try {
+    const res = await api.getRegraIntegridade(id);
+    if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+    const r = res.dados;
+    $('regra-integridade-id').value = r.id;
+    $('regra-integridade-nome').value = r.nome || '';
+    $('regra-integridade-entidade').value = r.entidade || '';
+    $('regra-integridade-descricao').value = r.descricao || '';
+    $('regra-integridade-severidade').value = r.severidade || 'MEDIA';
+    $('regra-integridade-ativo').value = r.ativo ? 'true' : 'false';
+    $('titulo-regra-integridade').textContent = `Editar: ${escapeHtml(r.id)}`;
+    showModal('modal-regra-integridade');
+  } catch (err) {
+    showToast(err?.message || 'Erro', 'erro');
+  }
+};
+
+window.excluirRegraIntegridade = async function(id) {
+  if (!confirm(`Excluir a regra de integridade "${id}"? Esta ação não pode ser revertida.`)) return;
+  try {
+    const res = await api.excluirRegraIntegridade(id);
+    if (res.sucesso) {
+      showToast('Regra de integridade excluída!', 'sucesso');
+      carregarPainel('integridade');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao excluir', 'erro');
+  }
+};
+
+$('btn-cancelar-regra-integridade')?.addEventListener('click', () => hideModal('modal-regra-integridade'));
+
+$('form-regra-integridade')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = e.submitter || $('form-regra-integridade').querySelector('button[type="submit"]');
+  setButtonLoading(btn, true);
+  const id = $('regra-integridade-id').value;
+  const dados = {
+    nome: $('regra-integridade-nome').value.trim(),
+    entidade: $('regra-integridade-entidade').value.trim() || 'GERAL',
+    descricao: $('regra-integridade-descricao').value.trim(),
+    severidade: $('regra-integridade-severidade').value,
+    ativo: $('regra-integridade-ativo').value === 'true'
+  };
+  try {
+    let res;
+    if (id) {
+      res = await api.atualizarRegraIntegridade(id, dados);
+    } else {
+      res = await api.criarRegraIntegridade(dados);
+    }
+    if (res.sucesso) {
+      showToast('Regra de integridade salva!', 'sucesso');
+      hideModal('modal-regra-integridade');
+      carregarPainel('integridade');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.erro || 'Erro ao salvar regra', 'erro');
+  } finally {
+    restoreButton(btn);
+  }
+});
+
 async function renderizarBloqueios(el) {
   try {
     const res = await api.getBloqueios();
@@ -2203,6 +2468,21 @@ window.excluirAgente = async function(id) {
     }
   } catch (err) {
     showToast(err?.erro || 'Erro ao excluir agente', 'erro');
+  }
+};
+
+window.excluirTodosAgentes = async function() {
+  if (!confirm('Excluir TODOS os agentes? Esta ação não pode ser revertida.')) return;
+  try {
+    const res = await api.excluirTodosAgentes();
+    if (res.sucesso) {
+      showToast('Agentes excluídos!', 'sucesso');
+      carregarPainel('agentes');
+    } else {
+      showToast(res.erro, 'erro');
+    }
+  } catch (err) {
+    showToast(err?.message || 'Erro ao excluir agentes', 'erro');
   }
 };
 
@@ -2728,6 +3008,90 @@ window.excluirContrato = async function(id) {
     }
   });
 
+  // ===== Auditoria: criar / editar / excluir =====
+  window.abrirModalAuditoria = function(evento = null) {
+    $('form-auditoria').reset();
+    $('auditoria-id').value = '';
+    if (evento) {
+      $('auditoria-id').value = evento.id;
+      $('auditoria-tipo').value = evento.tipo || 'MANUAL';
+      $('auditoria-descricao').value = evento.descricao || '';
+      $('auditoria-resultado').value = evento.resultado || 'sucesso';
+      $('auditoria-agente').value = evento.agenteId || '';
+      $('auditoria-tarefa').value = evento.tarefaId || '';
+      $('auditoria-usuario').value = evento.usuarioId || '';
+      $('auditoria-origem').value = evento.origem || 'gerenciador';
+      $('titulo-auditoria').textContent = `Editar Entrada: ${escapeHtml(evento.id)}`;
+    } else {
+      $('auditoria-tipo').value = 'MANUAL';
+      $('auditoria-resultado').value = 'sucesso';
+      $('auditoria-origem').value = 'gerenciador';
+      $('titulo-auditoria').textContent = 'Nova Entrada de Auditoria';
+    }
+    showModal('modal-auditoria');
+  };
+
+  window.editarAuditoria = async function(id) {
+    try {
+      const res = await api.getAuditoria();
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      const ev = (res.dados || []).find((e) => e.id === id);
+      if (!ev) { showToast('Evento não encontrado', 'erro'); return; }
+      abrirModalAuditoria(ev);
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirAuditoria = async function(id) {
+    if (!confirm(`Excluir entrada de auditoria "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirAuditoria(id);
+      if (res.sucesso) { showToast('Entrada excluída!', 'sucesso'); carregarPainel('auditoria'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosAuditoria = async function() {
+    if (!confirm('Limpar TODAS as entradas de auditoria? Esta ação não pode ser revertida.')) return;
+    try {
+      const getAllRes = await api.getAuditoria();
+      const ids = getAllRes.sucesso ? (getAllRes.dados || []).map(e => e.id) : [];
+      if (ids.length === 0) { showToast('Nenhuma entrada para excluir.', 'info'); return; }
+      let removidos = 0;
+      let erros = 0;
+      for (const id of ids) {
+        try {
+          const res = await api.excluirAuditoria(id);
+          if (res.sucesso) removidos++; else erros++;
+        } catch { erros++; }
+      }
+      showToast(`Auditoria limpa (${removidos} removidas, ${erros} erro(s)).`, 'sucesso');
+      carregarPainel('auditoria');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-auditoria').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-auditoria').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('auditoria-id').value;
+    const dados = {
+      tipo: $('auditoria-tipo').value.trim(),
+      descricao: $('auditoria-descricao').value.trim(),
+      resultado: $('auditoria-resultado').value,
+      origem: $('auditoria-origem').value.trim(),
+      agenteId: $('auditoria-agente').value.trim() || null,
+      tarefaId: $('auditoria-tarefa').value.trim() || null,
+      usuarioId: $('auditoria-usuario').value.trim() || null
+    };
+    if (!dados.descricao) { showToast('Descrição é obrigatória', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarAuditoria(id, dados) : await api.criarAuditoria(dados);
+      if (res.sucesso) { showToast('Entrada de auditoria salva!', 'sucesso'); hideModal('modal-auditoria'); carregarPainel('auditoria'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar entrada de auditoria', 'erro'); }
+    finally { restoreButton(btn); }
+  });
+
   // ===== Artefatos: criar / editar / excluir =====
   window.abrirModalArtefato = function(artefato = null) {
     $('form-artefato').reset();
@@ -2953,6 +3317,86 @@ window.excluirContrato = async function(id) {
       if (res.sucesso) { showToast('Aprendizado salvo!', 'sucesso'); hideModal('modal-aprendizado'); carregarPainel('aprendizados'); }
       else showToast(res.erro, 'erro');
     } catch (err) { showToast(err?.erro || 'Erro ao salvar aprendizado', 'erro'); }
+    finally { restoreButton(btn); }
+  });
+
+  // ===== Histórico: criar / editar / excluir =====
+  window.abrirModalHistorico = function(evento = null) {
+    $('form-historico').reset();
+    $('historico-id').value = '';
+    $('historico-id-input').disabled = true;
+    if (evento) {
+      $('historico-id').value = evento.id;
+      $('historico-id-input').value = evento.id;
+      $('historico-tipo').value = evento.tipo || 'MANUAL';
+      $('historico-resultado').value = evento.resultado || 'sucesso';
+      $('historico-agente').value = evento.agenteId || '';
+      $('historico-tarefa').value = evento.tarefaId || '';
+      $('historico-descricao').value = evento.descricao || '';
+      $('titulo-historico').textContent = `Editar Evento: ${escapeHtml(evento.id)}`;
+    } else {
+      $('historico-id-input').value = '';
+      $('historico-tipo').value = 'MANUAL';
+      $('historico-resultado').value = 'sucesso';
+      $('titulo-historico').textContent = 'Novo Evento de Histórico';
+    }
+    showModal('modal-historico');
+  };
+
+  window.editarHistorico = async function(id) {
+    try {
+      const res = await api.getAuditoriaEvento(id);
+      if (!res.sucesso) { showToast(res.erro, 'erro'); return; }
+      abrirModalHistorico(res.dados);
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirHistorico = async function(id) {
+    if (!confirm(`Excluir evento "${id}"? Esta ação não pode ser revertida.`)) return;
+    try {
+      const res = await api.excluirAuditoria(id);
+      if (res.sucesso) { showToast('Evento excluído!', 'sucesso'); carregarPainel('historico'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  window.excluirTodosHistorico = async function() {
+    if (!confirm('Excluir TODOS os eventos de histórico? Esta ação não pode ser revertida.')) return;
+    try {
+      const getAllRes = await api.getAuditoria();
+      const ids = getAllRes.sucesso ? (getAllRes.dados || []).map(e => e.id) : [];
+      if (ids.length === 0) { showToast('Nenhum evento para excluir.', 'info'); return; }
+      let removidos = 0;
+      let erros = 0;
+      for (const id of ids) {
+        try {
+          const res = await api.excluirAuditoria(id);
+          if (res.sucesso) removidos++; else erros++;
+        } catch { erros++; }
+      }
+      showToast(`Eventos removidos (${removidos}, ${erros} erro(s)).`, 'sucesso');
+      carregarPainel('historico');
+    } catch (err) { showToast(err?.message || 'Erro', 'erro'); }
+  };
+
+  $('form-historico').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = e.submitter || $('form-historico').querySelector('button[type="submit"]');
+    setButtonLoading(btn, true);
+    const id = $('historico-id').value;
+    const dados = {
+      tipo: $('historico-tipo').value,
+      resultado: $('historico-resultado').value,
+      agenteId: $('historico-agente').value.trim() || null,
+      tarefaId: $('historico-tarefa').value.trim() || null,
+      descricao: $('historico-descricao').value.trim()
+    };
+    if (!dados.descricao) { showToast('Descrição é obrigatória', 'erro'); restoreButton(btn); return; }
+    try {
+      const res = id ? await api.atualizarAuditoria(id, dados) : await api.criarAuditoria(dados);
+      if (res.sucesso) { showToast('Evento salvo!', 'sucesso'); hideModal('modal-historico'); carregarPainel('historico'); }
+      else showToast(res.erro, 'erro');
+    } catch (err) { showToast(err?.erro || 'Erro ao salvar evento', 'erro'); }
     finally { restoreButton(btn); }
   });
 
@@ -3800,14 +4244,15 @@ setupDirPicker('dir-proib');
 // Click outside modal to close
 document.addEventListener('click', function(e) {
   if (e.target.classList && e.target.classList.contains('modal')) {
-    e.target.style.display = 'none';
+    e.target.classList.add('modal--hidden');
+    e.target.classList.remove('modal--aberto');
   }
 });
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal').forEach((m) => {
-      if (m.style.display === 'flex') m.style.display = 'none';
+      if (!m.classList.contains('modal--hidden')) { m.classList.add('modal--hidden'); m.classList.remove('modal--aberto'); }
     });
   }
 });
@@ -4563,6 +5008,72 @@ async function limparTemp() {
 const btnLimparTemp = document.getElementById('btn-limpar-temp');
 if (btnLimparTemp) {
   btnLimparTemp.addEventListener('click', limparTemp);
+}
+
+function abrirModalLimparObsoletos(projetoId, projetoNome) {
+  const corpo = document.getElementById('confirmacao-obsoletos-corpo');
+  if (corpo) {
+    corpo.innerHTML = `
+      <p style="margin-bottom:12px;color:#ff9e9e;">Esta ação irá limpar os dados do projeto <strong>${escapeHtml(projetoNome)}</strong>:</p>
+      <ul style="margin-bottom:12px;padding-left:20px;line-height:1.8;">
+        <li><strong>Handoffs</strong> — Todos os handoffs serão removidos</li>
+        <li><strong>Tarefas</strong> — Todas as tarefas serão removidas</li>
+        <li><strong>Documentos</strong> — Pasta de documentação será limpa</li>
+        <li><strong>Estado</strong> — Estado atual será resetado</li>
+        <li><strong>Contratos</strong> — Todos os contratos serão removidos</li>
+        <li><strong>Dependências</strong> — Todas as dependências serão removidas</li>
+        <li><strong>Auditoria</strong> — Logs de auditoria serão removidos</li>
+        <li><strong>Contexto</strong> — Dados de contexto serão limpos</li>
+      </ul>
+      <p style="color:#7fdf7f;font-weight:600;">As pastas e arquivos serão mantidos, mas com conteúdo vazio.</p>
+      <p style="color:#ffd700;font-weight:600;margin-top:8px;">Deseja realmente limpar todos os dados deste projeto?</p>
+      <input type="hidden" id="limpar-obsoletos-projeto-id" value="${escapeAttr(projetoId)}">
+    `;
+  }
+  showModal('modal-confirmacao-obsoletos');
+}
+
+async function confirmarLimparObsoletos() {
+  const projetoIdEl = document.getElementById('limpar-obsoletos-projeto-id');
+  const projetoId = projetoIdEl ? projetoIdEl.value : null;
+  hideModal('modal-confirmacao-obsoletos');
+  const corpo = document.getElementById('resultado-obsoletos-corpo');
+  if (!corpo) return;
+
+  corpo.innerHTML = '<p>Removendo dados obsoletos...</p>';
+  showModal('modal-resultado-obsoletos');
+
+  try {
+    const body = projetoId ? { projetoId } : {};
+    const res = await api.post('/admin/limpar-obsoletos', body);
+    if (res.sucesso) {
+      const dados = res.dados || {};
+      const pastas = (dados.pastasLimpas || []).map((p) => `📁 ${escapeHtml(p)}`).join('<br>');
+      const arquivos = (dados.arquivosLimpos || []).map((a) => `📄 ${escapeHtml(a)}`).join('<br>');
+      const erros = (dados.erros || []).map((e) => `⚠️ ${escapeHtml(e)}`).join('<br>');
+      corpo.innerHTML = `
+        <p style="color:#7fdf7f;margin-bottom:8px;">✅ Limpeza concluída com sucesso!</p>
+        <p><strong>Pastas limpas:</strong> ${dados.pastasLimpas?.length || 0}</p>
+        ${pastas ? `<div style="margin-top:4px; max-height:150px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${pastas}</div>` : ''}
+        <p style="margin-top:8px;"><strong>Arquivos limpos:</strong> ${dados.arquivosLimpos?.length || 0}</p>
+        ${arquivos ? `<div style="margin-top:4px; max-height:150px; overflow:auto; background:rgba(0,0,0,0.2); padding:8px; border-radius:6px;">${arquivos}</div>` : ''}
+        ${erros ? `<p style="margin-top:8px; color:#ff9e9e;">Erros:<br>${erros}</p>` : ''}
+      `;
+    } else {
+      corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(res.erro || 'Falha ao limpar dados')}</p>`;
+    }
+  } catch (err) {
+    corpo.innerHTML = `<p style="color:#ff9e9e;">Erro: ${escapeHtml(err?.message || err)}</p>`;
+  }
+}
+
+window.limparDadosProjeto = function(projetoId, projetoNome) {
+  abrirModalLimparObsoletos(projetoId, projetoNome);
+};
+
+const btnConfirmarLimpezaObsoletos = document.getElementById('btn-confirmar-limpeza-obsoletos');
+if (btnConfirmarLimpezaObsoletos) {
+  btnConfirmarLimpezaObsoletos.addEventListener('click', confirmarLimparObsoletos);
 }
 
 window.abrirModalDependencia = function(dependencia = null) {

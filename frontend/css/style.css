@@ -194,10 +194,90 @@ a:focus-visible {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 500;
+}
+
+.modal--aberto {
+  display: flex;
+}
+
+.modal--hidden {
+  display: none;
+}
+
+.modal__corpo {
+  margin-bottom: 12px;
+}
+
+.modal__linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.modal__subtitulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.modal__aviso {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.modal__erro {
+  color: var(--danger);
+}
+
+.modal__sucesso {
+  color: var(--success);
+}
+
+.modal__destaque {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.modal__lista {
+  margin: 8px 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.modal__lista li {
+  margin-bottom: 4px;
+}
+
+.modal__log {
+  max-height: 150px;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: var(--radius);
+}
+
+.btn--alerta {
+  background: var(--warning);
+  color: #0f1117;
+}
+
+.btn--alerta:hover {
+  background: #f1c40f;
+}
+
+.btn--aviso {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn--aviso:hover {
+  background: #7b61ff;
 }
 
 .modal__conteudo {

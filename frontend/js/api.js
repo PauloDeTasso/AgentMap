@@ -135,6 +135,12 @@ class ApiClient {
     });
   }
 
+  async excluirTodosAgentes() {
+    return this.request('/agentes', {
+      method: 'DELETE'
+    });
+  }
+
   async getTarefas() {
     return this.request('/tarefas');
   }
@@ -301,8 +307,68 @@ class ApiClient {
     return this.request('/estado');
   }
 
+  async getEstadoNotas() {
+    return this.request('/estado/notas');
+  }
+
+  async getEstadoNota(id) {
+    return this.request(`/estado/notas/${encodeURIComponent(id)}`);
+  }
+
+  async criarEstadoNota(dados) {
+    return this.request('/estado/notas', {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async atualizarEstadoNota(id, dados) {
+    return this.request(`/estado/notas/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async excluirEstadoNota(id) {
+    return this.request(`/estado/notas/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async excluirTodasEstadoNotas() {
+    return this.request('/estado/notas', {
+      method: 'DELETE'
+    });
+  }
+
   async getAuditoria() {
     return this.request('/auditoria');
+  }
+
+  async getAuditoriaEvento(id) {
+    return this.request(`/auditoria/${encodeURIComponent(id)}`);
+  }
+
+  async criarAuditoria(dados) {
+    return this.request('/auditoria', {
+      method: 'POST',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async atualizarAuditoria(id, dados) {
+    return this.request(`/auditoria/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async excluirAuditoria(id) {
+    return this.request(`/auditoria/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  }
+
+  async excluirTodosAuditoria() {
+    return this.request(`/auditoria`, { method: 'DELETE' });
   }
 
   async getSettings() {
@@ -706,6 +772,34 @@ class ApiClient {
 
   async getIntegridade() {
     return this.request('/integridade');
+  }
+
+  async verificarIntegridade() {
+    return this.request('/integridade/verificar', { method: 'POST' });
+  }
+
+  async getRegrasIntegridade() {
+    return this.request('/integridade/regras');
+  }
+
+  async getRegraIntegridade(id) {
+    return this.request(`/integridade/regras/${id}`);
+  }
+
+  async criarRegraIntegridade(dados) {
+    return this.request('/integridade/regras', { method: 'POST', body: JSON.stringify(dados) });
+  }
+
+  async atualizarRegraIntegridade(id, dados) {
+    return this.request(`/integridade/regras/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
+  }
+
+  async excluirRegraIntegridade(id) {
+    return this.request(`/integridade/regras/${id}`, { method: 'DELETE' });
+  }
+
+  async excluirTodasRegrasIntegridade() {
+    return this.request('/integridade/regras', { method: 'DELETE' });
   }
 
   async getMonitor() {

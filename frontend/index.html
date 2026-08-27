@@ -37,7 +37,7 @@
   </main>
 
   <!-- Modal: Novo Projeto -->
-  <div class="modal" id="modal-novo-projeto" style="display:none;">
+  <div class="modal modal--hidden" id="modal-novo-projeto">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-novo-projeto')">&times;</button>
        <h3 class="modal__titulo" id="titulo-projeto">Novo Projeto</h3>
@@ -111,7 +111,7 @@
   </div>
 
   <!-- Modal: Abrir Projeto -->
-  <div class="modal" id="modal-abrir-projeto" style="display:none;">
+  <div class="modal modal--hidden" id="modal-abrir-projeto">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-abrir-projeto')">&times;</button>
       <h3 class="modal__titulo">Abrir Projeto</h3>
@@ -135,7 +135,7 @@
   <input type="file" id="file-folder-picker" webkitdirectory directory style="display:none;">
 
   <!-- Modal: Novo/Editar Agente -->
-  <div class="modal modal--grande" id="modal-agente" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-agente">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-agente')">&times;</button>
       <div class="modal__cabecalho">
@@ -261,7 +261,7 @@
   </div>
 
   <!-- Modal: Novo Arquivo -->
-  <div class="modal" id="modal-novo-arquivo" style="display:none;">
+  <div class="modal modal--hidden" id="modal-novo-arquivo">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-novo-arquivo')">&times;</button>
       <h3 class="modal__titulo">Novo Arquivo</h3>
@@ -283,7 +283,7 @@
   </div>
 
   <!-- Modal: Nova Tarefa -->
-  <div class="modal" id="modal-tarefa" style="display:none;">
+  <div class="modal modal--hidden" id="modal-tarefa">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-tarefa')">&times;</button>
       <h3 class="modal__titulo" id="titulo-tarefa">Nova Tarefa</h3>
@@ -359,7 +359,7 @@
   </div>
 
   <!-- Modal: Contexto da Tarefa -->
-  <div class="modal modal--grande" id="modal-contexto" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-contexto">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-contexto')">&times;</button>
       <div class="modal__cabecalho">
@@ -371,7 +371,7 @@
   </div>
 
   <!-- Modal: Editor de Arquivo -->
-   <div class="modal modal--grande" id="modal-editor" style="display:none;">
+   <div class="modal modal--grande modal--hidden" id="modal-editor">
      <div class="modal__conteudo modal__conteudo--cheio">
        <button class="modal__fechar" onclick="hideModal('modal-editor')">&times;</button>
        <div class="modal__cabecalho">
@@ -390,7 +390,7 @@
   </div>
 
   <!-- Modal: Contrato -->
-  <div class="modal modal--grande" id="modal-contrato" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-contrato">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-contrato')">&times;</button>
       <div class="modal__cabecalho">
@@ -449,7 +449,7 @@
   </div>
 
   <!-- Modal: Solicitação de Alteração -->
-  <div class="modal modal--grande" id="modal-solicitacao" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-solicitacao">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-solicitacao')">&times;</button>
       <div class="modal__cabecalho">
@@ -591,7 +591,7 @@
   </div>
 
    <!-- Modal: Prompt do Agente -->
-  <div class="modal modal--grande" id="modal-prompt" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-prompt">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-prompt')">&times;</button>
       <div class="modal__cabecalho">
@@ -626,7 +626,7 @@
   </div>
 
   <!-- Modal: Configuracoes -->
-  <div class="modal" id="modal-configuracao" style="display:none;">
+  <div class="modal modal--hidden" id="modal-configuracao">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-configuracao')">&times;</button>
       <h3 class="modal__titulo">Configuracoes</h3>
@@ -656,7 +656,7 @@
   </div>
 
   <!-- Modal: Confirmacao Rapida -->
-  <div class="modal" id="modal-confirmacao" style="display:none;">
+  <div class="modal modal--hidden" id="modal-confirmacao">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-confirmacao')">&times;</button>
       <h3 class="modal__titulo" id="confirmacao-titulo">Confirmacao</h3>
@@ -669,7 +669,7 @@
   </div>
 
   <!-- Modal: Resultado Limpeza -->
-   <div class="modal" id="modal-limpeza" style="display:none;">
+   <div class="modal modal--hidden" id="modal-limpeza">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-limpeza')">&times;</button>
       <h3 class="modal__titulo">Limpeza de Arquivos Temporários</h3>
@@ -680,8 +680,47 @@
     </div>
   </div>
 
+  <!-- Modal: Confirmacao Limpeza Obsoletos -->
+  <div class="modal modal--hidden" id="modal-confirmacao-obsoletos">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-confirmacao-obsoletos')">&times;</button>
+      <h3 class="modal__titulo">⚠️ Limpar Dados Obsoletos</h3>
+      <div id="confirmacao-obsoletos-corpo" style="margin-bottom:12px;">
+        <p style="margin-bottom:12px;color:#ff9e9e;">Esta ação irá remover permanentemente:</p>
+        <ul style="margin-bottom:12px;padding-left:20px;line-height:1.8;">
+          <li><strong>Handoffs</strong> — Todos os handoffs do projeto</li>
+          <li><strong>Tarefas</strong> — Todas as tarefas registradas</li>
+          <li><strong>Documentos</strong> — Pasta de documentação</li>
+          <li><strong>Estado</strong> — Estado atual do projeto</li>
+          <li><strong>Contratos</strong> — Todos os contratos</li>
+          <li><strong>Dependências</strong> — Todas as dependências</li>
+          <li><strong>Auditoria</strong> — Logs de auditoria</li>
+          <li><strong>Backups</strong> — Todos os backups automáticos</li>
+          <li><strong>Mensagens</strong> — Mensagens de monitoramento</li>
+        </ul>
+        <p style="color:#ffd700;font-weight:600;">Deseja realmente apagar todos esses dados?</p>
+      </div>
+      <div class="form__acoes">
+        <button class="btn btn--ghost" type="button" onclick="hideModal('modal-confirmacao-obsoletos')">Cancelar</button>
+        <button class="btn btn--danger" type="button" id="btn-confirmar-limpeza-obsoletos">Apagar Tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Resultado Limpeza Obsoletos -->
+  <div class="modal modal--hidden" id="modal-resultado-obsoletos">
+    <div class="modal__conteudo">
+      <button class="modal__fechar" onclick="hideModal('modal-resultado-obsoletos')">&times;</button>
+      <h3 class="modal__titulo">Resultado da Limpeza</h3>
+      <div id="resultado-obsoletos-corpo" style="margin-bottom:12px;"></div>
+      <div class="form__acoes">
+        <button class="btn btn--primario" type="button" onclick="hideModal('modal-resultado-obsoletos')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Artefato -->
-  <div class="modal modal--grande" id="modal-artefato" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-artefato">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-artefato')">&times;</button>
       <div class="modal__cabecalho">
@@ -743,7 +782,7 @@
   </div>
 
   <!-- Modal: Marco (Checkpoint) -->
-  <div class="modal modal--grande" id="modal-checkpoint" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-checkpoint">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-checkpoint')">&times;</button>
       <div class="modal__cabecalho">
@@ -795,7 +834,7 @@
   </div>
 
   <!-- Modal: Aprendizado -->
-  <div class="modal modal--grande" id="modal-aprendizado" style="display:none;">
+  <div class="modal modal--grande modal--hidden" id="modal-aprendizado">
     <div class="modal__conteudo modal__conteudo--cheio">
       <button class="modal__fechar" onclick="hideModal('modal-aprendizado')">&times;</button>
       <div class="modal__cabecalho">
@@ -858,7 +897,7 @@
     </div>
   </div>
 
-   <div class="modal" id="modal-resultado" style="display:none;">
+   <div class="modal modal--hidden" id="modal-resultado">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-resultado')">&times;</button>
        <h3 class="modal__titulo" id="titulo-resultado">Novo Resultado</h3>
@@ -897,7 +936,7 @@
    </div>
 
    <!-- Modal: Reserva -->
-   <div class="modal" id="modal-reserva" style="display:none;">
+   <div class="modal modal--hidden" id="modal-reserva">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-reserva')">&times;</button>
        <h3 class="modal__titulo" id="titulo-reserva">Nova Reserva</h3>
@@ -940,7 +979,7 @@
    </div>
 
    <!-- Modal: Decisão -->
-   <div class="modal" id="modal-decisao" style="display:none;">
+   <div class="modal modal--hidden" id="modal-decisao">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-decisao')">&times;</button>
        <h3 class="modal__titulo" id="titulo-decisao">Nova Decisão</h3>
@@ -988,7 +1027,7 @@
    </div>
 
    <!-- Modal: Risco -->
-   <div class="modal" id="modal-risco" style="display:none;">
+   <div class="modal modal--hidden" id="modal-risco">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-risco')">&times;</button>
        <h3 class="modal__titulo" id="titulo-risco">Novo Risco</h3>
@@ -1058,15 +1097,52 @@
          </div>
        </form>
      </div>
-   </div>
+    </div>
 
+   <!-- Modal: Regra de Integridade -->
+   <div class="modal modal--hidden" id="modal-regra-integridade">
+     <div class="modal__conteudo">
+       <button class="modal__fechar" onclick="hideModal('modal-regra-integridade')">&times;</button>
+       <h3 class="modal__titulo" id="titulo-regra-integridade">Nova Regra de Integridade</h3>
+       <form class="form" id="form-regra-integridade">
+         <input type="hidden" id="regra-integridade-id">
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-nome">Nome</label>
+           <input class="form__input" type="text" id="regra-integridade-nome">
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-entidade">Entidade</label>
+           <input class="form__input" type="text" id="regra-integridade-entidade" placeholder="GERAL">
+         </div>
+         <div class="form__grupo form__grupo_full">
+           <label class="form__label" for="regra-integridade-descricao">Descrição</label>
+           <textarea class="form__textarea" id="regra-integridade-descricao" rows="2"></textarea>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-severidade">Severidade</label>
+           <select class="form__input" id="regra-integridade-severidade">
+             <option value="BAIXA">BAIXA</option>
+             <option value="MEDIA">MÉDIA</option>
+             <option value="ALTA">ALTA</option>
+             <option value="CRITICA">CRÍTICA</option>
+           </select>
+         </div>
+         <div class="form__grupo">
+           <label class="form__label" for="regra-integridade-ativo">Ativo</label>
+           <select class="form__input" id="regra-integridade-ativo">
+             <option value="true">SIM</option>
+             <option value="false">NÃO</option>
+           </select>
+         </div>
+         <div class="form__acoes">
+           <button class="btn btn--primario" type="submit">Salvar</button>
+           <button class="btn btn--ghost" type="button" id="btn-cancelar-regra-integridade" onclick="hideModal('modal-regra-integridade')">Cancelar</button>
+         </div>
+       </form>
+     </div>
+    </div>
 
-
-
-
-
-
-<div class="modal" id="modal-dependencia" style="display:none;">
+<div class="modal modal--hidden" id="modal-dependencia">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-dependencia')">&times;</button>
        <h3 class="modal__titulo" id="titulo-dependencia">Nova Dependência</h3>
@@ -1113,7 +1189,7 @@
      </div>
    </div>
 
-<div class="modal" id="modal-responsabilidade" style="display:none;">
+<div class="modal modal--hidden" id="modal-responsabilidade">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-responsabilidade')">&times;</button>
        <h3 class="modal__titulo" id="titulo-responsabilidade">Nova Responsabilidade</h3>
@@ -1148,7 +1224,7 @@
      </div>
    </div>
 
-<div class="modal" id="modal-bloqueio" style="display:none;">
+<div class="modal modal--hidden" id="modal-bloqueio">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-bloqueio')">&times;</button>
        <h3 class="modal__titulo" id="titulo-bloqueio">Novo Bloqueio</h3>
@@ -1206,7 +1282,7 @@
      </div>
    </div>
 
-<div class="modal" id="modal-sessao" style="display:none;">
+<div class="modal modal--hidden" id="modal-sessao">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-sessao')">&times;</button>
       <h3 class="modal__titulo" id="titulo-sessao">Nova Sessao</h3>
@@ -1248,7 +1324,7 @@
     </div>
   </div>
 
-<div class="modal" id="modal-criterio" style="display:none;">
+<div class="modal modal--hidden" id="modal-criterio">
     <div class="modal__conteudo">
       <button class="modal__fechar" onclick="hideModal('modal-criterio')">&times;</button>
       <h3 class="modal__titulo" id="titulo-criterio">Novo Criterio</h3>
@@ -1295,7 +1371,7 @@
    </div>
 
    <!-- Modal: Handoff -->
-   <div class="modal" id="modal-handoff" style="display:none;">
+   <div class="modal modal--hidden" id="modal-handoff">
      <div class="modal__conteudo">
        <button class="modal__fechar" onclick="hideModal('modal-handoff')">&times;</button>
        <h3 class="modal__titulo" id="titulo-handoff">Nova Transferência</h3>
@@ -1339,7 +1415,7 @@
    </div>
 
     <!-- Modal: Validação -->
-    <div class="modal modal--grande" id="modal-validacao" style="display:none;">
+    <div class="modal modal--grande modal--hidden" id="modal-validacao">
       <div class="modal__conteudo modal__conteudo--cheio">
         <button class="modal__fechar" onclick="hideModal('modal-validacao')">&times;</button>
         <div class="modal__cabecalho">
@@ -1411,7 +1487,7 @@
     </div>
 
     <!-- Modal: Pendência -->
-    <div class="modal modal--grande" id="modal-pendencia" style="display:none;">
+    <div class="modal modal--grande modal--hidden" id="modal-pendencia">
       <div class="modal__conteudo modal__conteudo--cheio">
         <button class="modal__fechar" onclick="hideModal('modal-pendencia')">&times;</button>
         <div class="modal__cabecalho">
@@ -1495,7 +1571,7 @@
     </div>
 
     <!-- Modal: Conflito -->
-    <div class="modal modal--grande" id="modal-conflito" style="display:none;">
+    <div class="modal modal--grande modal--hidden" id="modal-conflito">
       <div class="modal__conteudo modal__conteudo--cheio">
         <button class="modal__fechar" onclick="hideModal('modal-conflito')">&times;</button>
         <div class="modal__cabecalho">
@@ -1573,6 +1649,119 @@
           <div class="form__acoes">
             <button class="btn btn--primario" type="submit">Salvar</button>
             <button class="btn btn--ghost" type="button" onclick="hideModal('modal-conflito')">Cancelar</button>
+          </div>
+        </form>
+      </div>
+     </div>
+
+  <!-- Modal: Auditoria -->
+  <div class="modal modal--grande modal--hidden" id="modal-auditoria">
+    <div class="modal__conteudo modal__conteudo--cheio">
+      <button class="modal__fechar" onclick="hideModal('modal-auditoria')">&times;</button>
+      <div class="modal__cabecalho">
+        <h3 class="modal__titulo" id="titulo-auditoria">Nova Entrada de Auditoria</h3>
+        <button class="btn btn--small btn--ghost" onclick="hideModal('modal-auditoria')">Fechar</button>
+      </div>
+      <form class="form" id="form-auditoria">
+        <input type="hidden" id="auditoria-id">
+        <div class="form__grid">
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-tipo">Tipo *</label>
+            <input class="form__input" type="text" id="auditoria-tipo" required>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-resultado">Resultado</label>
+            <select class="form__input" id="auditoria-resultado">
+              <option value="sucesso">Sucesso</option>
+              <option value="falha">Falha</option>
+              <option value="bloqueado">Bloqueado</option>
+            </select>
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-origem">Origem</label>
+            <input class="form__input" type="text" id="auditoria-origem">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-agente">Agente ID</label>
+            <input class="form__input" type="text" id="auditoria-agente">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-tarefa">Tarefa ID</label>
+            <input class="form__input" type="text" id="auditoria-tarefa">
+          </div>
+          <div class="form__grupo">
+            <label class="form__label" for="auditoria-usuario">Usuário ID</label>
+            <input class="form__input" type="text" id="auditoria-usuario">
+          </div>
+          <div class="form__grupo form__grupo_full">
+            <label class="form__label" for="auditoria-descricao">Descrição *</label>
+            <textarea class="form__textarea" id="auditoria-descricao" rows="3" required></textarea>
+          </div>
+        </div>
+        <div class="form__acoes">
+          <button class="btn btn--primario" type="submit">Salvar</button>
+          <button class="btn btn--ghost" type="button" onclick="hideModal('modal-auditoria')">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <!-- Modal: Histórico -->
+    <div class="modal modal--grande modal--hidden" id="modal-historico">
+      <div class="modal__conteudo modal__conteudo--cheio">
+        <button class="modal__fechar" onclick="hideModal('modal-historico')">&times;</button>
+        <div class="modal__cabecalho">
+          <h3 class="modal__titulo" id="titulo-historico">Novo Evento de Histórico</h3>
+          <button class="btn btn--small btn--ghost" onclick="hideModal('modal-historico')">Fechar</button>
+        </div>
+        <form class="form" id="form-historico">
+          <input type="hidden" id="historico-id">
+          <div class="form__grid">
+            <div class="form__grupo">
+              <label class="form__label" for="historico-id-input">ID</label>
+              <input class="form__input" type="text" id="historico-id-input" disabled>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-tipo">Tipo *</label>
+              <select class="form__input" id="historico-tipo" required>
+                <option value="MANUAL">Manual</option>
+                <option value="CONTRATO_CRIADO">Contrato Criado</option>
+                <option value="CONTRATO_ALTERADO">Contrato Alterado</option>
+                <option value="TAREFA_CRIADA">Tarefa Criada</option>
+                <option value="TAREFA_CONCLUIDA">Tarefa Concluída</option>
+                <option value="HANDOFF_CRIADO">Handoff Criado</option>
+                <option value="HANDOFF_ACEITO">Handoff Aceito</option>
+                <option value="BLOQUEIO_CRIADO">Bloqueio Criado</option>
+                <option value="BLOQUEIO_RESOLVIDO">Bloqueio Resolvido</option>
+                <option value="REGRAS_RESPEITADAS">Regras Respeitadas</option>
+                <option value="AVISO">Aviso</option>
+                <option value="ERRO">Erro</option>
+              </select>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-resultado">Resultado</label>
+              <select class="form__input" id="historico-resultado">
+                <option value="sucesso">Sucesso</option>
+                <option value="falha">Falha</option>
+                <option value="bloqueado">Bloqueado</option>
+              </select>
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-agente">Agente ID</label>
+              <input class="form__input" type="text" id="historico-agente">
+            </div>
+            <div class="form__grupo">
+              <label class="form__label" for="historico-tarefa">Tarefa ID</label>
+              <input class="form__input" type="text" id="historico-tarefa">
+            </div>
+            <div class="form__grupo form__grupo_full">
+              <label class="form__label" for="historico-descricao">Descrição *</label>
+              <textarea class="form__textarea" id="historico-descricao" rows="3" required></textarea>
+            </div>
+          </div>
+          <div class="form__acoes">
+            <button class="btn btn--primario" type="submit">Salvar</button>
+            <button class="btn btn--ghost" type="button" onclick="hideModal('modal-historico')">Cancelar</button>
           </div>
         </form>
       </div>
