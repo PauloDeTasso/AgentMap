@@ -18,10 +18,10 @@ export class RiscoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'riscos', 'riscos.json');
+    return path.join('.ia', 'riscos', 'riscos.json');
   }
   private getRiscoPath(id: string): string {
-    return path.win32.join('.ia', 'riscos', `${id}.json`);
+    return path.join('.ia', 'riscos', `${id}.json`);
   }
   private carregarRegistry(): ResultadoOperacao<{ riscos: Risco[] }> {
     const result = this.fs.lerJson<{ riscos: Risco[] }>(this.getRegistryPath());

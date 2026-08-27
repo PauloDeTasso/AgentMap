@@ -20,10 +20,10 @@ export class ConflitoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'conflitos', 'conflitos.json');
+    return path.join('.ia', 'conflitos', 'conflitos.json');
   }
   private getConflitoPath(id: string): string {
-    return path.win32.join('.ia', 'conflitos', `${id}.json`);
+    return path.join('.ia', 'conflitos', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('CON', this.getRegistryPath(), 'conflitos');

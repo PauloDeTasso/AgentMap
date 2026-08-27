@@ -20,17 +20,24 @@ const responsabilidadeSchema = z.object({
 
 registerTracedTool(mcpServer, 'agentmap_responsabilidades_listar', {
   title: 'Listar Responsabilidades',
-  description: 'Lista responsabilidades.',
-  inputSchema: z.object({}),
+  description: 'Lista responsabilidades. Opcionalmente filtra por agenteId ou alvoId.',
+  inputSchema: z.object({ agenteId: z.string().optional(), alvoId: z.string().optional() }),
   outputSchema: z.array(responsabilidadeSchema),
   annotations: { readOnlyHint: true }
-}, async () => {
+}, async ({ agenteId, alvoId }: { agenteId?: string; alvoId?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.responsabilidade.listar();
-  auditoria.registrarToolCall('agentmap_responsabilidades_listar', projeto, {}, resultado);
+  let resultado;
+  if (agenteId) {
+    resultado = ctx.dados!.servicos.responsabilidade.listarPorAgente(agenteId);
+  } else if (alvoId) {
+    resultado = ctx.dados!.servicos.responsabilidade.listarPorAlvo(alvoId);
+  } else {
+    resultado = ctx.dados!.servicos.responsabilidade.listar();
+  }
+  auditoria.registrarToolCall('agentmap_responsabilidades_listar', projeto, { agenteId, alvoId }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

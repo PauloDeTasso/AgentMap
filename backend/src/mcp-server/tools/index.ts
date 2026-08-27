@@ -39,3 +39,7 @@ import './kilohub';
 import './kilohub-receive';
 import './monitoramento-wakeup';
 import './orchestrator';
+import './admin';
+import './integridade';
+import './estado';
+import './temp';

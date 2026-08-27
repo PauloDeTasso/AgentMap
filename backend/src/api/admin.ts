@@ -100,18 +100,6 @@ export function criarAdminRouter(): Router {
     return responder(res, result, result.sucesso ? 200 : 500);
   }));
 
-  router.get('/readiness', asyncHandler(async (_req: Request, res: Response) => {
-    return responder(res, {
-      sucesso: true,
-      dados: {
-        ready: true,
-        timestamp: new Date().toISOString(),
-        version: '1.0.0',
-        environment: process.env.NODE_ENV || 'development'
-      }
-    });
-  }));
-
   router.post('/limpar-obsoletos', asyncHandler(async (req: Request, res: Response) => {
     const servicos = (req as any).servicos;
     if (!servicos) {
@@ -144,7 +132,7 @@ export function criarAdminRouter(): Router {
           fs.mkdirSync(pastaPath, { recursive: true });
         }
         const registryName = `${nomePasta}.json`;
-        const registryPath = path.win32.join(pastaPath, registryName);
+        const registryPath = path.join(pastaPath, registryName);
         if (registryVazioPorPasta[nomePasta]) {
           fs.writeFileSync(registryPath, registryVazioPorPasta[nomePasta], 'utf-8');
         }
@@ -194,12 +182,12 @@ export function criarAdminRouter(): Router {
         if (!fs.existsSync(pastaPath)) return;
         const entries = fs.readdirSync(pastaPath, { withFileTypes: true });
         for (const entry of entries) {
-          const entryPath = path.win32.join(pastaPath, entry.name);
+          const entryPath = path.join(pastaPath, entry.name);
           if (entry.isDirectory()) {
             limparPasta(entryPath);
           } else if (entry.isFile() && entry.name.endsWith('.json')) {
             if (limparConteudoArquivo(entryPath)) {
-              resultado.arquivosLimpos.push(path.win32.relative(path.win32.join(projeto.caminhoRaiz, '.ia'), entryPath));
+              resultado.arquivosLimpos.push(path.relative(path.join(projeto.caminhoRaiz, '.ia'), entryPath));
             }
           }
         }
@@ -215,7 +203,7 @@ export function criarAdminRouter(): Router {
         return responder(res, { sucesso: false, erro: 'Projeto não encontrado no registro', codigoErro: 'PROJECT_NOT_FOUND' }, 404);
       }
 
-      const getFilePath = (rel: string) => path.win32.join(projRegistro.caminhoRaiz, '.ia', rel);
+      const getFilePath = (rel: string) => path.join(projRegistro.caminhoRaiz, '.ia', rel);
 
       for (const pasta of pastasParaLimpar) {
         const fullPath = getFilePath(pasta);
@@ -242,9 +230,9 @@ export function criarAdminRouter(): Router {
       return responder(res, { sucesso: true, dados: resultado });
     }
 
-    const getFilePath = (rel: string) => path.win32.join(projeto.caminhoRaiz, '.ia', rel);
+      const getFilePath = (rel: string) => path.join(projeto.caminhoRaiz, '.ia', rel);
 
-    for (const pasta of pastasParaLimpar) {
+      for (const pasta of pastasParaLimpar) {
       const fullPath = getFilePath(pasta);
       garantirPastaVazia(fullPath, pasta);
       limparPasta(fullPath);
@@ -275,7 +263,7 @@ export function criarAdminRouter(): Router {
 
     try {
       const estadoProjeto = servicos.integridade.calcularEstadoProjeto(servicos.projeto.id);
-      const gitRes = Promise.resolve(servicos.projeto.fileService.lerJson(path.win32.join('.ia', 'git', 'estado-git.json'))).catch(() => ({ sucesso: false, dados: null }));
+      const gitRes = Promise.resolve(servicos.projeto.fileService.lerJson(path.join('.ia', 'git', 'estado-git.json'))).catch(() => ({ sucesso: false, dados: null }));
       const agentesRes = servicos.agente.listar();
       const tarefasRes = servicos.tarefa.listar();
 

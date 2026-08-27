@@ -23,17 +23,19 @@ const reservaSchema = z.object({
 
 registerTracedTool(mcpServer, 'agentmap_reservas_listar', {
   title: 'Listar Reservas',
-  description: 'Lista reservas.',
-  inputSchema: z.object({}),
+  description: 'Lista reservas. Opcionalmente filtra por agenteId.',
+  inputSchema: z.object({ agenteId: z.string().optional() }),
   outputSchema: z.array(reservaSchema),
   annotations: { readOnlyHint: true }
-}, async () => {
+}, async ({ agenteId }: { agenteId?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.reserva.listar();
-  auditoria.registrarToolCall('agentmap_reservas_listar', projeto, {}, resultado);
+  const resultado = agenteId
+    ? ctx.dados!.servicos.reserva.listarPorAgente(agenteId)
+    : ctx.dados!.servicos.reserva.listar();
+  auditoria.registrarToolCall('agentmap_reservas_listar', projeto, { agenteId }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

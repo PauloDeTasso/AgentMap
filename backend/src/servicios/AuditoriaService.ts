@@ -31,7 +31,7 @@ export class AuditoriaService {
   }
 
   private appendEvento(evento: EventoAuditoria): void {
-    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const auditoriaPath = path.join('.ia', 'auditoria', 'eventos.json');
 
     const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(auditoriaPath);
     const eventos = (result.sucesso && result.dados?.eventos) ? result.dados.eventos : [];
@@ -42,7 +42,7 @@ export class AuditoriaService {
 
   listar(limite = 100): EventoAuditoria[] {
     const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(
-      path.win32.join('.ia', 'auditoria', 'eventos.json')
+      path.join('.ia', 'auditoria', 'eventos.json')
     );
     if (!result.sucesso || !result.dados) return [];
     return result.dados.eventos.slice(-limite).reverse();
@@ -82,7 +82,7 @@ export class AuditoriaService {
   }
 
   async atualizar(id: string, dados: Partial<EventoAuditoria>): Promise<ResultadoOperacao<EventoAuditoria>> {
-    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const auditoriaPath = path.join('.ia', 'auditoria', 'eventos.json');
     const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(auditoriaPath);
     if (!result.sucesso || !result.dados?.eventos) return { sucesso: false, erro: result.erro || 'Erro ao ler auditoria', codigoErro: 'READ_ERROR' };
     const idx = result.dados.eventos.findIndex((e) => e.id === id);
@@ -95,7 +95,7 @@ export class AuditoriaService {
   }
 
   async excluir(id: string): Promise<ResultadoOperacao<boolean>> {
-    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const auditoriaPath = path.join('.ia', 'auditoria', 'eventos.json');
     const result = this.fs.lerJson<{ eventos: EventoAuditoria[] }>(auditoriaPath);
     if (!result.sucesso || !result.dados?.eventos) return { sucesso: false, erro: result.erro || 'Erro ao ler auditoria', codigoErro: 'READ_ERROR' };
     const originalLength = result.dados.eventos.length;
@@ -107,7 +107,7 @@ export class AuditoriaService {
   }
 
   async excluirTodos(): Promise<ResultadoOperacao<number>> {
-    const auditoriaPath = path.win32.join('.ia', 'auditoria', 'eventos.json');
+    const auditoriaPath = path.join('.ia', 'auditoria', 'eventos.json');
     const result = this.fs.escreverJson(auditoriaPath, { eventos: [] }, { backup: true });
     if (!result.sucesso) return { sucesso: false, erro: result.erro, codigoErro: result.codigoErro };
     return { sucesso: true, dados: 0 };

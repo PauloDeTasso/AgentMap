@@ -17,10 +17,10 @@ export class SessaoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'sessoes', 'sessoes.json');
+    return path.join('.ia', 'sessoes', 'sessoes.json');
   }
   private getSessaoPath(id: string): string {
-    return path.win32.join('.ia', 'sessoes', `${id}.json`);
+    return path.join('.ia', 'sessoes', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('SES', this.getRegistryPath(), 'sessoes');

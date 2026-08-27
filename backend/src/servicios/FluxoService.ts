@@ -64,7 +64,7 @@ export class FluxoService {
   }
 
   private existeDependenciaCircular(): boolean {
-    const result = this.fs.lerJson<{ dependencias?: any[] }>(path.win32.join('.ia', 'dependencias', 'dependencias.json'));
+    const result = this.fs.lerJson<{ dependencias?: any[] }>(path.join('.ia', 'dependencias', 'dependencias.json'));
     if (!result.sucesso || !result.dados) return false;
     const deps = result.dados.dependencias || result.dados;
     if (!Array.isArray(deps) || deps.length === 0) return false;

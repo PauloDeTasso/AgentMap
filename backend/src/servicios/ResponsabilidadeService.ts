@@ -17,10 +17,10 @@ export class ResponsabilidadeService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'responsabilidades', 'responsabilidades.json');
+    return path.join('.ia', 'responsabilidades', 'responsabilidades.json');
   }
   private getResponsabilidadePath(id: string): string {
-    return path.win32.join('.ia', 'responsabilidades', `${id}.json`);
+    return path.join('.ia', 'responsabilidades', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('RESP', this.getRegistryPath(), 'responsabilidades');

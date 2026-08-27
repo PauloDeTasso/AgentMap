@@ -18,11 +18,11 @@ export class ResultadoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'resultados', 'resultados.json');
+    return path.join('.ia', 'resultados', 'resultados.json');
   }
 
   private getResultadoPath(id: string): string {
-    return path.win32.join('.ia', 'resultados', `${id}.json`);
+    return path.join('.ia', 'resultados', `${id}.json`);
   }
 
   private gerarId(): string {

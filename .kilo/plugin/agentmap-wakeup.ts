@@ -971,7 +971,7 @@ async function reconectarMcp(client: PluginInput["client"], directory: string): 
         name: MCP_SERVER_NAME,
         config: {
           type: "local",
-          command: ["cmd", "/c", "cd", BACKEND_DIR, "&&", "npx", "tsx", "--tsconfig", "backend/tsconfig.json", "backend/src/mcp-server/index.ts"],
+          command: ["cmd", "/c", "cd", BACKEND_DIR, "&&", "npx", "tsx", "--tsconfig", "tsconfig.json", "src/mcp-server/index.ts"],
           environment: { NODE_ENV: "production" },
           enabled: true,
           timeout: 30000,

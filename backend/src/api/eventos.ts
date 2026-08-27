@@ -37,10 +37,7 @@ export function criarEventoRouter(): Router {
       return responder(res, { sucesso: false, erro: 'tipo, origem e mensagem são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
     }
 
-    const id = `EVT-${Date.now()}`;
-    const hoje = new Date().toISOString();
-    const evento = {
-      id,
+    const result = req.servicos!.evento.registrar({
       tipo: payload.tipo,
       origem: payload.origem,
       destino: payload.destino || '',
@@ -48,25 +45,10 @@ export function criarEventoRouter(): Router {
       referenciaId: payload.referenciaId || '',
       mensagem: payload.mensagem,
       estado: payload.estado || 'PENDENTE',
-      datas: { criadoEm: hoje, consumidoEm: null },
       ...payload
-    };
+    });
 
-    const fs = req.servicos!.projeto.fileService;
-    const fileResult = fs.escreverJson(path.win32.join('.ia', 'eventos', `${id}.json`), evento, { backup: true });
-    if (!fileResult.sucesso) {
-      return responder(res, fileResult, 400);
-    }
-
-    const registryResult = fs.lerJson<any>(path.win32.join('.ia', 'eventos', 'eventos.json'));
-    let registry = registryResult.sucesso && registryResult.dados ? registryResult.dados : { eventos: [] };
-    registry.eventos = registry.eventos || [];
-    registry.eventos.push(evento);
-    fs.escreverJson(path.win32.join('.ia', 'eventos', 'eventos.json'), registry);
-
-    req.servicos!.auditoria.registrar('EVENTO_CRIADO', `Evento custom '${id}' criado: ${evento.mensagem}`, { eventoId: id, tipo: evento.tipo, origem: evento.origem });
-
-    return responder(res, { sucesso: true, dados: evento }, 201);
+    return responder(res, result, result.sucesso ? 201 : 400);
   }));
 
   return router;

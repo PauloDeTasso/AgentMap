@@ -28,7 +28,7 @@ export interface EstadoNotasRegistry {
 }
 
 export class EstadoService {
-  private readonly registryPath = path.win32.join('.ia', 'estado', 'estado-notas.json');
+  private readonly registryPath = path.join('.ia', 'estado', 'estado-notas.json');
   private idGenerator: IdGenerator;
 
   constructor(

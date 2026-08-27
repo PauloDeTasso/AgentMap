@@ -17,10 +17,10 @@ export class DecisaoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'decisoes', 'decisoes.json');
+    return path.join('.ia', 'decisoes', 'decisoes.json');
   }
   private getDecisaoPath(id: string): string {
-    return path.win32.join('.ia', 'decisoes', `${id}.json`);
+    return path.join('.ia', 'decisoes', `${id}.json`);
   }
   private carregarRegistry(): ResultadoOperacao<{ decisoes: Decisao[] }> {
     const result = this.fs.lerJson<{ decisoes: Decisao[] }>(this.getRegistryPath());

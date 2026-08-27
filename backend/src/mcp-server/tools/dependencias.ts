@@ -22,17 +22,24 @@ const dependenciaSchema = z.object({
 
 registerTracedTool(mcpServer, 'agentmap_dependencias_listar', {
   title: 'Listar Dependencias',
-  description: 'Lista dependencias.',
-  inputSchema: z.object({}),
+  description: 'Lista dependencias. Opcionalmente filtra por fonteId ou destinoId.',
+  inputSchema: z.object({ fonteId: z.string().optional(), destinoId: z.string().optional() }),
   outputSchema: z.array(dependenciaSchema),
   annotations: { readOnlyHint: true }
-}, async () => {
+}, async ({ fonteId, destinoId }: { fonteId?: string; destinoId?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.dependencia.listar();
-  auditoria.registrarToolCall('agentmap_dependencias_listar', projeto, {}, resultado);
+  let resultado;
+  if (fonteId) {
+    resultado = ctx.dados!.servicos.dependencia.listarPorFonte(fonteId);
+  } else if (destinoId) {
+    resultado = ctx.dados!.servicos.dependencia.listarPorDestino(destinoId);
+  } else {
+    resultado = ctx.dados!.servicos.dependencia.listar();
+  }
+  auditoria.registrarToolCall('agentmap_dependencias_listar', projeto, { fonteId, destinoId }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

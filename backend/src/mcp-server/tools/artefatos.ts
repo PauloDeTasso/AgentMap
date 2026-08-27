@@ -36,17 +36,19 @@ const versaoArtefatoSchema = z.object({
 
 registerTracedTool(mcpServer, 'agentmap_artefatos_listar', {
   title: 'Listar Artefatos',
-  description: 'Lista artefatos.',
-  inputSchema: z.object({}),
+  description: 'Lista artefatos. Opcionalmente filtra por tarefaId.',
+  inputSchema: z.object({ tarefaId: z.string().optional() }),
   outputSchema: z.array(artefatoSchema),
   annotations: { readOnlyHint: true }
-}, async () => {
+}, async ({ tarefaId }: { tarefaId?: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);
   const { projeto } = ctx.dados!;
   const auditoria = createMcpAuditoria(projeto.auditoria);
-  const resultado = ctx.dados!.servicos.artefato.listar();
-  auditoria.registrarToolCall('agentmap_artefatos_listar', projeto, {}, resultado);
+  const resultado = tarefaId
+    ? ctx.dados!.servicos.artefato.listarPorTarefa(tarefaId)
+    : ctx.dados!.servicos.artefato.listar();
+  auditoria.registrarToolCall('agentmap_artefatos_listar', projeto, { tarefaId }, resultado);
   if (!resultado.sucesso) return mcpError(resultado);
   return toMcpStructured(resultado.dados);
 });

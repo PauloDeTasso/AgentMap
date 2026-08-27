@@ -17,10 +17,10 @@ export class CheckpointService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'checkpoints', 'checkpoints.json');
+    return path.join('.ia', 'checkpoints', 'checkpoints.json');
   }
   private getCheckpointPath(id: string): string {
-    return path.win32.join('.ia', 'checkpoints', `${id}.json`);
+    return path.join('.ia', 'checkpoints', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('CHK', this.getRegistryPath(), 'checkpoints');

@@ -18,10 +18,10 @@ export class ReservaService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'reservas', 'reservas.json');
+    return path.join('.ia', 'reservas', 'reservas.json');
   }
   private getReservaPath(id: string): string {
-    return path.win32.join('.ia', 'reservas', `${id}.json`);
+    return path.join('.ia', 'reservas', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('RESV', this.getRegistryPath(), 'reservas');

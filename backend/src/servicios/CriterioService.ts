@@ -17,11 +17,11 @@ export class CriterioService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'criterios', 'criterios.json');
+    return path.join('.ia', 'criterios', 'criterios.json');
   }
 
   private getCriterioPath(id: string): string {
-    return path.win32.join('.ia', 'criterios', `${id}.json`);
+    return path.join('.ia', 'criterios', `${id}.json`);
   }
 
   private carregarRegistry(): ResultadoOperacao<CriteriosRegistry> {

@@ -23,7 +23,7 @@ export class BloqueioService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'estado', 'bloqueios.json');
+    return path.join('.ia', 'estado', 'bloqueios.json');
   }
   private carregarRegistry(): ResultadoOperacao<{ bloqueios: Bloqueio[] }> {
     const result = this.fs.lerJson<{ bloqueios: Bloqueio[] }>(this.getRegistryPath());

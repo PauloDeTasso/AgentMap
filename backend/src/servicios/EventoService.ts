@@ -17,11 +17,11 @@ export class EventoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'eventos', 'eventos.json');
+    return path.join('.ia', 'eventos', 'eventos.json');
   }
 
   private getEventoPath(id: string): string {
-    return path.win32.join('.ia', 'eventos', `${id}.json`);
+    return path.join('.ia', 'eventos', `${id}.json`);
   }
 
   private gerarId(): string {

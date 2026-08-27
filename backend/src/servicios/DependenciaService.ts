@@ -17,10 +17,10 @@ export class DependenciaService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'dependencias', 'dependencias.json');
+    return path.join('.ia', 'dependencias', 'dependencias.json');
   }
   private getDependenciaPath(id: string): string {
-    return path.win32.join('.ia', 'dependencias', `${id}.json`);
+    return path.join('.ia', 'dependencias', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('DEP', this.getRegistryPath(), 'dependencias');

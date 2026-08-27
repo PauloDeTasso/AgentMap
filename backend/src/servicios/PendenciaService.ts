@@ -17,10 +17,10 @@ export class PendenciaService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'pendencias', 'pendencias.json');
+    return path.join('.ia', 'pendencias', 'pendencias.json');
   }
   private getPendenciaPath(id: string): string {
-    return path.win32.join('.ia', 'pendencias', `${id}.json`);
+    return path.join('.ia', 'pendencias', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('PEN', this.getRegistryPath(), 'pendencias');

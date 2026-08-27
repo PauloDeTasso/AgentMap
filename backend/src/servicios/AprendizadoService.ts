@@ -17,10 +17,10 @@ export class AprendizadoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'aprendizados', 'aprendizados.json');
+    return path.join('.ia', 'aprendizados', 'aprendizados.json');
   }
   private getAprendizadoPath(id: string): string {
-    return path.win32.join('.ia', 'aprendizados', `${id}.json`);
+    return path.join('.ia', 'aprendizados', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('APR', this.getRegistryPath(), 'aprendizados');

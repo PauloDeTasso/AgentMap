@@ -38,7 +38,7 @@ export class TarefaService {
 
   listar(): ResultadoOperacao<Tarefa[]> {
     const result = this.fs.lerJson<TarefasRegistry>(
-      path.win32.join('.ia', 'tarefas', 'tarefas.json')
+      path.join('.ia', 'tarefas', 'tarefas.json')
     );
     if (!result.sucesso || !result.dados) {
       return { sucesso: true, dados: [] };
@@ -79,7 +79,7 @@ export class TarefaService {
   private saveTarefa(tarefa: Tarefa): ResultadoOperacao<Tarefa> {
     const dir = this.getDirPorEstado(tarefa.estado);
     const registryResult = this.fs.lerJson<TarefasRegistry>(
-      path.win32.join('.ia', 'tarefas', 'tarefas.json')
+      path.join('.ia', 'tarefas', 'tarefas.json')
     );
     if (!registryResult.sucesso || !registryResult.dados) {
       return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
@@ -94,7 +94,7 @@ export class TarefaService {
     registry.estatisticas = this.calcularEstatisticas(registry.tarefas);
 
     const regResult = this.fs.escreverJson(
-      path.win32.join('.ia', 'tarefas', 'tarefas.json'),
+      path.join('.ia', 'tarefas', 'tarefas.json'),
       registry
     );
     if (!regResult.sucesso) {
@@ -102,7 +102,7 @@ export class TarefaService {
     }
 
     const arquivoResult = this.fs.escreverJson(
-      path.win32.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
+      path.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
       tarefa,
       { backup: true }
     );
@@ -125,7 +125,7 @@ export class TarefaService {
   criar(dados: Omit<Tarefa, 'id' | 'estado' | 'datas' | 'resultado' | 'aprovacao'> & { id?: string }): ResultadoOperacao<Tarefa> {
     const hoje = new Date().toISOString();
     const tarefa: Tarefa = {
-      id: dados.id || this.idGenerator.gerarId('TAR', path.win32.join('.ia', 'tarefas', 'tarefas.json'), 'tarefas'),
+      id: dados.id || this.idGenerator.gerarId('TAR', path.join('.ia', 'tarefas', 'tarefas.json'), 'tarefas'),
       titulo: dados.titulo,
       descricao: dados.descricao || '',
       objetivo: dados.objetivo,
@@ -232,7 +232,7 @@ export class TarefaService {
       const tarefa = result.dados;
       const dir = this.getDirPorEstado(tarefa.estado);
       const registryResult = this.fs.lerJson<TarefasRegistry>(
-        path.win32.join('.ia', 'tarefas', 'tarefas.json')
+        path.join('.ia', 'tarefas', 'tarefas.json')
       );
       if (!registryResult.sucesso || !registryResult.dados) {
         return { sucesso: false, erro: registryResult.erro, codigoErro: registryResult.codigoErro };
@@ -241,14 +241,14 @@ export class TarefaService {
       registry.tarefas = registry.tarefas.filter((t) => t.id !== id);
       registry.estatisticas = this.calcularEstatisticas(registry.tarefas);
       const regResult = this.fs.escreverJson(
-        path.win32.join('.ia', 'tarefas', 'tarefas.json'),
+        path.join('.ia', 'tarefas', 'tarefas.json'),
         registry
       );
       if (!regResult.sucesso) {
         return { sucesso: false, erro: regResult.erro, codigoErro: regResult.codigoErro };
       }
        const arquivoResult = this.fs.excluir(
-         path.win32.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
+         path.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
          { backup: true }
        );
       if (!arquivoResult.sucesso) {
@@ -260,10 +260,10 @@ export class TarefaService {
 
    async excluirTodos(): Promise<ResultadoOperacao<number>> {
       const registryResult = this.fs.lerJson<TarefasRegistry>(
-        path.win32.join('.ia', 'tarefas', 'tarefas.json')
+        path.join('.ia', 'tarefas', 'tarefas.json')
       );
       if (!registryResult.sucesso || !registryResult.dados) {
-        const caminho = path.win32.join('.ia', 'tarefas', 'tarefas.json');
+        const caminho = path.join('.ia', 'tarefas', 'tarefas.json');
         const criado = this.fs.escreverJson(caminho, { tarefas: [], estatisticas: { total: 0 } });
         if (!criado.sucesso) {
           return { sucesso: false, erro: criado.erro, codigoErro: criado.codigoErro };
@@ -276,7 +276,7 @@ export class TarefaService {
       for (const tarefa of tarefas) {
         const dir = this.getDirPorEstado(tarefa.estado);
         const fileResult = this.fs.excluir(
-          path.win32.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
+          path.join('.ia', 'tarefas', dir, `${tarefa.id}.json`),
           { backup: true }
         );
         if (fileResult.sucesso) {
@@ -286,7 +286,7 @@ export class TarefaService {
       registry.tarefas = [];
       registry.estatisticas = this.calcularEstatisticas([]);
       const regResult = this.fs.escreverJson(
-        path.win32.join('.ia', 'tarefas', 'tarefas.json'),
+        path.join('.ia', 'tarefas', 'tarefas.json'),
         registry
       );
       if (!regResult.sucesso) {
@@ -330,7 +330,7 @@ export class TarefaService {
    }
 
   private getExecucaoRegistryPath(): string {
-    return path.win32.join('.ia', 'execucoes', 'execucoes.json');
+    return path.join('.ia', 'execucoes', 'execucoes.json');
   }
 
   private getProximoExecucaoId(tarefaId: string): number {
@@ -473,7 +473,7 @@ export class TarefaService {
     let agentePerf: PacoteContexto['agente'] = null;
 
     const agentesResult = await this.fs.lerJson<{ agentes: { id: string; nome: string; arquivoPerfil: string }[] }>(
-      path.win32.join('.ia', 'agentes', 'agentes.json')
+      path.join('.ia', 'agentes', 'agentes.json')
     );
     if (agentesResult.sucesso && agentesResult.dados) {
       const reg = agentesResult.dados.agentes.find((a) => a.id === tarefa.agenteResponsavel);
@@ -488,7 +488,7 @@ export class TarefaService {
 
     const contratos: unknown[] = [];
     for (const cid of tarefa.contratosObrigatorios) {
-      const cResult = await this.fs.lerJson<unknown>(path.win32.join('.ia', 'contratos', `${cid}.json`));
+      const cResult = await this.fs.lerJson<unknown>(path.join('.ia', 'contratos', `${cid}.json`));
       if (cResult.sucesso) {
         contratos.push(cResult.dados);
       }
@@ -503,12 +503,12 @@ export class TarefaService {
     }
 
     const decisoesResult = await this.fs.lerJson<{ decisoes: any[] }>(
-      path.win32.join('.ia', 'decisoes', 'decisoes.json')
+      path.join('.ia', 'decisoes', 'decisoes.json')
     );
     const decisoes: Decisao[] = (decisoesResult.sucesso && decisoesResult.dados?.decisoes) || [];
 
     const estadoResult = await this.fs.lerJson<any>(
-      path.win32.join('.ia', 'estado', 'estado-atual.json')
+      path.join('.ia', 'estado', 'estado-atual.json')
     );
     const estado = (estadoResult.sucesso && estadoResult.dados) || null;
 
@@ -543,13 +543,13 @@ export class TarefaService {
     };
 
     const projetoResult = await this.fs.lerJson<any>(
-      path.win32.join('.ia', 'configuracao', 'projeto.json')
+      path.join('.ia', 'configuracao', 'projeto.json')
     );
     if (projetoResult.sucesso && projetoResult.dados) {
       pacote.identidade = { projetoId: projetoResult.dados.id, nome: projetoResult.dados.nome, versao: projetoResult.dados.versao };
     }
 
-    const contextoPath = path.win32.join('.ia', 'contexto', 'contextos.json');
+    const contextoPath = path.join('.ia', 'contexto', 'contextos.json');
     const contextosResult = await this.fs.lerJson<{ contextos: any[] }>(contextoPath);
     const contextos = (contextosResult.sucesso && contextosResult.dados?.contextos) || [];
     contextos.push({

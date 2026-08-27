@@ -14,7 +14,7 @@ export class AgenteService {
 
   listar(): ResultadoOperacao<AgenteRegistro[]> {
     const result = this.fs.lerJson<AgentesRegistry>(
-      path.win32.join('.ia', 'agentes', 'agentes.json')
+      path.join('.ia', 'agentes', 'agentes.json')
     );
     if (!result.sucesso || !result.dados) {
       return { sucesso: true, dados: [] };
@@ -55,13 +55,13 @@ export class AgenteService {
       datas: { criacao: hoje, ultimaAtualizacao: hoje }
     };
 
-    const agenteDir = path.win32.join('.ia', 'agentes', perfil.id);
+      const agenteDir = path.join('.ia', 'agentes', perfil.id);
     const subpasta = perfil.id;
-    this.fs.criarDiretorio(path.win32.join(agenteDir, 'conhecimento'));
-    this.fs.criarDiretorio(path.win32.join(agenteDir, 'recursos'));
+      this.fs.criarDiretorio(path.join(agenteDir, 'conhecimento'));
+      this.fs.criarDiretorio(path.join(agenteDir, 'recursos'));
 
     const profileResult = this.fs.escreverJson(
-      path.win32.join('.ia', 'agentes', subpasta, `${subpasta}.json`),
+      path.join('.ia', 'agentes', subpasta, `${subpasta}.json`),
       fullPerfil
     );
     if (!profileResult.sucesso) {
@@ -69,14 +69,14 @@ export class AgenteService {
     }
 
     this.fs.escreverJson(
-      path.win32.join('.ia', 'agentes', subpasta, 'habilidades.json'),
+      path.join('.ia', 'agentes', subpasta, 'habilidades.json'),
       { id: `${perfil.id}-habilidades`, nome: `Habilidades — ${perfil.nome}`, agenteId: perfil.id, conhecimentos: perfil.conhecimentos || [], ferramentas: perfil.ferramentasPermitidas || [], atualizadoEm: hoje }
     );
-    this.fs.escrever(path.win32.join('.ia', 'agentes', subpasta, 'instrucoes.md'), '# Instruções\n\nSubstitua este conteúdo.\n');
-    this.fs.escrever(path.win32.join('.ia', 'agentes', subpasta, 'personalidade.md'), '# Personalidade\n\nSubstitua este conteúdo.\n');
-    this.fs.escrever(path.win32.join('.ia', 'agentes', subpasta, 'regras.md'), '# Regras\n\nSubstitua este conteúdo.\n');
-    this.fs.escrever(path.win32.join('.ia', 'agentes', subpasta, 'contexto.md'), '# Contexto\n\nSubstitua este conteúdo.\n');
-    this.fs.escrever(path.win32.join('.ia', 'agentes', subpasta, 'memoria.md'), '# Memória\n\nSubstitua este conteúdo.\n');
+      this.fs.escrever(path.join('.ia', 'agentes', subpasta, 'instrucoes.md'), '# Instruções\n\nSubstitua este conteúdo.\n');
+      this.fs.escrever(path.join('.ia', 'agentes', subpasta, 'personalidade.md'), '# Personalidade\n\nSubstitua este conteúdo.\n');
+      this.fs.escrever(path.join('.ia', 'agentes', subpasta, 'regras.md'), '# Regras\n\nSubstitua este conteúdo.\n');
+      this.fs.escrever(path.join('.ia', 'agentes', subpasta, 'contexto.md'), '# Contexto\n\nSubstitua este conteúdo.\n');
+      this.fs.escrever(path.join('.ia', 'agentes', subpasta, 'memoria.md'), '# Memória\n\nSubstitua este conteúdo.\n');
 
     const registryResult = this.listar();
     if (!registryResult.sucesso || !registryResult.dados) {
@@ -95,7 +95,7 @@ export class AgenteService {
       arquivoPerfil: `.ia/agentes/${subpasta}/${subpasta}.json`
     });
     const regResult = this.fs.escreverJson(
-      path.win32.join('.ia', 'agentes', 'agentes.json'),
+      path.join('.ia', 'agentes', 'agentes.json'),
       { agentes }
     );
     if (!regResult.sucesso) {
@@ -168,7 +168,7 @@ export class AgenteService {
     this.fs.excluir(profileDir, { backup: false });
     agentes.splice(idx, 1);
     this.fs.escreverJson(
-      path.win32.join('.ia', 'agentes', 'agentes.json'),
+      path.join('.ia', 'agentes', 'agentes.json'),
       { agentes }
     );
     this.auditoria.registrar('AGENTE_EXCLUIDO', `Agente '${id}' excluído.`, { agenteId: id });
@@ -191,7 +191,7 @@ export class AgenteService {
         erros.push(`${registro.id}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
-    this.fs.escreverJson(path.win32.join('.ia', 'agentes', 'agentes.json'), { agentes: [] });
+    this.fs.escreverJson(      path.join('.ia', 'agentes', 'agentes.json'), { agentes: [] });
     this.auditoria.registrar('AGENTES_LIMPOS', 'Todos os agentes foram removidos.', { erros });
     return { sucesso: true, dados: true };
   }

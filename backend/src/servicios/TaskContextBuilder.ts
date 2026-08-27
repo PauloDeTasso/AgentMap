@@ -13,7 +13,7 @@ export class TaskContextBuilder {
   ) {}
 
   async construirPacote(tarefaId: string): Promise<ResultadoOperacao<TaskContext>> {
-    const tarefasResult = this.fs.lerJson<{ tarefas: Tarefa[] }>(path.win32.join('.ia', 'tarefas', 'tarefas.json'));
+    const tarefasResult = this.fs.lerJson<{ tarefas: Tarefa[] }>(path.join('.ia', 'tarefas', 'tarefas.json'));
     if (!tarefasResult.sucesso || !tarefasResult.dados) {
       return { sucesso: false, erro: 'Erro ao carregar tarefas', codigoErro: 'TASK_LOAD_ERROR' };
     }
@@ -25,14 +25,14 @@ export class TaskContextBuilder {
 
     const contratos: string[] = [];
     for (const cid of tarefa.contratosObrigatorios) {
-      const cResult = this.fs.lerJson<{ nome?: string }>(path.win32.join('.ia', 'contratos', `${cid}.json`));
+      const cResult = this.fs.lerJson<{ nome?: string }>(path.join('.ia', 'contratos', `${cid}.json`));
       if (cResult.sucesso && cResult.dados?.nome) {
         contratos.push(cResult.dados.nome);
       }
     }
 
     const decisoesResult = this.fs.lerJson<{ decisoes: Array<{ titulo: string }> }>(
-      path.win32.join('.ia', 'decisoes', 'decisoes.json')
+      path.join('.ia', 'decisoes', 'decisoes.json')
     );
     const decisoes = decisoesResult.sucesso && decisoesResult.dados
       ? decisoesResult.dados.decisoes.filter(d => tarefa.contratosObrigatorios.some(c => d.titulo?.includes(c))).map(d => d.titulo).filter(Boolean) as string[]
@@ -68,7 +68,7 @@ export class TaskContextBuilder {
       return { sucesso: false, erro: pacoteResult.erro || 'Erro ao construir pacote', codigoErro: pacoteResult.codigoErro || 'CONTEXT_ERROR' };
     }
 
-    const tarefasResult = this.fs.lerJson<{ tarefas: Tarefa[] }>(path.win32.join('.ia', 'tarefas', 'tarefas.json'));
+    const tarefasResult = this.fs.lerJson<{ tarefas: Tarefa[] }>(path.join('.ia', 'tarefas', 'tarefas.json'));
     if (!tarefasResult.sucesso || !tarefasResult.dados) {
       return { sucesso: false, erro: 'Erro ao carregar tarefa', codigoErro: 'TASK_LOAD_ERROR' };
     }

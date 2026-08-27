@@ -73,7 +73,7 @@ export class ProjetoService {
   criarProjeto(nome: string, caminhoParental: string, descricao: string, dadosExtra?: Record<string, unknown>): ResultadoOperacao<string> {
     const id = uuid();
     const nomeSanitizado = nome.replace(/[^a-zA-Z0-9_-]/g, '_');
-    const caminhoRaiz = path.win32.join(caminhoParental, nomeSanitizado);
+    const caminhoRaiz = path.join(caminhoParental, nomeSanitizado);
 
     const caminhoRaizResolvido = path.resolve(caminhoRaiz);
     const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
@@ -81,7 +81,7 @@ export class ProjetoService {
       return { sucesso: false, erro: 'Não é permitido criar projetos dentro da pasta do AgentMap. Use outro caminho.', codigoErro: 'INVALID_PARENT_DIR' };
     }
 
-    if (fs.existsSync(path.win32.join(caminhoRaiz, '.ia'))) {
+    if (fs.existsSync(path.join(caminhoRaiz, '.ia'))) {
       return { sucesso: false, erro: 'Já existe um projeto com estrutura .ia/ neste local', codigoErro: 'IA_EXISTS' };
     }
 
@@ -98,14 +98,14 @@ export class ProjetoService {
     }
     console.log('[ProjetoService.criarProjeto] Scaffold OK');
 
-    const iaRoot = path.win32.join(caminhoRaiz, '.ia');
-    [path.win32.join('.ia', 'contratos'), path.win32.join('.ia', 'tarefas'), path.win32.join('.ia', 'dependencias')].forEach((dir) => {
-      const fullPath = path.win32.join(caminhoRaiz, dir);
+    const iaRoot = path.join(caminhoRaiz, '.ia');
+    [path.join('.ia', 'contratos'), path.join('.ia', 'tarefas'), path.join('.ia', 'dependencias')].forEach((dir) => {
+      const fullPath = path.join(caminhoRaiz, dir);
       if (!fs.existsSync(fullPath)) {
         fs.mkdirSync(fullPath, { recursive: true });
       }
     });
-    const fluxoMdPath = path.win32.join(iaRoot, 'fluxo-trabalho.md');
+    const fluxoMdPath = path.join(iaRoot, 'fluxo-trabalho.md');
     if (!fs.existsSync(fluxoMdPath)) {
       fs.writeFileSync(fluxoMdPath, `# Fluxo de Trabalho Sincronizado — ${nome}\n\nEste documento define como o trabalho deve ser organizado para respeitar dependências entre agentes.\n`, 'utf-8');
     }
@@ -161,7 +161,7 @@ export class ProjetoService {
     }
 
     fsService.escreverJson(
-      path.win32.join('.ia', 'configuracao', 'projeto.json'),
+      path.join('.ia', 'configuracao', 'projeto.json'),
       config,
       { backup: true }
     );
@@ -179,7 +179,7 @@ export class ProjetoService {
     console.log('[ProjetoService.criarProjeto] SUCESSO - id=' + id + ' | nome=' + nome + ' | caminhoRaiz=' + caminhoRaiz);
 
     fsService.escreverJson(
-      path.win32.join('.ia', 'auditoria', 'eventos.json'),
+      path.join('.ia', 'auditoria', 'eventos.json'),
       { eventos: [{ id: uuid(), tipo: 'PROJETO_CRIADO', origem: 'gerenciador', agenteId: null, usuarioId: 'proprietario', tarefaId: null, descricao: `Projeto '${nome}' criado.`, dados: { caminhoRaiz }, resultado: 'sucesso', data: new Date().toISOString() }] }
     );
 
@@ -207,7 +207,7 @@ export class ProjetoService {
     }
 
     console.log('[ProjetoService.abrirProjeto] caminhoRaiz final:', caminhoRaiz);
-    const iaPath = path.win32.join(caminhoRaiz, '.ia');
+    const iaPath = path.join(caminhoRaiz, '.ia');
     console.log('[ProjetoService.abrirProjeto] Verificando .ia em:', iaPath, 'existe:', fs.existsSync(iaPath));
     
     if (!fs.existsSync(iaPath)) {
@@ -219,7 +219,7 @@ export class ProjetoService {
       const fileService = new FileService(caminhoRaiz);
       const auditoria = new AuditoriaService(fileService);
 
-      const configPath = path.win32.join('.ia', 'configuracao', 'projeto.json');
+      const configPath = path.join('.ia', 'configuracao', 'projeto.json');
       console.log('[ProjetoService.abrirProjeto] Lendo config de:', configPath);
       
       const configResult = fileService.lerJson<ProjetoConfig>(configPath);
@@ -229,7 +229,7 @@ export class ProjetoService {
         console.error('[ProjetoService.abrirProjeto] FALHA ao ler config - erro:', configResult.erro, 'codigo:', configResult.codigoErro);
         
         // Tentar ler diretamente para diagnóstico
-        const configAbsPath = path.win32.join(caminhoRaiz, configPath);
+        const configAbsPath = path.join(caminhoRaiz, configPath);
         console.error('[ProjetoService.abrirProjeto] Caminho absoluto:', configAbsPath);
         console.error('[ProjetoService.abrirProjeto] Arquivo existe?', fs.existsSync(configAbsPath));
         if (fs.existsSync(configAbsPath)) {
@@ -480,7 +480,7 @@ export class ProjetoService {
     }
     projeto.config = config;
     const result = projeto.fileService.escreverJson(
-      path.win32.join('.ia', 'configuracao', 'projeto.json'),
+      path.join('.ia', 'configuracao', 'projeto.json'),
       config,
       { backup: true }
     );

@@ -18,15 +18,15 @@ export class ArtefatoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'artefatos', 'artefatos.json');
+    return path.join('.ia', 'artefatos', 'artefatos.json');
   }
 
   private getArtefatoPath(id: string): string {
-    return path.win32.join('.ia', 'artefatos', `${id}.json`);
+    return path.join('.ia', 'artefatos', `${id}.json`);
   }
 
   private getVersoesPath(artefatoId: string): string {
-    return path.win32.join('.ia', 'artefatos', `${artefatoId}-versoes.json`);
+    return path.join('.ia', 'artefatos', `${artefatoId}-versoes.json`);
   }
 
   private gerarId(): string {

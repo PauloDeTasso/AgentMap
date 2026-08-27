@@ -78,7 +78,7 @@ export class KiloReconciliationService {
   }
 
   private async carregarSessoesAgentMap(): Promise<Array<{ id: string }>> {
-    const registryPath = path.win32.join('.ia', 'sessoes', 'sessoes.json');
+    const registryPath = path.join('.ia', 'sessoes', 'sessoes.json');
     const result = this.fs.lerJson<{ sessoes: Array<{ id: string }> }>(registryPath);
     if (!result.sucesso || !result.dados) {
       return [];

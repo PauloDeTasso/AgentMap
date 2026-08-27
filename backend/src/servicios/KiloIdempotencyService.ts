@@ -25,7 +25,7 @@ export class KiloIdempotencyService {
     private auditoria: AuditoriaService,
     ttlMs = DEFAULT_TTL_MS
   ) {
-    this.registryPath = path.win32.join('.ia', 'contexto', 'kilohub-processed.json');
+    this.registryPath = path.join('.ia', 'contexto', 'kilohub-processed.json');
     this.ttlMs = ttlMs;
   }
 

@@ -64,7 +64,8 @@ registerTracedTool(mcpServer, 'agentmap_eventos_confirmar', {
   title: 'Confirmar Evento',
   description: 'Marca um evento como consumido.',
   inputSchema: z.object({ id: z.string() }),
-  outputSchema: eventoSchema
+  outputSchema: eventoSchema,
+  annotations: { idempotentHint: true }
 }, async ({ id }: { id: string }) => {
   const ctx = carregarContexto(projetoService);
   if (!ctx.sucesso) return mcpError(ctx);

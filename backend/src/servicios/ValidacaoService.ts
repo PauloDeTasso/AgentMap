@@ -18,10 +18,10 @@ export class ValidacaoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'validacoes', 'validacoes.json');
+    return path.join('.ia', 'validacoes', 'validacoes.json');
   }
   private getValidacaoPath(id: string): string {
-    return path.win32.join('.ia', 'validacoes', `${id}.json`);
+    return path.join('.ia', 'validacoes', `${id}.json`);
   }
   private gerarId(): string {
     return this.idGenerator.gerarId('VAL', this.getRegistryPath(), 'validacoes');

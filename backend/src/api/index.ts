@@ -57,6 +57,22 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
 
   router.use('/api/observabilidade', criarObservabilidadeRouter());
 
+  router.get('/api/health', asyncHandler(async (req: Request, res: Response) => {
+    return responder(res, { sucesso: true, dados: { status: 'healthy', timestamp: new Date().toISOString() } });
+  }));
+
+  router.get('/api/readiness', asyncHandler(async (_req: Request, res: Response) => {
+    return responder(res, {
+      sucesso: true,
+      dados: {
+        ready: true,
+        timestamp: new Date().toISOString(),
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development'
+      }
+    });
+  }));
+
   router.use('/api/*', projectMiddleware(projetoService));
 
   router.use('/api/temp', criarTempRouter());
@@ -65,7 +81,7 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
 
   router.get('/api/estado', asyncHandler(async (req: Request, res: Response) => {
     return responder(res, req.servicos!.projeto.fileService.lerJson(
-      path.win32.join('.ia', 'estado', 'estado-atual.json')
+      path.join('.ia', 'estado', 'estado-atual.json')
     ));
   }));
 

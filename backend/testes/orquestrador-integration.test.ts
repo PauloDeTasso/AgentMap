@@ -40,7 +40,7 @@ async function request(options: { hostname: string; port: number; path: string; 
   });
 }
 
-describe.skip('Orquestrador API — testes de integração', () => {
+describe('Orquestrador API — testes de integração', () => {
   const projectRoot = path.join(os.tmpdir(), 'agentmap-orquestrador-api-test-' + Date.now());
   fs.mkdirSync(projectRoot, { recursive: true });
   fs.mkdirSync(path.join(projectRoot, '.ia', 'instancias'), { recursive: true });

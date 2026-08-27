@@ -30,7 +30,7 @@ export class IntegridadeService {
   }
 
   private getRegrasPath(): string {
-    return path.win32.join('.ia', 'integridade', 'regras.json');
+    return path.join('.ia', 'integridade', 'regras.json');
   }
 
   private carregarRegras(): ResultadoOperacao<{ regras: RegraIntegridade[] }> {
@@ -148,40 +148,40 @@ export class IntegridadeService {
   async verificar(projetoId: string): Promise<ResultadoOperacao<{ inconsistencias: string[]; estado: string }>> {
     const inconsistencias: string[] = [];
 
-    const agentes = lerJsonSeguro<{ id: string }>(this.fs, path.win32.join('.ia', 'agentes', 'agentes.json'), 'agentes');
+    const agentes = lerJsonSeguro<{ id: string }>(this.fs, path.join('.ia', 'agentes', 'agentes.json'), 'agentes');
     const agentesSet = new Set(agentes.map((a) => a.id));
 
-    const tarefas = lerJsonSeguro<Tarefa>(this.fs, path.win32.join('.ia', 'tarefas', 'tarefas.json'), 'tarefas');
+    const tarefas = lerJsonSeguro<Tarefa>(this.fs, path.join('.ia', 'tarefas', 'tarefas.json'), 'tarefas');
     const tarefasSet = new Set(tarefas.map((t) => t.id));
 
-    const solicitacoes = lerJsonSeguro<SolicitacaoAlteracao>(this.fs, path.win32.join('.ia', 'solicitacoes', 'solicitacoes.json'), 'solicitacoes');
+    const solicitacoes = lerJsonSeguro<SolicitacaoAlteracao>(this.fs, path.join('.ia', 'solicitacoes', 'solicitacoes.json'), 'solicitacoes');
     const solicitacoesSet = new Set(solicitacoes.map((s) => s.id));
 
-    const resultados = lerJsonSeguro<ResultadoEntity>(this.fs, path.win32.join('.ia', 'resultados', 'resultados.json'), 'resultados');
-    const criterios = lerJsonSeguro<CriterioAceitacao>(this.fs, path.win32.join('.ia', 'criterios', 'criterios.json'), 'criterios');
-    const bloqueios = lerJsonSeguro<Bloqueio>(this.fs, path.win32.join('.ia', 'estado', 'bloqueios.json'), 'bloqueios');
-    const artefatos = lerJsonSeguro<Artefato>(this.fs, path.win32.join('.ia', 'artefatos', 'artefatos.json'), 'artefatos');
-    const handoffs = lerJsonSeguro<Handoff>(this.fs, path.win32.join('.ia', 'handoffs', 'handoffs.json'), 'handoffs');
-    const validacoes = lerJsonSeguro<Validacao>(this.fs, path.win32.join('.ia', 'validacoes', 'validacoes.json'), 'validacoes');
-    const conflitos = lerJsonSeguro<Conflito>(this.fs, path.win32.join('.ia', 'conflitos', 'conflitos.json'), 'conflitos');
-    const reservas = lerJsonSeguro<Reserva>(this.fs, path.win32.join('.ia', 'reservas', 'reservas.json'), 'reservas');
-    const sessoes = lerJsonSeguro<Sessao>(this.fs, path.win32.join('.ia', 'sessoes', 'sessoes.json'), 'sessoes');
-    const checkpoints = lerJsonSeguro<Checkpoint>(this.fs, path.win32.join('.ia', 'checkpoints', 'checkpoints.json'), 'checkpoints');
-    const aprendizados = lerJsonSeguro<Aprendizado>(this.fs, path.win32.join('.ia', 'aprendizados', 'aprendizados.json'), 'aprendizados');
-    const dependencias = lerJsonSeguro<Dependencia>(this.fs, path.win32.join('.ia', 'dependencias', 'dependencias.json'), 'dependencias');
-    const responsabilidades = lerJsonSeguro<Responsabilidade>(this.fs, path.win32.join('.ia', 'responsabilidades', 'responsabilidades.json'), 'responsabilidades');
-    const decisoes = lerJsonSeguro<Decisao>(this.fs, path.win32.join('.ia', 'decisoes', 'decisoes.json'), 'decisoes');
-    const riscos = lerJsonSeguro<Risco>(this.fs, path.win32.join('.ia', 'riscos', 'riscos.json'), 'riscos');
-    const pendencias = lerJsonSeguro<Pendencia>(this.fs, path.win32.join('.ia', 'pendencias', 'pendencias.json'), 'pendencias');
+    const resultados = lerJsonSeguro<ResultadoEntity>(this.fs, path.join('.ia', 'resultados', 'resultados.json'), 'resultados');
+    const criterios = lerJsonSeguro<CriterioAceitacao>(this.fs, path.join('.ia', 'criterios', 'criterios.json'), 'criterios');
+    const bloqueios = lerJsonSeguro<Bloqueio>(this.fs, path.join('.ia', 'estado', 'bloqueios.json'), 'bloqueios');
+    const artefatos = lerJsonSeguro<Artefato>(this.fs, path.join('.ia', 'artefatos', 'artefatos.json'), 'artefatos');
+    const handoffs = lerJsonSeguro<Handoff>(this.fs, path.join('.ia', 'handoffs', 'handoffs.json'), 'handoffs');
+    const validacoes = lerJsonSeguro<Validacao>(this.fs, path.join('.ia', 'validacoes', 'validacoes.json'), 'validacoes');
+    const conflitos = lerJsonSeguro<Conflito>(this.fs, path.join('.ia', 'conflitos', 'conflitos.json'), 'conflitos');
+    const reservas = lerJsonSeguro<Reserva>(this.fs, path.join('.ia', 'reservas', 'reservas.json'), 'reservas');
+    const sessoes = lerJsonSeguro<Sessao>(this.fs, path.join('.ia', 'sessoes', 'sessoes.json'), 'sessoes');
+    const checkpoints = lerJsonSeguro<Checkpoint>(this.fs, path.join('.ia', 'checkpoints', 'checkpoints.json'), 'checkpoints');
+    const aprendizados = lerJsonSeguro<Aprendizado>(this.fs, path.join('.ia', 'aprendizados', 'aprendizados.json'), 'aprendizados');
+    const dependencias = lerJsonSeguro<Dependencia>(this.fs, path.join('.ia', 'dependencias', 'dependencias.json'), 'dependencias');
+    const responsabilidades = lerJsonSeguro<Responsabilidade>(this.fs, path.join('.ia', 'responsabilidades', 'responsabilidades.json'), 'responsabilidades');
+    const decisoes = lerJsonSeguro<Decisao>(this.fs, path.join('.ia', 'decisoes', 'decisoes.json'), 'decisoes');
+    const riscos = lerJsonSeguro<Risco>(this.fs, path.join('.ia', 'riscos', 'riscos.json'), 'riscos');
+    const pendencias = lerJsonSeguro<Pendencia>(this.fs, path.join('.ia', 'pendencias', 'pendencias.json'), 'pendencias');
 
     const contratosSet = new Set<string>();
-    const contratosRes = this.fs.lerJson<{ contratos: { id: string }[] }>(path.win32.join('.ia', 'contratos', 'contratos.json'));
+    const contratosRes = this.fs.lerJson<{ contratos: { id: string }[] }>(path.join('.ia', 'contratos', 'contratos.json'));
     if (contratosRes.sucesso && contratosRes.dados) {
       contratosRes.dados.contratos.forEach((c) => contratosSet.add(c.id));
     }
 
     const projetosSet = new Set<string>();
-    const projetosRes = this.fs.lerJson<{ id: string }>(path.win32.join('.ia', 'configuracao', 'projeto.json'));
+    const projetosRes = this.fs.lerJson<{ id: string }>(path.join('.ia', 'configuracao', 'projeto.json'));
     if (projetosRes.sucesso && projetosRes.dados) {
       projetosSet.add(projetosRes.dados.id);
     }
@@ -395,7 +395,7 @@ export class IntegridadeService {
       }
     }
 
-    const historicoRes = this.fs.lerJson<HistoricoCoordenacao>(path.win32.join('.ia', 'historico', 'historico.json'));
+    const historicoRes = this.fs.lerJson<HistoricoCoordenacao>(path.join('.ia', 'historico', 'historico.json'));
     if (!historicoRes.sucesso) {
       inconsistencias.push('Arquivo historico/historico.json não encontrado');
     }
@@ -415,19 +415,19 @@ export class IntegridadeService {
   }
 
   calcularEstadoProjeto(projetoId: string): ResultadoOperacao<EstadoProjeto> {
-    const agentesRes = this.fs.lerJson<{ agentes: any[] }>(path.win32.join('.ia', 'agentes', 'agentes.json'));
-    const tarefasRes = this.fs.lerJson<{ tarefas: any[]; estatisticas?: Record<string, number> }>(path.win32.join('.ia', 'tarefas', 'tarefas.json'));
-    const solicitacoesRes = this.fs.lerJson<{ solicitacoes: any[] }>(path.win32.join('.ia', 'solicitacoes', 'solicitacoes.json'));
-    const artefatosRes = this.fs.lerJson<{ artefatos: any[] }>(path.win32.join('.ia', 'artefatos', 'artefatos.json'));
-    const handoffsRes = this.fs.lerJson<{ handoffs: any[] }>(path.win32.join('.ia', 'handoffs', 'handoffs.json'));
-    const bloqueiosRes = this.fs.lerJson<{ bloqueios: any[] }>(path.win32.join('.ia', 'estado', 'bloqueios.json'));
-    const conflitosRes = this.fs.lerJson<{ conflitos: any[] }>(path.win32.join('.ia', 'conflitos', 'conflitos.json'));
-    const riscosRes = this.fs.lerJson<{ riscos: any[] }>(path.win32.join('.ia', 'riscos', 'riscos.json'));
-    const validacoesRes = this.fs.lerJson<{ validacoes: any[] }>(path.win32.join('.ia', 'validacoes', 'validacoes.json'));
-    const reservasRes = this.fs.lerJson<{ reservas: any[] }>(path.win32.join('.ia', 'reservas', 'reservas.json'));
-    const checkpointsRes = this.fs.lerJson<{ checkpoints: any[] }>(path.win32.join('.ia', 'checkpoints', 'checkpoints.json'));
-    const sessoesRes = this.fs.lerJson<{ sessoes: any[] }>(path.win32.join('.ia', 'sessoes', 'sessoes.json'));
-    const aprendizadosRes = this.fs.lerJson<{ aprendizados: any[] }>(path.win32.join('.ia', 'aprendizados', 'aprendizados.json'));
+    const agentesRes = this.fs.lerJson<{ agentes: any[] }>(path.join('.ia', 'agentes', 'agentes.json'));
+    const tarefasRes = this.fs.lerJson<{ tarefas: any[]; estatisticas?: Record<string, number> }>(path.join('.ia', 'tarefas', 'tarefas.json'));
+    const solicitacoesRes = this.fs.lerJson<{ solicitacoes: any[] }>(path.join('.ia', 'solicitacoes', 'solicitacoes.json'));
+    const artefatosRes = this.fs.lerJson<{ artefatos: any[] }>(path.join('.ia', 'artefatos', 'artefatos.json'));
+    const handoffsRes = this.fs.lerJson<{ handoffs: any[] }>(path.join('.ia', 'handoffs', 'handoffs.json'));
+    const bloqueiosRes = this.fs.lerJson<{ bloqueios: any[] }>(path.join('.ia', 'estado', 'bloqueios.json'));
+    const conflitosRes = this.fs.lerJson<{ conflitos: any[] }>(path.join('.ia', 'conflitos', 'conflitos.json'));
+    const riscosRes = this.fs.lerJson<{ riscos: any[] }>(path.join('.ia', 'riscos', 'riscos.json'));
+    const validacoesRes = this.fs.lerJson<{ validacoes: any[] }>(path.join('.ia', 'validacoes', 'validacoes.json'));
+    const reservasRes = this.fs.lerJson<{ reservas: any[] }>(path.join('.ia', 'reservas', 'reservas.json'));
+    const checkpointsRes = this.fs.lerJson<{ checkpoints: any[] }>(path.join('.ia', 'checkpoints', 'checkpoints.json'));
+    const sessoesRes = this.fs.lerJson<{ sessoes: any[] }>(path.join('.ia', 'sessoes', 'sessoes.json'));
+    const aprendizadosRes = this.fs.lerJson<{ aprendizados: any[] }>(path.join('.ia', 'aprendizados', 'aprendizados.json'));
 
     const tarefas = tarefasRes.dados?.tarefas || [];
     const solicitacoes = solicitacoesRes.dados?.solicitacoes || [];

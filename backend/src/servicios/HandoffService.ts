@@ -25,11 +25,11 @@ export class HandoffService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'handoffs', 'handoffs.json');
+    return path.join('.ia', 'handoffs', 'handoffs.json');
   }
 
   private getHandoffPath(id: string): string {
-    return path.win32.join('.ia', 'handoffs', `${id}.json`);
+    return path.join('.ia', 'handoffs', `${id}.json`);
   }
 
   private gerarId(): string {

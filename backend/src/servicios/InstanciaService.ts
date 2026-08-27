@@ -17,11 +17,11 @@ export class InstanciaService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'instancias', 'instancias.json');
+    return path.join('.ia', 'instancias', 'instancias.json');
   }
 
   private getInstanciaPath(id: string): string {
-    return path.win32.join('.ia', 'instancias', `${id}.json`);
+    return path.join('.ia', 'instancias', `${id}.json`);
   }
 
   private gerarId(): string {

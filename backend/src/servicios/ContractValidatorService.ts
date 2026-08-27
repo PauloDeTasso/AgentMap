@@ -20,7 +20,7 @@ export class ContractValidatorService {
   ) {}
 
   validarContrato(contratoId: string): ResultadoOperacao<ValidacaoContratoResultado> {
-    const caminho = path.win32.join('.ia', 'contratos', `${contratoId}.json`);
+    const caminho = path.join('.ia', 'contratos', `${contratoId}.json`);
     const result = this.fs.lerJson(caminho);
     if (!result.sucesso || !result.dados) {
       return { sucesso: false, erro: result.erro || 'Contrato não encontrado', codigoErro: result.codigoErro || 'NOT_FOUND' };

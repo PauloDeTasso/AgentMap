@@ -49,7 +49,7 @@ export function resolveProjectPath(projectRoot: string, relPath: string): Valida
 
 export function resolveIaPath(projectRoot: string, relPath: string): ValidacaoCaminhoResult {
   const root = path.win32.resolve(projectRoot);
-  const iaRoot = path.win32.join(root, '.ia');
+  const iaRoot = path.join(root, '.ia');
   const rel = normalizePath(relPath).replace(/^\.ia\/?/, '').replace(/^\/+/, '');
   const absoluto = path.win32.resolve(iaRoot, rel);
   const dentroDaRaiz = absoluto === iaRoot || absoluto.startsWith(iaRoot + path.win32.sep);

@@ -20,7 +20,7 @@ export function criarHealthRouter(): Router {
     try {
       const agentesPromise = servicos.agente?.listar ? servicos.agente.listar() : Promise.resolve({ sucesso: false, erro: 'indisponivel' });
       const tarefasPromise = servicos.tarefa?.listar ? servicos.tarefa.listar() : Promise.resolve({ sucesso: false, erro: 'indisponivel' });
-      const gitPromise = Promise.resolve(servicos.projeto.fileService.lerJson(path.win32.join('.ia', 'git', 'estado-git.json'))).catch(() => ({ sucesso: false, dados: null }));
+      const gitPromise = Promise.resolve(servicos.projeto.fileService.lerJson(path.join('.ia', 'git', 'estado-git.json'))).catch(() => ({ sucesso: false, dados: null }));
 
       const [agentesRes, tarefasRes, gitRes] = await Promise.all([
         agentesPromise,

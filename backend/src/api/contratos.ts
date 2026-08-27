@@ -8,21 +8,21 @@ export function criarContratoRouter(): Router {
 
   router.get('/', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(
-      path.win32.join('.ia', 'contratos', 'contratos.json')
+      path.join('.ia', 'contratos', 'contratos.json')
     );
     return responder(res, result);
   }));
 
   router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
     const result = req.servicos!.projeto.fileService.lerJson<ContratoBase>(
-      path.win32.join('.ia', 'contratos', `${req.params.id}.json`)
+      path.join('.ia', 'contratos', `${req.params.id}.json`)
     );
     return responder(res, result);
   }));
 
   router.get('/:id/dependentes', asyncHandler(async (req: Request, res: Response) => {
     const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(
-      path.win32.join('.ia', 'contratos', 'contratos.json')
+      path.join('.ia', 'contratos', 'contratos.json')
     );
     if (!registryResult.sucesso || !registryResult.dados) {
       return responder(res, registryResult);
@@ -40,7 +40,7 @@ export function criarContratoRouter(): Router {
       return responder(res, { sucesso: false, erro: 'id do contrato é obrigatório', codigoErro: 'MISSING_FIELDS' }, 400);
     }
     const result = req.servicos!.projeto.fileService.escreverJson(
-      path.win32.join('.ia', 'contratos', `${contrato.id}.json`),
+      path.join('.ia', 'contratos', `${contrato.id}.json`),
       contrato,
       { backup: true }
     );
@@ -48,7 +48,7 @@ export function criarContratoRouter(): Router {
       return responder(res, result);
     }
 
-    const registryPath = path.win32.join('.ia', 'contratos', 'contratos.json');
+    const registryPath = path.join('.ia', 'contratos', 'contratos.json');
     const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(registryPath);
     let registry: ContratosRegistry;
     if (!registryResult.sucesso || !registryResult.dados) {
@@ -79,7 +79,7 @@ export function criarContratoRouter(): Router {
       return responder(res, { sucesso: false, erro: 'nome e versão são obrigatórios', codigoErro: 'MISSING_FIELDS' }, 400);
     }
     const result = req.servicos!.projeto.fileService.escreverJson(
-      path.win32.join('.ia', 'contratos', `${id}.json`),
+      path.join('.ia', 'contratos', `${id}.json`),
       contrato,
       { backup: true }
     );
@@ -87,7 +87,7 @@ export function criarContratoRouter(): Router {
       return responder(res, result);
     }
 
-    const registryPath = path.win32.join('.ia', 'contratos', 'contratos.json');
+    const registryPath = path.join('.ia', 'contratos', 'contratos.json');
     const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(registryPath);
     let registry: ContratosRegistry;
     if (!registryResult.sucesso || !registryResult.dados) {
@@ -114,7 +114,7 @@ export function criarContratoRouter(): Router {
   router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
     const id = req.params.id;
     const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(
-      path.win32.join('.ia', 'contratos', 'contratos.json')
+      path.join('.ia', 'contratos', 'contratos.json')
     );
     if (!registryResult.sucesso || !registryResult.dados) {
       return responder(res, registryResult);
@@ -126,14 +126,14 @@ export function criarContratoRouter(): Router {
     }
     registry.contratos = registry.contratos.filter((c) => c.id !== id);
     const regResult = req.servicos!.projeto.fileService.escreverJson(
-      path.win32.join('.ia', 'contratos', 'contratos.json'),
+      path.join('.ia', 'contratos', 'contratos.json'),
       registry
     );
     if (!regResult.sucesso) {
       return responder(res, regResult);
     }
     req.servicos!.projeto.fileService.excluir(
-      path.win32.join('.ia', 'contratos', `${id}.json`),
+      path.join('.ia', 'contratos', `${id}.json`),
       { backup: true }
     );
     req.servicos!.auditoria.registrar('CONTRATO_EXCLUIDO', `Contrato '${id}' excluído.`, {});
@@ -142,7 +142,7 @@ export function criarContratoRouter(): Router {
 
   router.delete('/', asyncHandler(async (req: Request, res: Response) => {
     const registryResult = req.servicos!.projeto.fileService.lerJson<ContratosRegistry>(
-      path.win32.join('.ia', 'contratos', 'contratos.json')
+      path.join('.ia', 'contratos', 'contratos.json')
     );
     if (!registryResult.sucesso || !registryResult.dados) {
       return responder(res, registryResult);
@@ -152,7 +152,7 @@ export function criarContratoRouter(): Router {
     let removidos = 0;
     for (const c of contratos) {
       const fileResult = req.servicos!.projeto.fileService.excluir(
-        path.win32.join('.ia', 'contratos', `${c.id}.json`),
+        path.join('.ia', 'contratos', `${c.id}.json`),
         { backup: true }
       );
       if (fileResult.sucesso) {
@@ -161,7 +161,7 @@ export function criarContratoRouter(): Router {
     }
     registry.contratos = [];
     req.servicos!.projeto.fileService.escreverJson(
-      path.win32.join('.ia', 'contratos', 'contratos.json'),
+      path.join('.ia', 'contratos', 'contratos.json'),
       registry
     );
     req.servicos!.auditoria.registrar('CONTRATOS_EXCLUIDOS', `${removidos} contratos excluídos.`, {});

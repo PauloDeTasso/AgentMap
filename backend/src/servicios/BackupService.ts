@@ -14,10 +14,10 @@ export class BackupService {
   ) {}
 
   criarBackup(): ResultadoOperacao<string> {
-    const iaDir = path.win32.join(this.projetoRoot, '.ia');
-    const backupDir = path.win32.join(this.projetoRoot, '.ia-backups');
+    const iaDir = path.join(this.projetoRoot, '.ia');
+    const backupDir = path.join(this.projetoRoot, '.ia-backups');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupPath = path.win32.join(backupDir, `backup-${timestamp}`);
+    const backupPath = path.join(backupDir, `backup-${timestamp}`);
 
     if (!fs.existsSync(iaDir)) {
       return { sucesso: false, erro: '.ia/ não encontrado', codigoErro: 'IA_NOT_FOUND' };
@@ -30,8 +30,8 @@ export class BackupService {
       const entries = fs.readdirSync(src, { withFileTypes: true });
       for (const entry of entries) {
         if (entry.name === '.ia-backups') continue;
-        const srcPath = path.win32.join(src, entry.name);
-        const destPath = path.win32.join(dest, entry.name);
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
         if (entry.isDirectory()) {
           fs.mkdirSync(destPath, { recursive: true });
           copiar(srcPath, destPath);

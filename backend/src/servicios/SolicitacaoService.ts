@@ -39,15 +39,15 @@ export class SolicitacaoService {
   }
 
   private getRegistryPath(): string {
-    return path.win32.join('.ia', 'solicitacoes', 'solicitacoes.json');
+    return path.join('.ia', 'solicitacoes', 'solicitacoes.json');
   }
 
   private getHistoricoPath(): string {
-    return path.win32.join('.ia', 'solicitacoes', 'historico-alteracoes.json');
+    return path.join('.ia', 'solicitacoes', 'historico-alteracoes.json');
   }
 
   private getSolicitacaoPath(id: string): string {
-    return path.win32.join('.ia', 'solicitacoes', `${id}.json`);
+    return path.join('.ia', 'solicitacoes', `${id}.json`);
   }
 
   private gerarId(ano: string = new Date().getFullYear().toString()): string {
