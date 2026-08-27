@@ -836,8 +836,11 @@ async function reconectarMcp(client: PluginInput["client"], directory: string): 
   estado.tentativaReconexaoMcp++;
 
   try {
-    const result = await (client as any).mcp?.connect?.({ path: { name: MCP_SERVER_NAME } });
-    const sucesso = (result as any)?.data?.success !== false && (result as any)?.data !== false;
+    const result = await (client as any).mcp?.connect?.({
+      path: { name: MCP_SERVER_NAME },
+      query: { directory: "" },
+    });
+    const sucesso = (result as any)?.data !== false && (result as any)?.data?.success !== false;
     if (sucesso) {
       console.log(`[agentmap-health] MCP reconectado com sucesso (tentativa ${estado.tentativaReconexaoMcp})`);
       await logEmArquivo(directory, `[agentmap-health] MCP reconectado com sucesso (tentativa ${estado.tentativaReconexaoMcp})`);
