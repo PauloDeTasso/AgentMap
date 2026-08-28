@@ -93,7 +93,6 @@ export class McpAuditoria {
     const tempDir = path.join(process.env.TEMP || '.', 'agentmap-sanidade-' + Date.now());
     const tempProjetoId = 'sanidade-' + Date.now();
     let projetoAbertoId: string | null = null;
-    let projetoAnteriorId: string | null = null;
 
     try {
       if (!fs.existsSync(tempDir)) {
@@ -111,9 +110,6 @@ export class McpAuditoria {
       }
 
       projetoAbertoId = abrirResult.dados.id;
-      const registro = projetoService.listarProjetos();
-      const reg = (registro.sucesso && registro.dados) ? registro.dados.find((p: any) => p.id === projetoAbertoId) : null;
-      projetoAnteriorId = reg?.id || null;
 
       const registeredTools = (mcpServer as any)._registeredTools as Record<string, any> | undefined;
       if (!registeredTools) {
@@ -186,14 +182,7 @@ export class McpAuditoria {
         execucaoReal: true,
       });
     } finally {
-      if (projetoAbertoId) {
-        try {
-          projetoService.fecharProjeto(projetoAbertoId);
-        } catch {}
-      }
-      try {
-        projetoService.removerProjeto(projetoAbertoId || tempProjetoId);
-      } catch {}
+      // Single-project mode: apenas limpa o diretório temporário
       if (fs.existsSync(tempDir)) {
         try {
           fs.rmSync(tempDir, { recursive: true, force: true });

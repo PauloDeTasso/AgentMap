@@ -1,0 +1,66 @@
+{
+  "id": "TAR-2026-00003",
+  "titulo": "Auditar tools Agentes (5 tools)",
+  "descricao": "Verificar agentmap_agentes_listar, agentmap_agentes_obter, agentmap_agentes_criar, agentmap_agentes_atualizar, agentmap_agentes_excluir. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, path traversal, consistência com backend.",
+  "objetivo": "Auditar e corrigir tools da categoria Agentes",
+  "tipo": "auditoria",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    "backend/src/mcp-server/tools/agentes.ts"
+  ],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "Todas as 5 tools respondem sem erro",
+    "Schemas Zod validam entrada corretamente",
+    "Annotations corretas",
+    "Tratamento de erros consistente",
+    "Path traversal protegido"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [
+    "Nao executar testes automatizados",
+    "Nao implementar codigo novo sem aprovacao",
+    "Nao alterar contratos sem aprovacao do Arquiteto"
+  ],
+  "condicoesDeParada": [
+    "Informacao insuficiente para auditar",
+    "Decisao arquitetural nao documentada",
+    "Requisito conflitante"
+  ],
+  "criteriosConclusao": [],
+  "tags": [],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T19:22:13.867Z",
+    "criadoEm": "2026-08-27T19:22:13.867Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T20:00:11.193Z",
+    "atualizadaEm": "2026-08-27T19:22:13.867Z",
+    "conclusao": "2026-08-27T20:00:11.194Z"
+  }
+}

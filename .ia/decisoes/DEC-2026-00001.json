@@ -1,0 +1,48 @@
+{
+  "id": "DEC-2026-00001",
+  "titulo": "Proposta de Evolução Arquitetural do AgentMap",
+  "estado": "PROPOSTA",
+  "data": "2026-08-27T23:19:00Z",
+  "autor": "Engenheiro de Software",
+  "categoria": "arquitetura",
+  "tags": ["arquitetura", "backend", "qualidade", "devops", "testes"],
+  "problema": "Dívidas técnicas acumuladas na branch v0044 comprometem manutenibilidade, escalabilidade e qualidade do código. Falta de testes automatizados, CI/CD, logging estruturado e práticas de segurança modernas.",
+  "contexto": "Análise realizada pelo Engenheiro de Software na branch v0044 identificou dívidas técnicas: frontend acoplado ao backend, apenas 2 testes de integração para 40+ rotas, ausência de CI/CD automatizado, tslint descontinuado (v6.1.3), logging via console.log, ausência de rate limiting, secrets hardcoded em configuração. Stack atual usa Node.js + TypeScript + Express com OpenTelemetry e ~170 MCP tools.",
+  "alternativas": [
+    "Manter stack atual e apenas corrigir bugs pontuais",
+    "Migração incremental por módulos sem feature flags",
+    "Migração completa em uma única sprint"
+  ],
+  "decisao": "Aprovar proposta de evolução arquitetural em 4 sprints de 1 semana, priorizando fundamentos (lint, logging, secrets, error handling) antes de migrar framework e expandir testes",
+  "justificativa": "A arquitetura atual impede evolução sustentável. A falta de testes automatizados e CI/CD expõe o projeto a regressões. O frontend acoplado impossibilita deploy independente. TSLint descontinuado representa risco de segurança. A migração gradual com feature flags minimiza riscos enquanto entrega valor contínuo.",
+  "impactos": {
+    "positivo": [
+      "Redução de dívida técnica",
+      "Aumento de confiabilidade",
+      "Deployment automatizado",
+      "Menor tempo de resposta",
+      "Melhor experiência de desenvolvimento"
+    ],
+    "negativo": [
+      "Curva de aprendizado para Fastify",
+      "Esforço inicial de refatoração"
+    ]
+  },
+  "consequencias": "Requer esforço estimado de 148h (~19 dias úteis) distribuídos em 4 sprints. Impacto positivo em manutenibilidade, performance e qualidade. Risco baixo a médio durante migração se executado com feature flags e testes.",
+  "tarefasRelacionadas": [
+    "T1-Migrar-Fastify",
+    "T2-Reestruturar-Modulos",
+    "T3-Error-Handling",
+    "T4-ESLint",
+    "T5-Logging-Pino",
+    "T6-CICD",
+    "T7-Testes-Cobertura",
+    "T8-Rate-Limiting",
+    "T9-Secrets-Env"
+  ],
+  "contratosAfetados": [],
+  "aprovacao": "Pendente aprovação do Arquiteto e Proprietário",
+  "aprovacaoRequerida": true,
+  "artefatosRelacionados": [".ia/qualidade/proposta-engenheiro.md"],
+  "descricao": "Documento de engenharia propondo migração de Express para Fastify, reestruturação de módulos (services → modules), implementação de testes automatizados (unit + integration + e2e), CI/CD via GitHub Actions, Docker, logging estruturado com Pino, rate limiting, cache strategy e feature flags. Estimativa total: 148h."
+}

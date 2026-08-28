@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00006",
+  "tarefaId": "TAR-2026-00013",
+  "execucaoId": 0,
+  "agenteId": "backend",
+  "resumo": "Auditoria concluída. 16 tools auditadas (Contexto 5, Busca 3, KiloHub 4 utilitários 3, Integridade 1). Documentados 15 itens: 4 bugs críticos (buscarConhecimento crash em JSON malformado, kilohub_report_status sem validação de sessões, path.win32 hardcoded no worktree, path traversal não validado no kilohub-receive) e 11 issues de consistência (outputSchema/annotation ausentes em 11 tools, schemas inline ao invés de centralizados, cast as any, validação duplicada).",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:00:32.852Z",
+    "atualizadaEm": "2026-08-27T20:00:32.852Z",
+    "concluidaEm": null
+  }
+}

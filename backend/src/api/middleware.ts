@@ -1,29 +1,29 @@
 import { Request, Response, NextFunction } from 'express';
-import { ProjetoService, ProjetoAberto } from '../servicios';
-import { AgenteService } from '../servicios';
-import { TarefaService } from '../servicios';
-import { SolicitacaoService } from '../servicios';
-import { CriterioService } from '../servicios';
-import { ResultadoService } from '../servicios';
-import { ArtefatoService } from '../servicios';
-import { HandoffService } from '../servicios';
-import { PendenciaService } from '../servicios';
-import { ValidacaoService } from '../servicios';
-import { ConflitoService } from '../servicios';
-import { ReservaService } from '../servicios';
-import { SessaoService } from '../servicios';
-import { CheckpointService } from '../servicios';
-import { AprendizadoService } from '../servicios';
-import { DependenciaService } from '../servicios';
-import { ResponsabilidadeService } from '../servicios';
-import { IntegridadeService } from '../servicios';
-import { DecisaoService } from '../servicios';
-import { RiscoService } from '../servicios';
-import { BloqueioService } from '../servicios';
-import { EventoService } from '../servicios';
-import { ContatoService } from '../servicios';
-import { StateMachineService } from '../servicios';
-import { CorsService } from '../servicios/CorsService';
+import { ProjetoAberto } from '../servicios/ProjetoService';
+import { AgenteService } from '../servicios/AgenteService';
+import { TarefaService } from '../servicios/TarefaService';
+import { SolicitacaoService } from '../servicios/SolicitacaoService';
+import { CriterioService } from '../servicios/CriterioService';
+import { ResultadoService } from '../servicios/ResultadoService';
+import { ArtefatoService } from '../servicios/ArtefatoService';
+import { HandoffService } from '../servicios/HandoffService';
+import { PendenciaService } from '../servicios/PendenciaService';
+import { ValidacaoService } from '../servicios/ValidacaoService';
+import { ConflitoService } from '../servicios/ConflitoService';
+import { ReservaService } from '../servicios/ReservaService';
+import { SessaoService } from '../servicios/SessaoService';
+import { CheckpointService } from '../servicios/CheckpointService';
+import { AprendizadoService } from '../servicios/AprendizadoService';
+import { DependenciaService } from '../servicios/DependenciaService';
+import { ResponsabilidadeService } from '../servicios/ResponsabilidadeService';
+import { IntegridadeService } from '../servicios/IntegridadeService';
+import { DecisaoService } from '../servicios/DecisaoService';
+import { RiscoService } from '../servicios/RiscoService';
+import { BloqueioService } from '../servicios/BloqueioService';
+import { EventoService } from '../servicios/EventoService';
+import { ContatoService } from '../servicios/ContatoService';
+import { EstadoService } from '../servicios/EstadoService';
+import { StateMachineService } from '../servicios/StateMachineService';
 import { ContractValidatorService } from '../servicios/ContractValidatorService';
 import { BackupService } from '../servicios/BackupService';
 import { MonitoramentoService } from '../servicios/MonitoramentoService';
@@ -33,13 +33,12 @@ import { OrquestradorService } from '../servicios/OrquestradorService';
 import { KiloDiscoveryService } from '../servicios/KiloDiscoveryService';
 import { KiloReconciliationService } from '../servicios/KiloReconciliationService';
 import { TaskContextBuilder } from '../servicios/TaskContextBuilder';
-import { ResultadoOperacao } from '../tipos';
-import { AuditoriaService } from '../servicios';
-import { EstadoService } from '../servicios';
+import { AuditoriaService } from '../servicios/AuditoriaService';
 import { ProjectOrchestrator } from '../servicios/ProjectOrchestrator';
 import { PhaseStateMachine } from '../servicios/PhaseStateMachine';
 import { CheckpointValidator } from '../servicios/CheckpointValidator';
 import { HandoffManager } from '../servicios/HandoffManager';
+import { ResultadoOperacao } from '../tipos';
 
 export interface Servicos {
   projeto: ProjetoAberto;
@@ -83,90 +82,92 @@ export interface Servicos {
   taskContextBuilder: TaskContextBuilder;
 }
 
-export function projectMiddleware(projetoService: ProjetoService) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    console.log(`[middleware] projectMiddleware -> ${req.method} ${req.url}`);
-    const projetoResult = projetoService.getProjetoAtual();
-    if (!projetoResult.sucesso) {
-      console.error('[middleware] getProjetoAtual falhou:', projetoResult.erro);
-      return res.status(500).json({ sucesso: false, erro: 'Erro ao acessar projeto' });
-    }
-    const projeto = projetoResult.dados;
-    if (!projeto) {
-      console.log('[middleware] Nenhum projeto aberto — retornando 400 para', req.url);
-      return res.status(400).json({ sucesso: false, erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.', codigoErro: 'NO_PROJECT_OPEN' });
-    }
+/**
+ * Cria todos os serviços para um projeto aberto (singleton).
+ * Chamado uma vez na inicialização.
+ */
+export function criarServicos(projeto: ProjetoAberto): Servicos {
+  const validator = projeto.validator;
+  const eventoService = new EventoService(projeto.fileService, projeto.auditoria, validator);
+  const stateMachineService = new StateMachineService(projeto.fileService, projeto.auditoria, validator);
+  const monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, validator);
 
-    const monitoramento = new MonitoramentoService(projeto.fileService, projeto.auditoria, projeto.validator);
-    const evento = new EventoService(projeto.fileService, projeto.auditoria, projeto.validator);
-    req.servicos = {
-      projeto,
-      monitoramento,
-      agente: new AgenteService(projeto.fileService, projeto.auditoria, projeto.validator),
-      tarefa: new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
-      solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, projeto.validator, undefined, undefined, monitoramento),
-      criterio: new CriterioService(projeto.fileService, projeto.auditoria, projeto.validator),
-      resultado: new ResultadoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      artefato: new ArtefatoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      handoff: new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator, evento, undefined, monitoramento),
-      pendencia: new PendenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
-      validacao: new ValidacaoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      conflito: new ConflitoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      reserva: new ReservaService(projeto.fileService, projeto.auditoria, projeto.validator),
-      sessao: new SessaoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      checkpoint: new CheckpointService(projeto.fileService, projeto.auditoria, projeto.validator),
-      aprendizado: new AprendizadoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      dependencia: new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
-      responsabilidade: new ResponsabilidadeService(projeto.fileService, projeto.auditoria, projeto.validator),
-      integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.fluxo),
-      decisao: new DecisaoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      risco: new RiscoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, projeto.validator),
-      evento: new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
-      contato: new ContatoService(projeto.fileService, projeto.auditoria, projeto.validator, projeto),
-      estado: new EstadoService(projeto.fileService, projeto.auditoria),
-      auditoria: projeto.auditoria,
-      stateMachine: new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator),
-      contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, projeto.validator),
-      backup: new BackupService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.caminhoRaiz),
-      fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
-      instancia: new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
-      orquestrador: new OrquestradorService(
-        projeto.fileService,
-        projeto.auditoria,
-        projeto.validator,
-        projeto.caminhoRaiz,
-        projeto.id,
-        new InstanciaService(projeto.fileService, projeto.auditoria, projeto.validator),
-        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
-        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
-        new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
-        new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator)
-      ),
-      projectOrchestrator: new ProjectOrchestrator(
-        projeto.fileService,
-        projeto.auditoria,
-        new TarefaService(projeto.fileService, projeto.auditoria, projeto.validator, projeto.dependencia, undefined, new StateMachineService(projeto.fileService, projeto.auditoria, projeto.validator)),
-        new DependenciaService(projeto.fileService, projeto.auditoria, projeto.validator),
-        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
-        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
-        { projetoId: projeto.id, projetoNome: projeto.nome, caminhoRaiz: projeto.caminhoRaiz }
-      ),
-      phaseStateMachine: new PhaseStateMachine(projeto.fileService, projeto.auditoria, projeto.id, projeto.nome),
-      checkpointValidator: new CheckpointValidator(projeto.fileService, projeto.auditoria, projeto.validator),
-      handoffManager: new HandoffManager(
-        projeto.fileService,
-        projeto.auditoria,
-        projeto.validator,
-        new HandoffService(projeto.fileService, projeto.auditoria, projeto.validator),
-        new EventoService(projeto.fileService, projeto.auditoria, projeto.validator),
-        monitoramento
-      ),
-      kiloDiscovery: projeto.kiloDiscovery,
-      kiloReconciliation: projeto.kiloReconciliation,
-      taskContextBuilder: new TaskContextBuilder(projeto.fileService, projeto.auditoria, projeto.validator)
-    };
-    console.log(`[middleware] Projeto '${projeto.nome}' (id=${projeto.id}) carregado para ${req.method} ${req.url}`);
+  return {
+    projeto,
+    monitoramento,
+    agente: new AgenteService(projeto.fileService, projeto.auditoria, validator),
+    tarefa: new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
+    solicitacao: new SolicitacaoService(projeto.fileService, projeto.auditoria, validator, undefined, undefined, monitoramento),
+    criterio: new CriterioService(projeto.fileService, projeto.auditoria, validator),
+    resultado: new ResultadoService(projeto.fileService, projeto.auditoria, validator),
+    artefato: new ArtefatoService(projeto.fileService, projeto.auditoria, validator),
+    handoff: new HandoffService(projeto.fileService, projeto.auditoria, validator, eventoService, undefined, monitoramento),
+    pendencia: new PendenciaService(projeto.fileService, projeto.auditoria, validator),
+    validacao: new ValidacaoService(projeto.fileService, projeto.auditoria, validator),
+    conflito: new ConflitoService(projeto.fileService, projeto.auditoria, validator),
+    reserva: new ReservaService(projeto.fileService, projeto.auditoria, validator),
+    sessao: new SessaoService(projeto.fileService, projeto.auditoria, validator),
+    checkpoint: new CheckpointService(projeto.fileService, projeto.auditoria, validator),
+    aprendizado: new AprendizadoService(projeto.fileService, projeto.auditoria, validator),
+    dependencia: new DependenciaService(projeto.fileService, projeto.auditoria, validator),
+    responsabilidade: new ResponsabilidadeService(projeto.fileService, projeto.auditoria, validator),
+    integridade: new IntegridadeService(projeto.fileService, projeto.auditoria, validator, projeto.fluxo),
+    decisao: new DecisaoService(projeto.fileService, projeto.auditoria, validator),
+    risco: new RiscoService(projeto.fileService, projeto.auditoria, validator),
+    bloqueio: new BloqueioService(projeto.fileService, projeto.auditoria, validator),
+    evento: eventoService,
+    contato: new ContatoService(projeto.fileService, projeto.auditoria, validator, projeto),
+    estado: new EstadoService(projeto.fileService, projeto.auditoria),
+    auditoria: projeto.auditoria,
+    stateMachine: stateMachineService,
+    contractValidator: new ContractValidatorService(projeto.fileService, projeto.auditoria, validator),
+    backup: new BackupService(projeto.fileService, projeto.auditoria, validator, projeto.caminhoRaiz),
+    fluxo: new FluxoService(projeto.fileService, projeto.auditoria),
+    instancia: new InstanciaService(projeto.fileService, projeto.auditoria, validator),
+    orquestrador: new OrquestradorService(
+      projeto.fileService,
+      projeto.auditoria,
+      projeto.validator,
+      projeto.caminhoRaiz,
+      projeto.id,
+      new InstanciaService(projeto.fileService, projeto.auditoria, validator),
+      eventoService,
+      new HandoffService(projeto.fileService, projeto.auditoria, validator),
+      new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
+      new DependenciaService(projeto.fileService, projeto.auditoria, validator)
+    ),
+    projectOrchestrator: new ProjectOrchestrator(
+      projeto.fileService,
+      projeto.auditoria,
+      new TarefaService(projeto.fileService, projeto.auditoria, validator, projeto.dependencia, eventoService, stateMachineService),
+      new DependenciaService(projeto.fileService, projeto.auditoria, validator),
+      new HandoffService(projeto.fileService, projeto.auditoria, validator),
+      eventoService,
+      { projetoId: projeto.id, projetoNome: projeto.nome, caminhoRaiz: projeto.caminhoRaiz }
+    ),
+    phaseStateMachine: new PhaseStateMachine(projeto.fileService, projeto.auditoria, projeto.id, projeto.nome),
+    checkpointValidator: new CheckpointValidator(projeto.fileService, projeto.auditoria, validator),
+    handoffManager: new HandoffManager(
+      projeto.fileService,
+      projeto.auditoria,
+      validator,
+      new HandoffService(projeto.fileService, projeto.auditoria, validator),
+      eventoService,
+      monitoramento
+    ),
+    kiloDiscovery: projeto.kiloDiscovery,
+    kiloReconciliation: projeto.kiloReconciliation,
+    taskContextBuilder: new TaskContextBuilder(projeto.fileService, projeto.auditoria, validator)
+  };
+}
+
+/**
+ * Middleware que injeta os serviços singleton no request.
+ * Substitui projectMiddleware (que recriava serviços a cada request).
+ */
+export function servicesMiddleware(servicos: Servicos) {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    req.servicos = servicos;
     next();
   };
 }

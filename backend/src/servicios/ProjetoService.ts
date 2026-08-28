@@ -8,16 +8,10 @@ import { SchemaValidator } from '../validacao/SchemaValidator';
 import { DependenciaService } from './DependenciaService';
 import { FluxoService } from './FluxoService';
 import { MonitoramentoService } from './MonitoramentoService';
-import { ProjetoConfig, ProjetoRegistro, RegistroProjetos, ResultadoOperacao } from '../tipos';
-import {
-  loadRegistroProjetos,
-  saveRegistroProjetos,
-  registrarProjeto,
-  removerProjetoDoRegistro
-} from '../config';
+import { ProjetoConfig, ResultadoOperacao } from '../tipos';
 import { KiloDiscoveryService } from './KiloDiscoveryService';
 import { KiloReconciliationService } from './KiloReconciliationService';
-import { GERENCIADOR_DIR } from '../config';
+import { ProjectRootResolver } from '../config/ProjectRootResolver';
 
 export interface ProjetoAberto {
   id: string;
@@ -34,52 +28,124 @@ export interface ProjetoAberto {
   kiloReconciliation: KiloReconciliationService;
 }
 
+/**
+ * ProjetoService — Single-Project Mode.
+ * 
+ * Removido (multi-tenant):
+ * - Registro de projetos (registro-projetos.json)
+ * - Cache de projetos abertos (Map<id, ProjetoAberto>)
+ * - getProjetoAtual / obterProjetoAtual (projeto aberto/fechado)
+ * - fecharProjeto / removerProjeto / removerTodosProjetos
+ * - limparReferenciasProjeto
+ * 
+ * Mantido:
+ * - abrirProjeto(caminhoRaiz) — abre um projeto local
+ * - criarProjeto — cria scaffold de projeto
+ * - atualizarConfiguracao — atualiza config do projeto aberto
+ */
 export class ProjetoService {
-  private registro: RegistroProjetos;
-  private projetosAbertos: Map<string, ProjetoAberto>;
+  private projetoAtual: ProjetoAberto | null = null;
   private validator: SchemaValidator;
 
   constructor(validator: SchemaValidator) {
-    this.registro = loadRegistroProjetos();
-    this.projetosAbertos = new Map();
     this.validator = validator;
   }
 
-  listarProjetos(): ResultadoOperacao<ProjetoRegistro[]> {
-    return { sucesso: true, dados: this.registro.projetos };
-  }
-
-  obterProjetoAtual(): ResultadoOperacao<ProjetoAberto | null> {
-    if (!this.registro.projetoAtual) {
-      return { sucesso: true, dados: null };
-    }
-    const cached = this.projetosAbertos.get(this.registro.projetoAtual);
-    if (cached) {
-      return { sucesso: true, dados: cached };
-    }
-    const projetoResult = this.abrirProjeto(this.registro.projetoAtual);
-    if (!projetoResult.sucesso) {
-      this.registro.projetoAtual = null;
-      saveRegistroProjetos(this.registro);
-      return { sucesso: true, dados: null };
-    }
-    return projetoResult;
-  }
-
+  /**
+   * Retorna o projeto atualmente aberto (singleton).
+   */
   getProjetoAtual(): ResultadoOperacao<ProjetoAberto | null> {
-    return this.obterProjetoAtual();
+    return { sucesso: true, dados: this.projetoAtual };
   }
 
+  /**
+   * Abre um projeto a partir de um caminho raiz.
+   * Em single-project mode, só existe um projeto aberto por vez.
+   */
+  abrirProjeto(caminhoRaiz: string): ResultadoOperacao<ProjetoAberto> {
+    const iaPath = path.join(caminhoRaiz, '.ia');
+    
+    if (!fs.existsSync(iaPath)) {
+      return { sucesso: false, erro: 'Diretório .ia/ não encontrado — não é um projeto gerenciado', codigoErro: 'IA_NOT_FOUND' };
+    }
+
+    try {
+      const fileService = new FileService(caminhoRaiz);
+      const auditoria = new AuditoriaService(fileService);
+
+      const configPath = path.join('.ia', 'configuracao', 'projeto.json');
+      const configResult = fileService.lerJson<ProjetoConfig>(configPath);
+      
+      if (!configResult.sucesso || !configResult.dados) {
+        return { sucesso: false, erro: 'Não foi possível ler a configuração do projeto', codigoErro: 'CONFIG_READ_ERROR' };
+      }
+
+      const config = configResult.dados;
+
+      const fluxo = new FluxoService(fileService, auditoria);
+      const checklistResult = fluxo.validarChecklist();
+      if (checklistResult.sucesso && checklistResult.dados) {
+        const pendentes = fluxo.obterPendentes(checklistResult.dados);
+        if (pendentes.length > 0) {
+          return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
+        }
+      }
+
+      const projeto: ProjetoAberto = {
+        id: config.id,
+        nome: config.nome,
+        caminhoRaiz,
+        fileService,
+        auditoria,
+        validator: this.validator,
+        config,
+        dependencia: new DependenciaService(fileService, auditoria, this.validator),
+        fluxo,
+        monitoramento: new MonitoramentoService(fileService, auditoria, this.validator),
+        kiloDiscovery: new KiloDiscoveryService(fileService, auditoria, caminhoRaiz),
+        kiloReconciliation: new KiloReconciliationService(fileService, auditoria, this.validator, caminhoRaiz)
+      };
+
+      this.projetoAtual = projeto;
+
+      auditoria.registrar('PROJETO_ABERTO', `Projeto '${config.nome}' aberto.`, { caminhoRaiz });
+
+      projeto.kiloReconciliation.reconciliar().then(async (reconciliacao) => {
+        if (reconciliacao.sucesso && reconciliacao.dados) {
+          const kiloStateResult = await projeto.kiloDiscovery.obterEstadoKilo();
+          if (kiloStateResult.sucesso && kiloStateResult.dados) {
+            projeto.monitoramento.registrarKiloState(kiloStateResult.dados).catch((err) => {
+              console.warn('[ProjetoService][KILO] Falha ao registrar estado Kilo:', err?.message || err);
+            });
+          }
+        }
+      }).catch((err) => {
+        console.warn('[ProjetoService][KILO] Falha na reconciliação automática:', err?.message || err);
+      });
+
+      return { sucesso: true, dados: projeto };
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      console.error('[ProjetoService.abrirProjeto] ERRO INTERNO:', err.message);
+      return { sucesso: false, erro: 'Erro interno ao abrir projeto: ' + err.message, codigoErro: 'INTERNAL_ERROR' };
+    }
+  }
+
+  /**
+   * Abre o projeto raiz (auto-detecção via ProjectRootResolver).
+   */
+  abrirProjetoRaiz(): ResultadoOperacao<ProjetoAberto> {
+    const root = ProjectRootResolver.resolve();
+    return this.abrirProjeto(root);
+  }
+
+  /**
+   * Cria um novo projeto com scaffold.
+   */
   criarProjeto(nome: string, caminhoParental: string, descricao: string, dadosExtra?: Record<string, unknown>): ResultadoOperacao<string> {
     const id = uuid();
     const nomeSanitizado = nome.replace(/[^a-zA-Z0-9_-]/g, '_');
     const caminhoRaiz = path.join(caminhoParental, nomeSanitizado);
-
-    const caminhoRaizResolvido = path.resolve(caminhoRaiz);
-    const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
-    if (caminhoRaizResolvido === gerenciadorResolvido || caminhoRaizResolvido.startsWith(gerenciadorResolvido + path.sep)) {
-      return { sucesso: false, erro: 'Não é permitido criar projetos dentro da pasta do AgentMap. Use outro caminho.', codigoErro: 'INVALID_PARENT_DIR' };
-    }
 
     if (fs.existsSync(path.join(caminhoRaiz, '.ia'))) {
       return { sucesso: false, erro: 'Já existe um projeto com estrutura .ia/ neste local', codigoErro: 'IA_EXISTS' };
@@ -90,13 +156,11 @@ export class ProjetoService {
     }
 
     const scaffold = new ScaffoldService();
-    console.log('[ProjetoService.criarProjeto] Criando scaffold para projeto:', nome, 'em', caminhoRaiz);
-    const result = scaffold.scaffoldProject(id, nome, descricao, caminhoRaiz, GERENCIADOR_DIR);
+    const projectRoot = ProjectRootResolver.resolve();
+    const result = scaffold.scaffoldProject(id, nome, descricao, caminhoRaiz, projectRoot);
     if (!result.sucesso) {
-      console.error('[ProjetoService.criarProjeto] FALHA no scaffold:', result.erro);
       return result;
     }
-    console.log('[ProjetoService.criarProjeto] Scaffold OK');
 
     const iaRoot = path.join(caminhoRaiz, '.ia');
     [path.join('.ia', 'contratos'), path.join('.ia', 'tarefas'), path.join('.ia', 'dependencias')].forEach((dir) => {
@@ -113,7 +177,6 @@ export class ProjetoService {
     const objetivos = Array.isArray(dadosExtra?.objetivos) ? dadosExtra.objetivos : [];
     const escopoIncluso = Array.isArray(dadosExtra?.escopoIncluso) ? dadosExtra.escopoIncluso : [];
     const escopoExcluido = Array.isArray(dadosExtra?.escopoExcluido) ? dadosExtra.escopoExcluido : [];
-    const tecnologias = Array.isArray(dadosExtra?.tecnologias) ? dadosExtra.tecnologias : [];
     const hoje = new Date().toISOString();
 
     const config: ProjetoConfig = {
@@ -166,18 +229,6 @@ export class ProjetoService {
       { backup: true }
     );
 
-    const registro: ProjetoRegistro = {
-      id,
-      nome,
-      caminhoRaiz,
-      ativo: true,
-      ultimaAbertura: new Date().toISOString()
-    };
-    this.registro = registrarProjeto(this.registro, registro);
-    this.registro.projetoAtual = id;
-    saveRegistroProjetos(this.registro);
-    console.log('[ProjetoService.criarProjeto] SUCESSO - id=' + id + ' | nome=' + nome + ' | caminhoRaiz=' + caminhoRaiz);
-
     fsService.escreverJson(
       path.join('.ia', 'auditoria', 'eventos.json'),
       { eventos: [{ id: uuid(), tipo: 'PROJETO_CRIADO', origem: 'gerenciador', agenteId: null, usuarioId: 'proprietario', tarefaId: null, descricao: `Projeto '${nome}' criado.`, dados: { caminhoRaiz }, resultado: 'sucesso', data: new Date().toISOString() }] }
@@ -186,300 +237,15 @@ export class ProjetoService {
     return { sucesso: true, dados: caminhoRaiz };
   }
 
-  abrirProjeto(caminhoOuId: string): ResultadoOperacao<ProjetoAberto> {
-    let caminhoRaiz = caminhoOuId;
-    console.log('[ProjetoService.abrirProjeto] INÍCIO - caminhoOuId:', caminhoOuId);
-    
-    if (!caminhoOuId.includes(path.win32.sep) && !caminhoOuId.includes('/')) {
-      console.log('[ProjetoService.abrirProjeto] Lookup por ID no registro:', caminhoOuId);
-      const proj = this.registro.projetos.find((p) => p.id === caminhoOuId);
-      if (!proj) {
-        console.error('[ProjetoService.abrirProjeto] PROJETO NÃO ENCONTRADO no registro:', caminhoOuId);
-        console.error('[ProjetoService.abrirProjeto] Projetos registrados:', this.registro.projetos.map(p => ({ id: p.id, caminhoRaiz: p.caminhoRaiz })));
-        return { sucesso: false, erro: 'Projeto não encontrado no registro', codigoErro: 'PROJECT_NOT_FOUND' };
-      }
-      console.log('[ProjetoService.abrirProjeto] Projeto encontrado - caminhoRaiz:', proj.caminhoRaiz, 'tipo:', typeof proj.caminhoRaiz);
-      if (!proj.caminhoRaiz) {
-        console.error('[ProjetoService.abrirProjeto] caminhoRaiz é NULL/UNDEFINED para projeto:', caminhoOuId);
-        return { sucesso: false, erro: 'Caminho do projeto está vazio no registro', codigoErro: 'NULL_PATH' };
-      }
-      caminhoRaiz = proj.caminhoRaiz;
-    }
-
-    console.log('[ProjetoService.abrirProjeto] caminhoRaiz final:', caminhoRaiz);
-    const iaPath = path.join(caminhoRaiz, '.ia');
-    console.log('[ProjetoService.abrirProjeto] Verificando .ia em:', iaPath, 'existe:', fs.existsSync(iaPath));
-    
-    if (!fs.existsSync(iaPath)) {
-      console.error('[ProjetoService.abrirProjeto] .ia não encontrado em:', iaPath);
-      return { sucesso: false, erro: 'Diretório .ia/ não encontrado — não é um projeto gerenciado', codigoErro: 'IA_NOT_FOUND' };
-    }
-
-    try {
-      const fileService = new FileService(caminhoRaiz);
-      const auditoria = new AuditoriaService(fileService);
-
-      const configPath = path.join('.ia', 'configuracao', 'projeto.json');
-      console.log('[ProjetoService.abrirProjeto] Lendo config de:', configPath);
-      
-      const configResult = fileService.lerJson<ProjetoConfig>(configPath);
-      console.log('[ProjetoService.abrirProjeto] Resultado leitura config - sucesso:', configResult.sucesso, 'erro:', configResult.erro || 'N/A');
-      
-      if (!configResult.sucesso || !configResult.dados) {
-        console.error('[ProjetoService.abrirProjeto] FALHA ao ler config - erro:', configResult.erro, 'codigo:', configResult.codigoErro);
-        
-        // Tentar ler diretamente para diagnóstico
-        const configAbsPath = path.join(caminhoRaiz, configPath);
-        console.error('[ProjetoService.abrirProjeto] Caminho absoluto:', configAbsPath);
-        console.error('[ProjetoService.abrirProjeto] Arquivo existe?', fs.existsSync(configAbsPath));
-        if (fs.existsSync(configAbsPath)) {
-          try {
-            const rawContent = fs.readFileSync(configAbsPath, 'utf-8');
-            console.error('[ProjetoService.abrirProjeto] Tamanho do arquivo:', rawContent.length, 'bytes');
-            console.error('[ProjetoService.abrirProjeto] Primeiros 200 chars:', rawContent.substring(0, 200));
-          } catch (readErr: any) {
-            console.error('[ProjetoService.abrirProjeto] Erro ao ler arquivo diretamente:', readErr.message);
-          }
-        }
-        
-        return { sucesso: false, erro: 'Não foi possível ler a configuração do projeto', codigoErro: 'CONFIG_READ_ERROR' };
-      }
-
-      const config = configResult.dados;
-      console.log('[ProjetoService.abrirProjeto] Config lida:', config.id, config.nome);
-
-      const caminhoRaizResolvido = path.resolve(caminhoRaiz);
-      const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
-      const ehProjetoSistema = caminhoRaizResolvido === gerenciadorResolvido;
-
-      const fluxo = new FluxoService(fileService, auditoria);
-      if (!ehProjetoSistema) {
-        const checklistResult = fluxo.validarChecklist();
-        if (checklistResult.sucesso && checklistResult.dados) {
-          const pendentes = fluxo.obterPendentes(checklistResult.dados);
-          if (pendentes.length > 0) {
-            return { sucesso: false, erro: `Checklist de fluxo pendente: ${pendentes.join('; ')}`, codigoErro: 'FLOW_CHECKLIST_PENDING' };
-          }
-        }
-      }
-
-      const projeto: ProjetoAberto = {
-        id: config.id,
-        nome: config.nome,
-        caminhoRaiz,
-        fileService,
-        auditoria,
-        validator: this.validator,
-        config,
-        dependencia: new DependenciaService(fileService, auditoria, this.validator),
-        fluxo,
-        monitoramento: new MonitoramentoService(fileService, auditoria, this.validator),
-        kiloDiscovery: new KiloDiscoveryService(fileService, auditoria, caminhoRaiz),
-        kiloReconciliation: new KiloReconciliationService(fileService, auditoria, this.validator, caminhoRaiz)
-      };
-      console.log('[ProjetoService.abrirProjeto] ProjetoAberto criado - id:', projeto.id, 'nome:', projeto.nome, 'caminho:', projeto.caminhoRaiz);
-
-      this.projetosAbertos.set(config.id, projeto);
-      this.registro = registrarProjeto(this.registro, { id: config.id, nome: config.nome, caminhoRaiz, ativo: true, ultimaAbertura: new Date().toISOString() });
-      this.registro.projetoAtual = config.id;
-      saveRegistroProjetos(this.registro);
-
-      auditoria.registrar('PROJETO_ABERTO', `Projeto '${config.nome}' aberto.`, { caminhoRaiz });
-
-      projeto.kiloReconciliation.reconciliar().then(async (reconciliacao) => {
-        if (reconciliacao.sucesso && reconciliacao.dados) {
-          const kiloStateResult = await projeto.kiloDiscovery.obterEstadoKilo();
-          if (kiloStateResult.sucesso && kiloStateResult.dados) {
-            projeto.monitoramento.registrarKiloState(kiloStateResult.dados).catch((err) => {
-              console.warn('[ProjetoService][KILO] Falha ao registrar estado Kilo:', err?.message || err);
-            });
-          }
-        }
-      }).catch((err) => {
-        console.warn('[ProjetoService][KILO] Falha na reconciliação automática:', err?.message || err);
-      });
-
-      return { sucesso: true, dados: projeto };
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error));
-      console.error('[ProjetoService.abrirProjeto] ERRO INTERNO:', err.message);
-      console.error('[ProjetoService.abrirProjeto] Stack:', err.stack);
-      return { sucesso: false, erro: 'Erro interno ao abrir projeto: ' + err.message, codigoErro: 'INTERNAL_ERROR' };
-    }
-  }
-
-  abrirProjetoSistema(): ResultadoOperacao<ProjetoAberto> {
-    return this.abrirProjeto(path.resolve(GERENCIADOR_DIR));
-  }
-
-  fecharProjeto(id: string): ResultadoOperacao<boolean> {
-    const projeto = this.projetosAbertos.get(id);
-    if (!projeto) {
-      return { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' };
-    }
-    this.projetosAbertos.delete(id);
-    if (this.registro.projetoAtual === id) {
-      this.registro.projetoAtual = null;
-      saveRegistroProjetos(this.registro);
-    }
-    return { sucesso: true, dados: true };
-  }
-
-  getProjetoCached(id: string): ProjetoAberto | undefined {
-    return this.projetosAbertos.get(id);
-  }
-
-  removerProjeto(id: string): ResultadoOperacao<boolean> {
-    const idx = this.registro.projetos.findIndex((p) => p.id === id);
-    if (idx < 0) {
-      return { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' };
-    }
-    const proj = this.registro.projetos[idx];
-    const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
-    const caminhoResolvido = path.resolve(proj.caminhoRaiz);
-    if (caminhoResolvido === gerenciadorResolvido || caminhoResolvido.startsWith(gerenciadorResolvido + path.sep)) {
-      return { sucesso: false, erro: 'Não é possível excluir o projeto do próprio AgentMap.', codigoErro: 'SYSTEM_PROTECTED' };
-    }
-    if (fs.existsSync(proj.caminhoRaiz)) {
-      fs.rmSync(proj.caminhoRaiz, { recursive: true, force: true });
-    }
-    this.registro = removerProjetoDoRegistro(this.registro, id);
-    saveRegistroProjetos(this.registro);
-
-    // Close if open
-    this.projetosAbertos.delete(id);
-    if (this.registro.projetoAtual === id) {
-      this.registro.projetoAtual = null;
-    }
-
-    this.limparReferenciasProjeto(id, proj.nome, proj.caminhoRaiz);
-
-    return { sucesso: true, dados: true };
-  }
-
-  removerTodosProjetos(): ResultadoOperacao<number> {
-    const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
-    const projetos = [...this.registro.projetos];
-    let removidos = 0;
-    for (const proj of projetos) {
-      const caminhoResolvido = path.resolve(proj.caminhoRaiz);
-      if (caminhoResolvido === gerenciadorResolvido || caminhoResolvido.startsWith(gerenciadorResolvido + path.sep)) {
-        continue;
-      }
-      if (fs.existsSync(proj.caminhoRaiz)) {
-        fs.rmSync(proj.caminhoRaiz, { recursive: true, force: true });
-      }
-      this.projetosAbertos.delete(proj.id);
-      this.limparReferenciasProjeto(proj.id, proj.nome, proj.caminhoRaiz);
-      removidos++;
-    }
-    this.registro = { projetos: this.registro.projetos.filter((p) => {
-      const cr = path.resolve(p.caminhoRaiz);
-      return !(cr === gerenciadorResolvido || cr.startsWith(gerenciadorResolvido + path.sep));
-    }), projetoAtual: null };
-    saveRegistroProjetos(this.registro);
-    return { sucesso: true, dados: removidos };
-  }
-
-  excluirTodos(): ResultadoOperacao<number> {
-    return this.removerTodosProjetos();
-  }
-
-  private limparReferenciasProjeto(id: string, nome: string, caminhoRaiz: string): void {
-    const targets = [
-      path.join(caminhoRaiz, '.ia', 'contexto', 'mapeamento-inicial-agentmap.json'),
-      path.join(caminhoRaiz, '.ia', 'handoffs', 'handoffs.json'),
-    ];
-
-    for (const filePath of targets) {
-      if (!fs.existsSync(filePath)) continue;
-      try {
-        const raw = fs.readFileSync(filePath, 'utf-8');
-        const data = JSON.parse(raw);
-        let altered = false;
-
-        const clean = (value: any): any => {
-          if (Array.isArray(value)) {
-            const filtered = value
-              .map(clean)
-              .filter((v: any) => !(v && typeof v === 'object' && (v.id === id || v.caminhoRaiz === caminhoRaiz)));
-            if (filtered.length !== value.length) altered = true;
-            return filtered;
-          }
-          if (value && typeof value === 'object') {
-            if (value.id === id || value.caminhoRaiz === caminhoRaiz) {
-              altered = true;
-              return null;
-            }
-            const cleaned: Record<string, any> = {};
-            for (const [k, v] of Object.entries(value)) {
-              const cv = clean(v);
-              if (cv !== undefined && cv !== null) cleaned[k] = cv;
-            }
-            if (JSON.stringify(cleaned) !== JSON.stringify(value)) altered = true;
-            return cleaned;
-          }
-          if (typeof value === 'string') {
-            if (value === caminhoRaiz || value === nome || value === id) {
-              altered = true;
-              return '';
-            }
-            return value;
-          }
-          return value;
-        };
-
-        const cleanedData = clean(data);
-        if (altered) {
-          fs.writeFileSync(filePath, JSON.stringify(cleanedData, null, 2), 'utf-8');
-        }
-      } catch (err) {
-        console.warn(`[ProjetoService] Falha ao limpar referencias em ${filePath}:`, err);
-      }
-    }
-
-    const walkMd = (dir: string) => {
-      if (!fs.existsSync(dir)) return;
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const full = path.join(dir, entry.name);
-        if (entry.isDirectory()) {
-          walkMd(full);
-        } else if (entry.isFile() && full.endsWith('.md')) {
-          try {
-            let content = fs.readFileSync(full, 'utf-8');
-            const escapedCaminho = caminhoRaiz.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const escapedNome = nome.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const newContent = content
-              .split('\n')
-              .map((line) =>
-                line
-                  .replace(new RegExp(escapedCaminho, 'g'), '[REMOVIDO]')
-                  .replace(new RegExp(escapedNome, 'g'), '[REMOVIDO]')
-                  .replace(new RegExp(escapedId, 'g'), '[REMOVIDO]')
-              )
-              .join('\n');
-            if (newContent !== content) {
-              fs.writeFileSync(full, newContent, 'utf-8');
-            }
-          } catch (err) {
-            console.warn(`[ProjetoService] Falha ao limpar MD ${full}:`, err);
-          }
-        }
-      }
-    };
-
-    walkMd(path.join(caminhoRaiz, '.ia'));
-  }
-
+  /**
+   * Atualiza a configuração do projeto atualmente aberto.
+   */
   atualizarConfiguracao(id: string, config: ProjetoConfig): ResultadoOperacao<ProjetoConfig> {
-    const projeto = this.getProjetoCached(id);
-    if (!projeto) {
+    if (!this.projetoAtual || this.projetoAtual.id !== id) {
       return { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' };
     }
-    projeto.config = config;
-    const result = projeto.fileService.escreverJson(
+    this.projetoAtual.config = config;
+    const result = this.projetoAtual.fileService.escreverJson(
       path.join('.ia', 'configuracao', 'projeto.json'),
       config,
       { backup: true }
@@ -491,8 +257,7 @@ export class ProjetoService {
     if (!validacao.valido) {
       return { sucesso: false, erro: `Validação: ${validacao.erros?.join(', ')}`, codigoErro: 'VALIDATION_ERROR' };
     }
-    projeto.auditoria.registrar('ARQUIVO_ALTERADO', 'Configuração do projeto atualizada.', { tarefaId: null, agenteId: 'proprietario' });
+    this.projetoAtual.auditoria.registrar('ARQUIVO_ALTERADO', 'Configuração do projeto atualizada.', { tarefaId: null, agenteId: 'proprietario' });
     return { sucesso: true, dados: config };
   }
 }
-

@@ -1,0 +1,70 @@
+{
+  "id": "agentmap-sistema",
+  "nome": "AgentMap Sistema",
+  "descricao": "O próprio sistema AgentMap como projeto gerenciado. Contém a configuração, agentes e metadados do gerenciador local de agentes de IA.",
+  "versao": "1.0.0",
+  "estado": "ativo",
+  "idioma": "pt-BR",
+  "fusoHorario": "America/Sao_Paulo",
+  "proprietario": {
+    "tipo": "sistema",
+    "nome": "AgentMap"
+  },
+  "objetivos": [
+    "Gerenciar projetos de IA",
+    "Coordenar agentes de desenvolvimento",
+    "Fornecer contexto e governança"
+  ],
+  "escopo": {
+    "incluso": [
+      "Gerenciamento de projetos",
+      "Coordenação de agentes",
+      "Monitoramento e auditoria"
+    ],
+    "excluido": []
+  },
+  "tecnologias": {
+    "frontend": [
+      "HTML5",
+      "CSS3",
+      "JavaScript"
+    ],
+    "backend": [
+      "Node.js",
+      "TypeScript",
+      "Express"
+    ],
+    "android": [],
+    "bancoDeDados": [
+      "FileSystem",
+      "JSON"
+    ],
+    "infraestrutura": [],
+    "testes": [
+      "Jest"
+    ]
+  },
+  "ambiente": "desenvolvimento",
+  "arquiteturas": [
+    "MVC",
+    "REST"
+  ],
+  "padroes": [
+    "File-based storage",
+    "MCP Protocol"
+  ],
+  "diretorios": {
+    "raiz": "G:\\PROJETOS\\WEB\\AgentMap",
+    "backend": "G:\\PROJETOS\\WEB\\AgentMap\\backend",
+    "frontend": "G:\\PROJETOS\\WEB\\AgentMap\\frontend"
+  },
+  "configuracaoIa": {
+    "diretorio": "/.ia",
+    "contratoPrincipal": "/.ia/contratos/contrato-projeto.json",
+    "estadoAtual": "/.ia/estado/estado-atual.json"
+  },
+  "datas": {
+    "criacao": "2026-08-23T12:28:51.280Z",
+    "ultimaAtualizacao": "2026-08-25T11:00:00.000Z"
+  }
+}

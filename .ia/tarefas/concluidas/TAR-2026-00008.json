@@ -1,0 +1,69 @@
+{
+  "id": "TAR-2026-00008",
+  "titulo": "Auditar tools Riscos, Bloqueios, Pendencias, Reservas (27 tools)",
+  "descricao": "Verificar Riscos (6), Bloqueios (7), Pendencias (7), Reservas (7). Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+  "objetivo": "Auditar e corrigir tools das categorias Riscos, Bloqueios, Pendencias, Reservas",
+  "tipo": "auditoria",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    "backend/src/mcp-server/tools/riscos.ts",
+    "backend/src/mcp-server/tools/bloqueios.ts",
+    "backend/src/mcp-server/tools/pendencias.ts",
+    "backend/src/mcp-server/tools/reservas.ts"
+  ],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "Todas as 27 tools respondem sem erro",
+    "Schemas Zod validam entrada corretamente",
+    "Annotations corretas (destructiveHint onde aplicavel)",
+    "Tratamento de erros consistente",
+    "Fluxos de resolucao/liberacao validos"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [
+    "Nao executar testes automatizados",
+    "Nao implementar codigo novo sem aprovacao",
+    "Nao alterar contratos sem aprovacao do Arquiteto"
+  ],
+  "condicoesDeParada": [
+    "Informacao insuficiente para auditar",
+    "Decisao arquitetural nao documentada",
+    "Requisito conflitante"
+  ],
+  "criteriosConclusao": [],
+  "tags": [],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T19:22:45.820Z",
+    "criadoEm": "2026-08-27T19:22:45.820Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T20:04:37.363Z",
+    "atualizadaEm": "2026-08-27T19:22:45.820Z",
+    "conclusao": "2026-08-27T20:04:37.363Z"
+  }
+}

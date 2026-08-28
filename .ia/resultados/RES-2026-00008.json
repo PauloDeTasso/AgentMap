@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00008",
+  "tarefaId": "TAR-2026-00001",
+  "execucaoId": 0,
+  "agenteId": "backend",
+  "resumo": "Auditoria concluída das 6 tools de Projetos em backend/src/mcp-server/tools/projeto.ts e backend/src/servicios/ProjetoService.ts. Principais findings: 1) projetos_atual retorna envelope malformado sem structuredContent quando não há projeto aberto; 2) projetos_criar tem mismatch entre Zod schema (flat) e handler que tenta ler input.dados.*; 3) caminhoParental não é validado contra path traversal; 4) z.string() aceita strings vazias em campos obrigatórios; 5) annotations ausentes em projetos_criar e projetos_abrir; 6) outputSchema de primitivos não reflete o envelope { data: ... } de toMcpStructured. Nenhum arquivo alterado.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:00:43.692Z",
+    "atualizadaEm": "2026-08-27T20:00:43.692Z",
+    "concluidaEm": null
+  }
+}

@@ -166,9 +166,6 @@ tmp/
 .ia/auditoria/
 .ia/contexto/mensagens-monitoramento.json
 .ia/contexto/status/
-.ia/
-
-backend/testes-e2e/
 
 # ==========================================
 

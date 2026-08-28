@@ -32,9 +32,21 @@
       "observability": ["observability"],
       "observability/*": ["observability/*"],
       "websocket": ["websocket"],
-      "websocket/*": ["websocket/*"]
+      "websocket/*": ["websocket/*"],
+      "generators": ["generators"],
+      "generators/*": ["generators/*"],
+      "bootstrap": ["bootstrap"],
+      "bootstrap/*": ["bootstrap/*"],
+      "cli": ["cli"],
+      "cli/*": ["cli/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/cli/**/*.ts",
+    "src/generators/**/*.ts",
+    "src/bootstrap/**/*.ts",
+    "src/utils/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "testes"]
 }

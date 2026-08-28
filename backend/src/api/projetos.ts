@@ -1,43 +1,24 @@
 import { Router, Request, Response } from 'express';
 import { ProjetoService } from '../servicios';
 import { asyncHandler, responder } from './middleware';
-import { loadSettings, saveSettings, saveRegistroProjetos } from '../config';
-import { RegistroProjetos, ProjetoRegistro } from '../tipos';
+import { loadSettings, saveSettings } from '../config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { resolveProjectPath } from '../seguranca/paths';
 
-const LOCK_FILE = path.join(require('os').tmpdir(), 'agentmap-projetos-lock');
-
-function adquirirLock(): boolean {
-  try {
-    const fd = fs.openSync(LOCK_FILE, 'w');
-    fs.writeSync(fd, String(process.pid));
-    fs.closeSync(fd);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function liberarLock() {
-  try {
-    fs.unlinkSync(LOCK_FILE);
-  } catch {
-    // ignore
-  }
-}
-
 export function criarProjetoRouter(projetoService: ProjetoService): Router {
   const router = Router();
 
+  // Em single-project mode, listar retorna apenas o projeto atual
   router.get('/', asyncHandler(async (_req: Request, res: Response) => {
-    return responder(res, projetoService.listarProjetos());
+    const atual = projetoService.getProjetoAtual();
+    return responder(res, { sucesso: true, dados: atual.dados ? [atual.dados] : [] });
   }));
 
   router.get('/scan', asyncHandler(async (req: Request, res: Response) => {
     const { pasta } = req.query;
-    let targetDir = typeof pasta === 'string' ? pasta : loadSettings().diretorioProjetosDefault;
+    const settings = loadSettings();
+    let targetDir = typeof pasta === 'string' ? pasta : (settings as any).diretorioProjetosDefault;
     if (!targetDir || typeof targetDir !== 'string') {
       return responder(res, { sucesso: false, erro: 'Pasta nao encontrada', codigoErro: 'DIR_NOT_FOUND' }, 404);
     }
@@ -111,95 +92,50 @@ export function criarProjetoRouter(projetoService: ProjetoService): Router {
     return responder(res, projetoService.criarProjeto(nome, caminhoParental, descricao || '', extras), 201);
   }));
 
-  router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-    const projetos = projetoService.listarProjetos();
-    if (!projetos.sucesso || !projetos.dados) {
-      return responder(res, { sucesso: false, erro: 'Erro ao listar projetos', codigoErro: 'LIST_ERROR' });
-    }
-    const projeto = projetos.dados.find((p: any) => p.id === req.params.id);
-    if (!projeto) {
-      return responder(res, { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' }, 404);
-    }
-    return responder(res, { sucesso: true, dados: projeto });
-  }));
-
-  router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
-    const { nome, ativo } = req.body;
-    let locked = false;
-    try {
-      if (!adquirirLock()) {
-        return responder(res, { sucesso: false, erro: 'Operação concorrente. Tente novamente.', codigoErro: 'CONFLICT' }, 409);
-      }
-      locked = true;
-      const projetos = projetoService.listarProjetos();
-      if (!projetos.sucesso || !projetos.dados) {
-        return responder(res, { sucesso: false, erro: 'Erro ao listar projetos', codigoErro: 'LIST_ERROR' });
-      }
-      const index = projetos.dados.findIndex((p: any) => p.id === req.params.id);
-      if (index < 0) {
-        return responder(res, { sucesso: false, erro: 'Projeto não encontrado', codigoErro: 'NOT_FOUND' }, 404);
-      }
-      const atualizado = {
-        ...projetos.dados[index],
-        nome: nome ?? projetos.dados[index].nome,
-        ativo: ativo ?? projetos.dados[index].ativo
-      };
-      const novoRegistro: RegistroProjetos = { projetos: [...projetos.dados], projetoAtual: projetoService.getProjetoAtual().dados?.id ?? null };
-      novoRegistro.projetos[index] = atualizado;
-      saveRegistroProjetos(novoRegistro);
-      return responder(res, { sucesso: true, dados: atualizado });
-    } finally {
-      if (locked) liberarLock();
-    }
-  }));
-
-  router.post('/:id/abrir', asyncHandler(async (req: Request, res: Response) => {
+  // Single-project: abrir projeto por caminho
+  router.post('/abrir', asyncHandler(async (req: Request, res: Response) => {
     const { caminho } = req.body;
     const idOuPath = caminho || req.params.id;
-    console.log('[api.abrirProjeto] params.id:', req.params.id, '| caminho body:', caminho, '| idOuPath final:', idOuPath);
     const result = projetoService.abrirProjeto(idOuPath);
     if (!result.sucesso || !result.dados) {
-      console.log('[api.abrirProjeto] FALHA:', result.erro, '| codigo:', result.codigoErro);
       return responder(res, result);
     }
     const { id, nome, caminhoRaiz, config } = result.dados;
     return responder(res, { sucesso: true, dados: { id, nome, caminhoRaiz, config } });
   }));
 
-  router.post('/:id/fechar', asyncHandler(async (req: Request, res: Response) => {
-    return responder(res, projetoService.fecharProjeto(req.params.id));
+  // Single-project: abrir projeto raiz (auto-detecção)
+  router.post('/abrir-raiz', asyncHandler(async (_req: Request, res: Response) => {
+    const result = projetoService.abrirProjetoRaiz();
+    if (!result.sucesso || !result.dados) {
+      return responder(res, result);
+    }
+    const { id, nome, caminhoRaiz, config } = result.dados;
+    return responder(res, { sucesso: true, dados: { id, nome, caminhoRaiz, config } });
   }));
 
-  router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
-    return responder(res, projetoService.removerProjeto(req.params.id));
-  }));
-
-  router.delete('/todos', asyncHandler(async (_req: Request, res: Response) => {
-    return responder(res, projetoService.excluirTodos());
-  }));
-
-  router.delete('/', asyncHandler(async (_req: Request, res: Response) => {
-    return responder(res, projetoService.excluirTodos());
-  }));
-
-  router.get('/:id/configuracao', asyncHandler(async (req: Request, res: Response) => {
-    const projeto = projetoService.getProjetoCached(req.params.id);
-    if (!projeto) {
+  router.get('/configuracao', asyncHandler(async (_req: Request, res: Response) => {
+    const projeto = projetoService.getProjetoAtual();
+    if (!projeto.dados) {
       return responder(res, { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' });
     }
-    return responder(res, { sucesso: true, dados: projeto.config });
+    return responder(res, { sucesso: true, dados: projeto.dados.config });
   }));
 
-  router.get('/:id/fluxo/checklist', asyncHandler(async (req: Request, res: Response) => {
-    const projeto = projetoService.getProjetoCached(req.params.id);
-    if (!projeto) {
+  router.get('/fluxo/checklist', asyncHandler(async (_req: Request, res: Response) => {
+    const projeto = projetoService.getProjetoAtual();
+    if (!projeto.dados) {
       return responder(res, { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' });
     }
-    return responder(res, projeto.fluxo.validarChecklist());
+    return responder(res, projeto.dados.fluxo.validarChecklist());
   }));
 
-  router.put('/:id/configuracao', asyncHandler(async (req: Request, res: Response) => {
-    return responder(res, projetoService.atualizarConfiguracao(req.params.id, req.body));
+  router.put('/configuracao', asyncHandler(async (req: Request, res: Response) => {
+    const projeto = projetoService.getProjetoAtual();
+    if (!projeto.dados) {
+      return responder(res, { sucesso: false, erro: 'Projeto não está aberto', codigoErro: 'NOT_OPEN' });
+    }
+    return responder(res, projetoService.atualizarConfiguracao(projeto.dados.id, req.body));
   }));
 
   return router;

@@ -1,0 +1,78 @@
+{
+  "id": "TAR-2026-00015",
+  "titulo": "Definir estratégia de migração PostgreSQL",
+  "descricao": "Com base na análise do modelo de dados, criar um plano de migração para PostgreSQL quando necessário. Definir schema DDL, estratégia de seed, rollback e versionamento de migrations.",
+  "objetivo": "Preparar o AgentMap para suportar PostgreSQL como opção de armazenamento",
+  "tipo": "planejamento",
+  "estado": "RASCUNHO",
+  "prioridade": "MEDIA",
+  "agenteResponsavel": "analista-banco-dados",
+  "dominio": "banco-dados",
+  "ambiente": "desenvolvimento",
+  "dependencias": [
+    "TAR-2026-00014"
+  ],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    "banco/",
+    "docs/",
+    ".ia/banco/"
+  ],
+  "arquivosProibidos": [
+    "backend/src/**/*.ts"
+  ],
+  "contextoNecessario": [
+    "Modelo ER definido",
+    "Avaliação FileSystem vs PostgreSQL"
+  ],
+  "criteriosAceitacao": [
+    "DDL completo para todas as tabelas",
+    "Script de migração versionado",
+    "Estratégia de rollback documentada",
+    "Plano de seed para dados iniciais"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [
+    "Migração pode quebrar compatibilidade com projetos existentes"
+  ],
+  "restricoes": [
+    "Não implementar código de migração",
+    "Não alterar FileSystem sem fallback"
+  ],
+  "condicoesDeParada": [
+    "Modelo ER não aprovado",
+    "PostgreSQL não disponível no ambiente"
+  ],
+  "criteriosConclusao": [],
+  "tags": [
+    "postgresql",
+    "migracao",
+    "ddl"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T23:23:41.821Z",
+    "criadoEm": "2026-08-27T23:23:41.821Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T23:23:41.821Z",
+    "atualizadaEm": "2026-08-27T23:23:41.821Z",
+    "conclusao": null
+  }
+}

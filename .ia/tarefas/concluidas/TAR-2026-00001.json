@@ -1,0 +1,67 @@
+{
+  "id": "TAR-2026-00001",
+  "titulo": "Auditar tools Projetos (6 tools)",
+  "descricao": "Verificar agentmap_projetos_listar, agentmap_projetos_criar, agentmap_projetos_abrir, agentmap_projetos_fechar, agentmap_projetos_atual, agentmap_projetos_excluir_todos. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, path traversal, consistência com backend.",
+  "objetivo": "Auditar e corrigir tools da categoria Projetos",
+  "tipo": "auditoria",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    "backend/src/mcp-server/tools/projeto.ts",
+    "backend/src/servicios/ProjetoService.ts"
+  ],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "Todas as 6 tools respondem sem erro",
+    "Schemas Zod validam entrada corretamente",
+    "Annotations corretas (readOnlyHint, destructiveHint)",
+    "Tratamento de erros consistente",
+    "Path traversal protegido"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [
+    "Nao executar testes automatizados",
+    "Nao implementar codigo novo sem aprovacao",
+    "Nao alterar contratos sem aprovacao do Arquiteto"
+  ],
+  "condicoesDeParada": [
+    "Informacao insuficiente para auditar",
+    "Decisao arquitetural nao documentada",
+    "Requisito conflitante"
+  ],
+  "criteriosConclusao": [],
+  "tags": [],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T19:21:55.579Z",
+    "criadoEm": "2026-08-27T19:21:55.579Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T20:00:19.463Z",
+    "atualizadaEm": "2026-08-27T19:21:55.579Z",
+    "conclusao": "2026-08-27T20:00:19.465Z"
+  }
+}

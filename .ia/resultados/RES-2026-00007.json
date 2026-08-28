@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00007",
+  "tarefaId": "TAR-2026-00009",
+  "execucaoId": 0,
+  "agenteId": "analista-sistemas",
+  "resumo": "Auditoria das 25 tools (Decisoes 6, Dependencias 6, Responsabilidades 6, Artefatos 7) concluída. Resultado: 2 bugs críticos, 1 bug médio, 5 inconsistências e 1 tool ausente. Bugs críticos: (1) DependenciaService.atualizar (linha 126-141) não valida dados — permite escrita de valores inválidos e auto-referência (fonteId==destinoId); (2) ArtefatoService.listarVersoes (linha 114-119) sempre retorna sucesso:true, engolindo erros de filesystem. Bug médio: DecisaoService.criar (linha 52) não define defaults para estado/datas/aprovacao, ao contrário das outras entidades. Inconsistências: carregarRegistry engole erros em Decisao/Responsabilidade/Artefato (contrasta com Dependencia que propaga); excluir_todos retorna boolean em Decisoes vs number nas demais; tool adicionarVersao existe no serviço mas não tem MCP tool; Zod outputSchema menos restrito que JSON schema (sem enums/patterns); String(id||'') redundante. Nenhuma correção de código foi implementada, conforme instrução do usuário (apenas documentado).",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:00:35.457Z",
+    "atualizadaEm": "2026-08-27T20:00:35.457Z",
+    "concluidaEm": null
+  }
+}

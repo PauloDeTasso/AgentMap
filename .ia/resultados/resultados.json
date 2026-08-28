@@ -1,0 +1,340 @@
+{
+  "resultados": [
+    {
+      "id": "RES-2026-00001",
+      "tarefaId": "TAR-2026-00008",
+      "execucaoId": 0,
+      "agenteId": "analista-sistemas",
+      "resumo": "Auditoria das 27 tools MCP (Riscos: 6, Bloqueios: 7, Pendências: 7, Reservas: 7). Verificados schemas Zod, outputSchema, annotations, tratamento de erros e fluxos de resolução/liberação. Bugs documentados: (1) outputSchema removido em registerTracedTool (tool-tracing.ts:99) afeta todas as tools, (2) 9 tools com outputSchema incorreto (z.boolean/z.number vs conteúdo real object), (3) 3 tools com idempotentHint incorreto em flows não-idempotentes resolver/liberar, (4) falta parâmetro agenteId em agentmap_reservas_listar, (5) 2 typos em descriptions de excluir_todos.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:05.235Z",
+        "atualizadaEm": "2026-08-27T20:00:05.235Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00002",
+      "tarefaId": "TAR-2026-00003",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída para agentes.ts (5 tools). Encontrados: (1) outputSchema é removido por registerTracedTool (bug arquitetural), (2) idempotentHint incorreto em agentes_atualizar, (3) outputSchema de boolean não reflete wrapper {data:...} do toMcpStructured, (4) falta outputSchema em listar, (5) validação Zod fraca (enums não usados). Nenhuma tool está quebrada. Correções documentadas mas não implementadas a pedido do usuário.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:11.184Z",
+        "atualizadaEm": "2026-08-27T20:00:11.184Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00003",
+      "tarefaId": "TAR-2026-00004",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída para solicitacoes.ts (10 tools). Encontrados: (1) outputSchema é removido por registerTracedTool (bug arquitetural), (2) idempotentHint incorreto em solicitacoes_atualizar, (3) outputSchema de boolean/number não reflete wrapper {data:...} do toMcpStructured, (4) falta outputSchema em listar, (5) validação Zod fraca (enums não usados), (6) filtragem client-side em listar, (7) observacao required no Zod mas optional no serviço. Nenhuma tool está quebrada. Fluxo de aprovação/rejeição válido. Path traversal protegido.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:15.501Z",
+        "atualizadaEm": "2026-08-27T20:00:15.501Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00004",
+      "tarefaId": "TAR-2026-00001",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída das 6 tools de Projetos (projeto.ts) + ProjetoService.ts. Findings principais: 1) projetos_atual retorna envelope malformado (sem structuredContent) quando não há projeto aberto; 2) projetos_criar tem mismatch entre Zod schema (flat) e handler (suporta wrapped input.dados, que falha na validação); 3) caminhoParental não é validado contra path traversal em criarProjeto; 4) z.string() aceita strings vazias em campos obrigatórios; 5) annotations ausentes em projetos_criar e projetos_abrir; 6) outputSchema de primitivos (z.string(), z.boolean(), z.number()) não reflete o envelope { data: ... } gerado por toMcpStructured. Nenhum arquivo alterado — apenas documentação.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:19.452Z",
+        "atualizadaEm": "2026-08-27T20:00:19.452Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00005",
+      "tarefaId": "TAR-2026-00013",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída. 16 tools auditadas (Contexto 5, Busca 3, KiloHub 4 utilitários 3, Integridade 1). Documentados 15 itens: 4 bugs críticos (buscarConhecimento crash em JSON malformado, kilohub_report_status sem validação de sessões, path.win32 hardcoded no worktree, path traversal não validado no kilohub-receive) e 11 issues de consistência (outputSchema/annotation ausentes em 11 tools, schemas inline ao invés de centralizados, cast as any, validação duplicada).",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:24.508Z",
+        "atualizadaEm": "2026-08-27T20:00:24.508Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00006",
+      "tarefaId": "TAR-2026-00013",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída. 16 tools auditadas (Contexto 5, Busca 3, KiloHub 4 utilitários 3, Integridade 1). Documentados 15 itens: 4 bugs críticos (buscarConhecimento crash em JSON malformado, kilohub_report_status sem validação de sessões, path.win32 hardcoded no worktree, path traversal não validado no kilohub-receive) e 11 issues de consistência (outputSchema/annotation ausentes em 11 tools, schemas inline ao invés de centralizados, cast as any, validação duplicada).",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:32.852Z",
+        "atualizadaEm": "2026-08-27T20:00:32.852Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00007",
+      "tarefaId": "TAR-2026-00009",
+      "execucaoId": 0,
+      "agenteId": "analista-sistemas",
+      "resumo": "Auditoria das 25 tools (Decisoes 6, Dependencias 6, Responsabilidades 6, Artefatos 7) concluída. Resultado: 2 bugs críticos, 1 bug médio, 5 inconsistências e 1 tool ausente. Bugs críticos: (1) DependenciaService.atualizar (linha 126-141) não valida dados — permite escrita de valores inválidos e auto-referência (fonteId==destinoId); (2) ArtefatoService.listarVersoes (linha 114-119) sempre retorna sucesso:true, engolindo erros de filesystem. Bug médio: DecisaoService.criar (linha 52) não define defaults para estado/datas/aprovacao, ao contrário das outras entidades. Inconsistências: carregarRegistry engole erros em Decisao/Responsabilidade/Artefato (contrasta com Dependencia que propaga); excluir_todos retorna boolean em Decisoes vs number nas demais; tool adicionarVersao existe no serviço mas não tem MCP tool; Zod outputSchema menos restrito que JSON schema (sem enums/patterns); String(id||'') redundante. Nenhuma correção de código foi implementada, conforme instrução do usuário (apenas documentado).",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:35.457Z",
+        "atualizadaEm": "2026-08-27T20:00:35.457Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00008",
+      "tarefaId": "TAR-2026-00001",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída das 6 tools de Projetos em backend/src/mcp-server/tools/projeto.ts e backend/src/servicios/ProjetoService.ts. Principais findings: 1) projetos_atual retorna envelope malformado sem structuredContent quando não há projeto aberto; 2) projetos_criar tem mismatch entre Zod schema (flat) e handler que tenta ler input.dados.*; 3) caminhoParental não é validado contra path traversal; 4) z.string() aceita strings vazias em campos obrigatórios; 5) annotations ausentes em projetos_criar e projetos_abrir; 6) outputSchema de primitivos não reflete o envelope { data: ... } de toMcpStructured. Nenhum arquivo alterado.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:43.692Z",
+        "atualizadaEm": "2026-08-27T20:00:43.692Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00009",
+      "tarefaId": "TAR-2026-00003",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída para agentes.ts (5 tools). Encontrados: (1) outputSchema é removido por registerTracedTool (bug arquitetural), (2) idempotentHint incorreto em agentes_atualizar, (3) outputSchema de boolean não reflete wrapper {data:...} do toMcpStructured, (4) falta outputSchema em listar, (5) validação Zod fraca (enums não usados). Nenhuma tool está quebrada. Correções documentadas mas não implementadas a pedido do usuário.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:50.287Z",
+        "atualizadaEm": "2026-08-27T20:00:50.287Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00010",
+      "tarefaId": "TAR-2026-00010",
+      "execucaoId": 0,
+      "agenteId": "analista-sistemas",
+      "resumo": "Auditoria concluída das 25 tools das categorias Resultados (7), Criterios (6), Aprendizados (6) e Validacoes (6). Encontrados: 1 bug crítico em runtime (agentmap_validacoes_criar com handler signature incorreta), 8 tools com outputSchema declarado inconsistente com o retorno real de toMcpStructured, 2 tools com cast desnecessário as any, 4 tools sem annotations, tipagem fraca de enums nos schemas Zod, e ausência de tools MCP para listarPorTarefa. Documentação completa gerada sem implementação de correções.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:51.392Z",
+        "atualizadaEm": "2026-08-27T20:00:51.392Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00011",
+      "tarefaId": "TAR-2026-00004",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluida para solicitacoes.ts (10 tools). Encontrados: (1) outputSchema é removido por registerTracedTool (bug arquitetural), (2) idempotentHint incorreto em solicitacoes_atualizar, (3) outputSchema de boolean/number não reflete wrapper {data:...} do toMcpStructured, (4) falta outputSchema em listar, (5) validação Zod fraca (enums não usados), (6) filtragem client-side em listar, (7) observacao required no Zod mas optional no serviço. Nenhuma tool está quebrada. Fluxo de aprovação/rejeição válido. Path traversal protegido.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:00:54.299Z",
+        "atualizadaEm": "2026-08-27T20:00:54.299Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00012",
+      "tarefaId": "TAR-2026-00005",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída: 6 tools de handoffs, 7 de sessoes e 6 de checkpoints examinadas. Encontrados 4 bugs altos, 7 médios e 4 baixos. Principais issues: sessoes.ts sem outputSchema na maioria das tools, backend defaulta estadoFinal 'CONCLUIDA' inválido para sessoes, idempotentHint incorreto em atualizações, schemas Zod usando z.string() ao invés de z.enum() para estados/tipos, e registerTracedTool stripping outputSchema.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:01:05.962Z",
+        "atualizadaEm": "2026-08-27T20:01:05.962Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00013",
+      "tarefaId": "TAR-2026-00006",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída: 7 tools de sessoes examinadas. Encontrados 9 issues: todas as tools exceto excluir_todos faltam outputSchema, falta sessaoSchema no arquivo, quase todas faltam title/description/annotations, backend bug com estadoFinal 'CONCLUIDA' inválido, e inconsistência com API que enriquece dados.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:01:05.990Z",
+        "atualizadaEm": "2026-08-27T20:01:05.990Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00014",
+      "tarefaId": "TAR-2026-00007",
+      "execucaoId": 0,
+      "agenteId": "backend",
+      "resumo": "Auditoria concluída: 6 tools de checkpoints examinadas. Encontrados 3 issues: checkpointSchema.tipo usa z.string() ao invés de z.enum(), inputSchema de criar excessivamente frouxo, e idempotentHint incorreto em atualizar. Estrutura geral correta e consistente com backend.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:01:06.004Z",
+        "atualizadaEm": "2026-08-27T20:01:06.004Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00015",
+      "tarefaId": "TAR-2026-00008",
+      "execucaoId": 0,
+      "agenteId": "analista-sistemas",
+      "resumo": "Auditoria das 27 tools MCP (Riscos:6, Bloqueios:7, Pendencias:7, Reservas:7). Verificados: schemas Zod, outputSchema, annotations, tratamento de erros, fluxos de resolucao/liberacao. Documentados bugs sem implementar correções.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": "Auditoria concluida. Reporte completo no histórico da conversa. Bugs: (1) outputSchema removido em registerTracedTool (tool-tracing.ts:99) - todas as 27 tools afetadas; (2) 9 tools com outputSchema incorreto (z.boolean/z.number vs structuredContent objeto); (3) 3 tools com idempotentHint incorreto em flows resolver/liberar nao-idempotentes; (4) falta parametro agenteId em agentmap_reservas_listar; (5) 2 typos gramaticais em descriptions de excluir_todos. Nenhum arquivo foi alterado - apenas auditoria/documentacao.",
+      "datas": {
+        "criadaEm": "2026-08-27T20:02:08.234Z",
+        "atualizadaEm": "2026-08-27T20:02:08.234Z",
+        "concluidaEm": null
+      }
+    },
+    {
+      "id": "RES-2026-00016",
+      "tarefaId": "TAR-2026-00008",
+      "execucaoId": 0,
+      "agenteId": "analista-sistemas",
+      "resumo": "Auditoria concluida: 27 tools MCP examinados (Riscos:6, Bloqueios:7, Pendencias:7, Reservas:7). Verificados schemas Zod, outputSchema, annotations, tratamento de erros e fluxos de resolucao. Bugs: (1) outputSchema removido em registerTracedTool - 27 tools afetadas, (2) 9 tools com outputSchema incorreto, (3) 3 tools com idempotentHint incorreto, (4) agentmap_reservas_listar sem agenteId, (5) 2 typos em descriptions.",
+      "estado": "COMPLETO",
+      "arquivosAlterados": [],
+      "artefatos": [],
+      "testesExecutados": [],
+      "testesAprovados": [],
+      "riscosEncontrados": [],
+      "pendencias": [],
+      "alteracoesSolicitadas": [],
+      "observacoes": null,
+      "datas": {
+        "criadaEm": "2026-08-27T20:04:37.354Z",
+        "atualizadaEm": "2026-08-27T20:04:37.354Z",
+        "concluidaEm": null
+      }
+    }
+  ]
+}

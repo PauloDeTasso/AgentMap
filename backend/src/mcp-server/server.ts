@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
 import { ProjetoService } from '../servicios/ProjetoService';
 import { SchemaValidator } from '../validacao/SchemaValidator';
-import { loadSettings, GERENCIADOR_DIR } from '../config';
+import { loadSettings, ProjectRootResolver } from '../config';
 import { ResultadoOperacao } from '../tipos';
 import * as path from 'path';
 import { toMcpStructured, mcpError } from './utils/helpers';
@@ -90,48 +90,17 @@ export { toMcpStructured, mcpError, McpContent } from './utils/helpers';
 
 export { projetoService, validator, settings, esquemasPath };
 
+// Inicializa projeto raiz automaticamente
 try {
-  const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
-  const registro = projetoService.listarProjetos().dados || [];
-  const projetoAtualId = (projetoService as any).registro?.projetoAtual;
+  const projectRoot = ProjectRootResolver.resolve();
+  const resultado = projetoService.abrirProjetoRaiz();
 
-  if (projetoAtualId) {
-    const projetoAtual = registro.find((p: any) => p.id === projetoAtualId);
-    if (projetoAtual) {
-      const resultado = projetoService.abrirProjeto(projetoAtualId);
-      if (resultado.sucesso) {
-        console.error(`[MCP] Projeto atual restaurado: ${resultado.dados?.nome || projetoAtualId}`);
-      } else {
-        console.error('[MCP] Falha ao restaurar projeto atual:', resultado.erro);
-      }
-    } else {
-      console.error('[MCP] Projeto atual registrado não encontrado, abrindo AgentMap...');
-      const agentMapComoProjeto = registro.find((p: any) => p.caminhoRaiz === gerenciadorResolvido);
-      if (!agentMapComoProjeto) {
-        const resultado = projetoService.abrirProjeto(gerenciadorResolvido);
-        if (resultado.sucesso) {
-          console.error('[MCP] AgentMap auto-aberto como projeto atual.');
-        } else if (resultado.codigoErro !== 'IA_NOT_FOUND') {
-          console.error('[MCP] Falha ao auto-abrir AgentMap:', resultado.erro);
-        }
-      } else {
-        projetoService.abrirProjeto(agentMapComoProjeto.id);
-      }
-    }
+  if (resultado.sucesso && resultado.dados) {
+    console.error(`[MCP] Projeto raiz carregado: ${resultado.dados.nome} (${resultado.dados.id})`);
   } else {
-    const agentMapComoProjeto = registro.find((p: any) => p.caminhoRaiz === gerenciadorResolvido);
-    if (!agentMapComoProjeto) {
-      const resultado = projetoService.abrirProjeto(gerenciadorResolvido);
-      if (resultado.sucesso) {
-        console.error('[MCP] AgentMap auto-aberto como projeto atual.');
-      } else if (resultado.codigoErro !== 'IA_NOT_FOUND') {
-        console.error('[MCP] Falha ao auto-abrir AgentMap:', resultado.erro);
-      }
-    } else {
-      projetoService.abrirProjeto(agentMapComoProjeto.id);
-    }
+    console.error('[MCP] Falha ao carregar projeto raiz:', resultado.erro);
+    console.error('[MCP] Verifique se .ia/ existe em:', projectRoot);
   }
 } catch (e) {
-  console.error('[MCP] Erro na inicializacao do projeto AgentMap:', e);
+  console.error('[MCP] Erro na inicializacao do projeto:', e);
 }
-

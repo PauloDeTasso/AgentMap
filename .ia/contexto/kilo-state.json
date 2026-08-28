@@ -1,0 +1,679 @@
+{
+  "descobertoEm": "2026-08-28T10:26:44.470Z",
+  "worktrees": [
+    {
+      "nome": ".ia",
+      "caminho": ".kilo\\worktrees\\.ia",
+      "branch": ".ia"
+    },
+    {
+      "nome": ".local",
+      "caminho": ".kilo\\worktrees\\.local",
+      "branch": ".local"
+    },
+    {
+      "nome": "advisor-arch-lab",
+      "caminho": ".kilo\\worktrees\\advisor-arch-lab",
+      "branch": "advisor-arch-lab"
+    },
+    {
+      "nome": "advisor-data-lab",
+      "caminho": ".kilo\\worktrees\\advisor-data-lab",
+      "branch": "advisor-data-lab"
+    },
+    {
+      "nome": "advisor-devsecops-lab",
+      "caminho": ".kilo\\worktrees\\advisor-devsecops-lab",
+      "branch": "advisor-devsecops-lab"
+    },
+    {
+      "nome": "advisor-flow-lab",
+      "caminho": ".kilo\\worktrees\\advisor-flow-lab",
+      "branch": "advisor-flow-lab"
+    },
+    {
+      "nome": "advisor-integration-lab",
+      "caminho": ".kilo\\worktrees\\advisor-integration-lab",
+      "branch": "advisor-integration-lab"
+    },
+    {
+      "nome": "advisor-perf-lab",
+      "caminho": ".kilo\\worktrees\\advisor-perf-lab",
+      "branch": "advisor-perf-lab"
+    },
+    {
+      "nome": "advisor-security-lab",
+      "caminho": ".kilo\\worktrees\\advisor-security-lab",
+      "branch": "advisor-security-lab"
+    },
+    {
+      "nome": "agent-arch-lab",
+      "caminho": ".kilo\\worktrees\\agent-arch-lab",
+      "branch": "agent-arch-lab"
+    },
+    {
+      "nome": "agent-auth-users",
+      "caminho": ".kilo\\worktrees\\agent-auth-users",
+      "branch": "agent-auth-users"
+    },
+    {
+      "nome": "agent-backend",
+      "caminho": ".kilo\\worktrees\\agent-backend",
+      "branch": "agent-backend"
+    },
+    {
+      "nome": "agent-backend-api",
+      "caminho": ".kilo\\worktrees\\agent-backend-api",
+      "branch": "agent-backend-api"
+    },
+    {
+      "nome": "agent-backend-tester",
+      "caminho": ".kilo\\worktrees\\agent-backend-tester",
+      "branch": "agent-backend-tester"
+    },
+    {
+      "nome": "agent-banco",
+      "caminho": ".kilo\\worktrees\\agent-banco",
+      "branch": "agent-banco"
+    },
+    {
+      "nome": "agent-database",
+      "caminho": ".kilo\\worktrees\\agent-database",
+      "branch": "agent-database"
+    },
+    {
+      "nome": "agent-db-lab",
+      "caminho": ".kilo\\worktrees\\agent-db-lab",
+      "branch": "agent-db-lab"
+    },
+    {
+      "nome": "agent-deploy-lab",
+      "caminho": ".kilo\\worktrees\\agent-deploy-lab",
+      "branch": "agent-deploy-lab"
+    },
+    {
+      "nome": "agent-design-lab",
+      "caminho": ".kilo\\worktrees\\agent-design-lab",
+      "branch": "agent-design-lab"
+    },
+    {
+      "nome": "agent-devsecops-lab",
+      "caminho": ".kilo\\worktrees\\agent-devsecops-lab",
+      "branch": "agent-devsecops-lab"
+    },
+    {
+      "nome": "agent-docs",
+      "caminho": ".kilo\\worktrees\\agent-docs",
+      "branch": "agent-docs"
+    },
+    {
+      "nome": "agent-docs-2",
+      "caminho": ".kilo\\worktrees\\agent-docs-2",
+      "branch": "agent-docs-2"
+    },
+    {
+      "nome": "agent-docs-lab",
+      "caminho": ".kilo\\worktrees\\agent-docs-lab",
+      "branch": "agent-docs-lab"
+    },
+    {
+      "nome": "agent-elements",
+      "caminho": ".kilo\\worktrees\\agent-elements",
+      "branch": "agent-elements"
+    },
+    {
+      "nome": "agent-frontend",
+      "caminho": ".kilo\\worktrees\\agent-frontend",
+      "branch": "agent-frontend"
+    },
+    {
+      "nome": "agent-frontend-tester",
+      "caminho": ".kilo\\worktrees\\agent-frontend-tester",
+      "branch": "agent-frontend-tester"
+    },
+    {
+      "nome": "agent-infra",
+      "caminho": ".kilo\\worktrees\\agent-infra",
+      "branch": "agent-infra"
+    },
+    {
+      "nome": "agent-orquestrador",
+      "caminho": ".kilo\\worktrees\\agent-orquestrador",
+      "branch": "agent-orquestrador"
+    },
+    {
+      "nome": "agent-planejamento-lab",
+      "caminho": ".kilo\\worktrees\\agent-planejamento-lab",
+      "branch": "agent-planejamento-lab"
+    },
+    {
+      "nome": "agent-reqs-lab",
+      "caminho": ".kilo\\worktrees\\agent-reqs-lab",
+      "branch": "agent-reqs-lab"
+    },
+    {
+      "nome": "agent-revisor",
+      "caminho": ".kilo\\worktrees\\agent-revisor",
+      "branch": "agent-revisor"
+    },
+    {
+      "nome": "agent-test-lab",
+      "caminho": ".kilo\\worktrees\\agent-test-lab",
+      "branch": "agent-test-lab"
+    },
+    {
+      "nome": "agent-testes",
+      "caminho": ".kilo\\worktrees\\agent-testes",
+      "branch": "agent-testes"
+    },
+    {
+      "nome": "agent-tests",
+      "caminho": ".kilo\\worktrees\\agent-tests",
+      "branch": "agent-tests"
+    },
+    {
+      "nome": "agent-uxui-lab",
+      "caminho": ".kilo\\worktrees\\agent-uxui-lab",
+      "branch": "agent-uxui-lab"
+    },
+    {
+      "nome": "agent-viabilidade-lab",
+      "caminho": ".kilo\\worktrees\\agent-viabilidade-lab",
+      "branch": "agent-viabilidade-lab"
+    },
+    {
+      "nome": "agente-agentmap-fluxo",
+      "caminho": ".kilo\\worktrees\\agente-agentmap-fluxo",
+      "branch": "agente-agentmap-fluxo",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "agente-agentmap-governanca",
+      "caminho": ".kilo\\worktrees\\agente-agentmap-governanca",
+      "branch": "agente-agentmap-governanca"
+    },
+    {
+      "nome": "agente-agentmap-projeto",
+      "caminho": ".kilo\\worktrees\\agente-agentmap-projeto",
+      "branch": "agente-agentmap-projeto"
+    },
+    {
+      "nome": "agente-kilo-arquivos",
+      "caminho": ".kilo\\worktrees\\agente-kilo-arquivos",
+      "branch": "agente-kilo-arquivos"
+    },
+    {
+      "nome": "agente-kilo-execucao",
+      "caminho": ".kilo\\worktrees\\agente-kilo-execucao",
+      "branch": "agente-kilo-execucao"
+    },
+    {
+      "nome": "agente-kilo-mcp-ui",
+      "caminho": ".kilo\\worktrees\\agente-kilo-mcp-ui",
+      "branch": "agente-kilo-mcp-ui"
+    },
+    {
+      "nome": "audit-backend-estado",
+      "caminho": ".kilo\\worktrees\\audit-backend-estado",
+      "branch": "audit-backend-estado"
+    },
+    {
+      "nome": "audit-gerenciador-agentes-backend",
+      "caminho": ".kilo\\worktrees\\audit-gerenciador-agentes-backend",
+      "branch": "audit-gerenciador-agentes-backend"
+    },
+    {
+      "nome": "audit-gerenciador-agentes-frontend",
+      "caminho": ".kilo\\worktrees\\audit-gerenciador-agentes-frontend",
+      "branch": "audit-gerenciador-agentes-frontend"
+    },
+    {
+      "nome": "audit-gerenciador-agentes-qa",
+      "caminho": ".kilo\\worktrees\\audit-gerenciador-agentes-qa",
+      "branch": "audit-gerenciador-agentes-qa"
+    },
+    {
+      "nome": "audit-resultados-criterios-aprendizados-validacoes",
+      "caminho": ".kilo\\worktrees\\audit-resultados-criterios-aprendizados-validacoes",
+      "branch": "audit-resultados-criterios-aprendizados-validacoes"
+    },
+    {
+      "nome": "audit-rotas-admin-orquestracao",
+      "caminho": ".kilo\\worktrees\\audit-rotas-admin-orquestracao",
+      "branch": "audit-rotas-admin-orquestracao"
+    },
+    {
+      "nome": "audit-rotas-contatos-conflitos",
+      "caminho": ".kilo\\worktrees\\audit-rotas-contatos-conflitos",
+      "branch": "audit-rotas-contatos-conflitos"
+    },
+    {
+      "nome": "audit-rotas-decisoes-dependencias",
+      "caminho": ".kilo\\worktrees\\audit-rotas-decisoes-dependencias",
+      "branch": "audit-rotas-decisoes-dependencias"
+    },
+    {
+      "nome": "audit-rotas-handoffs-sessoes-checkpoints",
+      "caminho": ".kilo\\worktrees\\audit-rotas-handoffs-sessoes-checkpoints",
+      "branch": "audit-rotas-handoffs-sessoes-checkpoints"
+    },
+    {
+      "nome": "audit-rotas-projetos-agentes-tarefas",
+      "caminho": ".kilo\\worktrees\\audit-rotas-projetos-agentes-tarefas",
+      "branch": "audit-rotas-projetos-agentes-tarefas"
+    },
+    {
+      "nome": "audit-rotas-resultados-criterios",
+      "caminho": ".kilo\\worktrees\\audit-rotas-resultados-criterios",
+      "branch": "audit-rotas-resultados-criterios"
+    },
+    {
+      "nome": "audit-rotas-riscos-bloqueios-pendencias",
+      "caminho": ".kilo\\worktrees\\audit-rotas-riscos-bloqueios-pendencias",
+      "branch": "audit-rotas-riscos-bloqueios-pendencias"
+    },
+    {
+      "nome": "audit-testes",
+      "caminho": ".kilo\\worktrees\\audit-testes",
+      "branch": "audit-testes"
+    },
+    {
+      "nome": "backend-api-test",
+      "caminho": ".kilo\\worktrees\\backend-api-test",
+      "branch": "backend-api-test"
+    },
+    {
+      "nome": "conteudo-roteiros",
+      "caminho": ".kilo\\worktrees\\conteudo-roteiros",
+      "branch": "conteudo-roteiros"
+    },
+    {
+      "nome": "crud-artefatos-checkpoints-aprendizados",
+      "caminho": ".kilo\\worktrees\\crud-artefatos-checkpoints-aprendizados",
+      "branch": "crud-artefatos-checkpoints-aprendizados"
+    },
+    {
+      "nome": "crud-dependencias-responsabilidades-bloqueios",
+      "caminho": ".kilo\\worktrees\\crud-dependencias-responsabilidades-bloqueios",
+      "branch": "crud-dependencias-responsabilidades-bloqueios"
+    },
+    {
+      "nome": "docs-outros-documentos",
+      "caminho": ".kilo\\worktrees\\docs-outros-documentos",
+      "branch": "docs-outros-documentos"
+    },
+    {
+      "nome": "docs-readme-agents",
+      "caminho": ".kilo\\worktrees\\docs-readme-agents",
+      "branch": "docs-readme-agents"
+    },
+    {
+      "nome": "fase1-analistadebancodedados",
+      "caminho": ".kilo\\worktrees\\fase1-analistadebancodedados",
+      "branch": "fase1-analistadebancodedados"
+    },
+    {
+      "nome": "fase1-analistadenegocios",
+      "caminho": ".kilo\\worktrees\\fase1-analistadenegocios",
+      "branch": "fase1-analistadenegocios"
+    },
+    {
+      "nome": "fase1-analistadesistemas",
+      "caminho": ".kilo\\worktrees\\fase1-analistadesistemas",
+      "branch": "fase1-analistadesistemas"
+    },
+    {
+      "nome": "fase1-arquitetodesoftware",
+      "caminho": ".kilo\\worktrees\\fase1-arquitetodesoftware",
+      "branch": "fase1-arquitetodesoftware"
+    },
+    {
+      "nome": "fase1-backend",
+      "caminho": ".kilo\\worktrees\\fase1-backend",
+      "branch": "fase1-backend"
+    },
+    {
+      "nome": "fase1-banco",
+      "caminho": ".kilo\\worktrees\\fase1-banco",
+      "branch": "fase1-banco"
+    },
+    {
+      "nome": "fase1-businessanalyst",
+      "caminho": ".kilo\\worktrees\\fase1-businessanalyst",
+      "branch": "fase1-businessanalyst"
+    },
+    {
+      "nome": "fase1-documentadortecnico",
+      "caminho": ".kilo\\worktrees\\fase1-documentadortecnico",
+      "branch": "fase1-documentadortecnico"
+    },
+    {
+      "nome": "fase1-engenheirodesoftware",
+      "caminho": ".kilo\\worktrees\\fase1-engenheirodesoftware",
+      "branch": "fase1-engenheirodesoftware"
+    },
+    {
+      "nome": "fase1-frontend",
+      "caminho": ".kilo\\worktrees\\fase1-frontend",
+      "branch": "fase1-frontend"
+    },
+    {
+      "nome": "fase1-gerentedeprojeto",
+      "caminho": ".kilo\\worktrees\\fase1-gerentedeprojeto",
+      "branch": "fase1-gerentedeprojeto"
+    },
+    {
+      "nome": "fase1-infraestrutura",
+      "caminho": ".kilo\\worktrees\\fase1-infraestrutura",
+      "branch": "fase1-infraestrutura"
+    },
+    {
+      "nome": "fase1-planejador",
+      "caminho": ".kilo\\worktrees\\fase1-planejador",
+      "branch": "fase1-planejador"
+    },
+    {
+      "nome": "fase1-productmanager",
+      "caminho": ".kilo\\worktrees\\fase1-productmanager",
+      "branch": "fase1-productmanager"
+    },
+    {
+      "nome": "fase1-productowner",
+      "caminho": ".kilo\\worktrees\\fase1-productowner",
+      "branch": "fase1-productowner"
+    },
+    {
+      "nome": "fase1-projectmanager",
+      "caminho": ".kilo\\worktrees\\fase1-projectmanager",
+      "branch": "fase1-projectmanager"
+    },
+    {
+      "nome": "fase1-revisor",
+      "caminho": ".kilo\\worktrees\\fase1-revisor",
+      "branch": "fase1-revisor"
+    },
+    {
+      "nome": "fase1-riskmanager",
+      "caminho": ".kilo\\worktrees\\fase1-riskmanager",
+      "branch": "fase1-riskmanager"
+    },
+    {
+      "nome": "fase1-scrummaster",
+      "caminho": ".kilo\\worktrees\\fase1-scrummaster",
+      "branch": "fase1-scrummaster"
+    },
+    {
+      "nome": "fase1-stakeholder",
+      "caminho": ".kilo\\worktrees\\fase1-stakeholder",
+      "branch": "fase1-stakeholder"
+    },
+    {
+      "nome": "fase1-technicallead",
+      "caminho": ".kilo\\worktrees\\fase1-technicallead",
+      "branch": "fase1-technicallead"
+    },
+    {
+      "nome": "fase1-testadorqa",
+      "caminho": ".kilo\\worktrees\\fase1-testadorqa",
+      "branch": "fase1-testadorqa"
+    },
+    {
+      "nome": "fase1-testes",
+      "caminho": ".kilo\\worktrees\\fase1-testes",
+      "branch": "fase1-testes"
+    },
+    {
+      "nome": "fix-audit-modals",
+      "caminho": ".kilo\\worktrees\\fix-audit-modals",
+      "branch": "fix-audit-modals"
+    },
+    {
+      "nome": "fix-auditoria-crud",
+      "caminho": ".kilo\\worktrees\\fix-auditoria-crud",
+      "branch": "fix-auditoria-crud"
+    },
+    {
+      "nome": "fix-conflito-crud",
+      "caminho": ".kilo\\worktrees\\fix-conflito-crud",
+      "branch": "fix-conflito-crud"
+    },
+    {
+      "nome": "fix-core-modals",
+      "caminho": ".kilo\\worktrees\\fix-core-modals",
+      "branch": "fix-core-modals"
+    },
+    {
+      "nome": "fix-css-design-system",
+      "caminho": ".kilo\\worktrees\\fix-css-design-system",
+      "branch": "fix-css-design-system"
+    },
+    {
+      "nome": "fix-dep-resp-form-handlers",
+      "caminho": ".kilo\\worktrees\\fix-dep-resp-form-handlers",
+      "branch": "fix-dep-resp-form-handlers"
+    },
+    {
+      "nome": "fix-entity-modals",
+      "caminho": ".kilo\\worktrees\\fix-entity-modals",
+      "branch": "fix-entity-modals"
+    },
+    {
+      "nome": "fix-eventos-custom",
+      "caminho": ".kilo\\worktrees\\fix-eventos-custom",
+      "branch": "fix-eventos-custom"
+    },
+    {
+      "nome": "fix-governance-modals",
+      "caminho": ".kilo\\worktrees\\fix-governance-modals",
+      "branch": "fix-governance-modals"
+    },
+    {
+      "nome": "fix-handoff-crud",
+      "caminho": ".kilo\\worktrees\\fix-handoff-crud",
+      "branch": "fix-handoff-crud"
+    },
+    {
+      "nome": "fix-health-readiness",
+      "caminho": ".kilo\\worktrees\\fix-health-readiness",
+      "branch": "fix-health-readiness",
+      "tarefaId": "TAR-2026"
+    },
+    {
+      "nome": "fix-historico-crud",
+      "caminho": ".kilo\\worktrees\\fix-historico-crud",
+      "branch": "fix-historico-crud"
+    },
+    {
+      "nome": "fix-mcp-divergencias",
+      "caminho": ".kilo\\worktrees\\fix-mcp-divergencias",
+      "branch": "fix-mcp-divergencias"
+    },
+    {
+      "nome": "fix-pendencia-crud",
+      "caminho": ".kilo\\worktrees\\fix-pendencia-crud",
+      "branch": "fix-pendencia-crud"
+    },
+    {
+      "nome": "fix-portabilidade-routes",
+      "caminho": ".kilo\\worktrees\\fix-portabilidade-routes",
+      "branch": "fix-portabilidade-routes"
+    },
+    {
+      "nome": "fix-portabilidade-services",
+      "caminho": ".kilo\\worktrees\\fix-portabilidade-services",
+      "branch": "fix-portabilidade-services"
+    },
+    {
+      "nome": "fix-scaffold-newprojects",
+      "caminho": ".kilo\\worktrees\\fix-scaffold-newprojects",
+      "branch": "fix-scaffold-newprojects"
+    },
+    {
+      "nome": "fix-static-modals",
+      "caminho": ".kilo\\worktrees\\fix-static-modals",
+      "branch": "fix-static-modals"
+    },
+    {
+      "nome": "fix-validacao-crud",
+      "caminho": ".kilo\\worktrees\\fix-validacao-crud",
+      "branch": "fix-validacao-crud"
+    },
+    {
+      "nome": "fix-workflow-modals",
+      "caminho": ".kilo\\worktrees\\fix-workflow-modals",
+      "branch": "fix-workflow-modals"
+    },
+    {
+      "nome": "frontend-nav-test",
+      "caminho": ".kilo\\worktrees\\frontend-nav-test",
+      "branch": "frontend-nav-test"
+    },
+    {
+      "nome": "gravacao-studio",
+      "caminho": ".kilo\\worktrees\\gravacao-studio",
+      "branch": "gravacao-studio"
+    },
+    {
+      "nome": "impl-api-lab",
+      "caminho": ".kilo\\worktrees\\impl-api-lab",
+      "branch": "impl-api-lab"
+    },
+    {
+      "nome": "impl-frontend-lab",
+      "caminho": ".kilo\\worktrees\\impl-frontend-lab",
+      "branch": "impl-frontend-lab"
+    },
+    {
+      "nome": "impl-integration-docs-lab",
+      "caminho": ".kilo\\worktrees\\impl-integration-docs-lab",
+      "branch": "impl-integration-docs-lab"
+    },
+    {
+      "nome": "impl-mcp-lab",
+      "caminho": ".kilo\\worktrees\\impl-mcp-lab",
+      "branch": "impl-mcp-lab"
+    },
+    {
+      "nome": "impl-orchestrator-core-lab",
+      "caminho": ".kilo\\worktrees\\impl-orchestrator-core-lab",
+      "branch": "impl-orchestrator-core-lab"
+    },
+    {
+      "nome": "impl-templates-lab",
+      "caminho": ".kilo\\worktrees\\impl-templates-lab",
+      "branch": "impl-templates-lab"
+    },
+    {
+      "nome": "impl-validation-lab",
+      "caminho": ".kilo\\worktrees\\impl-validation-lab",
+      "branch": "impl-validation-lab"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-backend",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-backend",
+      "branch": "integrate-gerenciador-agentes-backend"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-frontend",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-frontend",
+      "branch": "integrate-gerenciador-agentes-frontend"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-frontend-2",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-frontend-2",
+      "branch": "integrate-gerenciador-agentes-frontend-2"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-frontend-3",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-frontend-3",
+      "branch": "integrate-gerenciador-agentes-frontend-3"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-qa",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-qa",
+      "branch": "integrate-gerenciador-agentes-qa"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-qa-2",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-qa-2",
+      "branch": "integrate-gerenciador-agentes-qa-2"
+    },
+    {
+      "nome": "integrate-gerenciador-agentes-qa-3",
+      "caminho": ".kilo\\worktrees\\integrate-gerenciador-agentes-qa-3",
+      "branch": "integrate-gerenciador-agentes-qa-3"
+    },
+    {
+      "nome": "integration-tester",
+      "caminho": ".kilo\\worktrees\\integration-tester",
+      "branch": "integration-tester"
+    },
+    {
+      "nome": "planejamento-marketing",
+      "caminho": ".kilo\\worktrees\\planejamento-marketing",
+      "branch": "planejamento-marketing"
+    },
+    {
+      "nome": "qa-e2e-navigation-test",
+      "caminho": ".kilo\\worktrees\\qa-e2e-navigation-test",
+      "branch": "qa-e2e-navigation-test"
+    },
+    {
+      "nome": "research-analista-backend",
+      "caminho": ".kilo\\worktrees\\research-analista-backend",
+      "branch": "research-analista-backend"
+    },
+    {
+      "nome": "research-analista-frontend",
+      "caminho": ".kilo\\worktrees\\research-analista-frontend",
+      "branch": "research-analista-frontend"
+    },
+    {
+      "nome": "research-arquiteto-solucao",
+      "caminho": ".kilo\\worktrees\\research-arquiteto-solucao",
+      "branch": "research-arquiteto-solucao"
+    },
+    {
+      "nome": "research-pesquisador-kilo",
+      "caminho": ".kilo\\worktrees\\research-pesquisador-kilo",
+      "branch": "research-pesquisador-kilo"
+    },
+    {
+      "nome": "revisao-compliance",
+      "caminho": ".kilo\\worktrees\\revisao-compliance",
+      "branch": "revisao-compliance"
+    },
+    {
+      "nome": "test-e2e-stdio",
+      "caminho": ".kilo\\worktrees\\test-e2e-stdio",
+      "branch": "test-e2e-stdio"
+    },
+    {
+      "nome": "vendas-conversao",
+      "caminho": ".kilo\\worktrees\\vendas-conversao",
+      "branch": "vendas-conversao"
+    },
+    {
+      "nome": "verificacao-docs-comunicacao",
+      "caminho": ".kilo\\worktrees\\verificacao-docs-comunicacao",
+      "branch": "verificacao-docs-comunicacao"
+    }
+  ],
+  "sessoes": [],
+  "agentes": [
+    {
+      "id": "comunicacao-filho",
+      "nome": "comunicacao-filho",
+      "descricao": "comunicacao-filho",
+      "mode": "primary",
+      "cor": "#607D8B"
+    },
+    {
+      "id": "template-agente-kilo",
+      "nome": "template-agente-kilo",
+      "descricao": "template-agente-kilo",
+      "mode": "primary",
+      "cor": "#607D8B"
+    }
+  ]
+}

@@ -6,17 +6,18 @@ import { McpAuditoria, createMcpAuditoria } from '../audit/auditoria';
 import { registerTracedTool } from '../../observability/tool-tracing';
 import * as z from 'zod';
 
+// Single-project mode: listar retorna apenas o projeto atual
 registerTracedTool(mcpServer, 'agentmap_projetos_listar', {
   title: 'Listar Projetos',
-  description: 'Lista todos os projetos registrados no AgentMap.',
+  description: 'Retorna o projeto atual (single-project mode).',
   inputSchema: z.object({}),
   annotations: {
     readOnlyHint: true
   }
 }, async () => {
-  const resultado = projetoService.listarProjetos();
+  const resultado = projetoService.getProjetoAtual();
   if (!resultado.sucesso) return mcpError(resultado);
-  return toMcpStructured(resultado.dados);
+  return toMcpStructured(resultado.dados ? [resultado.dados] : []);
 });
 
 registerTracedTool(mcpServer, 'agentmap_projetos_criar', {
@@ -39,7 +40,7 @@ registerTracedTool(mcpServer, 'agentmap_projetos_criar', {
 
 registerTracedTool(mcpServer, 'agentmap_projetos_abrir', {
   title: 'Abrir Projeto',
-  description: 'Abre um projeto existente pelo caminho ou ID.',
+  description: 'Abre um projeto existente pelo caminho raiz.',
   inputSchema: z.object({
     caminhoOuId: z.string()
   }),
@@ -58,20 +59,24 @@ registerTracedTool(mcpServer, 'agentmap_projetos_abrir', {
   return mcpError(resultado);
 });
 
-registerTracedTool(mcpServer, 'agentmap_projetos_fechar', {
-  title: 'Fechar Projeto',
-  description: 'Fecha o projeto atualmente aberto.',
-  inputSchema: z.object({
-    id: z.string()
-  }),
-  outputSchema: z.boolean(),
-  annotations: {
-    destructiveHint: true
+// Single-project: abrir projeto raiz (auto-detecção)
+registerTracedTool(mcpServer, 'agentmap_projetos_abrir_raiz', {
+  title: 'Abrir Projeto Raiz',
+  description: 'Abre o projeto raiz detectado automaticamente.',
+  inputSchema: z.object({}),
+  outputSchema: z.object({
+    id: z.string(),
+    nome: z.string(),
+    caminhoRaiz: z.string(),
+    config: z.record(z.string(), z.unknown())
+  })
+}, async () => {
+  const resultado = projetoService.abrirProjetoRaiz();
+  if (resultado.sucesso && resultado.dados) {
+    const { id, nome, caminhoRaiz, config } = resultado.dados;
+    return toMcpStructured({ id, nome, caminhoRaiz, config });
   }
-}, async ({ id }: { id: string }) => {
-  const resultado = projetoService.fecharProjeto(id);
-  if (!resultado.sucesso) return mcpError(resultado);
-  return toMcpStructured(resultado.dados);
+  return mcpError(resultado);
 });
 
 registerTracedTool(mcpServer, 'agentmap_projetos_atual', {
@@ -93,20 +98,6 @@ registerTracedTool(mcpServer, 'agentmap_projetos_atual', {
     };
   }
   return mcpError(resultado);
-});
-
-registerTracedTool(mcpServer, 'agentmap_projetos_excluir_todos', {
-  title: 'Excluir Todos os Projetos',
-  description: 'Exclui todos os projetos registrados no AgentMap.',
-  inputSchema: z.object({}),
-  outputSchema: z.number(),
-  annotations: {
-    destructiveHint: true
-  }
-}, async () => {
-  const resultado = projetoService.excluirTodos();
-  if (!resultado.sucesso) return mcpError(resultado);
-  return toMcpStructured(resultado.dados);
 });
 
 registerTracedTool(mcpServer, 'agentmap_integridade_verificar', {

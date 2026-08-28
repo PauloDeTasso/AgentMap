@@ -1,0 +1,26 @@
+{
+  "contextos": [
+    {
+      "id": "0d3573ee-14bc-43ea-a0d5-3a5500992b58",
+      "agenteId": "analista-banco-dados",
+      "tarefaId": "TAR-2026-00014",
+      "versao": "1.0.0",
+      "contratos": [],
+      "arquivos": [],
+      "decisoes": [],
+      "conhecimento": [],
+      "estado": "gerado",
+      "restricoes": [
+        "Não alterar código de produção",
+        "Não modificar schemas sem aprovação do Arquiteto"
+      ],
+      "criteriosAceitacao": [
+        "Modelo ER criado e documentado",
+        "Avaliação de FileSystem vs PostgreSQL concluída",
+        "Recomendações de otimização documentadas",
+        "Constraints e indexes identificados"
+      ],
+      "geradoEm": "2026-08-27T23:41:15.337Z"
+    }
+  ]
+}

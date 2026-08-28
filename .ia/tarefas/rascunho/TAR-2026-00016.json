@@ -1,0 +1,75 @@
+{
+  "id": "TAR-2026-00016",
+  "titulo": "Verificar integridade dos dados .ia/",
+  "descricao": "Auditar a consistência dos arquivos JSON em .ia/. Verificar se schemas estão sendo respeitados, se não há dados órfãos, e se as referências entre entidades estão corretas.",
+  "objetivo": "Garantir a integridade e consistência dos dados do projeto",
+  "tipo": "auditoria",
+  "estado": "RASCUNHO",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "analista-banco-dados",
+  "dominio": "banco-dados",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    ".ia/**/*.json"
+  ],
+  "arquivosProibidos": [
+    "backend/**/*.ts",
+    "frontend/**/*.js"
+  ],
+  "contextoNecessario": [
+    "Estrutura .ia/",
+    "Schemas Zod do backend"
+  ],
+  "criteriosAceitacao": [
+    "Relatório de integridade gerado",
+    "Dados órfãos identificados",
+    "Referências inválidas documentadas",
+    "Recomendações de correção listadas"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [
+    "Dados corrompidos podem existir sem detecção"
+  ],
+  "restricoes": [
+    "Não modificar dados sem autorização",
+    "Não excluir arquivos sem backup"
+  ],
+  "condicoesDeParada": [
+    "Dados críticos corrompidos encontrados",
+    "Backup não disponível"
+  ],
+  "criteriosConclusao": [],
+  "tags": [
+    "integridade",
+    "auditoria",
+    "dados"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T23:23:48.326Z",
+    "criadoEm": "2026-08-27T23:23:48.326Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T23:23:48.326Z",
+    "atualizadaEm": "2026-08-27T23:23:48.326Z",
+    "conclusao": null
+  }
+}

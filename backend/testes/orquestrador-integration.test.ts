@@ -7,6 +7,7 @@ import { ProjetoService } from '../src/servicios/ProjetoService';
 import { MonitoramentoService } from '../src/servicios/MonitoramentoService';
 import { SchemaValidator } from '../src/validacao/SchemaValidator';
 import { loadSettings } from '../src/config';
+import { criarServicos } from '../src/api/middleware';
 
 async function request(options: { hostname: string; port: number; path: string; method?: string; body?: any }): Promise<{ status: number; data: any }> {
   return new Promise((resolve, reject) => {
@@ -192,15 +193,17 @@ describe('Orquestrador API — testes de integração', () => {
     excluir: () => ({ sucesso: true })
   };
   const monitoramento = new MonitoramentoService(fsMock as any, null as any, null as any);
-  const app = createApp(() => monitoramento);
+  const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
+  const validator = new SchemaValidator(esquemasPath);
+  const projetoService = new ProjetoService(validator);
+  const projetoResult = projetoService.abrirProjeto(projectRoot);
+  if (!projetoResult.sucesso || !projetoResult.dados) {
+    throw new Error('[test] falha ao abrir projeto: ' + (projetoResult.erro || 'unknown'));
+  }
+  const servicos = criarServicos(projetoResult.dados);
+  const app = createApp(servicos, projetoService);
   const server = app.listen(PORTA, async () => {
-    const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
-    const validator = new SchemaValidator(esquemasPath);
-    const projetoService = new ProjetoService(validator);
-    const projetoResult = projetoService.abrirProjeto(projectRoot);
-    if (projetoResult.sucesso) {
-      console.log(`[test] Projeto de teste aberto em http://localhost:${PORTA}`);
-    }
+    console.log(`[test] Projeto de teste aberto em http://localhost:${PORTA}`);
   });
 
   afterAll(() => {
@@ -216,30 +219,11 @@ describe('Orquestrador API — testes de integração', () => {
     expect(data.dados.logsRecentes).toBeDefined();
   });
 
-  test('POST /api/orquestrador/dispatch sem body retorna 400', async () => {
-    const { status, data } = await request({ hostname: '127.0.0.1', port: PORTA, path: '/api/orquestrador/dispatch', method: 'POST', body: {} });
+  test('POST /api/orquestrador/handoffs/auto sem tarefaId retorna 400', async () => {
+    const { status, data } = await request({ hostname: '127.0.0.1', port: PORTA, path: '/api/orquestrador/handoffs/auto', method: 'POST', body: {} });
     expect(status).toBe(400);
     expect(data.sucesso).toBe(false);
-  });
-
-  test('POST /api/orquestrador/dispatch com tarefa inexistente retorna erro', async () => {
-    const { status, data } = await request({
-      hostname: '127.0.0.1',
-      port: PORTA,
-      path: '/api/orquestrador/dispatch',
-      method: 'POST',
-      body: { tarefaId: 'TAR-9999', mensagem: 'teste', dir: projectRoot }
-    });
-    expect(status).toBe(400);
-    expect(data.sucesso).toBe(false);
-    expect(data.codigoErro).toBe('TASK_NOT_FOUND');
-  });
-
-  test('POST /api/orquestrador/recuperar retorna status de recuperação', async () => {
-    const { status, data } = await request({ hostname: '127.0.0.1', port: PORTA, path: '/api/orquestrador/recuperar', method: 'POST' });
-    expect(status).toBe(200);
-    expect(data.sucesso).toBe(true);
-    expect(data.dados.daemonsVerificados).toBeDefined();
+    expect(data.codigoErro).toBe('MISSING_FIELDS');
   });
 
   test('PUT /api/orquestrador/instancias/:id/modo sem modo retorna 400', async () => {

@@ -6,6 +6,7 @@ import { createApp } from '../src/app';
 import { ProjetoService } from '../src/servicios/ProjetoService';
 import { MonitoramentoService } from '../src/servicios/MonitoramentoService';
 import { SchemaValidator } from '../src/validacao/SchemaValidator';
+import { criarServicos } from '../src/api/middleware';
 
 async function request(options: { hostname: string; port: number; path: string; method?: string; body?: any }): Promise<{ status: number; data: any }> {
   return new Promise((resolve, reject) => {
@@ -101,10 +102,14 @@ describe('Integridade API — CRUD de regras e verificação', () => {
     const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
     const validator = new SchemaValidator(esquemasPath);
     const monitoramento = new MonitoramentoService(fileService, auditoria, validator);
-    const app = createApp(() => monitoramento);
+    const projetoService = new ProjetoService(validator);
+    const projetoResult = projetoService.abrirProjeto(projectRoot);
+    if (!projetoResult.sucesso || !projetoResult.dados) {
+      throw new Error('[test] falha ao abrir projeto: ' + (projetoResult.erro || 'unknown'));
+    }
+    const servicos = criarServicos(projetoResult.dados);
+    const app = createApp(servicos, projetoService);
     server = app.listen(PORTA, async () => {
-      const res = await request({ hostname: '127.0.0.1', port: PORTA, path: `/api/projetos/${encodeURIComponent(projectRoot)}/abrir`, method: 'POST', body: {} });
-      if (!res.data.sucesso) console.error('[test] falha ao abrir projeto:', res.data);
       done();
     });
   });

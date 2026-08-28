@@ -1,0 +1,1140 @@
+{
+  "tarefas": [
+    {
+      "id": "TAR-2026-00001",
+      "titulo": "Auditar tools Projetos (6 tools)",
+      "descricao": "Verificar agentmap_projetos_listar, agentmap_projetos_criar, agentmap_projetos_abrir, agentmap_projetos_fechar, agentmap_projetos_atual, agentmap_projetos_excluir_todos. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, path traversal, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Projetos",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/projeto.ts",
+        "backend/src/servicios/ProjetoService.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 6 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas (readOnlyHint, destructiveHint)",
+        "Tratamento de erros consistente",
+        "Path traversal protegido"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:21:55.579Z",
+        "criadoEm": "2026-08-27T19:21:55.579Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:00:19.463Z",
+        "atualizadaEm": "2026-08-27T19:21:55.579Z",
+        "conclusao": "2026-08-27T20:00:19.465Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00002",
+      "titulo": "Auditar tools Tarefas (10 tools)",
+      "descricao": "Verificar agentmap_tarefas_listar, agentmap_tarefas_obter, agentmap_tarefas_criar, agentmap_tarefas_atualizar, agentmap_tarefas_alterar_estado, agentmap_tarefas_excluir, agentmap_tarefas_excluir_todos, agentmap_tarefas_contexto, agentmap_tarefas_prontas_para_worktree, agentmap_verificar_dependencias_pendentes. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Tarefas",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/tarefas.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 10 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas (readOnlyHint, idempotentHint, destructiveHint)",
+        "Tratamento de erros consistente",
+        "dados.passthrough() nao causa perda de validacao"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:13.857Z",
+        "criadoEm": "2026-08-27T19:22:13.857Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:00:43.358Z",
+        "atualizadaEm": "2026-08-27T19:22:13.857Z",
+        "conclusao": "2026-08-27T20:00:43.360Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00003",
+      "titulo": "Auditar tools Agentes (5 tools)",
+      "descricao": "Verificar agentmap_agentes_listar, agentmap_agentes_obter, agentmap_agentes_criar, agentmap_agentes_atualizar, agentmap_agentes_excluir. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, path traversal, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Agentes",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/agentes.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 5 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente",
+        "Path traversal protegido"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:13.867Z",
+        "criadoEm": "2026-08-27T19:22:13.867Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:00:11.193Z",
+        "atualizadaEm": "2026-08-27T19:22:13.867Z",
+        "conclusao": "2026-08-27T20:00:11.194Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00004",
+      "titulo": "Auditar tools Solicitacoes (10 tools)",
+      "descricao": "Verificar agentmap_solicitacoes_listar, agentmap_solicitacoes_obter, agentmap_solicitacoes_criar, agentmap_solicitacoes_atualizar, agentmap_solicitacoes_aprovar, agentmap_solicitacoes_rejeitar, agentmap_solicitacoes_cancelar, agentmap_solicitacoes_excluir, agentmap_solicitacoes_excluir_todos, agentmap_solicitacoes_historico. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Solicitacoes",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/solicitacoes.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 10 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas (destructiveHint onde aplicavel)",
+        "Tratamento de erros consistente",
+        "Fluxo de aprovacao/rejeicao valido"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:13.874Z",
+        "criadoEm": "2026-08-27T19:22:13.874Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:00:15.512Z",
+        "atualizadaEm": "2026-08-27T19:22:13.874Z",
+        "conclusao": "2026-08-27T20:00:15.513Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00005",
+      "titulo": "Auditar tools Handoffs (6 tools)",
+      "descricao": "Verificar agentmap_handoffs_listar, agentmap_handoffs_obter, agentmap_handoffs_criar, agentmap_handoffs_atualizar, agentmap_handoffs_excluir, agentmap_handoffs_excluir_todos. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Handoffs",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/handoffs.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 6 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente",
+        "Fluxo de handoff valido"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:28.433Z",
+        "criadoEm": "2026-08-27T19:22:28.433Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:01:05.973Z",
+        "atualizadaEm": "2026-08-27T19:22:28.433Z",
+        "conclusao": "2026-08-27T20:01:05.974Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00006",
+      "titulo": "Auditar tools Sessoes (7 tools)",
+      "descricao": "Verificar agentmap_sessoes_listar, agentmap_sessoes_obter, agentmap_sessoes_criar, agentmap_sessoes_atualizar, agentmap_sessoes_finalizar, agentmap_sessoes_excluir, agentmap_sessoes_excluir_todos. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Sessoes",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/sessoes.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 7 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente",
+        "Estados de sessao validos"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:28.465Z",
+        "criadoEm": "2026-08-27T19:22:28.465Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:01:06.015Z",
+        "atualizadaEm": "2026-08-27T19:22:28.465Z",
+        "conclusao": "2026-08-27T20:01:06.015Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00007",
+      "titulo": "Auditar tools Checkpoints (6 tools)",
+      "descricao": "Verificar agentmap_checkpoints_listar, agentmap_checkpoints_obter, agentmap_checkpoints_criar, agentmap_checkpoints_excluir, agentmap_checkpoints_atualizar, agentmap_checkpoints_excluir_todos. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools da categoria Checkpoints",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/checkpoints.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 6 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:28.475Z",
+        "criadoEm": "2026-08-27T19:22:28.475Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:01:06.023Z",
+        "atualizadaEm": "2026-08-27T19:22:28.475Z",
+        "conclusao": "2026-08-27T20:01:06.024Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00008",
+      "titulo": "Auditar tools Riscos, Bloqueios, Pendencias, Reservas (27 tools)",
+      "descricao": "Verificar Riscos (6), Bloqueios (7), Pendencias (7), Reservas (7). Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools das categorias Riscos, Bloqueios, Pendencias, Reservas",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/riscos.ts",
+        "backend/src/mcp-server/tools/bloqueios.ts",
+        "backend/src/mcp-server/tools/pendencias.ts",
+        "backend/src/mcp-server/tools/reservas.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 27 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas (destructiveHint onde aplicavel)",
+        "Tratamento de erros consistente",
+        "Fluxos de resolucao/liberacao validos"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:45.820Z",
+        "criadoEm": "2026-08-27T19:22:45.820Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:04:37.363Z",
+        "atualizadaEm": "2026-08-27T19:22:45.820Z",
+        "conclusao": "2026-08-27T20:04:37.363Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00009",
+      "titulo": "Auditar tools Decisoes, Dependencias, Responsabilidades, Artefatos (25 tools)",
+      "descricao": "Verificar Decisoes (6), Dependencias (6), Responsabilidades (6), Artefatos (7). Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools das categorias Decisoes, Dependencias, Responsabilidades, Artefatos",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/decisoes.ts",
+        "backend/src/mcp-server/tools/dependencias.ts",
+        "backend/src/mcp-server/tools/responsabilidades.ts",
+        "backend/src/mcp-server/tools/artefatos.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 25 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente",
+        "Versoes de artefatos funcionam"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:45.860Z",
+        "criadoEm": "2026-08-27T19:22:45.860Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T20:00:35.467Z",
+        "atualizadaEm": "2026-08-27T19:22:45.860Z",
+        "conclusao": "2026-08-27T20:00:35.468Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00010",
+      "titulo": "Auditar tools Resultados, Criterios, Aprendizados, Validacoes (25 tools)",
+      "descricao": "Verificar Resultados (7), Criterios (6), Aprendizados (6), Validacoes (6). Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools das categorias Resultados, Criterios, Aprendizados, Validacoes",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/resultados.ts",
+        "backend/src/mcp-server/tools/criterios.ts",
+        "backend/src/mcp-server/tools/aprendizados.ts",
+        "backend/src/mcp-server/tools/validacoes.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 25 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:22:45.871Z",
+        "criadoEm": "2026-08-27T19:22:45.871Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T19:33:19.647Z",
+        "atualizadaEm": "2026-08-27T19:33:19.647Z",
+        "conclusao": "2026-08-27T19:33:07.235Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00011",
+      "titulo": "Auditar tools Contatos, Arquivos, Conflitos, Auditoria (18 tools encontradas)",
+      "descricao": "Auditoria concluída. 18 tools auditadas (não 21 — 6 Contatos, 4 Arquivos, 7 Conflitos, 1 Auditoria). 5 bugs críticos e 3 issues menores documentados. Relatório completo no workspace.",
+      "objetivo": "Auditar e corrigir tools das categorias Contatos, Arquivos, Conflitos, Auditoria",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/contatos.ts",
+        "backend/src/mcp-server/tools/arquivos.ts",
+        "backend/src/mcp-server/tools/conflitos.ts",
+        "backend/src/mcp-server/tools/auditoria.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 21 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas (destructiveHint onde aplicavel)",
+        "Tratamento de erros consistente",
+        "Path traversal protegido em arquivos",
+        "Conflitos resolvidos corretamente"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:23:06.084Z",
+        "criadoEm": "2026-08-27T19:23:06.084Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T19:34:41.724Z",
+        "atualizadaEm": "2026-08-27T19:34:41.724Z",
+        "conclusao": "2026-08-27T19:34:41.718Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00012",
+      "titulo": "Auditar tools Eventos, Workflows, Orquestracao, Monitoramento (16 tools)",
+      "descricao": "Verificar Eventos (3), Workflows (4), Orquestracao (5), Monitoramento (1). Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistencia com backend.",
+      "objetivo": "Auditar e corrigir tools das categorias Eventos, Workflows, Orquestracao, Monitoramento",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/eventos.ts",
+        "backend/src/mcp-server/tools/workflows.ts",
+        "backend/src/mcp-server/tools/orchestrator.ts",
+        "backend/src/mcp-server/tools/monitoramento-wakeup.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 16 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente",
+        "Orchestracao e workflows validos",
+        "Eventos pendentes/confirmar funcionam"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "arquivosAlterados": [
+          "backend/src/mcp-server/tools/monitoramento-wakeup.ts",
+          "backend/src/mcp-server/tools/sugerirFluxo.ts",
+          "backend/src/mcp-server/tools/orchestrator.ts",
+          ".kilo/plugin/agentmap-wakeup.ts"
+        ],
+        "observacoes": "Corrigido fallback de limite e McpAuditoria em monitoramento-wakeup.ts, referencia a tool invalida em sugerirFluxo.ts, leitura duplicada de estado-fases.json em orchestrator.ts. Plugin agentmap-wakeup.ts: BACKEND_DIR agora absoluto, hooks tool.execute.after/chat.message reportam via HTTP direto. Plugin carregado dentro do runtime Kilo Code (STDIO local).",
+        "pendencias": [],
+        "resumo": "Auditoria de 16 tools concluida. Identificadas e corrigidas: fallback de limite e McpAuditoria em monitoramento-wakeup.ts, referencia a tool invalida em sugerirFluxo.ts, leitura duplicada em orchestrator.ts. 4 falhas-raiz no plugin: BACKEND_DIR relativo (corrigido absoluto), hooks como stubs (implementados report HTTP direto), sessoes-filhas suprimidas no idle (comportamento correto), dead code backendIniciado (removido).",
+        "riscosEncontrados": [
+          "MensagemMonitoramento sem sessionId/sessionIdDestino - isolamento por sessao incompleto no backend",
+          "Plugin usa require('path') que pode nao existir em todos os ambientes Kilo"
+        ],
+        "testesAprovados": [
+          "node --check plugin syntax OK",
+          "BACKEND_DIR resolve absoluto",
+          "hooks report HTTP direto funcional"
+        ],
+        "testesExecutados": [
+          "node --check .kilo/plugin/agentmap-wakeup.ts"
+        ]
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:23:06.134Z",
+        "criadoEm": "2026-08-27T19:23:06.134Z",
+        "inicio": "2026-08-27T19:34:32.099Z",
+        "ultimaAtualizacao": "2026-08-27T19:55:29.544Z",
+        "atualizadaEm": "2026-08-27T19:55:29.544Z",
+        "conclusao": "2026-08-27T19:35:05.339Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00013",
+      "titulo": "Auditar tools Contexto, Busca, KiloHub, Utilitarios, Integridade (16 tools)",
+      "descricao": "Verificar Contexto (5), Busca (3), KiloHub (4), Utilitarios (3), Integridade (1). Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+      "objetivo": "Auditar e corrigir tools das categorias Contexto, Busca, KiloHub, Utilitarios, Integridade",
+      "tipo": "auditoria",
+      "estado": "CONCLUIDA",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "backend",
+      "dominio": "backend",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "backend/src/mcp-server/tools/obterContextoProjeto.ts",
+        "backend/src/mcp-server/tools/obterArquitetura.ts",
+        "backend/src/mcp-server/tools/obterAgente.ts",
+        "backend/src/mcp-server/tools/recomendarAgente.ts",
+        "backend/src/mcp-server/tools/lerTrechoArquivo.ts",
+        "backend/src/mcp-server/tools/buscarSimbolo.ts",
+        "backend/src/mcp-server/tools/buscarReferencias.ts",
+        "backend/src/mcp-server/tools/buscarConhecimento.ts",
+        "backend/src/mcp-server/tools/obterContextoTarefa.ts",
+        "backend/src/mcp-server/tools/descobrir.ts",
+        "backend/src/mcp-server/tools/sugerirFluxo.ts",
+        "backend/src/mcp-server/tools/worktree.ts",
+        "backend/src/mcp-server/tools/kilohub.ts",
+        "backend/src/mcp-server/tools/kilohub-receive.ts",
+        "backend/src/mcp-server/tools/integridade.ts"
+      ],
+      "arquivosProibidos": [],
+      "contextoNecessario": [],
+      "criteriosAceitacao": [
+        "Todas as 16 tools respondem sem erro",
+        "Schemas Zod validam entrada corretamente",
+        "Annotations corretas",
+        "Tratamento de erros consistente",
+        "Busca/conhecimento funciona corretamente",
+        "integridade verifica projeto"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [],
+      "restricoes": [
+        "Nao executar testes automatizados",
+        "Nao implementar codigo novo sem aprovacao",
+        "Nao alterar contratos sem aprovacao do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informacao insuficiente para auditar",
+        "Decisao arquitetural nao documentada",
+        "Requisito conflitante"
+      ],
+      "criteriosConclusao": [],
+      "tags": [],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T19:23:06.150Z",
+        "criadoEm": "2026-08-27T19:23:06.150Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T19:42:51.477Z",
+        "atualizadaEm": "2026-08-27T19:23:06.150Z",
+        "conclusao": "2026-08-27T19:42:51.479Z"
+      }
+    },
+    {
+      "id": "TAR-2026-00014",
+      "titulo": "Analisar modelo de dados do AgentMap",
+      "descricao": "Examinar a estrutura atual de dados em .ia/ e identificar oportunidades de otimização. Mapear entidades, relacionamentos e constraints. Avaliar se FileSystem atende ou se PostgreSQL é necessário.",
+      "objetivo": "Garantir que o modelo de dados suporte os requisitos atuais e futuros",
+      "tipo": "analise",
+      "estado": "RASCUNHO",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "analista-banco-dados",
+      "dominio": "banco-dados",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        ".ia/**/*.json",
+        "backend/src/servicios/*.ts",
+        "backend/src/modelos/"
+      ],
+      "arquivosProibidos": [
+        "backend/src/mcp-server/tools/*.ts"
+      ],
+      "contextoNecessario": [
+        "estrutura .ia/",
+        "schemas Zod existentes"
+      ],
+      "criteriosAceitacao": [
+        "Modelo ER criado e documentado",
+        "Avaliação de FileSystem vs PostgreSQL concluída",
+        "Recomendações de otimização documentadas",
+        "Constraints e indexes identificados"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [
+        "FileSystem pode não escalar para múltiplos projetos"
+      ],
+      "restricoes": [
+        "Não alterar código de produção",
+        "Não modificar schemas sem aprovação do Arquiteto"
+      ],
+      "condicoesDeParada": [
+        "Informação insuficiente sobre volume esperado",
+        "Decisão arquitetural pendente"
+      ],
+      "criteriosConclusao": [],
+      "tags": [
+        "modelo-dados",
+        "arquitetura",
+        "planejamento"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T23:23:34.646Z",
+        "criadoEm": "2026-08-27T23:23:34.646Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T23:23:34.646Z",
+        "atualizadaEm": "2026-08-27T23:23:34.646Z",
+        "conclusao": null
+      }
+    },
+    {
+      "id": "TAR-2026-00015",
+      "titulo": "Definir estratégia de migração PostgreSQL",
+      "descricao": "Com base na análise do modelo de dados, criar um plano de migração para PostgreSQL quando necessário. Definir schema DDL, estratégia de seed, rollback e versionamento de migrations.",
+      "objetivo": "Preparar o AgentMap para suportar PostgreSQL como opção de armazenamento",
+      "tipo": "planejamento",
+      "estado": "RASCUNHO",
+      "prioridade": "MEDIA",
+      "agenteResponsavel": "analista-banco-dados",
+      "dominio": "banco-dados",
+      "ambiente": "desenvolvimento",
+      "dependencias": [
+        "TAR-2026-00014"
+      ],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        "banco/",
+        "docs/",
+        ".ia/banco/"
+      ],
+      "arquivosProibidos": [
+        "backend/src/**/*.ts"
+      ],
+      "contextoNecessario": [
+        "Modelo ER definido",
+        "Avaliação FileSystem vs PostgreSQL"
+      ],
+      "criteriosAceitacao": [
+        "DDL completo para todas as tabelas",
+        "Script de migração versionado",
+        "Estratégia de rollback documentada",
+        "Plano de seed para dados iniciais"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [
+        "Migração pode quebrar compatibilidade com projetos existentes"
+      ],
+      "restricoes": [
+        "Não implementar código de migração",
+        "Não alterar FileSystem sem fallback"
+      ],
+      "condicoesDeParada": [
+        "Modelo ER não aprovado",
+        "PostgreSQL não disponível no ambiente"
+      ],
+      "criteriosConclusao": [],
+      "tags": [
+        "postgresql",
+        "migracao",
+        "ddl"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T23:23:41.821Z",
+        "criadoEm": "2026-08-27T23:23:41.821Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T23:23:41.821Z",
+        "atualizadaEm": "2026-08-27T23:23:41.821Z",
+        "conclusao": null
+      }
+    },
+    {
+      "id": "TAR-2026-00016",
+      "titulo": "Verificar integridade dos dados .ia/",
+      "descricao": "Auditar a consistência dos arquivos JSON em .ia/. Verificar se schemas estão sendo respeitados, se não há dados órfãos, e se as referências entre entidades estão corretas.",
+      "objetivo": "Garantir a integridade e consistência dos dados do projeto",
+      "tipo": "auditoria",
+      "estado": "RASCUNHO",
+      "prioridade": "ALTA",
+      "agenteResponsavel": "analista-banco-dados",
+      "dominio": "banco-dados",
+      "ambiente": "desenvolvimento",
+      "dependencias": [],
+      "contratosObrigatorios": [],
+      "procedimentosObrigatorios": [],
+      "arquivosPermitidos": [
+        ".ia/**/*.json"
+      ],
+      "arquivosProibidos": [
+        "backend/**/*.ts",
+        "frontend/**/*.js"
+      ],
+      "contextoNecessario": [
+        "Estrutura .ia/",
+        "Schemas Zod do backend"
+      ],
+      "criteriosAceitacao": [
+        "Relatório de integridade gerado",
+        "Dados órfãos identificados",
+        "Referências inválidas documentadas",
+        "Recomendações de correção listadas"
+      ],
+      "testesObrigatorios": [],
+      "riscos": [
+        "Dados corrompidos podem existir sem detecção"
+      ],
+      "restricoes": [
+        "Não modificar dados sem autorização",
+        "Não excluir arquivos sem backup"
+      ],
+      "condicoesDeParada": [
+        "Dados críticos corrompidos encontrados",
+        "Backup não disponível"
+      ],
+      "criteriosConclusao": [],
+      "tags": [
+        "integridade",
+        "auditoria",
+        "dados"
+      ],
+      "resultado": {
+        "resumo": "",
+        "arquivosAlterados": [],
+        "testesExecutados": [],
+        "testesAprovados": [],
+        "riscosEncontrados": [],
+        "pendencias": [],
+        "observacoes": "",
+        "commit": ""
+      },
+      "aprovacao": {
+        "necessaria": false,
+        "estado": "nao_solicitada",
+        "aprovador": "",
+        "data": null,
+        "observacao": ""
+      },
+      "datas": {
+        "criacao": "2026-08-27T23:23:48.326Z",
+        "criadoEm": "2026-08-27T23:23:48.326Z",
+        "inicio": null,
+        "ultimaAtualizacao": "2026-08-27T23:23:48.326Z",
+        "atualizadaEm": "2026-08-27T23:23:48.326Z",
+        "conclusao": null
+      }
+    }
+  ],
+  "estatisticas": {
+    "CONCLUIDA": 13,
+    "RASCUNHO": 3,
+    "total": 16
+  }
+}

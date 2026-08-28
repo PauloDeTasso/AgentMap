@@ -2,14 +2,12 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import path from 'path';
 import { setupRotas } from './api';
-import { ProjetoService } from './servicios/ProjetoService';
 import { SchemaValidator } from './validacao/SchemaValidator';
 import { loadSettings } from './config';
 import { corsService } from './servicios/CorsService';
 import { httpRequestMiddleware } from './observability/http-tracing';
-import { MonitoramentoService } from './servicios/MonitoramentoService';
-
-type GetMonitoramentoAtual = () => MonitoramentoService | null;
+import { Servicos } from './api/middleware';
+import { ProjetoService } from './servicios/ProjetoService';
 
 function securityHeaders(req: express.Request, res: express.Response, next: express.NextFunction) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -20,7 +18,12 @@ function securityHeaders(req: express.Request, res: express.Response, next: expr
   next();
 }
 
-export function createApp(getMonitoramentoAtual: GetMonitoramentoAtual): Application {
+/**
+ * Cria a aplicação Express com serviços singleton.
+ * Os serviços são criados uma vez na inicialização e compartilhados
+ * por todas as requisições via middleware.
+ */
+export function createApp(servicos: Servicos, projetoService: ProjetoService): Application {
   const app: Application = express();
   const settings = loadSettings();
 
@@ -54,10 +57,6 @@ export function createApp(getMonitoramentoAtual: GetMonitoramentoAtual): Applica
     next();
   });
 
-  const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
-  const validator = new SchemaValidator(esquemasPath);
-  const projetoService = new ProjetoService(validator);
-
   const frontendPath = path.resolve(__dirname, '..', '..', 'frontend');
   app.use(express.static(frontendPath, {
     maxAge: 0,
@@ -71,8 +70,10 @@ export function createApp(getMonitoramentoAtual: GetMonitoramentoAtual): Applica
     }
   }));
 
-  app.use('/', setupRotas(projetoService, getMonitoramentoAtual));
+  // Setup rotas com serviços singleton
+  app.use('/', setupRotas(servicos, projetoService));
 
+  const esquemasPath = path.resolve(__dirname, '..', '..', 'esquemas');
   app.use('/esquemas', express.static(esquemasPath));
 
   app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
