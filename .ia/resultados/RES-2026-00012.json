@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00012",
+  "tarefaId": "TAR-2026-00005",
+  "execucaoId": 0,
+  "agenteId": "backend",
+  "resumo": "Auditoria concluída: 6 tools de handoffs, 7 de sessoes e 6 de checkpoints examinadas. Encontrados 4 bugs altos, 7 médios e 4 baixos. Principais issues: sessoes.ts sem outputSchema na maioria das tools, backend defaulta estadoFinal 'CONCLUIDA' inválido para sessoes, idempotentHint incorreto em atualizações, schemas Zod usando z.string() ao invés de z.enum() para estados/tipos, e registerTracedTool stripping outputSchema.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:01:05.962Z",
+    "atualizadaEm": "2026-08-27T20:01:05.962Z",
+    "concluidaEm": null
+  }
+}

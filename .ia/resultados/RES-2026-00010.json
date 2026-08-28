@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00010",
+  "tarefaId": "TAR-2026-00010",
+  "execucaoId": 0,
+  "agenteId": "analista-sistemas",
+  "resumo": "Auditoria concluída das 25 tools das categorias Resultados (7), Criterios (6), Aprendizados (6) e Validacoes (6). Encontrados: 1 bug crítico em runtime (agentmap_validacoes_criar com handler signature incorreta), 8 tools com outputSchema declarado inconsistente com o retorno real de toMcpStructured, 2 tools com cast desnecessário as any, 4 tools sem annotations, tipagem fraca de enums nos schemas Zod, e ausência de tools MCP para listarPorTarefa. Documentação completa gerada sem implementação de correções.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:00:51.392Z",
+    "atualizadaEm": "2026-08-27T20:00:51.392Z",
+    "concluidaEm": null
+  }
+}

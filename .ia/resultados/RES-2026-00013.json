@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00013",
+  "tarefaId": "TAR-2026-00006",
+  "execucaoId": 0,
+  "agenteId": "backend",
+  "resumo": "Auditoria concluída: 7 tools de sessoes examinadas. Encontrados 9 issues: todas as tools exceto excluir_todos faltam outputSchema, falta sessaoSchema no arquivo, quase todas faltam title/description/annotations, backend bug com estadoFinal 'CONCLUIDA' inválido, e inconsistência com API que enriquece dados.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:01:05.990Z",
+    "atualizadaEm": "2026-08-27T20:01:05.990Z",
+    "concluidaEm": null
+  }
+}

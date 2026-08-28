@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00016",
+  "tarefaId": "TAR-2026-00008",
+  "execucaoId": 0,
+  "agenteId": "analista-sistemas",
+  "resumo": "Auditoria concluida: 27 tools MCP examinados (Riscos:6, Bloqueios:7, Pendencias:7, Reservas:7). Verificados schemas Zod, outputSchema, annotations, tratamento de erros e fluxos de resolucao. Bugs: (1) outputSchema removido em registerTracedTool - 27 tools afetadas, (2) 9 tools com outputSchema incorreto, (3) 3 tools com idempotentHint incorreto, (4) agentmap_reservas_listar sem agenteId, (5) 2 typos em descriptions.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:04:37.354Z",
+    "atualizadaEm": "2026-08-27T20:04:37.354Z",
+    "concluidaEm": null
+  }
+}

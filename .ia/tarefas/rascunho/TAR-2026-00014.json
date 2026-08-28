@@ -1,0 +1,76 @@
+{
+  "id": "TAR-2026-00014",
+  "titulo": "Analisar modelo de dados do AgentMap",
+  "descricao": "Examinar a estrutura atual de dados em .ia/ e identificar oportunidades de otimização. Mapear entidades, relacionamentos e constraints. Avaliar se FileSystem atende ou se PostgreSQL é necessário.",
+  "objetivo": "Garantir que o modelo de dados suporte os requisitos atuais e futuros",
+  "tipo": "analise",
+  "estado": "RASCUNHO",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "analista-banco-dados",
+  "dominio": "banco-dados",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    ".ia/**/*.json",
+    "backend/src/servicios/*.ts",
+    "backend/src/modelos/"
+  ],
+  "arquivosProibidos": [
+    "backend/src/mcp-server/tools/*.ts"
+  ],
+  "contextoNecessario": [
+    "estrutura .ia/",
+    "schemas Zod existentes"
+  ],
+  "criteriosAceitacao": [
+    "Modelo ER criado e documentado",
+    "Avaliação de FileSystem vs PostgreSQL concluída",
+    "Recomendações de otimização documentadas",
+    "Constraints e indexes identificados"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [
+    "FileSystem pode não escalar para múltiplos projetos"
+  ],
+  "restricoes": [
+    "Não alterar código de produção",
+    "Não modificar schemas sem aprovação do Arquiteto"
+  ],
+  "condicoesDeParada": [
+    "Informação insuficiente sobre volume esperado",
+    "Decisão arquitetural pendente"
+  ],
+  "criteriosConclusao": [],
+  "tags": [
+    "modelo-dados",
+    "arquitetura",
+    "planejamento"
+  ],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T23:23:34.646Z",
+    "criadoEm": "2026-08-27T23:23:34.646Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T23:23:34.646Z",
+    "atualizadaEm": "2026-08-27T23:23:34.646Z",
+    "conclusao": null
+  }
+}

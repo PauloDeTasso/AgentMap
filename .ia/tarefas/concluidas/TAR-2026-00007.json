@@ -1,0 +1,65 @@
+{
+  "id": "TAR-2026-00007",
+  "titulo": "Auditar tools Checkpoints (6 tools)",
+  "descricao": "Verificar agentmap_checkpoints_listar, agentmap_checkpoints_obter, agentmap_checkpoints_criar, agentmap_checkpoints_excluir, agentmap_checkpoints_atualizar, agentmap_checkpoints_excluir_todos. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+  "objetivo": "Auditar e corrigir tools da categoria Checkpoints",
+  "tipo": "auditoria",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    "backend/src/mcp-server/tools/checkpoints.ts"
+  ],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "Todas as 6 tools respondem sem erro",
+    "Schemas Zod validam entrada corretamente",
+    "Annotations corretas",
+    "Tratamento de erros consistente"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [
+    "Nao executar testes automatizados",
+    "Nao implementar codigo novo sem aprovacao",
+    "Nao alterar contratos sem aprovacao do Arquiteto"
+  ],
+  "condicoesDeParada": [
+    "Informacao insuficiente para auditar",
+    "Decisao arquitetural nao documentada",
+    "Requisito conflitante"
+  ],
+  "criteriosConclusao": [],
+  "tags": [],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T19:22:28.475Z",
+    "criadoEm": "2026-08-27T19:22:28.475Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T20:01:06.023Z",
+    "atualizadaEm": "2026-08-27T19:22:28.475Z",
+    "conclusao": "2026-08-27T20:01:06.024Z"
+  }
+}

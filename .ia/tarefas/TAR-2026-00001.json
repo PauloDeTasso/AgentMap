@@ -1,0 +1,53 @@
+{
+  "id": "TAR-2026-00001",
+  "titulo": "T1 — Configurar ESLint + Prettier + Husky",
+  "descricao": "Substituir tslint (descontinuado) por ESLint + Prettier. Configurar regras de segurança, typescript e import. Integrar com pre-commit hooks via Husky + lint-staged.",
+  "objetivo": "Modernizar ferramenta de lint e garantir formatação consistente antes de refatorações",
+  "tipo": "tarefa-tecnica",
+  "estado": "RASCUNHO",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "engenheiro-software",
+  "dominio": "qualidade",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": ["contrato-projeto"],
+  "procedimentosObrigatorios": ["preparacao-engenheiro-software"],
+  "arquivosPermitidos": ["backend/.eslintrc.js", "backend/.prettierrc", "backend/.husky/"],
+  "arquivosProibidos": [],
+  "contextoNecessario": "Branch v0044, package.json atual, documentação de padrões de código",
+  "criteriosAceitacao": [
+    "ESLint com zero erros no código atual",
+    "Prettier configurado e aplicado",
+    "Husky + lint-staged funcionando em pre-commit",
+    "Comandos npm run lint e npm run format disponíveis"
+  ],
+  "testesObrigatorios": [
+    "npm run lint passa sem erros",
+    "npm run typecheck passa"
+  ],
+  "riscos": [
+    "Conflitos de formatação em arquivos existentes",
+    "Regras muito restritivas quebrando build existente"
+  ],
+  "restricoes": [
+    "Não alterar lógica de negócio",
+    "Manter compatibilidade com TypeScript 5.8+"
+  ],
+  "condicoesDeParada": [
+    "Conflito irreconciliável com regras existentes",
+    "Dependência circular com outra tarefa"
+  ],
+  "criteriosConclusao": [
+    "ESLint configurado com regras de segurança e TypeScript",
+    "Prettier configurado",
+    "Husky + lint-staged instalados e funcionando",
+    "Documentação atualizada"
+  ],
+  "resultado": null,
+  "aprovacao": "Pendente aprovação do Arquiteto",
+  "dataCriacao": "2026-08-27T23:19:00Z",
+  "ultimaAtualizacao": "2026-08-27T23:19:00Z",
+  "dataLimite": "2026-09-03T23:59:00Z",
+  "estimativaHoras": 4,
+  "tags": ["qualidade", "lint", "devops"]
+}

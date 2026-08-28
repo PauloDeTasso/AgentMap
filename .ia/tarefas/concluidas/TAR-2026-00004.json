@@ -1,0 +1,66 @@
+{
+  "id": "TAR-2026-00004",
+  "titulo": "Auditar tools Solicitacoes (10 tools)",
+  "descricao": "Verificar agentmap_solicitacoes_listar, agentmap_solicitacoes_obter, agentmap_solicitacoes_criar, agentmap_solicitacoes_atualizar, agentmap_solicitacoes_aprovar, agentmap_solicitacoes_rejeitar, agentmap_solicitacoes_cancelar, agentmap_solicitacoes_excluir, agentmap_solicitacoes_excluir_todos, agentmap_solicitacoes_historico. Validar schemas Zod, contratos, outputSchema, annotations, tratamento de erros, consistência com backend.",
+  "objetivo": "Auditar e corrigir tools da categoria Solicitacoes",
+  "tipo": "auditoria",
+  "estado": "CONCLUIDA",
+  "prioridade": "ALTA",
+  "agenteResponsavel": "backend",
+  "dominio": "backend",
+  "ambiente": "desenvolvimento",
+  "dependencias": [],
+  "contratosObrigatorios": [],
+  "procedimentosObrigatorios": [],
+  "arquivosPermitidos": [
+    "backend/src/mcp-server/tools/solicitacoes.ts"
+  ],
+  "arquivosProibidos": [],
+  "contextoNecessario": [],
+  "criteriosAceitacao": [
+    "Todas as 10 tools respondem sem erro",
+    "Schemas Zod validam entrada corretamente",
+    "Annotations corretas (destructiveHint onde aplicavel)",
+    "Tratamento de erros consistente",
+    "Fluxo de aprovacao/rejeicao valido"
+  ],
+  "testesObrigatorios": [],
+  "riscos": [],
+  "restricoes": [
+    "Nao executar testes automatizados",
+    "Nao implementar codigo novo sem aprovacao",
+    "Nao alterar contratos sem aprovacao do Arquiteto"
+  ],
+  "condicoesDeParada": [
+    "Informacao insuficiente para auditar",
+    "Decisao arquitetural nao documentada",
+    "Requisito conflitante"
+  ],
+  "criteriosConclusao": [],
+  "tags": [],
+  "resultado": {
+    "resumo": "",
+    "arquivosAlterados": [],
+    "testesExecutados": [],
+    "testesAprovados": [],
+    "riscosEncontrados": [],
+    "pendencias": [],
+    "observacoes": "",
+    "commit": ""
+  },
+  "aprovacao": {
+    "necessaria": false,
+    "estado": "nao_solicitada",
+    "aprovador": "",
+    "data": null,
+    "observacao": ""
+  },
+  "datas": {
+    "criacao": "2026-08-27T19:22:13.874Z",
+    "criadoEm": "2026-08-27T19:22:13.874Z",
+    "inicio": null,
+    "ultimaAtualizacao": "2026-08-27T20:00:15.512Z",
+    "atualizadaEm": "2026-08-27T19:22:13.874Z",
+    "conclusao": "2026-08-27T20:00:15.513Z"
+  }
+}

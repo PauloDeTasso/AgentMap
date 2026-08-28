@@ -1,0 +1,20 @@
+{
+  "id": "planejador-arquiteto-habilidades",
+  "nome": "Habilidades — Planejador / Arquiteto",
+  "agenteId": "planejador-arquiteto",
+  "conhecimentos": [
+    "Análise de requisitos",
+    "Arquitetura de software",
+    "Design patterns",
+    "Planejamento",
+    "Gestão de riscos",
+    "ADR"
+  ],
+  "ferramentas": [
+    "leitura",
+    "escrita",
+    "terminal",
+    "git"
+  ],
+  "atualizadoEm": "2026-08-25T15:26:39.327Z"
+}

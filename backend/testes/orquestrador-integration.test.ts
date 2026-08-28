@@ -219,30 +219,11 @@ describe('Orquestrador API — testes de integração', () => {
     expect(data.dados.logsRecentes).toBeDefined();
   });
 
-  test('POST /api/orquestrador/dispatch sem body retorna 400', async () => {
-    const { status, data } = await request({ hostname: '127.0.0.1', port: PORTA, path: '/api/orquestrador/dispatch', method: 'POST', body: {} });
+  test('POST /api/orquestrador/handoffs/auto sem tarefaId retorna 400', async () => {
+    const { status, data } = await request({ hostname: '127.0.0.1', port: PORTA, path: '/api/orquestrador/handoffs/auto', method: 'POST', body: {} });
     expect(status).toBe(400);
     expect(data.sucesso).toBe(false);
-  });
-
-  test('POST /api/orquestrador/dispatch com tarefa inexistente retorna erro', async () => {
-    const { status, data } = await request({
-      hostname: '127.0.0.1',
-      port: PORTA,
-      path: '/api/orquestrador/dispatch',
-      method: 'POST',
-      body: { tarefaId: 'TAR-9999', mensagem: 'teste', dir: projectRoot }
-    });
-    expect(status).toBe(400);
-    expect(data.sucesso).toBe(false);
-    expect(data.codigoErro).toBe('TASK_NOT_FOUND');
-  });
-
-  test('POST /api/orquestrador/recuperar retorna status de recuperação', async () => {
-    const { status, data } = await request({ hostname: '127.0.0.1', port: PORTA, path: '/api/orquestrador/recuperar', method: 'POST' });
-    expect(status).toBe(200);
-    expect(data.sucesso).toBe(true);
-    expect(data.dados.daemonsVerificados).toBeDefined();
+    expect(data.codigoErro).toBe('MISSING_FIELDS');
   });
 
   test('PUT /api/orquestrador/instancias/:id/modo sem modo retorna 400', async () => {

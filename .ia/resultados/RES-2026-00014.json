@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00014",
+  "tarefaId": "TAR-2026-00007",
+  "execucaoId": 0,
+  "agenteId": "backend",
+  "resumo": "Auditoria concluída: 6 tools de checkpoints examinadas. Encontrados 3 issues: checkpointSchema.tipo usa z.string() ao invés de z.enum(), inputSchema de criar excessivamente frouxo, e idempotentHint incorreto em atualizar. Estrutura geral correta e consistente com backend.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:01:06.004Z",
+    "atualizadaEm": "2026-08-27T20:01:06.004Z",
+    "concluidaEm": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "SES-2026-00001",
+  "agenteId": "backend",
+  "tarefaId": "TAR-2026-00011",
+  "projetoId": "audit-contatos-arquivos-conflitos-auditoria",
+  "contextoConsultado": {},
+  "registrosProduzidos": [],
+  "estadoFinal": "CONCLUIDA",
+  "datas": {
+    "inicio": "2026-08-27T20:00:29.859Z",
+    "criadoEm": "2026-08-27T20:00:29.859Z",
+    "fim": null
+  }
+}

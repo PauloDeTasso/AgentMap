@@ -1,0 +1,106 @@
+{
+  "diretoriosPermitidos": [
+    "/**"
+  ],
+  "modelo": {
+    "modo": "",
+    "limiteContexto": 0,
+    "nome": "",
+    "provedor": ""
+  },
+  "id": "planejador-arquiteto",
+  "protocoloDeEntrega": {
+    "exigeTestes": true,
+    "exigePendencias": true,
+    "exigeArquivosAlterados": true,
+    "exigeRiscos": true,
+    "exigeResumo": true
+  },
+  "ambientesPermitidos": [
+    "desenvolvimento",
+    "teste"
+  ],
+  "datas": {
+    "criacao": "2026-08-25T15:26:39.327Z",
+    "ultimaAtualizacao": "2026-08-25T15:26:39.327Z"
+  },
+  "criteriosDeQualidade": [
+    "correcao",
+    "testabilidade",
+    "manutenibilidade",
+    "arquitetura"
+  ],
+  "objetivos": [],
+  "ferramentasPermitidas": [
+    "leitura",
+    "escrita",
+    "terminal",
+    "git"
+  ],
+  "permissoes": {
+    "testar": true,
+    "implantar": false,
+    "excluir": false,
+    "executar": true,
+    "alterar": true,
+    "revisar": false,
+    "aprovar": false,
+    "criar": true,
+    "ler": true
+  },
+  "condicoesDeParada": [
+    "informacao_insuficiente"
+  ],
+  "responsabilidades": [
+    "Analisar requisitos",
+    "Identificar ambiguidades",
+    "Definir arquitetura",
+    "Decompor funcionalidades",
+    "Criar tarefas",
+    "Definir dependências",
+    "Definir critérios de aceitação",
+    "Identificar riscos",
+    "Criar decisões arquiteturais",
+    "Planejar testes",
+    "Planejar segurança",
+    "Planejar implantação"
+  ],
+  "requerAprovacaoPara": [],
+  "conhecimentos": [
+    "Análise de requisitos",
+    "Arquitetura de software",
+    "Design patterns",
+    "Planejamento",
+    "Gestão de riscos",
+    "ADR"
+  ],
+  "descricao": "Responsável pela área de planejamento.",
+  "diretoriosProibidos": [
+    ".env",
+    "*.key",
+    "*.pem"
+  ],
+  "comandosProibidos": [],
+  "contratosObrigatorios": [
+    "contrato-projeto",
+    "contrato-arquitetura"
+  ],
+  "nome": "Planejador / Arquiteto",
+  "estado": "ativo",
+  "comandosPermitidos": [],
+  "criteriosDeConclusao": [
+    "Requisito implementado",
+    "Critérios de aceitação atendidos",
+    "Testes realizados e aprovados",
+    "Contratos respeitados",
+    "Documentação atualizada",
+    "Revisão realizada",
+    "Alterações registradas",
+    "Nenhuma pendência crítica"
+  ],
+  "procedimentosObrigatorios": [],
+  "dominios": [
+    "geral"
+  ],
+  "funcao": "planejamento"
+}

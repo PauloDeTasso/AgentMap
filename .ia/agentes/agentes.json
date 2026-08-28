@@ -1,0 +1,109 @@
+{
+  "agentes": [
+    {
+      "id": "docs-api-01",
+      "nome": "Doc API",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/docs-api-01/docs-api-01.json"
+    },
+    {
+      "id": "docs-arq-01",
+      "nome": "Doc Arquitetura",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/docs-arq-01/docs-arq-01.json"
+    },
+    {
+      "id": "docs-comm-01",
+      "nome": "Doc Comunicacao",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/docs-comm-01/docs-comm-01.json"
+    },
+    {
+      "id": "docs-guia-01",
+      "nome": "Doc Guia",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/docs-guia-01/docs-guia-01.json"
+    },
+    {
+      "id": "docs-proc-01",
+      "nome": "Doc Processo",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/docs-proc-01/docs-proc-01.json"
+    },
+    {
+      "id": "docs-root-01",
+      "nome": "Doc Root",
+      "funcao": "atualizacao_docs",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/docs-root-01/docs-root-01.json"
+    },
+    {
+      "id": "planejador-arquiteto",
+      "nome": "Planejador / Arquiteto",
+      "funcao": "planejamento",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/planejador-arquiteto/planejador-arquiteto.json"
+    },
+    {
+      "id": "gerente-projeto",
+      "nome": "Gerente de Projeto",
+      "funcao": "gerenciamento",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/gerente-projeto/gerente-projeto.json"
+    },
+    {
+      "id": "analista-sistemas",
+      "nome": "Analista de Sistemas",
+      "funcao": "analise-tecnica",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/analista-sistemas/analista-sistemas.json"
+    },
+    {
+      "id": "analista-negocios",
+      "nome": "Analista de Negócios",
+      "funcao": "analise-negocios",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/analista-negocios/analista-negocios.json"
+    },
+    {
+      "id": "engenheiro-software",
+      "nome": "Engenheiro de Software",
+      "funcao": "engenharia",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/engenheiro-software/engenheiro-software.json"
+    },
+    {
+      "id": "analista-banco-dados",
+      "nome": "Analista de Banco de Dados",
+      "funcao": "banco-dados",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/analista-banco-dados/analista-banco-dados.json"
+    },
+    {
+      "id": "testador-qa",
+      "nome": "Testador/QA",
+      "funcao": "qualidade-testes",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/testador-qa/testador-qa.json"
+    },
+    {
+      "id": "documentador-tecnico",
+      "nome": "Documentador Técnico",
+      "funcao": "documentacao",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/documentador-tecnico/documentador-tecnico.json"
+    },
+    {
+      "id": "seguranca",
+      "nome": "Segurança",
+      "funcao": "seguranca",
+      "estado": "ativo",
+      "arquivoPerfil": ".ia/agentes/seguranca/seguranca.json"
+    }
+  ]
+}

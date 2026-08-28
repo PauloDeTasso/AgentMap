@@ -1,0 +1,21 @@
+{
+  "id": "RES-2026-00011",
+  "tarefaId": "TAR-2026-00004",
+  "execucaoId": 0,
+  "agenteId": "backend",
+  "resumo": "Auditoria concluida para solicitacoes.ts (10 tools). Encontrados: (1) outputSchema é removido por registerTracedTool (bug arquitetural), (2) idempotentHint incorreto em solicitacoes_atualizar, (3) outputSchema de boolean/number não reflete wrapper {data:...} do toMcpStructured, (4) falta outputSchema em listar, (5) validação Zod fraca (enums não usados), (6) filtragem client-side em listar, (7) observacao required no Zod mas optional no serviço. Nenhuma tool está quebrada. Fluxo de aprovação/rejeição válido. Path traversal protegido.",
+  "estado": "COMPLETO",
+  "arquivosAlterados": [],
+  "artefatos": [],
+  "testesExecutados": [],
+  "testesAprovados": [],
+  "riscosEncontrados": [],
+  "pendencias": [],
+  "alteracoesSolicitadas": [],
+  "observacoes": null,
+  "datas": {
+    "criadaEm": "2026-08-27T20:00:54.299Z",
+    "atualizadaEm": "2026-08-27T20:00:54.299Z",
+    "concluidaEm": null
+  }
+}
