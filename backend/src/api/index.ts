@@ -1,8 +1,8 @@
 ﻿import { Router, Request, Response } from 'express';
 import * as path from 'path';
-import { ProjetoService } from '../servicios/ProjetoService';
-import { projectMiddleware, asyncHandler, responder } from './middleware';
+import { servicesMiddleware, asyncHandler, responder, Servicos } from './middleware';
 import { criarProjetoRouter } from './projetos';
+import { ProjetoService } from '../servicios';
 import { criarAgenteRouter } from './agentes';
 import { criarTarefaRouter } from './tarefas';
 import { criarArquivoRouter } from './arquivos';
@@ -38,17 +38,19 @@ import { criarOrquestradorRouter } from './orquestrador';
 import { criarOrchestracaoRouter } from './orchestracao';
 import { criarObservabilidadeRouter } from './observabilidade';
 import { criarTempRouter } from './temp';
-import { GERENCIADOR_DIR } from '../config';
-
-type GetMonitoramentoAtual = (projetoId?: string) => Promise<any> | any;
-
 import { criarEstadoRouter } from './estado';
+import { ProjectRootResolver } from '../config';
 
-export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual: GetMonitoramentoAtual): Router {
+export function setupRotas(servicos: Servicos, projetoService: ProjetoService): Router {
   const router = Router();
 
+  // Middleware de injeção de serviços singleton
+  router.use(servicesMiddleware(servicos));
+
+  const projectRoot = ProjectRootResolver.resolve();
+
   router.get('/api/status', (_req: Request, res: Response) => {
-    res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0', gerenciadorDir: GERENCIADOR_DIR } });
+    res.status(200).json({ sucesso: true, dados: { status: 'online', versao: '1.0.0', projectRoot } });
   });
 
   router.use('/api/monitoramento', criarMonitoramentoRouter());
@@ -57,7 +59,7 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
 
   router.use('/api/observabilidade', criarObservabilidadeRouter());
 
-  router.get('/api/health', asyncHandler(async (req: Request, res: Response) => {
+  router.get('/api/health', asyncHandler(async (_req: Request, res: Response) => {
     return responder(res, { sucesso: true, dados: { status: 'healthy', timestamp: new Date().toISOString() } });
   }));
 
@@ -72,8 +74,6 @@ export function setupRotas(projetoService: ProjetoService, getMonitoramentoAtual
       }
     });
   }));
-
-  router.use('/api/*', projectMiddleware(projetoService));
 
   router.use('/api/temp', criarTempRouter());
 

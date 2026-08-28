@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { asyncHandler, responder } from './middleware';
 import { corsService } from '../servicios/CorsService';
-import { loadRegistroProjetos } from '../config';
+// Single-project mode: registro de projetos não é mais utilizado
 import { FileService } from '../arquivos/FileService';
 import { AuditoriaService } from '../servicios/AuditoriaService';
 
@@ -196,38 +196,9 @@ export function criarAdminRouter(): Router {
       }
     };
 
+    // Single-project mode: projetoId deve ser o projeto atual
     if (projetoId && projetoId !== projeto.id) {
-      const registro = loadRegistroProjetos();
-      const projRegistro = registro.projetos.find((p) => p.id === projetoId);
-      if (!projRegistro || !projRegistro.caminhoRaiz) {
-        return responder(res, { sucesso: false, erro: 'Projeto não encontrado no registro', codigoErro: 'PROJECT_NOT_FOUND' }, 404);
-      }
-
-      const getFilePath = (rel: string) => path.join(projRegistro.caminhoRaiz, '.ia', rel);
-
-      for (const pasta of pastasParaLimpar) {
-        const fullPath = getFilePath(pasta);
-        garantirPastaVazia(fullPath, pasta);
-        limparPasta(fullPath);
-        resultado.pastasLimpas.push(pasta);
-      }
-
-      for (const arquivo of arquivosParaLimpar) {
-        const fullPath = getFilePath(arquivo);
-        if (limparConteudoArquivo(fullPath)) {
-          resultado.arquivosLimpos.push(arquivo);
-        }
-      }
-
-      const fsService = new FileService(projRegistro.caminhoRaiz);
-      const auditoria = new AuditoriaService(fsService);
-      auditoria.registrar(
-        'ADMIN_LIMPEZA_OBSOLETOS',
-        `Limpeza de dados: ${resultado.pastasLimpas.length} pastas, ${resultado.arquivosLimpos.length} arquivos limpos`,
-        { projetoId: projetoId }
-      );
-
-      return responder(res, { sucesso: true, dados: resultado });
+      return responder(res, { sucesso: false, erro: 'Em single-project mode, só existe o projeto atual', codigoErro: 'INVALID_PROJECT' }, 400);
     }
 
       const getFilePath = (rel: string) => path.join(projeto.caminhoRaiz, '.ia', rel);

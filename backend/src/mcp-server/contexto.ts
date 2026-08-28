@@ -42,7 +42,7 @@ import { PhaseStateMachine } from 'servicios/PhaseStateMachine';
 import { CheckpointValidator } from 'servicios/CheckpointValidator';
 import { HandoffManager } from 'servicios/HandoffManager';
 import { globalEventBus } from './events/event-bus';
-import { GERENCIADOR_DIR } from 'config';
+import { ProjectRootResolver } from 'config';
 import * as path from 'path';
 
 export interface ProjetoContext {
@@ -125,6 +125,10 @@ export function montarServicos(projeto: ProjetoAberto): Servicos {
     };
   }
 
+/**
+ * Carrega contexto do projeto atual.
+ * Em single-project mode, usa o projeto aberto no service.
+ */
 export function carregarContexto(projetoService: ProjetoService): ResultadoOperacao<ProjetoContext> {
   const resultado = projetoService.getProjetoAtual();
   if (!resultado.sucesso) {
@@ -132,32 +136,11 @@ export function carregarContexto(projetoService: ProjetoService): ResultadoOpera
   }
   const projeto = resultado.dados;
   if (!projeto) {
-    try {
-      const gerenciadorResolvido = path.resolve(GERENCIADOR_DIR);
-      const fallback = projetoService.abrirProjeto(gerenciadorResolvido);
-      if (!fallback.sucesso || !fallback.dados) {
-        return {
-          sucesso: false,
-          erro: 'Nenhum projeto aberto e fallback para o AgentMap falhou.',
-          codigoErro: 'NO_PROJECT_OPEN',
-        };
-      }
-      const servicos = montarServicos(fallback.dados);
-      return {
-        sucesso: true,
-        dados: {
-          projetoId: fallback.dados.id,
-          projeto: fallback.dados,
-          servicos,
-        },
-      };
-    } catch (e) {
-      return {
-        sucesso: false,
-        erro: 'Nenhum projeto aberto. Abra ou crie um projeto primeiro.',
-        codigoErro: 'NO_PROJECT_OPEN',
-      };
-    }
+    return {
+      sucesso: false,
+      erro: 'Nenhum projeto aberto. Verifique se .ia/ existe no diretório raiz.',
+      codigoErro: 'NO_PROJECT_OPEN',
+    };
   }
 
   const servicos = montarServicos(projeto);
